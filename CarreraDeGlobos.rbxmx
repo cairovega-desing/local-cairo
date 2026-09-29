@@ -1,0 +1,3661 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Item class="Folder" referent="RBX00000015"><Properties><string name="Name">CarreraGlobos</string></Properties><Item class="ModuleScript" referent="RBX00000001"><Properties><string name="Name">Balloons</string><ProtectedString name="Source"><![CDATA[-- Crea globos. Los efectos de explosión (partículas, sonido, «+10») los dibuja
+-- cada cliente en UI.client.luau para que se vean fluidos.
+
+local CollectionService = game:GetService("CollectionService")
+
+local Config = require(script.Parent.Config)
+
+local Balloons = {}
+
+Balloons.TAG = "GloboCarrera" -- el cliente usa esta etiqueta para hacerlos flotar
+
+export type Options = {
+	size: number?,
+	color: Color3?,
+	golden: boolean?,
+	noString: boolean?,
+	noBob: boolean?, -- true si el servidor mueve este globo (el cliente no lo hace flotar)
+}
+
+function Balloons.create(parent: Instance, position: Vector3, opts: Options): Model
+	local size = opts.size or 3
+	local golden = opts.golden == true
+	local color = if golden
+		then Config.ColorDorado
+		else opts.color or Config.ColoresGlobo[math.random(#Config.ColoresGlobo)]
+
+	local model = Instance.new("Model")
+	model.Name = if golden then "GloboDorado" else "Globo"
+
+	local body = Instance.new("Part")
+	body.Name = "Cuerpo"
+	body.Size = Vector3.new(size, size * 1.2, size)
+	body.CFrame = CFrame.new(position)
+	body.Color = color
+	body.Material = if golden then Enum.Material.Neon else Enum.Material.SmoothPlastic
+	body.Reflectance = if golden then 0 else 0.12
+	body.Anchored = true
+	body.CanCollide = false
+	body.CanTouch = false
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.Sphere
+	mesh.Parent = body
+	body.Parent = model
+
+	if not opts.noString then
+		local knot = Instance.new("Part")
+		knot.Name = "Nudo"
+		knot.Size = Vector3.new(0.5, 0.4, 0.5)
+		knot.CFrame = CFrame.new(position - Vector3.new(0, size * 0.62, 0))
+		knot.Color = color
+		knot.Anchored = true
+		knot.CanCollide = false
+		knot.CanTouch = false
+		knot.CanQuery = false
+		knot.Parent = model
+
+		local thread = Instance.new("Part")
+		thread.Name = "Hilo"
+		thread.Size = Vector3.new(0.08, size * 0.7, 0.08)
+		thread.CFrame = CFrame.new(position - Vector3.new(0, size * 0.62 + size * 0.35, 0))
+		thread.Color = Color3.fromRGB(245, 245, 245)
+		thread.Material = Enum.Material.SmoothPlastic
+		thread.Anchored = true
+		thread.CanCollide = false
+		thread.CanTouch = false
+		thread.CanQuery = false
+		thread.Parent = model
+	end
+
+	if golden then
+		local light = Instance.new("PointLight")
+		light.Color = Config.ColorDorado
+		light.Range = 8
+		light.Brightness = 2
+		light.Parent = body
+	end
+
+	model.PrimaryPart = body
+	model:SetAttribute("Fase", math.random() * math.pi * 2)
+	if opts.noBob then
+		model:SetAttribute("SinFlotar", true)
+	end
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	CollectionService:AddTag(model, Balloons.TAG)
+	model.Parent = parent
+	return model
+end
+
+return Balloons
+]]></ProtectedString></Properties></Item><Item class="ScreenGui" referent="RBX00000003"><Properties><string name="Name">CarreraUI</string><bool name="ResetOnSpawn">false</bool></Properties><Item class="LocalScript" referent="RBX00000002"><Properties><string name="Name">UI</string><ProtectedString name="Source"><![CDATA[--[[
+	INTERFAZ Y EFECTOS DEL JUGADOR
+	Todo lo que hace que explotar globos se sienta bien: partículas, «+10»
+	flotantes, combos con notas musicales que suben, temblor de cámara,
+	carteles grandes, trampolines, tienda de estelas y títulos.
+]]
+
+local CollectionService = game:GetService("CollectionService")
+local ContentProvider = game:GetService("ContentProvider")
+local Debris = game:GetService("Debris")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+
+local gui = script.Parent :: ScreenGui
+local playerGui = gui.Parent :: Instance
+
+-- Evita que la interfaz exista dos veces
+for _, other in playerGui:GetChildren() do
+	if other ~= gui and other.Name == gui.Name and other:GetAttribute("Activa") then
+		gui:Destroy()
+		return
+	end
+end
+gui:SetAttribute("Activa", true)
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local player = Players.LocalPlayer
+local Config = require(ReplicatedStorage:WaitForChild("CarreraGlobosConfig") :: ModuleScript) :: any
+local remote = ReplicatedStorage:WaitForChild("CarreraGlobosEvento") :: RemoteEvent
+
+local FONT = Enum.Font.FredokaOne
+local WHITE = Color3.new(1, 1, 1)
+local GOLD = Color3.fromRGB(255, 205, 40)
+local GREEN = Color3.fromRGB(90, 255, 120)
+local PURPLE = Color3.fromRGB(200, 90, 255)
+local PINK = Color3.fromRGB(255, 110, 180)
+
+-- ════════════════════════════════════════════════════════════════════
+-- Utilidades de interfaz
+-- ════════════════════════════════════════════════════════════════════
+
+local function make(className: string, props: { [string]: any }, children: { Instance }?): any
+	local inst = Instance.new(className)
+	for key, value in props do
+		if key ~= "Parent" then
+			(inst :: any)[key] = value
+		end
+	end
+	for _, child in (children or {}) :: { Instance } do
+		child.Parent = inst
+	end
+	if props.Parent then
+		inst.Parent = props.Parent
+	end
+	return inst
+end
+
+local function corner(px: number)
+	return make("UICorner", { CornerRadius = UDim.new(0, px) })
+end
+
+local function stroke(thickness: number, color: Color3?)
+	return make("UIStroke", { Thickness = thickness, Color = color or Color3.new(0, 0, 0), Transparency = 0.2 })
+end
+
+local function label(props: { [string]: any }): TextLabel
+	props.BackgroundTransparency = props.BackgroundTransparency or 1
+	props.Font = FONT
+	props.TextScaled = true
+	props.TextColor3 = props.TextColor3 or WHITE
+	local l = make("TextLabel", props)
+	make("UIStroke", { Thickness = 2.5, Color = Color3.new(0, 0, 0), Transparency = 0.1, Parent = l })
+	return l
+end
+
+local function bump(scale: UIScale, amount: number?)
+	scale.Scale = amount or 1.3
+	TweenService:Create(scale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+end
+
+-- ════════════════════════════════════════════════════════════════════
+-- Pantalla
+-- ════════════════════════════════════════════════════════════════════
+
+local status = label({
+	Name = "Estado",
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.new(0.5, 0, 0, 64),
+	Size = UDim2.new(0.7, 0, 0, 38),
+	BackgroundTransparency = 0.35,
+	BackgroundColor3 = Color3.fromRGB(30, 20, 60),
+	Text = "",
+	Parent = gui,
+})
+corner(12).Parent = status
+make("UISizeConstraint", { MaxSize = Vector2.new(620, 38), Parent = status })
+
+local raceFrame = make("Frame", {
+	Name = "Carrera",
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.new(0.5, 0, 0, 60),
+	Size = UDim2.new(0, 360, 0, 70),
+	BackgroundColor3 = Color3.fromRGB(30, 20, 60),
+	BackgroundTransparency = 0.35,
+	Visible = false,
+	Parent = gui,
+}, { corner(12), make("UIListLayout", { Padding = UDim.new(0, 4), HorizontalAlignment = Enum.HorizontalAlignment.Center, VerticalAlignment = Enum.VerticalAlignment.Center }) })
+
+local hint = label({
+	Name = "Instruccion",
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.new(0.5, 0, 0, 136),
+	Size = UDim2.new(0.8, 0, 0, 32),
+	TextColor3 = Color3.fromRGB(255, 250, 170),
+	Text = "",
+	Visible = false,
+	Parent = gui,
+})
+make("UISizeConstraint", { MaxSize = Vector2.new(640, 32), Parent = hint })
+
+local counter = label({
+	Name = "Contador",
+	AnchorPoint = Vector2.new(0.5, 1),
+	Position = UDim2.new(0.5, 0, 1, -20),
+	Size = UDim2.new(0, 270, 0, 72),
+	BackgroundTransparency = 0.25,
+	BackgroundColor3 = Color3.fromRGB(30, 20, 60),
+	Text = "🎈 0 / 0",
+	Visible = false,
+	Parent = gui,
+})
+corner(18).Parent = counter
+local counterScale = make("UIScale", { Parent = counter })
+local counterBar = make("Frame", {
+	Name = "Barra",
+	AnchorPoint = Vector2.new(0, 1),
+	Position = UDim2.new(0, 10, 1, -6),
+	Size = UDim2.new(0, 0, 0, 6),
+	BackgroundColor3 = GREEN,
+	BorderSizePixel = 0,
+	Parent = counter,
+}, { corner(3) })
+
+local combo = label({
+	Name = "Combo",
+	AnchorPoint = Vector2.new(0.5, 1),
+	Position = UDim2.new(0.5, 0, 1, -100),
+	Size = UDim2.new(0, 320, 0, 48),
+	Text = "",
+	Visible = false,
+	Parent = gui,
+})
+local comboScale = make("UIScale", { Parent = combo })
+
+local points = label({
+	Name = "Puntos",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.new(1, -12, 0, 64),
+	Size = UDim2.new(0, 160, 0, 40),
+	TextColor3 = GOLD,
+	TextXAlignment = Enum.TextXAlignment.Right,
+	Text = "",
+	Visible = false,
+	Parent = gui,
+})
+local pointsScale = make("UIScale", { Parent = points })
+
+local bannerHolder = make("Frame", {
+	Name = "Cartel",
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.fromScale(0.5, 0.38),
+	Size = UDim2.fromScale(0.85, 0.24),
+	BackgroundTransparency = 1,
+	Visible = false,
+	Parent = gui,
+})
+local bannerScale = make("UIScale", { Parent = bannerHolder })
+local bannerTitle = label({ Size = UDim2.fromScale(1, 0.68), Text = "", Parent = bannerHolder })
+make("UISizeConstraint", { MaxSize = Vector2.new(900, 130), Parent = bannerTitle })
+local bannerSub = label({
+	Position = UDim2.fromScale(0, 0.7),
+	Size = UDim2.fromScale(1, 0.3),
+	Text = "",
+	TextColor3 = Color3.fromRGB(255, 250, 200),
+	Parent = bannerHolder,
+})
+
+local flashFrame = make("Frame", {
+	Name = "Destello",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ZIndex = 50,
+	Parent = gui,
+})
+
+local bannerToken = 0
+local function showBanner(text: string, color: Color3?, sub: string?, duration: number?)
+	bannerToken += 1
+	local token = bannerToken
+	bannerTitle.Text = text
+	bannerTitle.TextColor3 = color or WHITE
+	bannerSub.Text = sub or ""
+	for _, l in { bannerTitle, bannerSub } do
+		l.TextTransparency = 0
+		local s = l:FindFirstChildOfClass("UIStroke")
+		if s then
+			s.Transparency = 0.1
+		end
+	end
+	bannerHolder.Visible = true
+	bannerScale.Scale = 0.3
+	TweenService:Create(bannerScale, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	task.delay(duration or 1.6, function()
+		if token ~= bannerToken then
+			return
+		end
+		for _, l in { bannerTitle, bannerSub } do
+			TweenService:Create(l, TweenInfo.new(0.3), { TextTransparency = 1 }):Play()
+			local s = l:FindFirstChildOfClass("UIStroke")
+			if s then
+				TweenService:Create(s, TweenInfo.new(0.3), { Transparency = 1 }):Play()
+			end
+		end
+		task.delay(0.3, function()
+			if token == bannerToken then
+				bannerHolder.Visible = false
+			end
+		end)
+	end)
+end
+
+local function flash(color: Color3, strength: number?)
+	flashFrame.BackgroundColor3 = color
+	flashFrame.BackgroundTransparency = 1 - (strength or 0.3)
+	TweenService:Create(flashFrame, TweenInfo.new(0.45), { BackgroundTransparency = 1 }):Play()
+end
+
+-- ════════════════════════════════════════════════════════════════════
+-- Sonido
+-- ════════════════════════════════════════════════════════════════════
+
+local templates: { [string]: Sound } = {}
+for name, def in Config.Sonidos do
+	if def.Id ~= "" then
+		templates[name] = make("Sound", { Name = name, SoundId = def.Id, Volume = def.Volumen or 0.5, Parent = SoundService })
+	end
+end
+task.spawn(function()
+	local list = {}
+	for _, sound in templates do
+		table.insert(list, sound)
+	end
+	pcall(function()
+		ContentProvider:PreloadAsync(list)
+	end)
+end)
+
+local function play(name: string, speed: number?, volumeScale: number?, position: Vector3?)
+	local template = templates[name]
+	if not template then
+		return
+	end
+	local sound = template:Clone()
+	sound.PlaybackSpeed = speed or 1
+	sound.Volume = template.Volume * (volumeScale or 1)
+	if position then
+		local attachment = make("Attachment", { WorldPosition = position, Parent = Workspace.Terrain })
+		sound.RollOffMaxDistance = 140
+		sound.Parent = attachment
+		Debris:AddItem(attachment, 4)
+	else
+		sound.Parent = SoundService
+		Debris:AddItem(sound, 4)
+	end
+	sound:Play()
+end
+
+-- ════════════════════════════════════════════════════════════════════
+-- Cámara que tiembla
+-- ════════════════════════════════════════════════════════════════════
+
+local shakeAmount = 0
+local function shake(amount: number)
+	shakeAmount = math.max(shakeAmount, amount)
+end
+
+-- ════════════════════════════════════════════════════════════════════
+-- Efectos en el mundo
+-- ════════════════════════════════════════════════════════════════════
+
+local function burst(pos: Vector3, color: Color3, radius: number, count: number, golden: boolean?)
+	local attachment = make("Attachment", { WorldPosition = pos, Parent = Workspace.Terrain })
+	local confetti = make("ParticleEmitter", {
+		Color = ColorSequence.new(color),
+		LightEmission = 0.3,
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, math.max(radius * 0.35, 0.4)), NumberSequenceKeypoint.new(1, 0) }),
+		Lifetime = NumberRange.new(0.35, 0.75),
+		Speed = NumberRange.new(12, 24),
+		SpreadAngle = Vector2.new(180, 180),
+		Drag = 5,
+		Acceleration = Vector3.new(0, -30, 0),
+		Rotation = NumberRange.new(0, 360),
+		RotSpeed = NumberRange.new(-300, 300),
+		Rate = 0,
+		Parent = attachment,
+	})
+	confetti:Emit(count)
+	if golden then
+		local sparkle = make("ParticleEmitter", {
+			Color = ColorSequence.new(GOLD, WHITE),
+			LightEmission = 1,
+			Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(1, 0) }),
+			Lifetime = NumberRange.new(0.5, 1),
+			Speed = NumberRange.new(6, 14),
+			SpreadAngle = Vector2.new(180, 180),
+			Rate = 0,
+			Parent = attachment,
+		})
+		sparkle:Emit(30)
+	end
+	Debris:AddItem(attachment, 1.5)
+
+	-- Onda expansiva
+	local wave = make("Part", {
+		Shape = Enum.PartType.Ball,
+		Material = Enum.Material.Neon,
+		Color = color,
+		Anchored = true,
+		CanCollide = false,
+		CanQuery = false,
+		CanTouch = false,
+		CastShadow = false,
+		Size = Vector3.one * radius * 1.5,
+		CFrame = CFrame.new(pos),
+		Transparency = 0.35,
+		Parent = Workspace,
+	})
+	TweenService:Create(wave, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Size = Vector3.one * radius * 5,
+		Transparency = 1,
+	}):Play()
+	Debris:AddItem(wave, 0.3)
+end
+
+local function floatText(pos: Vector3, text: string, color: Color3, big: boolean?)
+	local attachment = make("Attachment", { WorldPosition = pos, Parent = Workspace.Terrain })
+	local billboard = make("BillboardGui", {
+		Size = if big then UDim2.fromOffset(200, 70) else UDim2.fromOffset(110, 44),
+		StudsOffset = Vector3.new(0, 1, 0),
+		AlwaysOnTop = true,
+		LightInfluence = 0,
+		Adornee = attachment,
+		Parent = playerGui,
+	})
+	local l = label({ Size = UDim2.fromScale(1, 1), Text = text, TextColor3 = color, Parent = billboard })
+	local scale = make("UIScale", { Scale = 0.4, Parent = l })
+	TweenService:Create(scale, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	TweenService:Create(billboard, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		StudsOffset = Vector3.new(0, 5, 0),
+	}):Play()
+	task.delay(0.45, function()
+		TweenService:Create(l, TweenInfo.new(0.35), { TextTransparency = 1 }):Play()
+		local s = l:FindFirstChildOfClass("UIStroke")
+		if s then
+			TweenService:Create(s, TweenInfo.new(0.35), { Transparency = 1 }):Play()
+		end
+	end)
+	Debris:AddItem(billboard, 0.85)
+	Debris:AddItem(attachment, 0.85)
+end
+
+local function confettiRain(seconds: number)
+	local camera = Workspace.CurrentCamera
+	local stop = os.clock() + seconds
+	task.spawn(function()
+		while os.clock() < stop do
+			local cf = camera.CFrame
+			local pos = cf.Position + cf.LookVector * 14 + Vector3.new(math.random(-10, 10), 9, math.random(-10, 10))
+			burst(pos, Config.ColoresGlobo[math.random(#Config.ColoresGlobo)], 1.2, 25)
+			task.wait(0.08)
+		end
+	end)
+end
+
+-- ════════════════════════════════════════════════════════════════════
+-- Combos: cada globo seguido sube una nota de la escala
+-- ════════════════════════════════════════════════════════════════════
+
+local comboCount = 0
+local lastPop = 0
+local lastPopSound = 0
+local COMBO_WORDS = { [5] = "¡GENIAL!", [10] = "¡INCREÍBLE!", [20] = "¡IMPARABLE!", [30] = "¡LEYENDA!", [50] = "¡DIOS DEL POP!" }
+
+local function comboColor(n: number): Color3
+	if n >= 30 then
+		return Color3.fromHSV((os.clock() * 0.8) % 1, 0.7, 1)
+	elseif n >= 20 then
+		return PURPLE
+	elseif n >= 10 then
+		return PINK
+	elseif n >= 5 then
+		return GOLD
+	end
+	return WHITE
+end
+
+local function onMyPop(pos: Vector3, color: Color3, pointsWon: number, golden: boolean)
+	local now = os.clock()
+	comboCount = if now - lastPop <= Config.VentanaCombo then comboCount + 1 else 1
+	lastPop = now
+
+	-- Capa 1: el «¡plop!» con tono un poco distinto cada vez (nunca suena repetido)
+	-- Capa 2: una nota musical que sube por la escala con cada globo del combo
+	if now - lastPopSound > 0.03 then
+		lastPopSound = now
+		play("Pop", (0.9 + math.random() * 0.2) * (1 + math.min(comboCount, 20) * 0.012))
+		local scale = Config.EscalaCombo
+		play("Nota", scale[((comboCount - 1) % #scale) + 1])
+	end
+
+	if golden then
+		play("Dorado", 1.25)
+		floatText(pos, "+" .. pointsWon .. " ⭐", GOLD, true)
+		flash(GOLD, 0.18)
+		shake(0.5)
+	else
+		floatText(pos, "+" .. pointsWon, color)
+		shake(0.16)
+	end
+
+	if comboCount >= 3 then
+		combo.Visible = true
+		combo.Text = "¡COMBO x" .. comboCount .. "!"
+		combo.TextColor3 = comboColor(comboCount)
+		combo.TextTransparency = 0
+		bump(comboScale, 1.35)
+	end
+	local word = COMBO_WORDS[comboCount]
+	if word then
+		play("Combo", 1 + comboCount / 50)
+		floatText(pos + Vector3.new(0, 2, 0), word, comboColor(comboCount), true)
+		flash(comboColor(comboCount), 0.15)
+		shake(0.45)
+	end
+end
+
+-- ════════════════════════════════════════════════════════════════════
+-- Tablero de la carrera (quién va en qué etapa)
+-- ════════════════════════════════════════════════════════════════════
+
+local racing = false
+local currentStage = 0
+local lastCleared: { [number]: number } = {}
+
+local function renderRace(list, total: number)
+	for _, child in raceFrame:GetChildren() do
+		if child:IsA("Frame") then
+			child:Destroy()
+		end
+	end
+	racing = false
+	for _, entry in list do
+		if entry.userId == player.UserId then
+			racing = true
+		end
+		local color = Config.ColoresPista[entry.lane] or WHITE
+		local row = make("Frame", {
+			Size = UDim2.new(1, -16, 0, 26),
+			BackgroundTransparency = 1,
+			Parent = raceFrame,
+		}, {
+			make("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				Padding = UDim.new(0, 4),
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+			}),
+		})
+		label({
+			Size = UDim2.new(0, 110, 1, 0),
+			Text = if entry.userId == player.UserId then "TÚ" else entry.name,
+			TextColor3 = color,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Parent = row,
+		})
+		local before = lastCleared[entry.userId] or 0
+		for i = 1, total do
+			local filled = i <= entry.cleared
+			local dot = make("Frame", {
+				Size = UDim2.fromOffset(20, 20),
+				BackgroundColor3 = if filled then color else Color3.fromRGB(70, 60, 100),
+				Parent = row,
+			}, { make("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+			if filled and i > before then
+				bump(make("UIScale", { Parent = dot }), 1.8)
+			end
+		end
+		label({
+			Size = UDim2.fromOffset(26, 26),
+			Text = if entry.cleared >= total then "🏁" else "",
+			Parent = row,
+		})
+		lastCleared[entry.userId] = entry.cleared
+	end
+	raceFrame.Size = UDim2.new(0, 140 + total * 24 + 40, 0, 12 + #list * 30)
+	raceFrame.Visible = true
+	status.Visible = not racing
+	points.Visible = racing
+end
+
+local function setCounter(popped: number, goal: number, done: boolean?)
+	counter.Visible = racing
+	if done or popped >= goal then
+		counter.Text = "✅ ¡Adelante!"
+		counterBar.Size = UDim2.new(0, 250, 0, 6)
+	else
+		counter.Text = string.format("🎈 %d / %d", popped, goal)
+		counterBar.Size = UDim2.new(0, 250 * popped / math.max(goal, 1), 0, 6)
+	end
+end
+
+local function formatTime(seconds: number): string
+	return string.format("%d:%05.2f", seconds // 60, seconds % 60)
+end
+
+-- ════════════════════════════════════════════════════════════════════
+-- Tienda de estelas y títulos
+-- ════════════════════════════════════════════════════════════════════
+
+local myWins = 0
+local myEquipped = { Estela = "nube", Titulo = "novato" }
+local shopTab = "Estela"
+
+local shopButton = make("TextButton", {
+	Name = "BotonTienda",
+	AnchorPoint = Vector2.new(0, 0.5),
+	Position = UDim2.new(0, 12, 0.5, 0),
+	Size = UDim2.fromOffset(120, 56),
+	BackgroundColor3 = Color3.fromRGB(255, 90, 170),
+	Font = FONT,
+	TextScaled = true,
+	TextColor3 = WHITE,
+	Text = "✨ ESTELAS\n🏆 0",
+	Parent = gui,
+}, { corner(14), stroke(3, WHITE) })
+local shopButtonScale = make("UIScale", { Parent = shopButton })
+
+local shop = make("Frame", {
+	Name = "Tienda",
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.fromScale(0.5, 0.5),
+	Size = UDim2.fromScale(0.9, 0.75),
+	BackgroundColor3 = Color3.fromRGB(40, 25, 80),
+	Visible = false,
+	ZIndex = 20,
+	Parent = gui,
+}, { corner(18), stroke(4, WHITE), make("UISizeConstraint", { MaxSize = Vector2.new(620, 440) }) })
+local shopScale = make("UIScale", { Parent = shop })
+
+local shopTitle = label({
+	Position = UDim2.new(0, 16, 0, 8),
+	Size = UDim2.new(1, -80, 0, 36),
+	Text = "🏆 Tus Wins: 0",
+	TextColor3 = GOLD,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	ZIndex = 21,
+	Parent = shop,
+})
+local closeButton = make("TextButton", {
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.new(1, -10, 0, 8),
+	Size = UDim2.fromOffset(40, 40),
+	BackgroundColor3 = Color3.fromRGB(255, 70, 90),
+	Font = FONT,
+	TextScaled = true,
+	TextColor3 = WHITE,
+	Text = "X",
+	ZIndex = 21,
+	Parent = shop,
+}, { corner(10) })
+
+local tabs = make("Frame", {
+	Position = UDim2.new(0, 16, 0, 52),
+	Size = UDim2.new(1, -32, 0, 36),
+	BackgroundTransparency = 1,
+	ZIndex = 21,
+	Parent = shop,
+}, { make("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8) }) })
+
+local grid = make("ScrollingFrame", {
+	Position = UDim2.new(0, 16, 0, 98),
+	Size = UDim2.new(1, -32, 1, -110),
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 6,
+	AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	CanvasSize = UDim2.new(),
+	ZIndex = 21,
+	Parent = shop,
+}, { make("UIGridLayout", { CellSize = UDim2.fromOffset(132, 132), CellPadding = UDim2.fromOffset(10, 10) }) })
+
+local renderShop
+
+local tabButtons = {}
+for _, info in { { "Estela", "✨ Estelas" }, { "Titulo", "👑 Títulos" } } do
+	local button = make("TextButton", {
+		Size = UDim2.fromOffset(150, 36),
+		BackgroundColor3 = Color3.fromRGB(90, 60, 160),
+		Font = FONT,
+		TextScaled = true,
+		TextColor3 = WHITE,
+		Text = info[2],
+		ZIndex = 22,
+		Parent = tabs,
+	}, { corner(10) })
+	tabButtons[info[1]] = button
+	button.Activated:Connect(function()
+		shopTab = info[1]
+		renderShop()
+	end)
+end
+
+function renderShop()
+	shopTitle.Text = "🏆 Tus Wins: " .. myWins
+	for kind, button in tabButtons do
+		button.BackgroundColor3 = if kind == shopTab then Color3.fromRGB(255, 90, 170) else Color3.fromRGB(90, 60, 160)
+	end
+	for _, child in grid:GetChildren() do
+		if child:IsA("GuiObject") then
+			child:Destroy()
+		end
+	end
+	local list = if shopTab == "Estela" then Config.Estelas else Config.Titulos
+	for order, item in list do
+		local unlocked = myWins >= item.Wins
+		local isEquipped = myEquipped[shopTab] == item.Id
+		local card = make("Frame", {
+			LayoutOrder = order,
+			BackgroundColor3 = if isEquipped then Color3.fromRGB(80, 200, 120) else Color3.fromRGB(70, 50, 130),
+			ZIndex = 22,
+			Parent = grid,
+		}, { corner(12) })
+
+		local swatch = make("Frame", {
+			Position = UDim2.new(0, 10, 0, 10),
+			Size = UDim2.new(1, -20, 0, 40),
+			BackgroundColor3 = WHITE,
+			ZIndex = 23,
+			Parent = card,
+		}, { corner(10) })
+		if shopTab == "Estela" then
+			local keypoints = {}
+			for i, color in item.Colores do
+				table.insert(keypoints, ColorSequenceKeypoint.new((i - 1) / math.max(#item.Colores - 1, 1), color))
+			end
+			if #keypoints == 1 then
+				table.insert(keypoints, ColorSequenceKeypoint.new(1, item.Colores[1]))
+			end
+			make("UIGradient", { Color = ColorSequence.new(keypoints), Parent = swatch })
+		else
+			swatch.BackgroundTransparency = 1
+			label({ Size = UDim2.fromScale(1, 1), Text = item.Nombre, TextColor3 = item.Color, ZIndex = 24, Parent = swatch })
+		end
+
+		label({
+			Position = UDim2.new(0, 6, 0, 54),
+			Size = UDim2.new(1, -12, 0, 26),
+			Text = item.Nombre,
+			ZIndex = 23,
+			Parent = card,
+		})
+
+		local button = make("TextButton", {
+			Position = UDim2.new(0, 10, 1, -42),
+			Size = UDim2.new(1, -20, 0, 32),
+			BackgroundColor3 = if isEquipped
+				then Color3.fromRGB(40, 140, 80)
+				elseif unlocked then Color3.fromRGB(255, 180, 40)
+				else Color3.fromRGB(60, 60, 70),
+			Font = FONT,
+			TextScaled = true,
+			TextColor3 = WHITE,
+			Text = if isEquipped then "EQUIPADO" elseif unlocked then "EQUIPAR" else "🔒 " .. item.Wins .. " Wins",
+			AutoButtonColor = unlocked,
+			ZIndex = 23,
+			Parent = card,
+		}, { corner(8) })
+		button.Activated:Connect(function()
+			if unlocked and not isEquipped then
+				remote:FireServer("equipar", shopTab, item.Id)
+				myEquipped[shopTab] = item.Id
+				play("Desbloqueo", 1.4, 0.6)
+				renderShop()
+			end
+		end)
+	end
+end
+
+local function openShop(open: boolean)
+	shop.Visible = open
+	if open then
+		renderShop()
+		shopScale.Scale = 0.6
+		TweenService:Create(shopScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	end
+end
+shopButton.Activated:Connect(function()
+	openShop(not shop.Visible)
+end)
+closeButton.Activated:Connect(function()
+	openShop(false)
+end)
+
+-- ════════════════════════════════════════════════════════════════════
+-- Eventos del servidor
+-- ════════════════════════════════════════════════════════════════════
+
+local handlers = {}
+
+function handlers.estado(text: string)
+	status.Text = text
+	status.Visible = not racing
+end
+
+function handlers.carrera(list, total: number)
+	renderRace(list, total)
+	shopButton.Visible = not racing
+	if racing then
+		openShop(false)
+	end
+end
+
+function handlers.cuenta(n: number)
+	if n > 0 then
+		showBanner(tostring(n), WHITE, "¡Prepárate!", 0.9)
+		play("Cuenta", 1 + (Config.CuentaAtras - n) * 0.15)
+		shake(0.2)
+	else
+		showBanner("¡YA!", GREEN, "", 1)
+		play("Ya", 1.2)
+		flash(WHITE, 0.35)
+		shake(0.5)
+	end
+end
+
+function handlers.etapa(s: number, total: number, title: string, hintText: string, popped: number, goal: number, done: boolean)
+	currentStage = s
+	hint.Visible = true
+	hint.Text = if done then "¡Puerta abierta, sigue corriendo! ➜" else hintText
+	setCounter(popped, goal, done)
+	if not done then
+		showBanner(title, Color3.fromRGB(255, 240, 90), string.format("Etapa %d de %d · %s", s, total, hintText), 1.8)
+	end
+end
+
+function handlers.progreso(s: number, popped: number, goal: number, pts: number)
+	points.Text = "⭐ " .. pts
+	bump(pointsScale, 1.2)
+	if s == currentStage then
+		setCounter(popped, goal)
+		bump(counterScale, 1.18)
+	end
+end
+
+function handlers.globo(pos: Vector3, color: Color3, radius: number, ownerId: number, pointsWon: number, golden: boolean)
+	burst(pos, color, radius, if golden then 40 else 22, golden)
+	if ownerId == player.UserId then
+		onMyPop(pos, color, pointsWon, golden)
+	else
+		play("Pop", 0.9 + math.random() * 0.2, 0.5, pos)
+	end
+end
+
+function handlers.puerta(pos: Vector3, ownerId: number, s: number, total: number)
+	for _ = 1, 4 do
+		burst(
+			pos + Vector3.new(0, math.random(2, 12), math.random(-10, 10)),
+			Config.ColoresGlobo[math.random(#Config.ColoresGlobo)],
+			2,
+			25
+		)
+	end
+	if ownerId == player.UserId then
+		play("Puerta", 1)
+		play("Nota", 2, 1.2)
+		showBanner(if s >= total then "¡A LA META! 🏁" else "¡PUERTA ABIERTA! ➜", GREEN, "Etapa " .. s .. " completada", 1.3)
+		hint.Text = "¡Corre a la siguiente etapa! ➜"
+		setCounter(1, 1, true)
+		flash(GREEN, 0.3)
+		shake(0.6)
+	else
+		play("Puerta", 1, 0.5, pos)
+	end
+end
+
+function handlers.dardo(origin: Vector3, dir: Vector3, range: number, speed: number, ownerId: number)
+	local dart = make("Part", {
+		Size = Vector3.new(2.4, 0.3, 0.3),
+		Color = Color3.fromRGB(255, 255, 200),
+		Material = Enum.Material.Neon,
+		Anchored = true,
+		CanCollide = false,
+		CanQuery = false,
+		CanTouch = false,
+		CastShadow = false,
+		CFrame = CFrame.fromMatrix(origin, dir, Vector3.yAxis),
+		Parent = Workspace,
+	})
+	local a0 = make("Attachment", { Position = Vector3.new(0, 0.15, 0), Parent = dart })
+	local a1 = make("Attachment", { Position = Vector3.new(0, -0.15, 0), Parent = dart })
+	make("Trail", {
+		Attachment0 = a0,
+		Attachment1 = a1,
+		Lifetime = 0.15,
+		LightEmission = 1,
+		Color = ColorSequence.new(Color3.fromRGB(150, 220, 255)),
+		Parent = dart,
+	})
+	local duration = range / speed
+	TweenService:Create(dart, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
+		CFrame = dart.CFrame + dir * range,
+	}):Play()
+	Debris:AddItem(dart, duration + 0.05)
+	if ownerId == player.UserId then
+		play("Disparo", 1.3 + math.random() * 0.3)
+	end
+end
+
+function handlers.poder(pos: Vector3)
+	burst(pos, PURPLE, 3, 60)
+end
+
+function handlers.poderJugador(seconds: number)
+	showBanner("⚡ ¡SÚPER PODER! ⚡", PURPLE, "¡Más rápido y explotas todo a tu paso!", 1.5)
+	play("Poder", 1)
+	flash(PURPLE, 0.35)
+	shake(0.5)
+	local camera = Workspace.CurrentCamera
+	TweenService:Create(camera, TweenInfo.new(0.3), { FieldOfView = 88 }):Play()
+	task.delay(seconds, function()
+		TweenService:Create(camera, TweenInfo.new(0.6), { FieldOfView = 70 }):Play()
+	end)
+end
+
+function handlers.rebote(velocity: Vector3)
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if root then
+		root.AssemblyLinearVelocity = velocity
+		play("Rebote", 0.8 + math.random() * 0.2)
+	end
+end
+
+function handlers.golpeGigante(pos: Vector3, progress: number, ownerId: number)
+	if ownerId == player.UserId then
+		play("Gigante", 0.55 + progress * 0.7, 1.2)
+		shake(0.4 + progress * 0.6)
+		floatText(pos, "¡PUM!", Color3.fromRGB(255, 80 + (1 - progress) * 150, 80), true)
+	else
+		play("Gigante", 0.6 + progress * 0.6, 0.5, pos)
+	end
+end
+
+function handlers.explosion(pos: Vector3, size: number, color: Color3)
+	for _ = 1, 8 do
+		burst(
+			pos + Vector3.new(math.random(-4, 4), math.random(-4, 4), math.random(-4, 4)),
+			Config.ColoresGlobo[math.random(#Config.ColoresGlobo)],
+			size * 0.2,
+			40
+		)
+	end
+	burst(pos, color, size * 0.5, 80)
+	play("Pop", 0.5, 2, pos)
+	play("Combo", 0.8, 1, pos)
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if root and (root.Position - pos).Magnitude < 60 then
+		flash(WHITE, 0.6)
+		shake(1.4)
+	end
+end
+
+function handlers.ganador(name: string, userId: number, pts: number, seconds: number, isRecord: boolean)
+	hint.Visible = false
+	counter.Visible = false
+	if userId == player.UserId then
+		local sub = string.format("⭐ %d puntos · ⏱ %s", pts, formatTime(seconds))
+		if isRecord then
+			sub ..= " · ¡NUEVO RÉCORD! 🔥"
+		end
+		showBanner("🏆 ¡GANASTE! 🏆", GOLD, sub, 5)
+		play("Victoria", 1)
+		flash(GOLD, 0.5)
+		confettiRain(3)
+	elseif racing then
+		showBanner("¡Ganó " .. name .. "!", PINK, "¡La próxima es tuya! 💪", 5)
+	else
+		showBanner("🏆 ¡Ganó " .. name .. "!", GOLD, "⏱ " .. formatTime(seconds), 4)
+	end
+end
+
+function handlers.desbloqueo(unlocked: { string }, nextName: string?, nextWins: number?, wins: number)
+	task.delay(2.5, function()
+		if #unlocked > 0 then
+			showBanner("✨ ¡DESBLOQUEASTE! ✨", GOLD, table.concat(unlocked, " · "), 3)
+			play("Desbloqueo", 1)
+			flash(GOLD, 0.35)
+			bump(shopButtonScale, 1.5)
+		elseif nextName and nextWins then
+			showBanner("🏆 " .. wins .. " Wins", GOLD, string.format("Próximo premio: %s (faltan %d)", nextName, nextWins - wins), 3)
+		end
+	end)
+end
+
+function handlers.tienda(wins: number, estela: string, titulo: string)
+	myWins = wins
+	myEquipped.Estela = estela
+	myEquipped.Titulo = titulo
+	shopButton.Text = "✨ ESTELAS\n🏆 " .. wins
+	if shop.Visible then
+		renderShop()
+	end
+end
+
+function handlers.fin()
+	racing = false
+	currentStage = 0
+	table.clear(lastCleared)
+	raceFrame.Visible = false
+	hint.Visible = false
+	counter.Visible = false
+	points.Visible = false
+	combo.Visible = false
+	status.Visible = true
+	shopButton.Visible = true
+	Workspace.CurrentCamera.FieldOfView = 70
+end
+
+remote.OnClientEvent:Connect(function(kind: string, ...)
+	local handler = handlers[kind]
+	if handler then
+		handler(...)
+	end
+end)
+remote:FireServer("hola")
+
+-- ════════════════════════════════════════════════════════════════════
+-- Cada frame: globos que flotan, cintas que se mueven, trampolines, cámara
+-- ════════════════════════════════════════════════════════════════════
+
+local floating: { [Instance]: { phase: number, parts: { { part: BasePart, base: CFrame } } } } = {}
+
+local function track(model: Instance)
+	if not model:IsA("Model") or model:GetAttribute("SinFlotar") then
+		return
+	end
+	local entry = { phase = model:GetAttribute("Fase") or 0, parts = {} }
+	for _, child in model:GetChildren() do
+		if child:IsA("BasePart") then
+			table.insert(entry.parts, { part = child, base = child.CFrame })
+		end
+	end
+	floating[model] = entry
+end
+CollectionService:GetInstanceAddedSignal("GloboCarrera"):Connect(track)
+CollectionService:GetInstanceRemovedSignal("GloboCarrera"):Connect(function(model)
+	floating[model] = nil
+end)
+for _, model in CollectionService:GetTagged("GloboCarrera") do
+	track(model)
+end
+
+local stripes: { [BasePart]: CFrame } = {}
+local function trackStripe(part: Instance)
+	if part:IsA("BasePart") then
+		stripes[part] = part.CFrame
+	end
+end
+CollectionService:GetInstanceAddedSignal("FranjaCinta"):Connect(trackStripe)
+CollectionService:GetInstanceRemovedSignal("FranjaCinta"):Connect(function(part)
+	stripes[part :: BasePart] = nil
+end)
+for _, part in CollectionService:GetTagged("FranjaCinta") do
+	trackStripe(part)
+end
+
+local lastBounce = 0
+
+RunService.RenderStepped:Connect(function(dt)
+	local t = os.clock()
+	local camera = Workspace.CurrentCamera
+	local camPos = camera.CFrame.Position
+
+	-- Globos que flotan suavemente
+	for _, entry in floating do
+		local first = entry.parts[1]
+		if first and (first.base.Position - camPos).Magnitude < 160 then
+			local offset = Vector3.new(0, math.sin(t * 2.2 + entry.phase) * 0.3, 0)
+			for _, p in entry.parts do
+				p.part.CFrame = p.base + offset
+			end
+		end
+	end
+
+	-- Franjas de las cintas: se deslizan en la dirección en que empujan
+	for part, base in stripes do
+		local width = part:GetAttribute("CintaAncho") or 30
+		local speed = part:GetAttribute("CintaVel") or 0
+		local centerZ = part:GetAttribute("CintaZ") or base.Position.Z
+		local rel = base.Position.Z - centerZ + width / 2
+		local z = (rel + t * speed) % width
+		part.CFrame = CFrame.new(base.Position.X, base.Position.Y, centerZ - width / 2 + z)
+	end
+
+	-- Combo que se apaga si dejas de explotar
+	if combo.Visible and t - lastPop > Config.VentanaCombo then
+		combo.TextTransparency = math.min(1, combo.TextTransparency + dt * 4)
+		if combo.TextTransparency >= 1 then
+			combo.Visible = false
+		end
+	end
+
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+
+	-- Trampolines: si pisas uno, sales volando derechito hacia arriba
+	if root and humanoid and t - lastBounce > 0.45 then
+		for _, pad in CollectionService:GetTagged("TrampolinCarrera") do
+			if pad:IsA("BasePart") then
+				local d = root.Position - pad.Position
+				if Vector3.new(d.X, 0, d.Z).Magnitude < pad.Size.Y / 2 + 0.5 and d.Y > 0 and d.Y < 4.5 then
+					lastBounce = t
+					local toCenter = Vector3.new(-d.X, 0, -d.Z) * 2
+					root.AssemblyLinearVelocity = toCenter + Vector3.new(0, pad:GetAttribute("Fuerza") or 85, 0)
+					play("Rebote", 1 + math.random() * 0.15)
+					shake(0.3)
+					break
+				end
+			end
+		end
+	end
+
+	-- Temblor de cámara
+	if humanoid then
+		if shakeAmount > 0.01 then
+			humanoid.CameraOffset = Vector3.new((math.random() - 0.5) * shakeAmount, (math.random() - 0.5) * shakeAmount, 0)
+			shakeAmount *= math.exp(-dt * 10)
+		elseif humanoid.CameraOffset ~= Vector3.zero then
+			humanoid.CameraOffset = Vector3.zero
+			shakeAmount = 0
+		end
+	end
+end)
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000004"><Properties><string name="Name">Config</string><ProtectedString name="Source"><![CDATA[--[[
+	CONFIGURACIÓN DE «CARRERA DE GLOBOS»
+	Aquí puedes cambiar casi todo el juego sin tocar el resto del código.
+]]
+
+local Config = {}
+
+-- ─── Mapa ──────────────────────────────────────────────────────────────
+Config.Origen = Vector3.new(0, 0, 0) -- centro del lobby; el mapa se construye desde aquí hacia +X
+Config.AnchoPista = 30 -- ancho de cada pista (studs)
+
+-- ─── Carrera ───────────────────────────────────────────────────────────
+Config.CuentaAtras = 3 -- segundos de «3, 2, 1, ¡YA!»
+Config.VelocidadNormal = 16 -- velocidad al caminar en el lobby
+Config.VelocidadCarrera = 26 -- velocidad durante la carrera (más rápido = más divertido)
+Config.TiempoCelebracion = 7 -- segundos de fiesta antes de volver al lobby
+Config.EsperaSolo = 6 -- si estás solo en una plataforma, a los X segundos juegas contra el reloj (0 = desactivado)
+Config.GuardarProgreso = true -- guarda Wins, Globos y lo equipado (en Studio: activa «Enable Studio Access to API Services»)
+
+-- ─── Globos ────────────────────────────────────────────────────────────
+Config.AlcanceCuerpo = 2.5 -- qué tan cerca tiene que pasar tu cuerpo de un globo para explotarlo
+Config.ProbabilidadDorado = 0.08 -- 8 % de los globos salen dorados (valen más puntos)
+Config.PuntosGlobo = 10
+Config.PuntosDorado = 50
+
+Config.ColoresGlobo = {
+	Color3.fromRGB(255, 70, 90), -- rojo
+	Color3.fromRGB(255, 150, 40), -- naranja
+	Color3.fromRGB(255, 225, 60), -- amarillo
+	Color3.fromRGB(90, 220, 110), -- verde
+	Color3.fromRGB(70, 170, 255), -- azul
+	Color3.fromRGB(190, 110, 255), -- morado
+	Color3.fromRGB(255, 120, 200), -- rosa
+}
+Config.ColorDorado = Color3.fromRGB(255, 205, 40)
+
+Config.ColoresPista = {
+	Color3.fromRGB(60, 150, 255), -- Jugador 1 (azul)
+	Color3.fromRGB(255, 80, 150), -- Jugador 2 (rosa)
+}
+
+-- ─── Etapas (en orden). Cada nombre es un módulo dentro de la carpeta «Stages» ─
+-- Puedes quitar, repetir o reordenar etapas libremente.
+Config.Etapas = { "Aspas", "Neumaticos", "Cinta", "Dardos", "Trampolines", "Lluvia", "Laberinto", "Gigante" }
+
+Config.Aspas = {
+	Anillos = 2, -- cuántos anillos de globos hay
+	GlobosPorAnillo = 16,
+	Radio = 10,
+	VelocidadGiro = 3.5, -- radianes por segundo del brazo giratorio
+}
+
+Config.Neumaticos = {
+	Filas = 4,
+	Columnas = 4,
+	ConGlobo = 11, -- cuántas llantas tienen globo (el resto están vacías)
+}
+
+Config.Dardos = {
+	Globos = 18,
+	Cadencia = 0.18, -- segundos entre dardo y dardo
+	Barrido = 45, -- grados que gira el cañón hacia cada lado
+	VelocidadBarrido = 1.8,
+	VelocidadDardo = 110,
+}
+
+Config.Cinta = {
+	Cintas = 4, -- franjas de piso que te arrastran de lado
+	GlobosPorCinta = 6,
+	Velocidad = 22,
+	Porcentaje = 0.8,
+}
+
+Config.Trampolines = {
+	Cantidad = 5,
+	Fuerza = 85, -- qué tan alto te lanzan
+	GlobosPorTrampolin = 3,
+}
+
+Config.Lluvia = {
+	Meta = 12,
+	MaximoEnPantalla = 10,
+	Intervalo = 0.3, -- segundos entre globo y globo que cae
+	VelocidadCaida = 10,
+	Altura = 28,
+}
+
+Config.Gigante = {
+	Golpes = 10, -- cuántas veces hay que chocarlo para reventarlo
+	Tamano = 12,
+	Crecimiento = 0.06, -- cuánto se infla con cada golpe
+	Rebote = 55,
+}
+
+Config.Laberinto = {
+	Paredes = 4,
+	Porcentaje = 0.85, -- qué parte de los globos hay que explotar para abrir la puerta
+	PoderDuracion = 6, -- segundos que dura el súper poder morado
+	PoderAlcanceExtra = 4, -- alcance extra del cuerpo con el poder
+	PoderVelocidadExtra = 10,
+}
+
+-- ─── Efectos ───────────────────────────────────────────────────────────
+Config.VentanaCombo = 1.2 -- segundos entre globos para que el combo siga vivo
+
+--[[
+	SONIDOS
+	En la carpeta «sounds/» del proyecto hay sonidos hechos a medida para este juego.
+	Súbelos en create.roblox.com → Creaciones → Audio, copia el ID de cada uno y pégalo
+	aquí como "rbxassetid://123456789". Mientras tanto se usan sonidos que ya trae Roblox.
+]]
+Config.Sonidos = {
+	Pop = { Id = "rbxasset://sounds/snap.wav", Volumen = 0.9 }, -- el «¡plop!» del globo
+	Nota = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.35 }, -- nota musical que sube con el combo
+	Dorado = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.7 },
+	Combo = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.6 },
+	Cuenta = { Id = "rbxasset://sounds/clickfast.wav", Volumen = 0.8 },
+	Ya = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.9 },
+	Puerta = { Id = "rbxasset://sounds/swoosh.wav", Volumen = 0.8 },
+	Poder = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.8 },
+	Disparo = { Id = "rbxasset://sounds/swoosh.wav", Volumen = 0.25 },
+	Victoria = { Id = "rbxasset://sounds/victory.wav", Volumen = 0.9 },
+	Rebote = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.6 }, -- trampolines y globo gigante
+	Gigante = { Id = "rbxasset://sounds/snap.wav", Volumen = 1 }, -- golpe al globo gigante
+	Desbloqueo = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.9 },
+}
+
+-- Escala pentatónica: cada globo seguido sube una nota (suena como una melodía)
+Config.EscalaCombo = { 1, 9 / 8, 5 / 4, 3 / 2, 5 / 3, 2, 9 / 4, 5 / 2, 3, 10 / 3 }
+
+-- ─── Recompensas: las Wins desbloquean estelas y títulos (no se gastan) ─
+Config.Estelas = {
+	{ Id = "nube", Nombre = "Nube", Wins = 0, Colores = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(200, 220, 255) } },
+	{ Id = "electrica", Nombre = "Eléctrica", Wins = 1, Colores = { Color3.fromRGB(80, 200, 255), Color3.fromRGB(20, 80, 255) } },
+	{ Id = "fuego", Nombre = "Fuego", Wins = 3, Colores = { Color3.fromRGB(255, 230, 80), Color3.fromRGB(255, 60, 20) } },
+	{ Id = "menta", Nombre = "Menta", Wins = 5, Colores = { Color3.fromRGB(160, 255, 200), Color3.fromRGB(20, 190, 130) } },
+	{ Id = "chicle", Nombre = "Chicle", Wins = 8, Colores = { Color3.fromRGB(255, 170, 230), Color3.fromRGB(255, 60, 170) } },
+	{
+		Id = "galaxia",
+		Nombre = "Galaxia",
+		Wins = 12,
+		Colores = { Color3.fromRGB(120, 60, 255), Color3.fromRGB(255, 80, 220), Color3.fromRGB(40, 20, 120) },
+	},
+	{
+		Id = "arcoiris",
+		Nombre = "Arcoíris",
+		Wins = 20,
+		Colores = {
+			Color3.fromRGB(255, 60, 60),
+			Color3.fromRGB(255, 200, 40),
+			Color3.fromRGB(60, 220, 90),
+			Color3.fromRGB(60, 150, 255),
+			Color3.fromRGB(180, 80, 255),
+		},
+	},
+	{ Id = "oro", Nombre = "Oro", Wins = 30, Colores = { Color3.fromRGB(255, 240, 150), Color3.fromRGB(255, 180, 20) } },
+	{ Id = "diamante", Nombre = "Diamante", Wins = 50, Colores = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(120, 255, 255) } },
+}
+
+Config.Titulos = {
+	{ Id = "novato", Nombre = "Novato", Wins = 0, Color = Color3.fromRGB(220, 220, 220) },
+	{ Id = "explotador", Nombre = "Explotador", Wins = 2, Color = Color3.fromRGB(120, 220, 255) },
+	{ Id = "veloz", Nombre = "Rayo Veloz", Wins = 6, Color = Color3.fromRGB(255, 230, 80) },
+	{ Id = "rey", Nombre = "Rey del Globo", Wins = 15, Color = Color3.fromRGB(255, 120, 200) },
+	{ Id = "leyenda", Nombre = "Leyenda", Wins = 30, Color = Color3.fromRGB(190, 110, 255) },
+	{ Id = "dios", Nombre = "Dios del Pop", Wins = 60, Color = Color3.fromRGB(255, 200, 40) },
+}
+
+return Config
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000005"><Properties><string name="Name">Datos</string><ProtectedString name="Source"><![CDATA[-- Tabla de líderes (Wins y Globos), estela/título equipados y guardado con DataStore.
+
+local DataStoreService = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
+
+local Config = require(script.Parent.Config)
+
+local Datos = {}
+
+local STATS = { "Wins", "Globos" }
+local SAVED_ATTRIBUTES = { "Estela", "Titulo", "MejorTiempo" } -- lo equipado y tu récord
+local store: DataStore? = nil
+
+local function key(player: Player): string
+	return "jugador_" .. player.UserId
+end
+
+local onLoaded: ((Player) -> ())? = nil
+
+local function setup(player: Player)
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+	for _, name in STATS do
+		local value = Instance.new("IntValue")
+		value.Name = name
+		value.Parent = leaderstats
+	end
+	leaderstats.Parent = player
+
+	local ds = store
+	task.spawn(function()
+		if ds then
+			local ok, data = pcall(function()
+				return ds:GetAsync(key(player))
+			end)
+			if ok and type(data) == "table" then
+				for _, name in STATS do
+					local value = leaderstats:FindFirstChild(name) :: IntValue?
+					if value and type(data[name]) == "number" then
+						value.Value += data[name]
+					end
+				end
+				for _, name in SAVED_ATTRIBUTES do
+					if type(data[name]) == "string" or type(data[name]) == "number" then
+						player:SetAttribute(name, data[name])
+					end
+				end
+			end
+		end
+		if onLoaded and player.Parent then
+			onLoaded(player)
+		end
+	end)
+end
+
+local function save(player: Player)
+	local ds = store
+	local leaderstats = player:FindFirstChild("leaderstats")
+	if not ds or not leaderstats then
+		return
+	end
+	local data = {}
+	for _, name in STATS do
+		local value = leaderstats:FindFirstChild(name) :: IntValue?
+		data[name] = if value then value.Value else 0
+	end
+	for _, name in SAVED_ATTRIBUTES do
+		data[name] = player:GetAttribute(name)
+	end
+	pcall(function()
+		ds:SetAsync(key(player), data)
+	end)
+end
+
+function Datos.get(player: Player, stat: string): number
+	local leaderstats = player:FindFirstChild("leaderstats")
+	local value = leaderstats and leaderstats:FindFirstChild(stat) :: IntValue?
+	return if value then value.Value else 0
+end
+
+function Datos.add(player: Player, stat: string, amount: number)
+	local leaderstats = player:FindFirstChild("leaderstats")
+	local value = leaderstats and leaderstats:FindFirstChild(stat) :: IntValue?
+	if value then
+		value.Value += amount
+	end
+end
+
+-- loadedCallback se llama cuando terminan de cargarse los datos de un jugador
+function Datos.init(loadedCallback: (Player) -> ())
+	onLoaded = loadedCallback
+	if Config.GuardarProgreso then
+		local ok, result = pcall(function()
+			return DataStoreService:GetDataStore("CarreraGlobos_v1")
+		end)
+		if ok then
+			store = result
+		else
+			warn("[CarreraGlobos] No se pudo usar DataStore (¿API Services apagado?). No se guardará el progreso.")
+		end
+	end
+
+	Players.PlayerAdded:Connect(setup)
+	for _, player in Players:GetPlayers() do
+		setup(player)
+	end
+	Players.PlayerRemoving:Connect(save)
+	game:BindToClose(function()
+		for _, player in Players:GetPlayers() do
+			save(player)
+		end
+	end)
+end
+
+return Datos
+]]></ProtectedString></Properties></Item><Item class="Script" referent="RBX00000006"><Properties><string name="Name">Main</string><ProtectedString name="Source"><![CDATA[--[[
+	🎈 CARRERA DE GLOBOS 🎈
+	Script principal: construye el mapa, maneja el lobby y arranca carreras.
+
+	Cómo se juega: dos jugadores se paran en las plataformas «Jugador 1» y
+	«Jugador 2» del lobby. Corren por pistas paralelas; cada etapa tiene una
+	puerta que se abre al explotar suficientes globos. ¡El primero en llegar a
+	la meta gana una Win!
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+
+local root = script.Parent
+local Config = require(root.Config)
+local Datos = require(root.Datos)
+local MapBuilder = require(root.MapBuilder)
+local Race = require(root.Race)
+local Recompensas = require(root.Recompensas)
+local Tablas = require(root.Tablas)
+
+-- ─── Compartir configuración y canal de eventos con los clientes ───────
+local sharedConfig = root.Config:Clone()
+sharedConfig.Name = "CarreraGlobosConfig"
+sharedConfig.Parent = ReplicatedStorage
+
+local remote = Instance.new("RemoteEvent")
+remote.Name = "CarreraGlobosEvento"
+remote.Parent = ReplicatedStorage
+
+-- ─── Interfaz: se mueve a StarterGui para que la reciban todos ─────────
+local ui = root:FindFirstChild("CarreraUI")
+if ui then
+	ui.Parent = StarterGui
+	for _, player in Players:GetPlayers() do
+		local playerGui = player:FindFirstChildOfClass("PlayerGui")
+		if playerGui and not playerGui:FindFirstChild("CarreraUI") then
+			ui:Clone().Parent = playerGui
+		end
+	end
+else
+	warn("[CarreraGlobos] Falta «CarreraUI» (la interfaz). El juego funciona pero sin pantallas.")
+end
+
+-- ─── Datos, recompensas y mapa ─────────────────────────────────────────
+Recompensas.init(remote)
+Datos.init(function(player)
+	Recompensas.apply(player)
+	Recompensas.sendState(player)
+end)
+
+local stageModules = {}
+for _, name in Config.Etapas do
+	local module = root.Stages:FindFirstChild(name)
+	if module and module:IsA("ModuleScript") then
+		table.insert(stageModules, require(module) :: any)
+	else
+		warn("[CarreraGlobos] No existe la etapa «" .. name .. "» dentro de la carpeta Stages")
+	end
+end
+local map = MapBuilder.build(stageModules)
+Tablas.init(map.lobby)
+
+-- ─── Lobby ─────────────────────────────────────────────────────────────
+local status = ""
+local racing = false
+
+local function setStatus(text: string)
+	if text ~= status then
+		status = text
+		remote:FireAllClients("estado", text)
+	end
+end
+
+remote.OnServerEvent:Connect(function(player, kind, ...)
+	if kind == "hola" then
+		remote:FireClient(player, "estado", status)
+		Recompensas.sendState(player)
+	elseif kind == "equipar" then
+		Recompensas.equip(player, ...)
+	end
+end)
+
+local function playerOnPad(pad): Player?
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		local hrp = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if hrp and humanoid and humanoid.Health > 0 then
+			local d = hrp.Position - pad.part.Position
+			if Vector3.new(d.X, 0, d.Z).Magnitude < 4.5 and d.Y > -1 and d.Y < 8 then
+				return player
+			end
+		end
+	end
+	return nil
+end
+
+local function startRace(players: { Player })
+	racing = true
+	setStatus("¡Carrera en curso! 🏁 Mira la pantalla")
+	for _, pad in map.pads do
+		pad.label.Text = "JUGADOR " .. pad.index .. "\n¡Párate aquí!"
+	end
+	task.spawn(function()
+		local ok, err = pcall(Race.run, map, players, remote)
+		if not ok then
+			warn("[CarreraGlobos] Error en la carrera: " .. tostring(err))
+			remote:FireAllClients("fin")
+		end
+		racing = false
+	end)
+end
+
+local aloneSince: number? = nil
+
+while true do
+	task.wait(0.2)
+	if racing then
+		aloneSince = nil
+		continue
+	end
+
+	local p1 = playerOnPad(map.pads[1])
+	local p2 = playerOnPad(map.pads[2])
+	if p1 == p2 then
+		p2 = nil
+	end
+	for i, pad in map.pads do
+		local who = if i == 1 then p1 else p2
+		pad.label.Text = if who then "JUGADOR " .. i .. "\n" .. who.DisplayName else "JUGADOR " .. i .. "\n¡Párate aquí!"
+	end
+
+	if p1 and p2 then
+		aloneSince = nil
+		startRace({ p1, p2 })
+	elseif p1 or p2 then
+		local now = os.clock()
+		aloneSince = aloneSince or now
+		local waited = now - (aloneSince :: number)
+		if Config.EsperaSolo > 0 then
+			local left = math.ceil(Config.EsperaSolo - waited)
+			if left <= 0 then
+				aloneSince = nil
+				startRace({ (p1 or p2) :: Player })
+			else
+				setStatus(string.format("Esperando rival… o juegas solo contra el reloj en %d ⏱", left))
+			end
+		else
+			setStatus("Esperando rival… ¡falta 1 jugador! 👀")
+		end
+	else
+		aloneSince = nil
+		setStatus("Párate en una plataforma para jugar 🎈")
+	end
+end
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000007"><Properties><string name="Name">MapBuilder</string><ProtectedString name="Source"><![CDATA[--[[
+	Construye todo el mapa con código: lobby, plataformas de «Jugador 1 / Jugador 2»,
+	dos pistas paralelas separadas por vidrio, las etapas, las puertas y la meta.
+
+	Vista desde arriba (X hacia la derecha):
+
+	  LOBBY   | salida | etapa 1 |🚪| etapa 2 |🚪| etapa 3 |🚪| etapa 4 |🚪| META
+	  [P1]    | pista 1 ─────────────────────────────────────────────────────►
+	  [P2]    | pista 2 ─────────────────────────────────────────────────────►
+]]
+
+local Workspace = game:GetService("Workspace")
+
+local Config = require(script.Parent.Config)
+local Util = require(script.Parent.Util)
+
+local MapBuilder = {}
+
+local SAND = Color3.fromRGB(235, 195, 135)
+local WALL = Color3.fromRGB(250, 235, 210)
+local GLASS = Color3.fromRGB(200, 230, 255)
+local WALL_H = 20
+local START_ZONE = 20
+local DOOR_T = 2
+local FINISH_ZONE = 34
+
+function MapBuilder.build(stageModules)
+	local O = Config.Origen
+	local floorY = O.Y + 1
+	local W = Config.AnchoPista
+
+	local root = Instance.new("Folder")
+	root.Name = "MapaCarreraGlobos"
+	root.Parent = Workspace
+
+	local map = { floorY = floorY, lanes = {}, pads = {} }
+
+	-- ─── Lobby ─────────────────────────────────────────────────────────
+	local lobby = Instance.new("Folder")
+	lobby.Name = "Lobby"
+	lobby.Parent = root
+	map.lobby = lobby
+
+	Util.part({
+		Name = "PisoLobby",
+		Size = Vector3.new(64, 1, 64),
+		CFrame = CFrame.new(O + Vector3.new(0, 0.5, 0)),
+		Color = Color3.fromRGB(255, 240, 200),
+		Parent = lobby,
+	})
+
+	local spawn = Instance.new("SpawnLocation")
+	spawn.Name = "SpawnCarrera"
+	spawn.Anchored = true
+	spawn.Size = Vector3.new(10, 1, 10)
+	spawn.CFrame = CFrame.new(O + Vector3.new(-18, 0.6, 0))
+	spawn.Color = Color3.fromRGB(255, 200, 80)
+	spawn.Material = Enum.Material.SmoothPlastic
+	spawn.TopSurface = Enum.SurfaceType.Smooth
+	spawn.Duration = 0
+	spawn.Neutral = true
+	spawn.Parent = lobby
+	-- Que todos aparezcan en nuestro lobby (solo mientras el juego corre)
+	for _, other in Workspace:GetDescendants() do
+		if other:IsA("SpawnLocation") and other ~= spawn then
+			other.Enabled = false
+		end
+	end
+	map.lobbyCFrame = CFrame.new(O + Vector3.new(-18, 4, 0))
+
+	local sign = Util.part({
+		Name = "Letrero",
+		Size = Vector3.new(1, 10, 36),
+		CFrame = CFrame.new(O + Vector3.new(-31, 8, 0)),
+		Color = Color3.fromRGB(255, 90, 150),
+		Parent = lobby,
+	})
+	Util.surfaceText(sign, Enum.NormalId.Right, "🎈 CARRERA DE GLOBOS 🎈")
+
+	for i = 1, 2 do
+		local padPos = O + Vector3.new(18, 0, if i == 1 then -10 else 10)
+		local pad = Util.cylinder(padPos + Vector3.new(0, 1.2, 0), 0.4, 9, {
+			Name = "Plataforma" .. i,
+			Color = Config.ColoresPista[i],
+			Material = Enum.Material.Neon,
+			Parent = lobby,
+		})
+		local gui = Util.billboard(pad, "JUGADOR " .. i .. "\n¡Párate aquí!", 6, Config.ColoresPista[i])
+		gui.Size = UDim2.fromScale(12, 4)
+		map.pads[i] = { part = pad, label = gui:FindFirstChild("Texto") :: TextLabel, index = i }
+	end
+
+	-- ─── Pistas ────────────────────────────────────────────────────────
+	local startX = O.X + 60
+	local stageXs = {}
+	local x = startX + START_ZONE
+	for s, module in stageModules do
+		local length = module.length()
+		stageXs[s] = { x0 = x, x1 = x + length }
+		x += length + DOOR_T
+	end
+	local finishX = x + 14
+	local endX = x + FINISH_ZONE
+	local totalLength = endX - startX
+	local midX = (startX + endX) / 2
+
+	local track = Instance.new("Folder")
+	track.Name = "Pistas"
+	track.Parent = root
+
+	-- Divisor de vidrio entre pistas + paredes externas + paredes de inicio y fin
+	Util.part({
+		Name = "Divisor",
+		Size = Vector3.new(totalLength, WALL_H, 2),
+		CFrame = CFrame.new(midX, floorY + WALL_H / 2, O.Z),
+		Color = GLASS,
+		Material = Enum.Material.Glass,
+		Transparency = 0.7,
+		Parent = track,
+	})
+	for _, side in { -1, 1 } do
+		Util.part({
+			Name = "ParedExterna",
+			Size = Vector3.new(totalLength, WALL_H, 1),
+			CFrame = CFrame.new(midX, floorY + WALL_H / 2, O.Z + side * (W + 1.5)),
+			Color = WALL,
+			Transparency = 0.25,
+			Parent = track,
+		})
+	end
+	for _, wx in { startX - 0.5, endX + 0.5 } do
+		Util.part({
+			Name = "ParedFinal",
+			Size = Vector3.new(1, WALL_H, 2 * W + 4),
+			CFrame = CFrame.new(wx, floorY + WALL_H / 2, O.Z),
+			Color = GLASS,
+			Material = Enum.Material.Glass,
+			Transparency = 0.6,
+			Parent = track,
+		})
+	end
+
+	for i = 1, 2 do
+		local z = O.Z + (if i == 1 then -1 else 1) * (W / 2 + 1)
+		local color = Config.ColoresPista[i]
+		local laneFolder = Instance.new("Folder")
+		laneFolder.Name = "Pista" .. i
+		laneFolder.Parent = track
+
+		Util.part({
+			Name = "Piso",
+			Size = Vector3.new(totalLength, 1, W),
+			CFrame = CFrame.new(midX, floorY - 0.5, z),
+			Color = SAND,
+			Parent = laneFolder,
+		})
+		-- Franja de salida del color del jugador
+		Util.part({
+			Name = "Salida",
+			Size = Vector3.new(START_ZONE, 0.1, W),
+			CFrame = CFrame.new(startX + START_ZONE / 2, floorY + 0.05, z),
+			Color = color,
+			Transparency = 0.4,
+			CanCollide = false,
+			Parent = laneFolder,
+		})
+
+		local lane = {
+			index = i,
+			z = z,
+			color = color,
+			startCFrame = CFrame.lookAt(Vector3.new(startX + 8, floorY + 3, z), Vector3.new(startX + 100, floorY + 3, z)),
+			stages = {},
+			finishX = finishX,
+			finishCFrame = CFrame.lookAt(Vector3.new(finishX - 8, floorY + 3, z), Vector3.new(finishX + 100, floorY + 3, z)),
+		}
+
+		for s, module in stageModules do
+			local range = stageXs[s]
+			local stageFolder = Instance.new("Folder")
+			stageFolder.Name = string.format("Etapa%d_%s", s, module.Title)
+			stageFolder.Parent = laneFolder
+
+			local barriers = {}
+			local ctx = {
+				folder = stageFolder,
+				x0 = range.x0,
+				length = range.x1 - range.x0,
+				z = z,
+				width = W,
+				floor = floorY,
+				color = color,
+				lane = i,
+				rng = Random.new(s * 7919), -- misma semilla en las dos pistas = carrera justa
+				addBarrier = function(part: BasePart)
+					table.insert(barriers, { part = part, cframe = part.CFrame })
+				end,
+			}
+			local handle = module.build(ctx)
+
+			local door = Util.part({
+				Name = "Puerta",
+				Size = Vector3.new(DOOR_T, WALL_H, W),
+				CFrame = CFrame.new(range.x1 + DOOR_T / 2, floorY + WALL_H / 2, z),
+				Color = color,
+				Transparency = 0.1,
+				Parent = stageFolder,
+			})
+			local doorLabel = Util.surfaceText(door, Enum.NormalId.Left, "🎈 0 / 0")
+			table.insert(barriers, { part = door, cframe = door.CFrame })
+
+			lane.stages[s] = {
+				module = module,
+				handle = handle,
+				x0 = range.x0,
+				x1 = range.x1,
+				door = door,
+				doorLabel = doorLabel,
+				barriers = barriers,
+				entryCFrame = CFrame.lookAt(
+					Vector3.new(range.x0 + 3, floorY + 3, z),
+					Vector3.new(range.x0 + 100, floorY + 3, z)
+				),
+			}
+		end
+
+		-- Meta a cuadros
+		local tiles = 10
+		for t = 0, tiles - 1 do
+			Util.part({
+				Name = "Meta",
+				Size = Vector3.new(3, 0.12, W / tiles),
+				CFrame = CFrame.new(finishX + 1.5, floorY + 0.06, z - W / 2 + (t + 0.5) * W / tiles),
+				Color = if t % 2 == 0 then Color3.new(1, 1, 1) else Color3.new(0.1, 0.1, 0.1),
+				CanCollide = false,
+				Parent = laneFolder,
+			})
+		end
+		for _, side in { -1, 1 } do
+			Util.part({
+				Name = "ArcoPilar",
+				Size = Vector3.new(1.5, 14, 1.5),
+				CFrame = CFrame.new(finishX + 1.5, floorY + 7, z + side * (W / 2 - 1)),
+				Color = Color3.fromRGB(255, 205, 40),
+				Material = Enum.Material.Neon,
+				Parent = laneFolder,
+			})
+		end
+		local arch = Util.part({
+			Name = "ArcoTecho",
+			Size = Vector3.new(1.5, 2.5, W),
+			CFrame = CFrame.new(finishX + 1.5, floorY + 15, z),
+			Color = Color3.fromRGB(255, 205, 40),
+			Material = Enum.Material.Neon,
+			Parent = laneFolder,
+		})
+		Util.surfaceText(arch, Enum.NormalId.Left, "🏁 META 🏁").TextColor3 = Color3.fromRGB(60, 30, 0)
+
+		map.lanes[i] = lane
+	end
+
+	return map
+end
+
+return MapBuilder
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000008"><Properties><string name="Name">Race</string><ProtectedString name="Source"><![CDATA[--[[
+	Una carrera completa: prepara los globos de cada etapa, hace la cuenta atrás,
+	explota globos cuando tu cuerpo los toca, abre puertas y anuncia al ganador.
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+
+local Config = require(script.Parent.Config)
+local Balloons = require(script.Parent.Balloons)
+local Datos = require(script.Parent.Datos)
+local Recompensas = require(script.Parent.Recompensas)
+local Tablas = require(script.Parent.Tablas)
+
+local Race = {}
+
+local function getCharacter(player: Player): (Humanoid?, BasePart?)
+	local character = player.Character
+	if not character then
+		return nil, nil
+	end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if humanoid and humanoid.Health > 0 and root and root:IsA("BasePart") then
+		return humanoid, root
+	end
+	return nil, nil
+end
+
+local function teleport(player: Player, cframe: CFrame)
+	local character = player.Character
+	if character then
+		character:PivotTo(cframe)
+	end
+end
+
+local function setBarriers(stageMap, open: boolean)
+	for _, barrier in stageMap.barriers do
+		local part = barrier.part
+		if open then
+			part.CanCollide = false
+			TweenService:Create(part, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+				CFrame = barrier.cframe - Vector3.new(0, part.Size.Y + 0.5, 0),
+			}):Play()
+		else
+			part.CFrame = barrier.cframe
+			part.CanCollide = true
+		end
+	end
+end
+
+function Race.run(map, players: { Player }, remote: RemoteEvent)
+	local raceFolder = Instance.new("Folder")
+	raceFolder.Name = "CarreraActiva"
+	raceFolder.Parent = Workspace
+
+	local seed = math.random(1, 1000000)
+	local lanes = {}
+	local connections: { RBXScriptConnection } = {}
+	local cleaned = false
+	local startTime = os.clock()
+
+	local function checkpoint(lane): CFrame
+		for s, st in lane.stages do
+			if not st.done then
+				return lane.map.stages[s].entryCFrame
+			end
+		end
+		return lane.map.finishCFrame
+	end
+
+	local function broadcastProgress()
+		local list = {}
+		for _, lane in lanes do
+			table.insert(list, {
+				name = lane.player.DisplayName,
+				userId = lane.player.UserId,
+				cleared = lane.cleared,
+				lane = lane.index,
+			})
+		end
+		remote:FireAllClients("carrera", list, #map.lanes[1].stages)
+	end
+
+	local function updateDoor(lane, s: number)
+		local st = lane.stages[s]
+		if not st.done then
+			lane.map.stages[s].doorLabel.Text = string.format("🎈 %d / %d", math.min(st.popped, st.goal), st.goal)
+		end
+	end
+
+	local function clearStage(lane, s: number)
+		local st = lane.stages[s]
+		st.done = true
+		lane.cleared += 1
+		local stageMap = lane.map.stages[s]
+		stageMap.doorLabel.Text = "✅ ¡ABIERTO!"
+		setBarriers(stageMap, true)
+		remote:FireAllClients("puerta", stageMap.door.Position, lane.player.UserId, s, #lane.stages)
+		broadcastProgress()
+	end
+
+	-- Suma un punto a la etapa (globo explotado o golpe al globo gigante)
+	local function score(lane, s: number, pos: Vector3, color: Color3, radius: number, golden: boolean)
+		local st = lane.stages[s]
+		st.popped += 1
+		local points = if golden then Config.PuntosDorado else Config.PuntosGlobo
+		lane.points += points
+		remote:FireAllClients("globo", pos, color, radius, lane.player.UserId, points, golden)
+		Datos.add(lane.player, "Globos", 1)
+		updateDoor(lane, s)
+		remote:FireClient(lane.player, "progreso", s, math.min(st.popped, st.goal), st.goal, lane.points)
+		if not st.done and st.popped >= st.goal then
+			clearStage(lane, s)
+		end
+	end
+
+	local function popBalloon(lane, s: number, model: Model)
+		if cleaned then
+			return
+		end
+		local st = lane.stages[s]
+		local info = st.balloons[model]
+		if not info then
+			return
+		end
+		st.balloons[model] = nil
+		model:Destroy()
+		score(lane, s, info.pos, info.color, info.radius, info.golden)
+	end
+
+	local function endPower(lane)
+		if lane.aura then
+			lane.aura:Destroy()
+			lane.aura = nil
+		end
+		local humanoid = getCharacter(lane.player)
+		if humanoid and not cleaned then
+			humanoid.WalkSpeed = Config.VelocidadCarrera
+		end
+	end
+
+	local function powerUp(lane, seconds: number)
+		lane.powerUntil = os.clock() + seconds
+		local humanoid, root = getCharacter(lane.player)
+		if humanoid then
+			humanoid.WalkSpeed = Config.VelocidadCarrera + Config.Laberinto.PoderVelocidadExtra
+		end
+		if root and not lane.aura then
+			local aura = Instance.new("ParticleEmitter")
+			aura.Name = "AuraPoder"
+			aura.Color = ColorSequence.new(Color3.fromRGB(200, 90, 255))
+			aura.LightEmission = 1
+			aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.4), NumberSequenceKeypoint.new(1, 0) })
+			aura.Transparency = NumberSequence.new(0.1, 1)
+			aura.Lifetime = NumberRange.new(0.4, 0.8)
+			aura.Rate = 70
+			aura.Speed = NumberRange.new(2, 6)
+			aura.SpreadAngle = Vector2.new(180, 180)
+			local light = Instance.new("PointLight")
+			light.Color = Color3.fromRGB(200, 90, 255)
+			light.Range = 12
+			light.Brightness = 3
+			light.Parent = aura
+			aura.Parent = root
+			lane.aura = aura
+		end
+		remote:FireClient(lane.player, "poderJugador", seconds)
+		task.delay(seconds, function()
+			if os.clock() >= lane.powerUntil - 0.05 then
+				endPower(lane)
+			end
+		end)
+	end
+
+	-- ─── Preparar cada pista ───────────────────────────────────────────
+	for i, player in players do
+		local laneMap = map.lanes[i]
+		local lane = {
+			player = player,
+			index = i,
+			map = laneMap,
+			stages = {},
+			current = -1,
+			cleared = 0,
+			points = 0,
+			powerUntil = 0,
+			aura = nil :: ParticleEmitter?,
+			won = false,
+		}
+		lanes[i] = lane
+
+		for s, stageMap in laneMap.stages do
+			local st = { balloons = {}, popped = 0, goal = 0, done = false, update = nil, stop = nil }
+			lane.stages[s] = st
+			setBarriers(stageMap, false)
+
+			local rng = Random.new(seed + s) -- misma semilla en las dos pistas
+			local rt = {
+				player = player,
+				folder = raceFolder,
+				rng = rng,
+			}
+			function rt.addBalloon(pos: Vector3, opts)
+				-- Siempre usamos el rng las mismas veces para que las dos pistas sean idénticas
+				local color = Config.ColoresGlobo[rng:NextInteger(1, #Config.ColoresGlobo)]
+				local golden = rng:NextNumber() < Config.ProbabilidadDorado
+				if opts.golden ~= nil then
+					golden = opts.golden
+				end
+				local size = opts.size or 3
+				local model = Balloons.create(raceFolder, pos, {
+					size = size,
+					color = opts.color or color,
+					golden = golden,
+					noString = opts.noString,
+					noBob = opts.noBob,
+				})
+				local body = model.PrimaryPart :: BasePart
+				st.balloons[model] = { pos = pos, radius = size * 0.55, golden = golden, color = body.Color }
+				return model
+			end
+			function rt.pop(model: Model)
+				popBalloon(lane, s, model)
+			end
+			function rt.balloons()
+				return st.balloons
+			end
+			function rt.move(model: Model, pos: Vector3)
+				local info = st.balloons[model]
+				if info then
+					info.pos = pos
+					model:PivotTo(CFrame.new(pos))
+				end
+			end
+			function rt.hit(pos: Vector3, color: Color3, radius: number)
+				if not cleaned then
+					score(lane, s, pos, color, radius, false)
+				end
+			end
+			function rt.done(): boolean
+				return st.done
+			end
+			function rt.bounce(velocity: Vector3)
+				remote:FireClient(player, "rebote", velocity)
+			end
+			function rt.fx(kind: string, ...)
+				remote:FireAllClients(kind, ...)
+			end
+			function rt.powerUp(seconds: number)
+				powerUp(lane, seconds)
+			end
+
+			local control = stageMap.module.start(stageMap.handle, rt)
+			st.goal = control.goal
+			st.update = control.update
+			st.stop = control.stop
+			updateDoor(lane, s)
+		end
+		for s, st in lane.stages do
+			if st.goal <= 0 then
+				clearStage(lane, s)
+			end
+		end
+	end
+
+	-- Si alguien se muere o se reinicia, reaparece en su última puerta
+	for _, lane in lanes do
+		table.insert(
+			connections,
+			lane.player.CharacterAdded:Connect(function(character)
+				local root = character:WaitForChild("HumanoidRootPart", 10)
+				local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid?
+				if cleaned or not root then
+					return
+				end
+				task.wait()
+				character:PivotTo(checkpoint(lane))
+				if humanoid then
+					humanoid.WalkSpeed = Config.VelocidadCarrera
+				end
+				lane.aura = nil
+			end)
+		)
+	end
+
+	-- ─── Cuenta atrás ──────────────────────────────────────────────────
+	for _, lane in lanes do
+		local _, root = getCharacter(lane.player)
+		if root then
+			teleport(lane.player, lane.map.startCFrame)
+			root.Anchored = true
+		end
+	end
+	broadcastProgress()
+	for n = Config.CuentaAtras, 1, -1 do
+		remote:FireAllClients("cuenta", n)
+		task.wait(1)
+	end
+	remote:FireAllClients("cuenta", 0)
+	startTime = os.clock()
+	for _, lane in lanes do
+		local humanoid, root = getCharacter(lane.player)
+		if root then
+			root.Anchored = false
+		end
+		if humanoid then
+			humanoid.WalkSpeed = Config.VelocidadCarrera
+		end
+	end
+
+	-- ─── Bucle de la carrera ───────────────────────────────────────────
+	local laneCount = 0
+	for _ in lanes do
+		laneCount += 1
+	end
+
+	local function stepLane(lane, root: BasePart, dt: number)
+		local pos = root.Position
+		if pos.Y < map.floorY - 30 then
+			teleport(lane.player, checkpoint(lane))
+			return
+		end
+
+		-- ¿En qué etapa está? (para mostrar el cartel e instrucciones)
+		local current = 0
+		for s, stageMap in lane.map.stages do
+			if pos.X >= stageMap.x0 and pos.X < stageMap.x1 + 2 then
+				current = s
+			end
+		end
+		if current ~= lane.current then
+			lane.current = current
+			if current > 0 then
+				local st = lane.stages[current]
+				local module = lane.map.stages[current].module
+				remote:FireClient(
+					lane.player,
+					"etapa",
+					current,
+					#lane.stages,
+					module.Title,
+					module.Hint,
+					math.min(st.popped, st.goal),
+					st.goal,
+					st.done
+				)
+			end
+		end
+
+		-- Tu cuerpo explota los globos que toca
+		local reach = Config.AlcanceCuerpo
+		if os.clock() < lane.powerUntil then
+			reach += Config.Laberinto.PoderAlcanceExtra
+		end
+		for s, st in lane.stages do
+			for model, info in st.balloons do
+				if (info.pos - pos).Magnitude <= info.radius + reach then
+					popBalloon(lane, s, model)
+				end
+			end
+			if st.update then
+				st.update(dt, root, s == current)
+			end
+		end
+
+		if lane.cleared >= #lane.stages and pos.X >= lane.map.finishX then
+			lane.won = true
+		end
+	end
+
+	local winner = nil
+	while not winner do
+		local dt = RunService.Heartbeat:Wait()
+		local present = {}
+		for _, lane in lanes do
+			if lane.player.Parent == Players then
+				table.insert(present, lane)
+			end
+		end
+		if #present == 0 then
+			break
+		end
+		if #present == 1 and laneCount > 1 then
+			winner = present[1] -- el rival se fue
+			break
+		end
+		for _, lane in present do
+			local _, root = getCharacter(lane.player)
+			if root then
+				stepLane(lane, root, dt)
+				if lane.won then
+					winner = lane
+					break
+				end
+			end
+		end
+	end
+
+	-- ─── Ganador y limpieza ────────────────────────────────────────────
+	if winner then
+		local seconds = os.clock() - startTime
+		local isRecord = Tablas.recordTime(winner.player, seconds)
+		remote:FireAllClients("ganador", winner.player.DisplayName, winner.player.UserId, winner.points, seconds, isRecord)
+		-- Contra el reloj (solo) no suma Win: solo cuenta el tiempo
+		if laneCount > 1 then
+			Datos.add(winner.player, "Wins", 1)
+			Tablas.saveWins(winner.player)
+			Recompensas.onWin(winner.player)
+		end
+		task.wait(Config.TiempoCelebracion)
+	end
+	for _, lane in lanes do
+		if lane.player.Parent == Players then
+			Tablas.saveGlobos(lane.player)
+		end
+	end
+	Tablas.refreshSoon()
+
+	cleaned = true
+	for _, connection in connections do
+		connection:Disconnect()
+	end
+	for _, lane in lanes do
+		endPower(lane)
+		if lane.player.Parent == Players then
+			local humanoid, root = getCharacter(lane.player)
+			if root then
+				root.Anchored = false
+			end
+			if humanoid then
+				humanoid.WalkSpeed = Config.VelocidadNormal
+			end
+			teleport(lane.player, map.lobbyCFrame * CFrame.new(0, 0, (lane.index - 1.5) * 6))
+		end
+		for s, st in lane.stages do
+			if st.stop then
+				st.stop()
+			end
+			table.clear(st.balloons)
+			local stageMap = lane.map.stages[s]
+			setBarriers(stageMap, false)
+			stageMap.doorLabel.Text = "🎈"
+		end
+	end
+	raceFolder:Destroy()
+	remote:FireAllClients("fin")
+end
+
+return Race
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000009"><Properties><string name="Name">Recompensas</string><ProtectedString name="Source"><![CDATA[--[[
+	RECOMPENSAS: las Wins desbloquean estelas (rastro que dejas al correr) y
+	títulos (cartel sobre tu cabeza). Las Wins no se gastan: al llegar a cierta
+	cantidad se desbloquea para siempre.
+]]
+
+local Players = game:GetService("Players")
+
+local Config = require(script.Parent.Config)
+local Datos = require(script.Parent.Datos)
+
+local Recompensas = {}
+
+local remote: RemoteEvent? = nil
+
+local function find(list, id: any)
+	for _, item in list do
+		if item.Id == id then
+			return item
+		end
+	end
+	return nil
+end
+
+local function equipped(player: Player, kind: string)
+	local list = if kind == "Estela" then Config.Estelas else Config.Titulos
+	local item = find(list, player:GetAttribute(kind))
+	-- Si no tiene nada válido (o ya no le alcanza), usamos el primero (gratis)
+	if not item or Datos.get(player, "Wins") < item.Wins then
+		item = list[1]
+	end
+	return item
+end
+
+local function applyTrail(player: Player, character: Model)
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if not root then
+		return
+	end
+	for _, name in { "EstelaCarrera", "EstelaArriba", "EstelaAbajo" } do
+		local old = root:FindFirstChild(name)
+		if old then
+			old:Destroy()
+		end
+	end
+	local item = equipped(player, "Estela")
+
+	local top = Instance.new("Attachment")
+	top.Name = "EstelaArriba"
+	top.Position = Vector3.new(0, 0.9, 0)
+	top.Parent = root
+	local bottom = Instance.new("Attachment")
+	bottom.Name = "EstelaAbajo"
+	bottom.Position = Vector3.new(0, -0.9, 0)
+	bottom.Parent = root
+
+	local keypoints = {}
+	for i, color in item.Colores do
+		table.insert(keypoints, ColorSequenceKeypoint.new((i - 1) / math.max(#item.Colores - 1, 1), color))
+	end
+	if #keypoints == 1 then
+		table.insert(keypoints, ColorSequenceKeypoint.new(1, item.Colores[1]))
+	end
+
+	local trail = Instance.new("Trail")
+	trail.Name = "EstelaCarrera"
+	trail.Attachment0 = top
+	trail.Attachment1 = bottom
+	trail.Color = ColorSequence.new(keypoints)
+	trail.Lifetime = 0.55
+	trail.LightEmission = 0.6
+	trail.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.1),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	trail.WidthScale = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(1, 0.2),
+	})
+	trail.FaceCamera = true
+	trail.Parent = root
+end
+
+local function applyTitle(player: Player, character: Model)
+	local head = character:FindFirstChild("Head")
+	if not head then
+		return
+	end
+	local old = head:FindFirstChild("TituloCarrera")
+	if old then
+		old:Destroy()
+	end
+	local item = equipped(player, "Titulo")
+
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "TituloCarrera"
+	gui.Size = UDim2.fromOffset(220, 46)
+	gui.StudsOffset = Vector3.new(0, 2.6, 0)
+	gui.MaxDistance = 80
+	gui.LightInfluence = 0
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.FredokaOne
+	label.TextScaled = true
+	label.Text = string.format("%s · 🏆 %d", item.Nombre, Datos.get(player, "Wins"))
+	label.TextColor3 = item.Color
+	label.TextStrokeTransparency = 0.2
+	label.Parent = gui
+	gui.Parent = head
+end
+
+function Recompensas.apply(player: Player)
+	local character = player.Character
+	if character then
+		applyTrail(player, character)
+		applyTitle(player, character)
+	end
+end
+
+function Recompensas.sendState(player: Player)
+	if remote then
+		remote:FireClient(
+			player,
+			"tienda",
+			Datos.get(player, "Wins"),
+			equipped(player, "Estela").Id,
+			equipped(player, "Titulo").Id
+		)
+	end
+end
+
+-- Llamado cuando el cliente toca «Equipar» en la tienda
+function Recompensas.equip(player: Player, kind: any, id: any)
+	if kind ~= "Estela" and kind ~= "Titulo" or type(id) ~= "string" then
+		return
+	end
+	local list = if kind == "Estela" then Config.Estelas else Config.Titulos
+	local item = find(list, id)
+	if item and Datos.get(player, "Wins") >= item.Wins then
+		player:SetAttribute(kind, id)
+		Recompensas.apply(player)
+	end
+	Recompensas.sendState(player)
+end
+
+-- Llamado después de sumar una Win: avisa si se desbloqueó algo nuevo
+function Recompensas.onWin(player: Player)
+	local wins = Datos.get(player, "Wins")
+	local unlocked = {}
+	for _, item in Config.Estelas do
+		if item.Wins == wins then
+			table.insert(unlocked, "Estela " .. item.Nombre)
+		end
+	end
+	for _, item in Config.Titulos do
+		if item.Wins == wins then
+			table.insert(unlocked, "Título «" .. item.Nombre .. "»")
+		end
+	end
+
+	-- Próxima recompensa, para que siempre haya una meta
+	local nextItem = nil
+	for _, list in { Config.Estelas, Config.Titulos } do
+		for _, item in list do
+			if item.Wins > wins and (not nextItem or item.Wins < nextItem.Wins) then
+				nextItem = item
+			end
+		end
+	end
+
+	if remote then
+		remote:FireClient(
+			player,
+			"desbloqueo",
+			unlocked,
+			if nextItem then nextItem.Nombre else nil,
+			if nextItem then nextItem.Wins else nil,
+			wins
+		)
+	end
+	Recompensas.apply(player)
+	Recompensas.sendState(player)
+end
+
+function Recompensas.init(remoteEvent: RemoteEvent)
+	remote = remoteEvent
+	local function hook(player: Player)
+		player.CharacterAdded:Connect(function(character)
+			character:WaitForChild("HumanoidRootPart", 10)
+			character:WaitForChild("Head", 10)
+			Recompensas.apply(player)
+		end)
+	end
+	Players.PlayerAdded:Connect(hook)
+	for _, player in Players:GetPlayers() do
+		hook(player)
+	end
+end
+
+return Recompensas
+]]></ProtectedString></Properties></Item><Item class="Folder" referent="RBX00000012"><Properties><string name="Name">Stages</string></Properties><Item class="ModuleScript" referent="RBX0000000A"><Properties><string name="Name">Aspas</string><ProtectedString name="Source"><![CDATA[--[[
+	ETAPA: ASPAS GIRATORIAS
+	Anillos de globos alrededor de una plataforma con un botón verde.
+	Mientras estés parado en el botón, el brazo gira y revienta todo el anillo.
+]]
+
+local Config = require(script.Parent.Parent.Config)
+local Util = require(script.Parent.Parent.Util)
+
+local Aspas = {}
+
+Aspas.Title = "Aspas giratorias"
+Aspas.Hint = "¡Párate en el botón verde!"
+
+local BUTTON_OFF = Color3.fromRGB(80, 220, 90)
+local BUTTON_ON = Color3.fromRGB(255, 240, 80)
+local RING_COLOR = Color3.fromRGB(90, 150, 230)
+local PEDESTAL_H = 2.4
+local ARM_Y = 1.8
+local BALLOON_Y = 2.6
+local HIT_ANGLE = 0.15 -- radianes: qué tan cerca debe pasar el brazo de un globo
+
+function Aspas.length(): number
+	local cfg = Config.Aspas
+	return cfg.Anillos * (2 * cfg.Radio + 8) + 8
+end
+
+function Aspas.build(ctx)
+	local cfg = Config.Aspas
+	local R = cfg.Radio
+	local handle = { rings = {} }
+
+	for r = 1, cfg.Anillos do
+		local cx = ctx.x0 + 4 + (r - 1) * (2 * R + 8) + R + 4
+		local center = Vector3.new(cx, ctx.floor, ctx.z)
+
+		-- Anillo azul donde se paran los globos
+		local tiles = 28
+		for k = 0, tiles - 1 do
+			local a = k / tiles * math.pi * 2
+			Util.part({
+				Name = "Anillo",
+				Size = Vector3.new(4, 0.6, 2 * math.pi * R / tiles + 0.3),
+				CFrame = CFrame.new(center + Vector3.new(math.cos(a) * R, 0.3, math.sin(a) * R)) * CFrame.Angles(0, -a, 0),
+				Color = RING_COLOR,
+				Parent = ctx.folder,
+			})
+		end
+
+		-- Plataforma central con el botón
+		Util.cylinder(center + Vector3.new(0, PEDESTAL_H / 2, 0), PEDESTAL_H, 7, {
+			Name = "Plataforma",
+			Color = Color3.fromRGB(70, 110, 190),
+			Parent = ctx.folder,
+		})
+		local button = Util.cylinder(center + Vector3.new(0, PEDESTAL_H + 0.15, 0), 0.3, 4.5, {
+			Name = "Boton",
+			Color = BUTTON_OFF,
+			Material = Enum.Material.Neon,
+			Parent = ctx.folder,
+		})
+		local sign = Util.billboard(button, "⬇ ¡PÁRATE AQUÍ! ⬇", 5, Color3.fromRGB(255, 255, 120))
+
+		-- Eje invisible + brazo que gira con un motor (física = movimiento suave)
+		local axle = Util.part({
+			Name = "Eje",
+			Size = Vector3.new(1, 1, 1),
+			CFrame = CFrame.new(center + Vector3.new(0, ARM_Y, 0)),
+			Transparency = 1,
+			CanCollide = false,
+			CanQuery = false,
+			CanTouch = false,
+			Parent = ctx.folder,
+		})
+		local armLength = R + 1
+		local arm = Util.part({
+			Name = "Brazo",
+			Anchored = false,
+			Size = Vector3.new(armLength, 1, 1.6),
+			CFrame = CFrame.new(center + Vector3.new(armLength / 2, ARM_Y, 0)),
+			Color = Color3.fromRGB(150, 95, 55),
+			Material = Enum.Material.WoodPlanks,
+			CanCollide = false,
+			CanTouch = false,
+			Parent = ctx.folder,
+		})
+		local tip = Util.part({
+			Name = "Punta",
+			Anchored = false,
+			Shape = Enum.PartType.Ball,
+			Size = Vector3.new(2.2, 2.2, 2.2),
+			CFrame = CFrame.new(center + Vector3.new(armLength, ARM_Y, 0)),
+			Color = Color3.fromRGB(255, 90, 220),
+			Material = Enum.Material.Neon,
+			CanCollide = false,
+			CanTouch = false,
+			Massless = true,
+			Parent = ctx.folder,
+		})
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = arm
+		weld.Part1 = tip
+		weld.Parent = arm
+
+		local verticalAxis = CFrame.Angles(0, 0, math.rad(90)) -- el eje de la bisagra (X) apunta hacia arriba
+		local a0 = Instance.new("Attachment")
+		a0.CFrame = verticalAxis
+		a0.Parent = axle
+		local a1 = Instance.new("Attachment")
+		a1.CFrame = CFrame.new(-armLength / 2, 0, 0) * verticalAxis
+		a1.Parent = arm
+		local hinge = Instance.new("HingeConstraint")
+		hinge.Attachment0 = a0
+		hinge.Attachment1 = a1
+		hinge.ActuatorType = Enum.ActuatorType.Motor
+		hinge.MotorMaxTorque = 1e9
+		hinge.MotorMaxAcceleration = 12 -- arranca poco a poco: da emoción
+		hinge.AngularVelocity = 0
+		hinge.Parent = arm
+
+		pcall(function()
+			arm:SetNetworkOwner(nil) -- el servidor controla el brazo
+		end)
+
+		table.insert(handle.rings, {
+			center = center,
+			arm = arm,
+			hinge = hinge,
+			button = button,
+			sign = sign,
+			spinning = false,
+		})
+	end
+
+	return handle
+end
+
+local function onButton(ring, pos: Vector3): boolean
+	local d = pos - ring.center
+	return Vector3.new(d.X, 0, d.Z).Magnitude < 3.4 and d.Y > PEDESTAL_H + 1
+end
+
+function Aspas.start(handle, rt)
+	local cfg = Config.Aspas
+	local R = cfg.Radio
+	local ringBalloons = {} -- [Model] = { ring = n, angle = a }
+	local total = 0
+
+	for r, ring in handle.rings do
+		ring.hinge.AngularVelocity = 0
+		ring.button.Color = BUTTON_OFF
+		ring.sign.Enabled = true
+		ring.spinning = false
+		for k = 0, cfg.GlobosPorAnillo - 1 do
+			local a = (k + 0.5) / cfg.GlobosPorAnillo * math.pi * 2
+			local pos = ring.center + Vector3.new(math.cos(a) * R, BALLOON_Y, math.sin(a) * R)
+			local model = rt.addBalloon(pos, {})
+			ringBalloons[model] = { ring = r, angle = a }
+			total += 1
+		end
+	end
+
+	local function update(_dt: number, hrp: BasePart)
+		for r, ring in handle.rings do
+			local on = onButton(ring, hrp.Position)
+			if on ~= ring.spinning then
+				ring.spinning = on
+				ring.hinge.AngularVelocity = if on then cfg.VelocidadGiro else 0
+				ring.button.Color = if on then BUTTON_ON else BUTTON_OFF
+			end
+
+			local d = ring.arm.Position - ring.center
+			local armAngle = math.atan2(d.Z, d.X)
+			local left = 0
+			for model, info in ringBalloons do
+				if not model.Parent then
+					ringBalloons[model] = nil
+				elseif info.ring == r then
+					local diff = math.abs((armAngle - info.angle + math.pi) % (2 * math.pi) - math.pi)
+					if diff < HIT_ANGLE then
+						rt.pop(model)
+					else
+						left += 1
+					end
+				end
+			end
+			ring.sign.Enabled = left > 0
+		end
+	end
+
+	local function stop()
+		for _, ring in handle.rings do
+			ring.hinge.AngularVelocity = 0
+			ring.button.Color = BUTTON_OFF
+			ring.spinning = false
+		end
+	end
+
+	return { goal = total, update = update, stop = stop }
+end
+
+return Aspas
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000B"><Properties><string name="Name">Cinta</string><ProtectedString name="Source"><![CDATA[--[[
+	ETAPA: CINTA LOCA
+	Franjas de piso que te arrastran de lado. Cruza y deja que la cinta te
+	lleve por la fila de globos.
+]]
+
+local Config = require(script.Parent.Parent.Config)
+local Util = require(script.Parent.Parent.Util)
+
+local Cinta = {}
+
+Cinta.Title = "Cinta loca"
+Cinta.Hint = "¡Déjate llevar por las cintas y revienta la fila!"
+
+local BELT_DEPTH = 8
+local STEP = 12
+
+function Cinta.length(): number
+	return Config.Cinta.Cintas * STEP + 8
+end
+
+function Cinta.build(ctx)
+	local cfg = Config.Cinta
+	local belts = {}
+	for k = 1, cfg.Cintas do
+		local x = ctx.x0 + 4 + (k - 0.5) * STEP
+		local direction = if k % 2 == 1 then 1 else -1
+		local belt = Util.part({
+			Name = "Cinta",
+			Size = Vector3.new(BELT_DEPTH, 0.4, ctx.width),
+			CFrame = CFrame.new(x, ctx.floor + 0.2, ctx.z),
+			Color = Color3.fromRGB(60, 60, 75),
+			Material = Enum.Material.DiamondPlate,
+			Parent = ctx.folder,
+		})
+		belt.AssemblyLinearVelocity = Vector3.new(0, 0, direction * cfg.Velocidad)
+		belt:SetAttribute("Direccion", direction)
+
+		-- Franjas amarillas (el cliente las anima para que se vea que la cinta se mueve)
+		local stripes = 6
+		for n = 0, stripes - 1 do
+			local stripe = Util.part({
+				Name = "Franja",
+				Size = Vector3.new(BELT_DEPTH, 0.05, 1),
+				CFrame = CFrame.new(x, ctx.floor + 0.43, ctx.z - ctx.width / 2 + (n + 0.5) * ctx.width / stripes),
+				Color = Color3.fromRGB(255, 200, 40),
+				Material = Enum.Material.Neon,
+				CanCollide = false,
+				CanQuery = false,
+				CanTouch = false,
+				Parent = ctx.folder,
+			})
+			stripe:SetAttribute("CintaZ", ctx.z)
+			stripe:SetAttribute("CintaAncho", ctx.width)
+			stripe:SetAttribute("CintaVel", direction * cfg.Velocidad * 0.5)
+			stripe:AddTag("FranjaCinta")
+		end
+		table.insert(belts, x)
+	end
+	return { belts = belts, z = ctx.z, width = ctx.width, floor = ctx.floor }
+end
+
+function Cinta.start(handle, rt)
+	local cfg = Config.Cinta
+	local total = 0
+	for _, x in handle.belts do
+		for n = 1, cfg.GlobosPorCinta do
+			local z = handle.z - handle.width / 2 + n * handle.width / (cfg.GlobosPorCinta + 1)
+			rt.addBalloon(Vector3.new(x, handle.floor + 2.6, z), {})
+			total += 1
+		end
+	end
+	return { goal = math.floor(total * cfg.Porcentaje) }
+end
+
+return Cinta
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000C"><Properties><string name="Name">Dardos</string><ProtectedString name="Source"><![CDATA[--[[
+	ETAPA: LANZADARDOS
+	Súbete al botón azul: el cañón gira de lado a lado disparando dardos que
+	atraviesan todos los globos que encuentran. Detrás del vidrio está el campo de globos.
+]]
+
+local Config = require(script.Parent.Parent.Config)
+local Util = require(script.Parent.Parent.Util)
+
+local Dardos = {}
+
+Dardos.Title = "Lanzadardos"
+Dardos.Hint = "¡Súbete al botón azul y dispara!"
+
+local PEDESTAL_H = 2.5
+local DART_Y = 2.4
+local FIELD_START = 20 -- distancia desde el inicio de la etapa hasta el campo de globos
+
+function Dardos.length(): number
+	return 70
+end
+
+function Dardos.build(ctx)
+	local center = Vector3.new(ctx.x0 + 8, ctx.floor, ctx.z)
+
+	Util.cylinder(center + Vector3.new(0, PEDESTAL_H / 2, 0), PEDESTAL_H, 7, {
+		Name = "Plataforma",
+		Color = Color3.fromRGB(110, 170, 240),
+		Parent = ctx.folder,
+	})
+	local button = Util.cylinder(center + Vector3.new(0, PEDESTAL_H + 0.15, 0), 0.3, 4.5, {
+		Name = "Boton",
+		Color = Color3.fromRGB(40, 90, 200),
+		Material = Enum.Material.Neon,
+		Parent = ctx.folder,
+	})
+	local sign = Util.billboard(button, "⬇ ¡SÚBETE! ⬇", 5, Color3.fromRGB(150, 220, 255))
+
+	local cannon = Util.part({
+		Name = "Canon",
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(3, 1.3, 1.3),
+		CFrame = CFrame.new(center + Vector3.new(4.5, DART_Y, 0)),
+		Color = Color3.fromRGB(40, 50, 80),
+		Material = Enum.Material.Metal,
+		CanCollide = false,
+		Parent = ctx.folder,
+	})
+
+	-- Flechas pintadas en el piso (decoración, como en el video)
+	for _, deg in { -30, 0, 30 } do
+		local a = math.rad(deg)
+		local dir = Vector3.new(math.cos(a), 0, math.sin(a))
+		Util.part({
+			Name = "Flecha",
+			Size = Vector3.new(7, 0.1, 0.7),
+			CFrame = CFrame.lookAt(center + dir * 11 + Vector3.new(0, 0.05, 0), center + dir * 20 + Vector3.new(0, 0.05, 0))
+				* CFrame.Angles(0, math.rad(90), 0),
+			Color = Color3.fromRGB(40, 70, 140),
+			Material = Enum.Material.Neon,
+			CanCollide = false,
+			Parent = ctx.folder,
+		})
+	end
+
+	-- Vidrio que separa al jugador de los globos (se abre junto con la puerta)
+	local glass = Util.part({
+		Name = "Vidrio",
+		Size = Vector3.new(1, 20, ctx.width),
+		CFrame = CFrame.new(ctx.x0 + FIELD_START - 5, ctx.floor + 10, ctx.z),
+		Color = Color3.fromRGB(200, 230, 255),
+		Material = Enum.Material.Glass,
+		Transparency = 0.6,
+		Parent = ctx.folder,
+	})
+	ctx.addBarrier(glass)
+
+	return {
+		center = center,
+		cannon = cannon,
+		button = button,
+		sign = sign,
+		fieldX0 = ctx.x0 + FIELD_START,
+		fieldX1 = ctx.x0 + Dardos.length() - 4,
+		z = ctx.z,
+		halfWidth = ctx.width / 2 - 3,
+		floor = ctx.floor,
+	}
+end
+
+function Dardos.start(handle, rt)
+	local cfg = Config.Dardos
+	local placed = {}
+	local tries = 0
+	while #placed < cfg.Globos and tries < 2000 do
+		tries += 1
+		local pos = Vector3.new(
+			rt.rng:NextNumber(handle.fieldX0, handle.fieldX1),
+			handle.floor + DART_Y,
+			handle.z + rt.rng:NextNumber(-handle.halfWidth, handle.halfWidth)
+		)
+		local ok = true
+		for _, other in placed do
+			if (other - pos).Magnitude < 4 then
+				ok = false
+				break
+			end
+		end
+		if ok then
+			table.insert(placed, pos)
+			rt.addBalloon(pos, {})
+		end
+	end
+
+	local origin = handle.center + Vector3.new(0, DART_Y, 0)
+	local range = handle.fieldX1 - handle.center.X + 6
+	local t = 0
+	local cooldown = 0
+
+	local function fire(angle: number)
+		local dir = Vector3.new(math.cos(angle), 0, math.sin(angle))
+		handle.cannon.CFrame = CFrame.fromMatrix(origin + dir * 4.5, dir, Vector3.yAxis)
+		local muzzle = origin + dir * 6
+		rt.fx("dardo", muzzle, dir, range, cfg.VelocidadDardo, rt.player.UserId)
+
+		-- El dardo atraviesa todo lo que está en su línea
+		for model, info in rt.balloons() do
+			local v = info.pos - muzzle
+			v = Vector3.new(v.X, 0, v.Z)
+			local along = v:Dot(dir)
+			if along > 0 and along < range then
+				local perp = (v - dir * along).Magnitude
+				if perp < info.radius + 0.6 then
+					task.delay(along / cfg.VelocidadDardo, rt.pop, model)
+				end
+			end
+		end
+	end
+
+	local function update(dt: number, hrp: BasePart)
+		local d = hrp.Position - handle.center
+		local on = Vector3.new(d.X, 0, d.Z).Magnitude < 3.4 and d.Y > PEDESTAL_H + 1
+		handle.button.Color = if on then Color3.fromRGB(120, 230, 255) else Color3.fromRGB(40, 90, 200)
+		handle.sign.Enabled = not on and next(rt.balloons()) ~= nil
+		if not on then
+			return
+		end
+		t += dt
+		cooldown -= dt
+		if cooldown <= 0 then
+			cooldown = cfg.Cadencia
+			fire(math.sin(t * cfg.VelocidadBarrido) * math.rad(cfg.Barrido))
+		end
+	end
+
+	return { goal = #placed, update = update }
+end
+
+return Dardos
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000D"><Properties><string name="Name">Gigante</string><ProtectedString name="Source"><![CDATA[--[[
+	ETAPA FINAL: GLOBO GIGANTE
+	Un globo enorme. Cada vez que lo chocas rebotas, se infla un poco más
+	y se pone más rojo… ¡hasta que explota!
+]]
+
+local Config = require(script.Parent.Parent.Config)
+local Util = require(script.Parent.Parent.Util)
+local Balloons = require(script.Parent.Parent.Balloons)
+
+local Gigante = {}
+
+Gigante.Title = "¡GLOBO GIGANTE!"
+Gigante.Hint = "¡Chócalo una y otra vez hasta que explote!"
+
+local HIT_COOLDOWN = 0.35
+local DANGER = Color3.fromRGB(255, 40, 40)
+
+function Gigante.length(): number
+	return 40
+end
+
+function Gigante.build(ctx)
+	local center = Vector3.new(ctx.x0 + 20, ctx.floor, ctx.z)
+	Util.cylinder(center + Vector3.new(0, 0.15, 0), 0.3, 22, {
+		Name = "Arena",
+		Color = Color3.fromRGB(255, 120, 170),
+		CanCollide = false,
+		Parent = ctx.folder,
+	})
+	return { center = center }
+end
+
+function Gigante.start(handle, rt)
+	local cfg = Config.Gigante
+	local size = cfg.Tamano
+	local startColor = Config.ColoresGlobo[rt.rng:NextInteger(1, #Config.ColoresGlobo)]
+	local balloonCenter = handle.center + Vector3.new(0, size * 0.6 + 0.5, 0)
+	local model = Balloons.create(rt.folder, balloonCenter, {
+		size = size,
+		color = startColor,
+		noString = true,
+		noBob = true,
+	})
+	local body = model.PrimaryPart :: BasePart
+	local hp = cfg.Golpes
+	local lastHit = 0
+
+	local function update(_dt: number, root: BasePart)
+		if hp <= 0 or not model.Parent then
+			return
+		end
+		local radius = body.Size.X / 2
+		local offset = root.Position - body.Position
+		if offset.Magnitude > radius * 1.15 + 2.5 or os.clock() - lastHit < HIT_COOLDOWN then
+			return
+		end
+		lastHit = os.clock()
+		hp -= 1
+
+		-- ¡Rebote! Te empuja hacia afuera y hacia arriba
+		local away = Vector3.new(offset.X, 0, offset.Z)
+		away = if away.Magnitude > 0.1 then away.Unit else Vector3.new(-1, 0, 0)
+		rt.bounce(away * cfg.Rebote + Vector3.new(0, cfg.Rebote * 0.8, 0))
+
+		local contact = body.Position + offset.Unit * radius
+		local progress = 1 - hp / cfg.Golpes
+		rt.fx("golpeGigante", contact, progress, rt.player.UserId)
+
+		if hp <= 0 then
+			rt.fx("explosion", body.Position, body.Size.X, body.Color)
+			model:Destroy()
+		else
+			-- Se infla y se pone rojo
+			local grow = 1 + cfg.Crecimiento
+			body.Size *= grow
+			body.CFrame = CFrame.new(handle.center + Vector3.new(0, body.Size.Y / 2 + 0.5, 0))
+			body.Color = startColor:Lerp(DANGER, progress)
+		end
+		rt.hit(contact, body.Color, 1.5)
+	end
+
+	return { goal = cfg.Golpes, update = update }
+end
+
+return Gigante
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000E"><Properties><string name="Name">Laberinto</string><ProtectedString name="Source"><![CDATA[--[[
+	ETAPA: LABERINTO
+	Pasillos en zigzag llenos de globos: corre y revienta todo con el cuerpo.
+	Las esferas moradas dan SÚPER PODER (más rápido y explotas desde más lejos).
+]]
+
+local Config = require(script.Parent.Parent.Config)
+local Util = require(script.Parent.Parent.Util)
+
+local Laberinto = {}
+
+Laberinto.Title = "Laberinto"
+Laberinto.Hint = "¡Corre y revienta todo! Agarra la esfera morada ⚡"
+
+local CORRIDOR = 12
+local GAP = 9
+local WALL_H = 8
+local BALLOON_Y = 2.6
+local ORB_COLOR = Color3.fromRGB(190, 80, 255)
+
+function Laberinto.length(): number
+	return CORRIDOR * (Config.Laberinto.Paredes + 1)
+end
+
+function Laberinto.build(ctx)
+	local cfg = Config.Laberinto
+	local half = ctx.width / 2
+	for k = 1, cfg.Paredes do
+		local x = ctx.x0 + CORRIDOR * k
+		local wallLen = ctx.width - GAP
+		-- Alternamos el hueco: una pared lo deja a la derecha y la siguiente a la izquierda
+		local zCenter = if k % 2 == 1 then ctx.z - half + wallLen / 2 else ctx.z + half - wallLen / 2
+		Util.part({
+			Name = "Pared",
+			Size = Vector3.new(1.5, WALL_H, wallLen),
+			CFrame = CFrame.new(x, ctx.floor + WALL_H / 2, zCenter),
+			Color = Color3.fromRGB(190, 140, 90),
+			Material = Enum.Material.WoodPlanks,
+			Parent = ctx.folder,
+		})
+	end
+
+	local corridors = {}
+	for c = 0, cfg.Paredes do
+		table.insert(corridors, ctx.x0 + CORRIDOR * c + CORRIDOR / 2)
+	end
+
+	return { corridors = corridors, z = ctx.z, half = half, floor = ctx.floor }
+end
+
+function Laberinto.start(handle, rt)
+	local cfg = Config.Laberinto
+	local total = 0
+	local orbCorridors = { [2] = true, [5] = true }
+	local orbs = {}
+
+	for c, x in handle.corridors do
+		local z = handle.z - handle.half + 2.5
+		local slot = 0
+		while z <= handle.z + handle.half - 2.5 do
+			slot += 1
+			local pos = Vector3.new(x, handle.floor + BALLOON_Y, z)
+			if orbCorridors[c] and slot == 5 then
+				local orb = Util.part({
+					Name = "PoderMorado",
+					Shape = Enum.PartType.Ball,
+					Size = Vector3.new(3, 3, 3),
+					CFrame = CFrame.new(pos + Vector3.new(0, 1, 0)),
+					Color = ORB_COLOR,
+					Material = Enum.Material.Neon,
+					CanCollide = false,
+					CanTouch = false,
+					Parent = rt.folder,
+				})
+				local light = Instance.new("PointLight")
+				light.Color = ORB_COLOR
+				light.Range = 14
+				light.Brightness = 3
+				light.Parent = orb
+				Util.billboard(orb, "⚡", 2.5, Color3.fromRGB(255, 230, 120)).Size = UDim2.fromScale(3, 3)
+				table.insert(orbs, orb)
+			else
+				rt.addBalloon(pos, { size = 2.6 })
+				total += 1
+			end
+			z += 3.2
+		end
+	end
+
+	local function update(_dt: number, hrp: BasePart)
+		for i = #orbs, 1, -1 do
+			local orb = orbs[i]
+			if (orb.Position - hrp.Position).Magnitude < 4 then
+				table.remove(orbs, i)
+				rt.fx("poder", orb.Position, rt.player.UserId)
+				orb:Destroy()
+				rt.powerUp(cfg.PoderDuracion)
+			end
+		end
+	end
+
+	return { goal = math.floor(total * cfg.Porcentaje), update = update }
+end
+
+return Laberinto
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000F"><Properties><string name="Name">Lluvia</string><ProtectedString name="Source"><![CDATA[--[[
+	ETAPA: LLUVIA DE GLOBOS
+	Cuando entras, empiezan a caer globos del cielo (muchos cerca de ti).
+	Atrápalos corriendo debajo de ellos.
+]]
+
+local Config = require(script.Parent.Parent.Config)
+local Util = require(script.Parent.Parent.Util)
+
+local Lluvia = {}
+
+Lluvia.Title = "Lluvia de globos"
+Lluvia.Hint = "¡Atrapa los globos que caen del cielo!"
+
+function Lluvia.length(): number
+	return 44
+end
+
+function Lluvia.build(ctx)
+	-- Piso de nubes para distinguir la zona
+	for n = 0, 3 do
+		Util.part({
+			Name = "Nube",
+			Size = Vector3.new(9, 0.1, ctx.width - 4),
+			CFrame = CFrame.new(ctx.x0 + 6 + n * 10, ctx.floor + 0.05, ctx.z),
+			Color = Color3.fromRGB(200, 225, 255),
+			CanCollide = false,
+			Parent = ctx.folder,
+		})
+	end
+	return { x0 = ctx.x0 + 4, x1 = ctx.x0 + Lluvia.length() - 4, z = ctx.z, half = ctx.width / 2 - 3, floor = ctx.floor }
+end
+
+function Lluvia.start(handle, rt)
+	local cfg = Config.Lluvia
+	local falling = {} -- [Model] = posición actual
+	local timer = 0
+
+	local function spawnOne(near: Vector3?)
+		local x, z
+		if near and rt.rng:NextNumber() < 0.6 then
+			x = math.clamp(near.X + rt.rng:NextNumber(-8, 8), handle.x0, handle.x1)
+			z = math.clamp(near.Z + rt.rng:NextNumber(-8, 8), handle.z - handle.half, handle.z + handle.half)
+		else
+			x = rt.rng:NextNumber(handle.x0, handle.x1)
+			z = handle.z + rt.rng:NextNumber(-handle.half, handle.half)
+		end
+		local pos = Vector3.new(x, handle.floor + cfg.Altura, z)
+		local model = rt.addBalloon(pos, { noBob = true })
+		falling[model] = pos
+	end
+
+	local function update(dt: number, root: BasePart, inside: boolean)
+		local alive = 0
+		for model, pos in falling do
+			if not model.Parent then
+				falling[model] = nil
+			else
+				alive += 1
+				local ground = handle.floor + 2.2
+				if pos.Y > ground then
+					local newPos = Vector3.new(pos.X, math.max(ground, pos.Y - cfg.VelocidadCaida * dt), pos.Z)
+					falling[model] = newPos
+					rt.move(model, newPos)
+				end
+			end
+		end
+
+		if not inside or rt.done() then
+			return
+		end
+		timer -= dt
+		if timer <= 0 and alive < cfg.MaximoEnPantalla then
+			timer = cfg.Intervalo
+			spawnOne(root.Position)
+		end
+	end
+
+	return { goal = cfg.Meta, update = update }
+end
+
+return Lluvia
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000010"><Properties><string name="Name">Neumaticos</string><ProtectedString name="Source"><![CDATA[--[[
+	ETAPA: NEUMÁTICOS
+	Llantas en el piso; algunas esconden un globo. ¡Písalos!
+]]
+
+local Config = require(script.Parent.Parent.Config)
+local Util = require(script.Parent.Parent.Util)
+
+local Neumaticos = {}
+
+Neumaticos.Title = "Neumáticos"
+Neumaticos.Hint = "¡Pisa los globos escondidos en las llantas!"
+
+local TIRE_COLOR = Color3.fromRGB(35, 35, 40)
+local TIRE_RADIUS = 2.6
+local SPACING_X = 12
+
+function Neumaticos.length(): number
+	return Config.Neumaticos.Filas * SPACING_X + 8
+end
+
+local function buildTire(folder: Instance, center: Vector3)
+	local sides = 10
+	local sideLength = 2 * TIRE_RADIUS * math.tan(math.pi / sides) + 0.35
+	for k = 0, sides - 1 do
+		local a = k / sides * math.pi * 2
+		Util.part({
+			Name = "Llanta",
+			Size = Vector3.new(1.3, 1, sideLength),
+			CFrame = CFrame.new(center + Vector3.new(math.cos(a) * TIRE_RADIUS, 0.5, math.sin(a) * TIRE_RADIUS))
+				* CFrame.Angles(0, -a, 0),
+			Color = TIRE_COLOR,
+			Parent = folder,
+		})
+	end
+end
+
+function Neumaticos.build(ctx)
+	local cfg = Config.Neumaticos
+	local handle = { tires = {} }
+	local spacingZ = (ctx.width - 6) / cfg.Columnas
+	for row = 1, cfg.Filas do
+		for col = 1, cfg.Columnas do
+			local x = ctx.x0 + 4 + (row - 0.5) * SPACING_X + ctx.rng:NextNumber(-1.5, 1.5)
+			local z = ctx.z - ctx.width / 2 + 3 + (col - 0.5) * spacingZ + ctx.rng:NextNumber(-1, 1)
+			local center = Vector3.new(x, ctx.floor, z)
+			buildTire(ctx.folder, center)
+			table.insert(handle.tires, center)
+		end
+	end
+	return handle
+end
+
+function Neumaticos.start(handle, rt)
+	-- Elegimos al azar qué llantas tienen globo (igual para los dos jugadores)
+	local order = table.clone(handle.tires)
+	for i = #order, 2, -1 do
+		local j = rt.rng:NextInteger(1, i)
+		order[i], order[j] = order[j], order[i]
+	end
+	local count = math.min(Config.Neumaticos.ConGlobo, #order)
+	for i = 1, count do
+		rt.addBalloon(order[i] + Vector3.new(0, 1.4, 0), { size = 2.4, noString = true })
+	end
+	return { goal = count }
+end
+
+return Neumaticos
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000011"><Properties><string name="Name">Trampolines</string><ProtectedString name="Source"><![CDATA[--[[
+	ETAPA: TRAMPOLINES
+	Pisa un trampolín y sales volando hacia arriba, reventando la torre de
+	globos que tiene encima. (El salto lo aplica el cliente: ver UI.client.luau)
+]]
+
+local Config = require(script.Parent.Parent.Config)
+local Util = require(script.Parent.Parent.Util)
+
+local Trampolines = {}
+
+Trampolines.Title = "Trampolines"
+Trampolines.Hint = "¡Pisa los trampolines y vuela!"
+Trampolines.TAG = "TrampolinCarrera"
+
+local SPACING = 10
+
+function Trampolines.length(): number
+	return Config.Trampolines.Cantidad * SPACING + 8
+end
+
+function Trampolines.build(ctx)
+	local cfg = Config.Trampolines
+	local pads = {}
+	for k = 1, cfg.Cantidad do
+		local x = ctx.x0 + 4 + (k - 0.5) * SPACING
+		local z = ctx.z + (if k % 2 == 1 then -6 else 6)
+		local center = Vector3.new(x, ctx.floor, z)
+		Util.cylinder(center + Vector3.new(0, 0.3, 0), 0.6, 7, {
+			Name = "BaseTrampolin",
+			Color = Color3.fromRGB(40, 40, 50),
+			Parent = ctx.folder,
+		})
+		local pad = Util.cylinder(center + Vector3.new(0, 0.7, 0), 0.25, 5.5, {
+			Name = "Trampolin",
+			Color = Color3.fromRGB(90, 255, 120),
+			Material = Enum.Material.Neon,
+			Parent = ctx.folder,
+		})
+		pad:SetAttribute("Fuerza", cfg.Fuerza)
+		pad:AddTag(Trampolines.TAG)
+		table.insert(pads, center)
+	end
+	return { pads = pads, floor = ctx.floor }
+end
+
+function Trampolines.start(handle, rt)
+	local cfg = Config.Trampolines
+	local total = 0
+	for _, center in handle.pads do
+		for n = 1, cfg.GlobosPorTrampolin do
+			rt.addBalloon(center + Vector3.new(0, 2 + n * 5, 0), {})
+			total += 1
+		end
+	end
+	return { goal = total }
+end
+
+return Trampolines
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000013"><Properties><string name="Name">Tablas</string><ProtectedString name="Source"><![CDATA[--[[
+	TABLAS DE LÍDERES del lobby: 🏆 Más Wins · ⏱ Mejores tiempos · 🎈 Más globos
+	Son globales (todos los servidores) usando OrderedDataStore. Si DataStore no
+	está disponible (por ejemplo en Studio sin «API Services»), muestran a los
+	jugadores de este servidor.
+]]
+
+local DataStoreService = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
+
+local Config = require(script.Parent.Config)
+local Datos = require(script.Parent.Datos)
+local Util = require(script.Parent.Util)
+
+local Tablas = {}
+
+local ROWS = 10
+local REFRESH = 60 -- segundos entre actualizaciones
+local MEDALS = { "🥇", "🥈", "🥉" }
+
+type Board = {
+	id: string,
+	title: string,
+	color: Color3,
+	ascending: boolean,
+	format: (number) -> string,
+	store: OrderedDataStore?,
+	rows: { TextLabel },
+}
+
+local boards: { [string]: Board } = {}
+local nameCache: { [number]: string } = {}
+
+local function formatTime(ms: number): string
+	local seconds = ms / 1000
+	return string.format("%d:%05.2f", seconds // 60, seconds % 60)
+end
+
+local function nameOf(userId: number): string
+	if nameCache[userId] then
+		return nameCache[userId]
+	end
+	local ok, name = pcall(function()
+		return Players:GetNameFromUserIdAsync(userId)
+	end)
+	local result = if ok and name then name else "Jugador"
+	nameCache[userId] = result
+	return result
+end
+
+local function buildBoard(parent: Instance, cframe: CFrame, board: Board)
+	local part = Util.part({
+		Name = "Tabla_" .. board.id,
+		Size = Vector3.new(14, 15, 1),
+		CFrame = cframe,
+		Color = Color3.fromRGB(40, 25, 80),
+		Parent = parent,
+	})
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Back
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 30
+	gui.LightInfluence = 0
+	gui.Parent = part
+
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 4)
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	layout.Parent = gui
+	local padding = Instance.new("UIPadding")
+	padding.PaddingTop = UDim.new(0, 12)
+	padding.Parent = gui
+
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1, -20, 0, 56)
+	title.BackgroundTransparency = 1
+	title.Font = Enum.Font.FredokaOne
+	title.TextScaled = true
+	title.Text = board.title
+	title.TextColor3 = board.color
+	title.TextStrokeTransparency = 0
+	title.Parent = gui
+
+	for i = 1, ROWS do
+		local row = Instance.new("TextLabel")
+		row.Size = UDim2.new(1, -30, 0, 34)
+		row.BackgroundColor3 = if i % 2 == 0 then Color3.fromRGB(60, 40, 110) else Color3.fromRGB(75, 50, 135)
+		row.BackgroundTransparency = 0.2
+		row.Font = Enum.Font.FredokaOne
+		row.TextScaled = true
+		row.TextColor3 = if i <= 3 then Color3.fromRGB(255, 225, 120) else Color3.new(1, 1, 1)
+		row.TextXAlignment = Enum.TextXAlignment.Left
+		row.Text = ""
+		row.LayoutOrder = i
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0, 8)
+		corner.Parent = row
+		row.Parent = gui
+		table.insert(board.rows, row)
+	end
+	title.LayoutOrder = 0
+end
+
+local function render(board: Board, entries: { { userId: number, value: number } })
+	for i, row in board.rows do
+		local entry = entries[i]
+		if entry then
+			local rank = MEDALS[i] or ("#" .. i)
+			row.Text = string.format("  %s  %s — %s", rank, nameOf(entry.userId), board.format(entry.value))
+		else
+			row.Text = if i == 1 then "  ¡Sé el primero!" else ""
+		end
+	end
+end
+
+-- Valor de este jugador para cada tabla (para el modo sin DataStore)
+local function localValue(player: Player, id: string): number?
+	if id == "Tiempos" then
+		local best = player:GetAttribute("MejorTiempo")
+		return if type(best) == "number" then math.floor(best * 1000) else nil
+	end
+	return Datos.get(player, id)
+end
+
+local function refresh(board: Board)
+	local entries = {}
+	local store = board.store
+	local ok = false
+	if store then
+		ok = pcall(function()
+			local pages = store:GetSortedAsync(board.ascending, ROWS)
+			for _, item in pages:GetCurrentPage() do
+				local userId = tonumber(item.key)
+				if userId then
+					table.insert(entries, { userId = userId, value = item.value })
+				end
+			end
+		end)
+	end
+	if not ok then
+		entries = {}
+		for _, player in Players:GetPlayers() do
+			local value = localValue(player, board.id)
+			if value and value > 0 then
+				table.insert(entries, { userId = player.UserId, value = value })
+			end
+		end
+		table.sort(entries, function(a, b)
+			return if board.ascending then a.value < b.value else a.value > b.value
+		end)
+	end
+	render(board, entries)
+end
+
+local function write(id: string, player: Player, value: number, onlyIfBetter: boolean)
+	local board = boards[id]
+	local store = board and board.store
+	if not store or value <= 0 then
+		return
+	end
+	task.spawn(function()
+		pcall(function()
+			store:UpdateAsync(tostring(player.UserId), function(old)
+				if onlyIfBetter and type(old) == "number" and old <= value then
+					return nil -- no es mejor: no cambiamos nada
+				end
+				return math.floor(value)
+			end)
+		end)
+	end)
+end
+
+function Tablas.saveWins(player: Player)
+	write("Wins", player, Datos.get(player, "Wins"), false)
+end
+
+function Tablas.saveGlobos(player: Player)
+	write("Globos", player, Datos.get(player, "Globos"), false)
+end
+
+-- Guarda un tiempo de carrera. Devuelve true si es un nuevo récord personal.
+function Tablas.recordTime(player: Player, seconds: number): boolean
+	local best = player:GetAttribute("MejorTiempo")
+	local isRecord = type(best) ~= "number" or seconds < best
+	if isRecord then
+		player:SetAttribute("MejorTiempo", seconds)
+		write("Tiempos", player, seconds * 1000, true)
+	end
+	return isRecord
+end
+
+function Tablas.init(lobby: Instance)
+	local definitions = {
+		{ id = "Wins", title = "🏆 MÁS WINS", color = Color3.fromRGB(255, 205, 40), ascending = false, format = tostring },
+		{ id = "Tiempos", title = "⏱ MEJORES TIEMPOS", color = Color3.fromRGB(120, 220, 255), ascending = true, format = formatTime },
+		{ id = "Globos", title = "🎈 MÁS GLOBOS", color = Color3.fromRGB(255, 120, 200), ascending = false, format = tostring },
+	}
+	local O = Config.Origen
+	for i, def in definitions do
+		local store: OrderedDataStore? = nil
+		if Config.GuardarProgreso then
+			local ok, result = pcall(function()
+				return DataStoreService:GetOrderedDataStore("CarreraGlobos_" .. def.id .. "_v1")
+			end)
+			if ok then
+				store = result
+			end
+		end
+		local board: Board = {
+			id = def.id,
+			title = def.title,
+			color = def.color,
+			ascending = def.ascending,
+			format = def.format,
+			store = store,
+			rows = {},
+		}
+		boards[def.id] = board
+		-- Tablas en la pared norte del lobby, mirando hacia el centro
+		buildBoard(lobby, CFrame.new(O + Vector3.new(-18 + (i - 1) * 16, 8.5, -31.5)), board)
+	end
+
+	Players.PlayerRemoving:Connect(Tablas.saveGlobos)
+	task.spawn(function()
+		while true do
+			for _, board in boards do
+				refresh(board)
+			end
+			task.wait(REFRESH)
+		end
+	end)
+end
+
+-- Fuerza una actualización (por ejemplo, justo después de una carrera)
+function Tablas.refreshSoon()
+	task.delay(3, function()
+		for _, board in boards do
+			refresh(board)
+		end
+	end)
+end
+
+return Tablas
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000014"><Properties><string name="Name">Util</string><ProtectedString name="Source"><![CDATA[-- Utilidades para construir piezas del mapa.
+
+local Util = {}
+
+-- Crea una Part anclada con las propiedades dadas. «Parent» se asigna al final.
+function Util.part(props: { [string]: any }): Part
+	local p = Instance.new("Part")
+	p.Anchored = true
+	p.TopSurface = Enum.SurfaceType.Smooth
+	p.BottomSurface = Enum.SurfaceType.Smooth
+	p.Material = Enum.Material.SmoothPlastic
+	local parent = props.Parent
+	for key, value in props do
+		if key ~= "Parent" then
+			(p :: any)[key] = value
+		end
+	end
+	p.Parent = parent
+	return p
+end
+
+-- Cilindro vertical (los cilindros de Roblox están acostados sobre X).
+function Util.cylinder(center: Vector3, height: number, diameter: number, props: { [string]: any }): Part
+	props.Shape = Enum.PartType.Cylinder
+	props.Size = Vector3.new(height, diameter, diameter)
+	props.CFrame = CFrame.new(center) * CFrame.Angles(0, 0, math.rad(90))
+	return Util.part(props)
+end
+
+-- Cartel flotante con texto grande.
+function Util.billboard(adornee: BasePart, text: string, offsetY: number, color: Color3?): BillboardGui
+	local gui = Instance.new("BillboardGui")
+	gui.Size = UDim2.fromScale(10, 2.5)
+	gui.StudsOffset = Vector3.new(0, offsetY, 0)
+	gui.LightInfluence = 0
+	gui.MaxDistance = 150
+	local label = Instance.new("TextLabel")
+	label.Name = "Texto"
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.FredokaOne
+	label.TextScaled = true
+	label.Text = text
+	label.TextColor3 = color or Color3.new(1, 1, 1)
+	label.TextStrokeTransparency = 0
+	label.Parent = gui
+	gui.Parent = adornee
+	return gui
+end
+
+-- Texto pegado a una cara de una pieza (carteles de puertas, letreros).
+function Util.surfaceText(part: BasePart, face: Enum.NormalId, text: string): TextLabel
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = face
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 30
+	gui.LightInfluence = 0
+	local label = Instance.new("TextLabel")
+	label.Name = "Texto"
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.FredokaOne
+	label.TextScaled = true
+	label.Text = text
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.TextStrokeTransparency = 0
+	label.Parent = gui
+	gui.Parent = part
+	return label
+end
+
+return Util
+]]></ProtectedString></Properties></Item></Item></roblox>
