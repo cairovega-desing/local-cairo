@@ -30,6 +30,14 @@ y la nota sube por una escala musical con cada globo del combo.
 
 Mientras tanto se usan sonidos que ya trae Roblox.
 
+### Música de fondo 🎵
+
+- `sounds/musica_lobby.wav`: tranquila, suena en el lobby.
+- `sounds/musica_carrera.wav`: chiptune rápida y pegadiza. Sube un poquito de velocidad en cada etapa y en la **última etapa** acelera a tope, con el cartel «🔥 ¡ÚLTIMA ETAPA! 🔥».
+
+Súbelas igual que los sonidos y pega los IDs en `Config.Musica`. **Sin ID no suena música.**
+Al ganar, la música baja para que se escuche la fanfarria.
+
 ## Las 9 etapas
 
 Cada carrera sortea **6 de las 9 etapas en orden aleatorio**, con el Globo Gigante siempre al final.
@@ -92,6 +100,7 @@ src/
   CarreraUI/           ScreenGui + UI.client.luau (efectos, sonidos, tienda)
 tools/build.py         genera CarreraDeGlobos.rbxmx (y sourcemap.json)
 tools/make_sounds.py   genera los sonidos de sounds/
+tools/make_music.py    genera la música de fondo (loops perfectos)
 ```
 
 - Compatible con **Rojo** (`rojo serve`), usando `default.project.json`.

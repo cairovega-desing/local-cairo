@@ -58,10 +58,16 @@ Principios de diseño:
 - [x] Bailes de victoria desbloqueables con Wins (5), con pestaña en la tienda y vista previa al equipar
 - [x] El botón del lobby ahora dice «✨ TIENDA»
 
+## Vuelta de mejora 6 (pedido: música)
+- [x] Música de fondo hecha a medida (loops perfectos): lobby tranquila y carrera chiptune a 140 BPM
+- [x] La música sube un poco en cada etapa y en la última acelera a tope, con el cartel «🔥 ¡ÚLTIMA ETAPA! 🔥»
+- [x] Al ganar, la música baja para que se escuche la fanfarria; en el lobby vuelve la tranquila
+
+Principio que pidió el usuario: **emocionante y dopamínico, pero simple y sencillo.**
+
 ## Próximas ideas (se revisan en cada vuelta de mejora)
 - Personajes redondos tipo «huevito» (opcional)
 - Más etapas: Rodillo gigante, Globos que huyen, Pisos que se hunden, Cañón humano
 - Efecto de explosión desbloqueable (color del confeti)
 - Espectadores: cámara que sigue a los corredores desde el lobby
 - Carrera de 4 jugadores
-- Sonido de ambiente y música de carrera que acelera en la última etapa

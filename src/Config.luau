@@ -137,6 +137,17 @@ Config.Sonidos = {
 	Desbloqueo = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.9 },
 }
 
+--[[
+	MÚSICA DE FONDO (loops en sounds/musica_carrera.wav y sounds/musica_lobby.wav)
+	Súbelas igual que los sonidos y pega los IDs aquí. Sin ID no suena música.
+]]
+Config.Musica = {
+	Lobby = { Id = "", Volumen = 0.25 },
+	Carrera = { Id = "", Volumen = 0.4 },
+	SubidaPorEtapa = 0.02, -- cada etapa la música va un poquito más rápido
+	AceleracionFinal = 1.2, -- en la última etapa: ¡a toda velocidad!
+}
+
 -- Escala pentatónica: cada globo seguido sube una nota (suena como una melodía)
 Config.EscalaCombo = { 1, 9 / 8, 5 / 4, 3 / 2, 5 / 3, 2, 9 / 4, 5 / 2, 3, 10 / 3 }
 

@@ -451,6 +451,61 @@ task.spawn(function()
 	end)
 end)
 
+-- ─── Música de fondo: lobby tranquila, carrera rápida que acelera al final ──
+local music: { [string]: Sound } = {}
+local musicVolume: { [string]: number } = {}
+for _, name in { "Lobby", "Carrera" } do
+	local def = Config.Musica and Config.Musica[name]
+	if def and def.Id ~= "" then
+		music[name] = make("Sound", { Name = "Musica" .. name, SoundId = def.Id, Looped = true, Volume = 0, Parent = SoundService })
+		musicVolume[name] = def.Volumen or 0.3
+	end
+end
+local currentMusic: string? = nil
+
+local function playMusic(name: string, speed: number?)
+	for musicName, sound in music do
+		if musicName == name then
+			if not sound.IsPlaying then
+				sound.Volume = 0
+				sound:Play()
+			end
+			TweenService:Create(sound, TweenInfo.new(0.8), { Volume = musicVolume[musicName], PlaybackSpeed = speed or 1 }):Play()
+		elseif sound.IsPlaying then
+			local fade = TweenService:Create(sound, TweenInfo.new(0.8), { Volume = 0 })
+			fade:Play()
+			fade.Completed:Once(function()
+				if currentMusic ~= musicName then
+					sound:Stop()
+				end
+			end)
+		end
+	end
+	currentMusic = name
+end
+
+-- Cambia la velocidad de la música actual poco a poco
+local function musicSpeed(speed: number, seconds: number)
+	local sound = currentMusic and music[currentMusic]
+	if sound then
+		TweenService:Create(sound, TweenInfo.new(seconds), { PlaybackSpeed = speed }):Play()
+	end
+end
+
+-- Baja la música un rato (para que se escuche la fanfarria)
+local function duckMusic(seconds: number)
+	local name = currentMusic
+	local sound = name and music[name]
+	if name and sound then
+		TweenService:Create(sound, TweenInfo.new(0.3), { Volume = musicVolume[name] * 0.25 }):Play()
+		task.delay(seconds, function()
+			if currentMusic == name then
+				TweenService:Create(sound, TweenInfo.new(1), { Volume = musicVolume[name] }):Play()
+			end
+		end)
+	end
+end
+
 local function play(name: string, speed: number?, volumeScale: number?, position: Vector3?)
 	local template = templates[name]
 	if not template then
@@ -938,6 +993,9 @@ function handlers.carrera(list, total: number)
 end
 
 function handlers.cuenta(n: number)
+	if racing and currentMusic ~= "Carrera" then
+		playMusic("Carrera", 1)
+	end
 	if n > 0 then
 		showBanner(tostring(n), WHITE, "¡Prepárate!", 0.9)
 		play("Cuenta", 1 + (Config.CuentaAtras - n) * 0.15)
@@ -955,8 +1013,19 @@ function handlers.etapa(s: number, total: number, title: string, hintText: strin
 	hint.Visible = true
 	hint.Text = if done then "¡Puerta abierta, sigue corriendo! ➜" else hintText
 	setCounter(popped, goal, done)
-	if not done then
-		showBanner(title, Color3.fromRGB(255, 240, 90), string.format("Etapa %d de %d · %s", s, total, hintText), 1.8)
+	if s >= total then
+		-- ¡Última etapa! La música acelera y se nota la emoción
+		musicSpeed(Config.Musica.AceleracionFinal, 1.5)
+		if not done then
+			showBanner("🔥 ¡ÚLTIMA ETAPA! 🔥", Color3.fromRGB(255, 120, 60), title .. " · " .. hintText, 1.8)
+			flash(Color3.fromRGB(255, 120, 60), 0.25)
+			shake(0.4)
+		end
+	else
+		musicSpeed(1 + (s - 1) * Config.Musica.SubidaPorEtapa, 1)
+		if not done then
+			showBanner(title, Color3.fromRGB(255, 240, 90), string.format("Etapa %d de %d · %s", s, total, hintText), 1.8)
+		end
 	end
 end
 
@@ -1107,6 +1176,7 @@ function handlers.ganador(
 )
 	hint.Visible = false
 	counter.Visible = false
+	duckMusic(4)
 	if solo and userId == player.UserId then
 		local sub = string.format("⏱ %s · ⭐ %d puntos", formatTime(seconds), pts)
 		showBanner(if isRecord then "🔥 ¡NUEVO RÉCORD! 🔥" else "⏱ ¡TERMINASTE!", GOLD, sub, 5)
@@ -1179,6 +1249,7 @@ function handlers.fin()
 	status.Visible = true
 	shopButton.Visible = true
 	Workspace.CurrentCamera.FieldOfView = 70
+	playMusic("Lobby", 1)
 end
 
 remote.OnClientEvent:Connect(function(kind: string, ...)
@@ -1188,6 +1259,7 @@ remote.OnClientEvent:Connect(function(kind: string, ...)
 	end
 end)
 remote:FireServer("hola")
+playMusic("Lobby", 1)
 
 -- ════════════════════════════════════════════════════════════════════
 -- Cada frame: globos que flotan, cintas que se mueven, trampolines, cámara
@@ -1481,6 +1553,17 @@ Config.Sonidos = {
 	Rebote = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.6 }, -- trampolines y globo gigante
 	Gigante = { Id = "rbxasset://sounds/snap.wav", Volumen = 1 }, -- golpe al globo gigante
 	Desbloqueo = { Id = "rbxasset://sounds/electronicpingshort.wav", Volumen = 0.9 },
+}
+
+--[[
+	MÚSICA DE FONDO (loops en sounds/musica_carrera.wav y sounds/musica_lobby.wav)
+	Súbelas igual que los sonidos y pega los IDs aquí. Sin ID no suena música.
+]]
+Config.Musica = {
+	Lobby = { Id = "", Volumen = 0.25 },
+	Carrera = { Id = "", Volumen = 0.4 },
+	SubidaPorEtapa = 0.02, -- cada etapa la música va un poquito más rápido
+	AceleracionFinal = 1.2, -- en la última etapa: ¡a toda velocidad!
 }
 
 -- Escala pentatónica: cada globo seguido sube una nota (suena como una melodía)
