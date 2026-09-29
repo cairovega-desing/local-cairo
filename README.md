@@ -32,6 +32,9 @@ Mientras tanto se usan sonidos que ya trae Roblox.
 
 ## Las 8 etapas
 
+Cada carrera sortea **6 etapas en orden aleatorio**, con el Globo Gigante siempre al final.
+Se cambia en `Config.EtapasPorCarrera`, `Config.OrdenAleatorio` y `Config.EtapaFinal`.
+
 | # | Etapa | Qué haces |
 |---|---|---|
 | 1 | 🌀 Aspas giratorias | Te paras en el botón verde y un brazo gira reventando el anillo de globos |
@@ -57,6 +60,7 @@ Cada puerta muestra cuántos globos te faltan (🎈 12 / 32).
 
 ## Recompensas y tablas
 
+- **Rachas 🔥:** si ganas varias seguidas, se ve sobre tu cabeza.
 - **Wins:** ganas 1 por cada carrera 1 contra 1. No se gastan; al llegar a cierta cantidad desbloqueas cosas para siempre.
 - **Estelas (9):** Nube, Eléctrica, Fuego, Menta, Chicle, Galaxia, Arcoíris, Oro y Diamante (hasta 50 Wins).
 - **Títulos (6):** se ven sobre tu cabeza con tus Wins. Van de «Novato» a «Dios del Pop».

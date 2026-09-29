@@ -41,8 +41,11 @@ Config.ColoresPista = {
 }
 
 -- ─── Etapas (en orden). Cada nombre es un módulo dentro de la carpeta «Stages» ─
--- Puedes quitar, repetir o reordenar etapas libremente.
+-- Banco de etapas. Puedes quitar, repetir o agregar etapas libremente.
 Config.Etapas = { "Aspas", "Neumaticos", "Cinta", "Dardos", "Trampolines", "Lluvia", "Laberinto", "Gigante" }
+Config.OrdenAleatorio = true -- cada carrera mezcla el orden (las dos pistas siempre iguales)
+Config.EtapasPorCarrera = 6 -- cuántas etapas del banco se juegan por carrera
+Config.EtapaFinal = "Gigante" -- esta siempre va al final, como «jefe» ("" = ninguna)
 
 Config.Aspas = {
 	Anillos = 2, -- cuántos anillos de globos hay

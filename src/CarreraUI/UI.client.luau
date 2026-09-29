@@ -894,7 +894,15 @@ function handlers.explosion(pos: Vector3, size: number, color: Color3)
 	end
 end
 
-function handlers.ganador(name: string, userId: number, pts: number, seconds: number, isRecord: boolean, solo: boolean)
+function handlers.ganador(
+	name: string,
+	userId: number,
+	pts: number,
+	seconds: number,
+	isRecord: boolean,
+	solo: boolean,
+	streak: number
+)
 	hint.Visible = false
 	counter.Visible = false
 	if solo and userId == player.UserId then
@@ -908,9 +916,12 @@ function handlers.ganador(name: string, userId: number, pts: number, seconds: nu
 	elseif userId == player.UserId then
 		local sub = string.format("⭐ %d puntos · ⏱ %s", pts, formatTime(seconds))
 		if isRecord then
-			sub ..= " · ¡NUEVO RÉCORD! 🔥"
+			sub ..= " · ¡NUEVO RÉCORD!"
 		end
-		showBanner("🏆 ¡GANASTE! 🏆", GOLD, sub, 5)
+		if streak >= 2 then
+			sub ..= string.format(" · 🔥 ¡RACHA DE %d!", streak)
+		end
+		showBanner(if streak >= 3 then "🔥 ¡IMPARABLE! 🔥" else "🏆 ¡GANASTE! 🏆", GOLD, sub, 5)
 		play("Victoria", 1)
 		flash(GOLD, 0.5)
 		confettiRain(3)

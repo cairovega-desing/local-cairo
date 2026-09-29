@@ -33,12 +33,16 @@ Principios de diseño:
 - [x] Rendimiento en celular: los globos flotan moviéndose todos juntos con `BulkMoveTo`
 - [x] Guardado automático cada 2 minutos
 
+## Vuelta de mejora 2
+- [x] Cada carrera sortea 6 etapas del banco de 8, en orden aleatorio, con el Globo Gigante siempre al final
+- [x] La pista se reconstruye después de cada carrera, así la próxima es distinta
+- [x] Rachas de victorias 🔥: se ven en el título y en la pantalla de ganador («¡IMPARABLE!» con 3 o más)
+- [x] Seguridad: si una carrera falla por un error, los jugadores vuelven al lobby
+
 ## Próximas ideas (se revisan en cada vuelta de mejora)
-- Mezclar el orden de las etapas en cada carrera, o sortear 6 de un banco más grande
 - Más etapas: Rodillo gigante, Globos que huyen, Pisos que se hunden, Cañón humano
 - Emotes o bailes de victoria desbloqueables
 - Efecto de explosión desbloqueable (color del confeti)
-- Racha de victorias (🔥 x3) con bonus visual
 - Espectadores: cámara que sigue a los corredores desde el lobby
 - Carrera de 4 jugadores
 - Sonido de ambiente y música de carrera que acelera en la última etapa

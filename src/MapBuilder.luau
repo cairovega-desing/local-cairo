@@ -24,16 +24,16 @@ local START_ZONE = 20
 local DOOR_T = 2
 local FINISH_ZONE = 34
 
-function MapBuilder.build(stageModules)
+-- Construye el lobby (una sola vez). Las pistas se hacen con buildTrack.
+function MapBuilder.build()
 	local O = Config.Origen
 	local floorY = O.Y + 1
-	local W = Config.AnchoPista
 
 	local root = Instance.new("Folder")
 	root.Name = "MapaCarreraGlobos"
 	root.Parent = Workspace
 
-	local map = { floorY = floorY, lanes = {}, pads = {} }
+	local map = { floorY = floorY, lanes = {}, pads = {}, root = root, track = nil :: Folder? }
 
 	-- ─── Lobby ─────────────────────────────────────────────────────────
 	local lobby = Instance.new("Folder")
@@ -90,6 +90,20 @@ function MapBuilder.build(stageModules)
 		map.pads[i] = { part = pad, label = gui:FindFirstChild("Texto") :: TextLabel, index = i }
 	end
 
+	return map
+end
+
+-- Construye (o reconstruye) las dos pistas con las etapas dadas, en ese orden.
+-- Se llama al iniciar y después de cada carrera, para que la siguiente sea distinta.
+function MapBuilder.buildTrack(map, stageModules)
+	local O = Config.Origen
+	local floorY = map.floorY
+	local W = Config.AnchoPista
+	if map.track then
+		map.track:Destroy()
+	end
+	map.lanes = {}
+
 	-- ─── Pistas ────────────────────────────────────────────────────────
 	local startX = O.X + 60
 	local stageXs = {}
@@ -106,7 +120,8 @@ function MapBuilder.build(stageModules)
 
 	local track = Instance.new("Folder")
 	track.Name = "Pistas"
-	track.Parent = root
+	track.Parent = map.root
+	map.track = track
 
 	-- Divisor de vidrio entre pistas + paredes externas + paredes de inicio y fin
 	Util.part({
@@ -258,8 +273,6 @@ function MapBuilder.build(stageModules)
 
 		map.lanes[i] = lane
 	end
-
-	return map
 end
 
 return MapBuilder

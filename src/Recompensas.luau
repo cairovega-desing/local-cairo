@@ -103,7 +103,12 @@ local function applyTitle(player: Player, character: Model)
 	label.BackgroundTransparency = 1
 	label.Font = Enum.Font.FredokaOne
 	label.TextScaled = true
-	label.Text = string.format("%s · 🏆 %d", item.Nombre, Datos.get(player, "Wins"))
+	local text = string.format("%s · 🏆 %d", item.Nombre, Datos.get(player, "Wins"))
+	local streak = tonumber(player:GetAttribute("Racha")) or 0
+	if streak >= 2 then
+		text ..= " · 🔥" .. streak
+	end
+	label.Text = text
 	label.TextColor3 = item.Color
 	label.TextStrokeTransparency = 0.2
 	label.Parent = gui

@@ -983,7 +983,15 @@ function handlers.explosion(pos: Vector3, size: number, color: Color3)
 	end
 end
 
-function handlers.ganador(name: string, userId: number, pts: number, seconds: number, isRecord: boolean, solo: boolean)
+function handlers.ganador(
+	name: string,
+	userId: number,
+	pts: number,
+	seconds: number,
+	isRecord: boolean,
+	solo: boolean,
+	streak: number
+)
 	hint.Visible = false
 	counter.Visible = false
 	if solo and userId == player.UserId then
@@ -997,9 +1005,12 @@ function handlers.ganador(name: string, userId: number, pts: number, seconds: nu
 	elseif userId == player.UserId then
 		local sub = string.format("⭐ %d puntos · ⏱ %s", pts, formatTime(seconds))
 		if isRecord then
-			sub ..= " · ¡NUEVO RÉCORD! 🔥"
+			sub ..= " · ¡NUEVO RÉCORD!"
 		end
-		showBanner("🏆 ¡GANASTE! 🏆", GOLD, sub, 5)
+		if streak >= 2 then
+			sub ..= string.format(" · 🔥 ¡RACHA DE %d!", streak)
+		end
+		showBanner(if streak >= 3 then "🔥 ¡IMPARABLE! 🔥" else "🏆 ¡GANASTE! 🏆", GOLD, sub, 5)
 		play("Victoria", 1)
 		flash(GOLD, 0.5)
 		confettiRain(3)
@@ -1214,8 +1225,11 @@ Config.ColoresPista = {
 }
 
 -- ─── Etapas (en orden). Cada nombre es un módulo dentro de la carpeta «Stages» ─
--- Puedes quitar, repetir o reordenar etapas libremente.
+-- Banco de etapas. Puedes quitar, repetir o agregar etapas libremente.
 Config.Etapas = { "Aspas", "Neumaticos", "Cinta", "Dardos", "Trampolines", "Lluvia", "Laberinto", "Gigante" }
+Config.OrdenAleatorio = true -- cada carrera mezcla el orden (las dos pistas siempre iguales)
+Config.EtapasPorCarrera = 6 -- cuántas etapas del banco se juegan por carrera
+Config.EtapaFinal = "Gigante" -- esta siempre va al final, como «jefe» ("" = ninguna)
 
 Config.Aspas = {
 	Anillos = 2, -- cuántos anillos de globos hay
@@ -1517,16 +1531,44 @@ Datos.init(function(player)
 	Recompensas.sendState(player)
 end)
 
-local stageModules = {}
+local stageModules: { [string]: any } = {}
 for _, name in Config.Etapas do
 	local module = root.Stages:FindFirstChild(name)
 	if module and module:IsA("ModuleScript") then
-		table.insert(stageModules, require(module) :: any)
+		stageModules[name] = require(module) :: any
 	else
 		warn("[CarreraGlobos] No existe la etapa «" .. name .. "» dentro de la carpeta Stages")
 	end
 end
-local map = MapBuilder.build(stageModules)
+
+-- Elige las etapas de la próxima carrera (mezcladas, con la final siempre al final)
+local function pickStages()
+	local names = {}
+	for _, name in Config.Etapas do
+		if stageModules[name] and name ~= Config.EtapaFinal then
+			table.insert(names, name)
+		end
+	end
+	if Config.OrdenAleatorio then
+		for i = #names, 2, -1 do
+			local j = math.random(1, i)
+			names[i], names[j] = names[j], names[i]
+		end
+	end
+	local final = stageModules[Config.EtapaFinal]
+	local count = math.min(Config.EtapasPorCarrera - (if final then 1 else 0), #names)
+	local chosen = {}
+	for i = 1, count do
+		table.insert(chosen, stageModules[names[i]])
+	end
+	if final then
+		table.insert(chosen, final)
+	end
+	return chosen
+end
+
+local map = MapBuilder.build()
+MapBuilder.buildTrack(map, pickStages())
 Tablas.init(map.lobby)
 
 -- ─── Lobby ─────────────────────────────────────────────────────────────
@@ -1575,6 +1617,26 @@ local function startRace(players: { Player })
 		if not ok then
 			warn("[CarreraGlobos] Error en la carrera: " .. tostring(err))
 			remote:FireAllClients("fin")
+			-- Que nadie quede atrapado en la pista
+			for i, player in players do
+				local character = player.Character
+				local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+				local hrp = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+				if hrp then
+					hrp.Anchored = false
+				end
+				if humanoid then
+					humanoid.WalkSpeed = Config.VelocidadNormal
+				end
+				if character then
+					character:PivotTo(map.lobbyCFrame * CFrame.new(0, 0, (i - 1.5) * 6))
+				end
+			end
+		end
+		-- Pista nueva con otro orden para la próxima carrera
+		local rebuilt, rebuildErr = pcall(MapBuilder.buildTrack, map, pickStages())
+		if not rebuilt then
+			warn("[CarreraGlobos] Error al reconstruir la pista: " .. tostring(rebuildErr))
 		end
 		racing = false
 	end)
@@ -1648,16 +1710,16 @@ local START_ZONE = 20
 local DOOR_T = 2
 local FINISH_ZONE = 34
 
-function MapBuilder.build(stageModules)
+-- Construye el lobby (una sola vez). Las pistas se hacen con buildTrack.
+function MapBuilder.build()
 	local O = Config.Origen
 	local floorY = O.Y + 1
-	local W = Config.AnchoPista
 
 	local root = Instance.new("Folder")
 	root.Name = "MapaCarreraGlobos"
 	root.Parent = Workspace
 
-	local map = { floorY = floorY, lanes = {}, pads = {} }
+	local map = { floorY = floorY, lanes = {}, pads = {}, root = root, track = nil :: Folder? }
 
 	-- ─── Lobby ─────────────────────────────────────────────────────────
 	local lobby = Instance.new("Folder")
@@ -1714,6 +1776,20 @@ function MapBuilder.build(stageModules)
 		map.pads[i] = { part = pad, label = gui:FindFirstChild("Texto") :: TextLabel, index = i }
 	end
 
+	return map
+end
+
+-- Construye (o reconstruye) las dos pistas con las etapas dadas, en ese orden.
+-- Se llama al iniciar y después de cada carrera, para que la siguiente sea distinta.
+function MapBuilder.buildTrack(map, stageModules)
+	local O = Config.Origen
+	local floorY = map.floorY
+	local W = Config.AnchoPista
+	if map.track then
+		map.track:Destroy()
+	end
+	map.lanes = {}
+
 	-- ─── Pistas ────────────────────────────────────────────────────────
 	local startX = O.X + 60
 	local stageXs = {}
@@ -1730,7 +1806,8 @@ function MapBuilder.build(stageModules)
 
 	local track = Instance.new("Folder")
 	track.Name = "Pistas"
-	track.Parent = root
+	track.Parent = map.root
+	map.track = track
 
 	-- Divisor de vidrio entre pistas + paredes externas + paredes de inicio y fin
 	Util.part({
@@ -1882,8 +1959,6 @@ function MapBuilder.build(stageModules)
 
 		map.lanes[i] = lane
 	end
-
-	return map
 end
 
 return MapBuilder
@@ -2299,8 +2374,21 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 			winner.points,
 			seconds,
 			isRecord,
-			laneCount == 1
+			laneCount == 1,
+			(tonumber(winner.player:GetAttribute("Racha")) or 0) + (if laneCount > 1 then 1 else 0)
 		)
+		-- Racha de victorias seguidas (solo en 1 contra 1)
+		local streak = 0
+		if laneCount > 1 then
+			streak = (tonumber(winner.player:GetAttribute("Racha")) or 0) + 1
+			winner.player:SetAttribute("Racha", streak)
+			for _, lane in lanes do
+				if lane ~= winner and lane.player.Parent == Players then
+					lane.player:SetAttribute("Racha", 0)
+					Recompensas.apply(lane.player)
+				end
+			end
+		end
 		-- Contra el reloj (solo) no suma Win: solo cuenta el tiempo
 		if laneCount > 1 then
 			Datos.add(winner.player, "Wins", 1)
@@ -2452,7 +2540,12 @@ local function applyTitle(player: Player, character: Model)
 	label.BackgroundTransparency = 1
 	label.Font = Enum.Font.FredokaOne
 	label.TextScaled = true
-	label.Text = string.format("%s · 🏆 %d", item.Nombre, Datos.get(player, "Wins"))
+	local text = string.format("%s · 🏆 %d", item.Nombre, Datos.get(player, "Wins"))
+	local streak = tonumber(player:GetAttribute("Racha")) or 0
+	if streak >= 2 then
+		text ..= " · 🔥" .. streak
+	end
+	label.Text = text
 	label.TextColor3 = item.Color
 	label.TextStrokeTransparency = 0.2
 	label.Parent = gui

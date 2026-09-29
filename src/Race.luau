@@ -410,8 +410,21 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 			winner.points,
 			seconds,
 			isRecord,
-			laneCount == 1
+			laneCount == 1,
+			(tonumber(winner.player:GetAttribute("Racha")) or 0) + (if laneCount > 1 then 1 else 0)
 		)
+		-- Racha de victorias seguidas (solo en 1 contra 1)
+		local streak = 0
+		if laneCount > 1 then
+			streak = (tonumber(winner.player:GetAttribute("Racha")) or 0) + 1
+			winner.player:SetAttribute("Racha", streak)
+			for _, lane in lanes do
+				if lane ~= winner and lane.player.Parent == Players then
+					lane.player:SetAttribute("Racha", 0)
+					Recompensas.apply(lane.player)
+				end
+			end
+		end
 		-- Contra el reloj (solo) no suma Win: solo cuenta el tiempo
 		if laneCount > 1 then
 			Datos.add(winner.player, "Wins", 1)

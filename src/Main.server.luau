@@ -50,16 +50,44 @@ Datos.init(function(player)
 	Recompensas.sendState(player)
 end)
 
-local stageModules = {}
+local stageModules: { [string]: any } = {}
 for _, name in Config.Etapas do
 	local module = root.Stages:FindFirstChild(name)
 	if module and module:IsA("ModuleScript") then
-		table.insert(stageModules, require(module) :: any)
+		stageModules[name] = require(module) :: any
 	else
 		warn("[CarreraGlobos] No existe la etapa «" .. name .. "» dentro de la carpeta Stages")
 	end
 end
-local map = MapBuilder.build(stageModules)
+
+-- Elige las etapas de la próxima carrera (mezcladas, con la final siempre al final)
+local function pickStages()
+	local names = {}
+	for _, name in Config.Etapas do
+		if stageModules[name] and name ~= Config.EtapaFinal then
+			table.insert(names, name)
+		end
+	end
+	if Config.OrdenAleatorio then
+		for i = #names, 2, -1 do
+			local j = math.random(1, i)
+			names[i], names[j] = names[j], names[i]
+		end
+	end
+	local final = stageModules[Config.EtapaFinal]
+	local count = math.min(Config.EtapasPorCarrera - (if final then 1 else 0), #names)
+	local chosen = {}
+	for i = 1, count do
+		table.insert(chosen, stageModules[names[i]])
+	end
+	if final then
+		table.insert(chosen, final)
+	end
+	return chosen
+end
+
+local map = MapBuilder.build()
+MapBuilder.buildTrack(map, pickStages())
 Tablas.init(map.lobby)
 
 -- ─── Lobby ─────────────────────────────────────────────────────────────
@@ -108,6 +136,26 @@ local function startRace(players: { Player })
 		if not ok then
 			warn("[CarreraGlobos] Error en la carrera: " .. tostring(err))
 			remote:FireAllClients("fin")
+			-- Que nadie quede atrapado en la pista
+			for i, player in players do
+				local character = player.Character
+				local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+				local hrp = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+				if hrp then
+					hrp.Anchored = false
+				end
+				if humanoid then
+					humanoid.WalkSpeed = Config.VelocidadNormal
+				end
+				if character then
+					character:PivotTo(map.lobbyCFrame * CFrame.new(0, 0, (i - 1.5) * 6))
+				end
+			end
+		end
+		-- Pista nueva con otro orden para la próxima carrera
+		local rebuilt, rebuildErr = pcall(MapBuilder.buildTrack, map, pickStages())
+		if not rebuilt then
+			warn("[CarreraGlobos] Error al reconstruir la pista: " .. tostring(rebuildErr))
 		end
 		racing = false
 	end)
