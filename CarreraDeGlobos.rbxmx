@@ -1,4 +1,4 @@
-<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Item class="Folder" referent="RBX00000016"><Properties><string name="Name">CarreraGlobos</string></Properties><Item class="ModuleScript" referent="RBX00000001"><Properties><string name="Name">Ambiente</string><ProtectedString name="Source"><![CDATA[--[[
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Item class="Folder" referent="RBX00000017"><Properties><string name="Name">CarreraGlobos</string></Properties><Item class="ModuleScript" referent="RBX00000001"><Properties><string name="Name">Ambiente</string><ProtectedString name="Source"><![CDATA[--[[
 	AMBIENTE: iluminación alegre tipo «juguete». Colores más vivos, brillo
 	en lo neón, rayos de sol y un cielo suave. Se desactiva con
 	Config.MejorarIluminacion = false (si prefieres tu propia iluminación).
@@ -723,7 +723,7 @@ end
 -- ════════════════════════════════════════════════════════════════════
 
 local myWins = 0
-local myEquipped = { Estela = "nube", Titulo = "novato" }
+local myEquipped = { Estela = "nube", Titulo = "novato", Baile = "dance" }
 local shopTab = "Estela"
 
 local shopButton = make("TextButton", {
@@ -735,7 +735,7 @@ local shopButton = make("TextButton", {
 	Font = FONT,
 	TextScaled = true,
 	TextColor3 = WHITE,
-	Text = "✨ ESTELAS\n🏆 0",
+	Text = "✨ TIENDA\n🏆 0",
 	Parent = gui,
 }, { corner(14), stroke(3, WHITE) })
 local shopButtonScale = make("UIScale", { Parent = shopButton })
@@ -797,9 +797,9 @@ local grid = make("ScrollingFrame", {
 local renderShop
 
 local tabButtons = {}
-for _, info in { { "Estela", "✨ Estelas" }, { "Titulo", "👑 Títulos" } } do
+for _, info in { { "Estela", "✨ Estelas" }, { "Titulo", "👑 Títulos" }, { "Baile", "💃 Bailes" } } do
 	local button = make("TextButton", {
-		Size = UDim2.fromOffset(150, 36),
+		Size = UDim2.fromOffset(140, 36),
 		BackgroundColor3 = Color3.fromRGB(90, 60, 160),
 		Font = FONT,
 		TextScaled = true,
@@ -825,7 +825,7 @@ function renderShop()
 			child:Destroy()
 		end
 	end
-	local list = if shopTab == "Estela" then Config.Estelas else Config.Titulos
+	local list = if shopTab == "Estela" then Config.Estelas elseif shopTab == "Titulo" then Config.Titulos else Config.Bailes
 	for order, item in list do
 		local unlocked = myWins >= item.Wins
 		local isEquipped = myEquipped[shopTab] == item.Id
@@ -852,9 +852,12 @@ function renderShop()
 				table.insert(keypoints, ColorSequenceKeypoint.new(1, item.Colores[1]))
 			end
 			make("UIGradient", { Color = ColorSequence.new(keypoints), Parent = swatch })
-		else
+		elseif shopTab == "Titulo" then
 			swatch.BackgroundTransparency = 1
 			label({ Size = UDim2.fromScale(1, 1), Text = item.Nombre, TextColor3 = item.Color, ZIndex = 24, Parent = swatch })
+		else
+			swatch.BackgroundTransparency = 1
+			label({ Size = UDim2.fromScale(1, 1), Text = item.Icono, ZIndex = 24, Parent = swatch })
 		end
 
 		label({
@@ -885,6 +888,15 @@ function renderShop()
 				remote:FireServer("equipar", shopTab, item.Id)
 				myEquipped[shopTab] = item.Id
 				play("Desbloqueo", 1.4, 0.6)
+				if shopTab == "Baile" then
+					-- Vista previa: tu personaje baila al equiparlo
+					local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+					if humanoid then
+						pcall(function()
+							humanoid:PlayEmote(item.Id)
+						end)
+					end
+				end
 				renderShop()
 			end
 		end)
@@ -1117,7 +1129,7 @@ function handlers.ganador(
 			local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 			if humanoid then
 				pcall(function()
-					humanoid:PlayEmote("dance")
+					humanoid:PlayEmote(myEquipped.Baile)
 				end)
 			end
 		end)
@@ -1144,11 +1156,12 @@ function handlers.desbloqueo(unlocked: { string }, nextName: string?, nextWins: 
 	end)
 end
 
-function handlers.tienda(wins: number, estela: string, titulo: string)
+function handlers.tienda(wins: number, estela: string, titulo: string, baile: string)
 	myWins = wins
 	myEquipped.Estela = estela
 	myEquipped.Titulo = titulo
-	shopButton.Text = "✨ ESTELAS\n🏆 " .. wins
+	myEquipped.Baile = baile
+	shopButton.Text = "✨ TIENDA\n🏆 " .. wins
 	if shop.Visible then
 		renderShop()
 	end
@@ -1375,7 +1388,7 @@ Config.ColoresPista = {
 
 -- ─── Etapas (en orden). Cada nombre es un módulo dentro de la carpeta «Stages» ─
 -- Banco de etapas. Puedes quitar, repetir o agregar etapas libremente.
-Config.Etapas = { "Aspas", "Neumaticos", "Cinta", "Dardos", "Trampolines", "Lluvia", "Laberinto", "Gigante" }
+Config.Etapas = { "Aspas", "Neumaticos", "Cinta", "Dardos", "Trampolines", "Lluvia", "Huidizos", "Laberinto", "Gigante" }
 Config.OrdenAleatorio = true -- cada carrera mezcla el orden (las dos pistas siempre iguales)
 Config.EtapasPorCarrera = 6 -- cuántas etapas del banco se juegan por carrera
 Config.EtapaFinal = "Gigante" -- esta siempre va al final, como «jefe» ("" = ninguna)
@@ -1420,6 +1433,13 @@ Config.Lluvia = {
 	Intervalo = 0.3, -- segundos entre globo y globo que cae
 	VelocidadCaida = 10,
 	Altura = 28,
+}
+
+Config.Huidizos = {
+	Globos = 8,
+	DistanciaSusto = 12, -- a qué distancia se asustan y huyen
+	VelocidadHuida = 15, -- más lento que tú (VelocidadCarrera) para que puedas alcanzarlos
+	VelocidadPaseo = 4,
 }
 
 Config.Gigante = {
@@ -1504,6 +1524,15 @@ Config.Titulos = {
 	{ Id = "dios", Nombre = "Dios del Pop", Wins = 60, Color = Color3.fromRGB(255, 200, 40) },
 }
 
+-- Bailes de victoria (emotes de Roblox: "dance", "dance2", "dance3", "cheer", "laugh", "wave", "point")
+Config.Bailes = {
+	{ Id = "dance", Nombre = "Baile clásico", Wins = 0, Icono = "💃" },
+	{ Id = "cheer", Nombre = "¡Hurra!", Wins = 1, Icono = "🙌" },
+	{ Id = "laugh", Nombre = "Risa", Wins = 3, Icono = "😂" },
+	{ Id = "dance2", Nombre = "Baile loco", Wins = 7, Icono = "🕺" },
+	{ Id = "dance3", Nombre = "Baile pro", Wins = 15, Icono = "🪩" },
+}
+
 return Config
 ]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000006"><Properties><string name="Name">Datos</string><ProtectedString name="Source"><![CDATA[-- Tabla de líderes (Wins y Globos), estela/título equipados y guardado con DataStore.
 
@@ -1515,7 +1544,7 @@ local Config = require(script.Parent.Config)
 local Datos = {}
 
 local STATS = { "Wins", "Globos" }
-local SAVED_ATTRIBUTES = { "Estela", "Titulo", "MejorTiempo" } -- lo equipado y tu récord
+local SAVED_ATTRIBUTES = { "Estela", "Titulo", "Baile", "MejorTiempo" } -- lo equipado y tu récord
 local store: DataStore? = nil
 
 local function key(player: Player): string
@@ -2737,8 +2766,8 @@ end
 
 return Race
 ]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000A"><Properties><string name="Name">Recompensas</string><ProtectedString name="Source"><![CDATA[--[[
-	RECOMPENSAS: las Wins desbloquean estelas (rastro que dejas al correr) y
-	títulos (cartel sobre tu cabeza). Las Wins no se gastan: al llegar a cierta
+	RECOMPENSAS: las Wins desbloquean estelas (rastro que dejas al correr),
+	títulos (cartel sobre tu cabeza) y bailes de victoria. Las Wins no se gastan: al llegar a cierta
 	cantidad se desbloquea para siempre.
 ]]
 
@@ -2760,8 +2789,14 @@ local function find(list, id: any)
 	return nil
 end
 
+local LISTS = {
+	Estela = Config.Estelas,
+	Titulo = Config.Titulos,
+	Baile = Config.Bailes,
+}
+
 local function equipped(player: Player, kind: string)
-	local list = if kind == "Estela" then Config.Estelas else Config.Titulos
+	local list = LISTS[kind]
 	local item = find(list, player:GetAttribute(kind))
 	-- Si no tiene nada válido (o ya no le alcanza), usamos el primero (gratis)
 	if not item or Datos.get(player, "Wins") < item.Wins then
@@ -2868,17 +2903,18 @@ function Recompensas.sendState(player: Player)
 			"tienda",
 			Datos.get(player, "Wins"),
 			equipped(player, "Estela").Id,
-			equipped(player, "Titulo").Id
+			equipped(player, "Titulo").Id,
+			equipped(player, "Baile").Id
 		)
 	end
 end
 
 -- Llamado cuando el cliente toca «Equipar» en la tienda
 function Recompensas.equip(player: Player, kind: any, id: any)
-	if kind ~= "Estela" and kind ~= "Titulo" or type(id) ~= "string" then
+	local list = LISTS[kind]
+	if not list or type(id) ~= "string" then
 		return
 	end
-	local list = if kind == "Estela" then Config.Estelas else Config.Titulos
 	local item = find(list, id)
 	if item and Datos.get(player, "Wins") >= item.Wins then
 		player:SetAttribute(kind, id)
@@ -2901,10 +2937,15 @@ function Recompensas.onWin(player: Player)
 			table.insert(unlocked, "Título «" .. item.Nombre .. "»")
 		end
 	end
+	for _, item in Config.Bailes do
+		if item.Wins == wins then
+			table.insert(unlocked, "Baile " .. item.Icono .. " " .. item.Nombre)
+		end
+	end
 
 	-- Próxima recompensa, para que siempre haya una meta
 	local nextItem = nil
-	for _, list in { Config.Estelas, Config.Titulos } do
+	for _, list in LISTS do
 		for _, item in list do
 			if item.Wins > wins and (not nextItem or item.Wins < nextItem.Wins) then
 				nextItem = item
@@ -2942,7 +2983,7 @@ function Recompensas.init(remoteEvent: RemoteEvent)
 end
 
 return Recompensas
-]]></ProtectedString></Properties></Item><Item class="Folder" referent="RBX00000013"><Properties><string name="Name">Stages</string></Properties><Item class="ModuleScript" referent="RBX0000000B"><Properties><string name="Name">Aspas</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="Folder" referent="RBX00000014"><Properties><string name="Name">Stages</string></Properties><Item class="ModuleScript" referent="RBX0000000B"><Properties><string name="Name">Aspas</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: ASPAS GIRATORIAS
 	Anillos de globos alrededor de una plataforma con un botón verde.
 	Mientras estés parado en el botón, el brazo gira y revienta todo el anillo.
@@ -3471,7 +3512,98 @@ function Gigante.start(handle, rt)
 end
 
 return Gigante
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000F"><Properties><string name="Name">Laberinto</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000F"><Properties><string name="Name">Huidizos</string><ProtectedString name="Source"><![CDATA[--[[
+	ETAPA: GLOBOS HUIDIZOS
+	¡Los globos se escapan cuando te acercas! Son más lentos que tú:
+	acorrálalos contra las paredes para atraparlos.
+]]
+
+local Config = require(script.Parent.Parent.Config)
+local Util = require(script.Parent.Parent.Util)
+
+local Huidizos = {}
+
+Huidizos.Title = "Globos huidizos"
+Huidizos.Hint = "¡Se escapan! Acorrálalos contra las paredes"
+
+local HEIGHT = 2.8
+
+function Huidizos.length(): number
+	return 44
+end
+
+function Huidizos.build(ctx)
+	-- Postes bajos en las esquinas: marcan el corral
+	for _, cx in { ctx.x0 + 3, ctx.x0 + Huidizos.length() - 3 } do
+		for _, side in { -1, 1 } do
+			Util.cylinder(Vector3.new(cx, ctx.floor + 1.5, ctx.z + side * (ctx.width / 2 - 2)), 3, 1.2, {
+				Name = "Poste",
+				Color = Color3.fromRGB(255, 150, 60),
+				Parent = ctx.folder,
+			})
+		end
+	end
+	return {
+		x0 = ctx.x0 + 4,
+		x1 = ctx.x0 + Huidizos.length() - 4,
+		z0 = ctx.z - ctx.width / 2 + 2,
+		z1 = ctx.z + ctx.width / 2 - 2,
+		floor = ctx.floor,
+	}
+end
+
+function Huidizos.start(handle, rt)
+	local cfg = Config.Huidizos
+	local runners = {} -- [Model] = { pos: Vector3, wander: Vector3 }
+
+	for _ = 1, cfg.Globos do
+		local pos = Vector3.new(
+			rt.rng:NextNumber(handle.x0 + 8, handle.x1),
+			handle.floor + HEIGHT,
+			rt.rng:NextNumber(handle.z0, handle.z1)
+		)
+		local model = rt.addBalloon(pos, { noBob = true })
+		local a = rt.rng:NextNumber(0, math.pi * 2)
+		runners[model] = { pos = pos, wander = Vector3.new(math.cos(a), 0, math.sin(a)) }
+	end
+
+	local function update(dt: number, root: BasePart, inside: boolean)
+		local me = root.Position
+		for model, r in runners do
+			if not model.Parent then
+				runners[model] = nil
+				continue
+			end
+			local away = Vector3.new(r.pos.X - me.X, 0, r.pos.Z - me.Z)
+			local velocity
+			if inside and away.Magnitude < cfg.DistanciaSusto then
+				-- ¡Huye! (más lento que tú, así que puedes alcanzarlo)
+				velocity = away.Unit * cfg.VelocidadHuida + r.wander * 3
+			else
+				velocity = r.wander * cfg.VelocidadPaseo
+			end
+			local newPos = r.pos + velocity * dt
+			-- Rebota en los bordes del corral
+			if newPos.X < handle.x0 or newPos.X > handle.x1 then
+				r.wander = Vector3.new(-r.wander.X, 0, r.wander.Z)
+				newPos = Vector3.new(math.clamp(newPos.X, handle.x0, handle.x1), newPos.Y, newPos.Z)
+			end
+			if newPos.Z < handle.z0 or newPos.Z > handle.z1 then
+				r.wander = Vector3.new(r.wander.X, 0, -r.wander.Z)
+				newPos = Vector3.new(newPos.X, newPos.Y, math.clamp(newPos.Z, handle.z0, handle.z1))
+			end
+			-- Saltitos para que se vea vivo
+			local hop = math.abs(math.sin(os.clock() * 6 + r.wander.X * 3)) * 0.8
+			r.pos = Vector3.new(newPos.X, handle.floor + HEIGHT, newPos.Z)
+			rt.move(model, r.pos + Vector3.new(0, hop, 0))
+		end
+	end
+
+	return { goal = cfg.Globos, update = update }
+end
+
+return Huidizos
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000010"><Properties><string name="Name">Laberinto</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: LABERINTO
 	Pasillos en zigzag llenos de globos: corre y revienta todo con el cuerpo.
 	Las esferas moradas dan SÚPER PODER (más rápido y explotas desde más lejos).
@@ -3576,7 +3708,7 @@ function Laberinto.start(handle, rt)
 end
 
 return Laberinto
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000010"><Properties><string name="Name">Lluvia</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000011"><Properties><string name="Name">Lluvia</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: LLUVIA DE GLOBOS
 	Cuando entras, empiezan a caer globos del cielo (muchos cerca de ti).
 	Atrápalos corriendo debajo de ellos.
@@ -3658,7 +3790,7 @@ function Lluvia.start(handle, rt)
 end
 
 return Lluvia
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000011"><Properties><string name="Name">Neumaticos</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000012"><Properties><string name="Name">Neumaticos</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: NEUMÁTICOS
 	Llantas en el piso; algunas esconden un globo. ¡Písalos!
 ]]
@@ -3726,7 +3858,7 @@ function Neumaticos.start(handle, rt)
 end
 
 return Neumaticos
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000012"><Properties><string name="Name">Trampolines</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000013"><Properties><string name="Name">Trampolines</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: TRAMPOLINES
 	Pisa un trampolín y sales volando hacia arriba, reventando la torre de
 	globos que tiene encima. (El salto lo aplica el cliente: ver UI.client.luau)
@@ -3785,7 +3917,7 @@ function Trampolines.start(handle, rt)
 end
 
 return Trampolines
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000014"><Properties><string name="Name">Tablas</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000015"><Properties><string name="Name">Tablas</string><ProtectedString name="Source"><![CDATA[--[[
 	TABLAS DE LÍDERES del lobby: 🏆 Más Wins · ⏱ Mejores tiempos · 🎈 Más globos
 	Son globales (todos los servidores) usando OrderedDataStore. Si DataStore no
 	está disponible (por ejemplo en Studio sin «API Services»), muestran a los
@@ -4028,7 +4160,7 @@ function Tablas.refreshSoon()
 end
 
 return Tablas
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000015"><Properties><string name="Name">Util</string><ProtectedString name="Source"><![CDATA[-- Utilidades para construir piezas del mapa.
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000016"><Properties><string name="Name">Util</string><ProtectedString name="Source"><![CDATA[-- Utilidades para construir piezas del mapa.
 
 local Util = {}
 

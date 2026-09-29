@@ -30,9 +30,9 @@ y la nota sube por una escala musical con cada globo del combo.
 
 Mientras tanto se usan sonidos que ya trae Roblox.
 
-## Las 8 etapas
+## Las 9 etapas
 
-Cada carrera sortea **6 etapas en orden aleatorio**, con el Globo Gigante siempre al final.
+Cada carrera sortea **6 de las 9 etapas en orden aleatorio**, con el Globo Gigante siempre al final.
 Se cambia en `Config.EtapasPorCarrera`, `Config.OrdenAleatorio` y `Config.EtapaFinal`.
 
 | # | Etapa | Qué haces |
@@ -43,8 +43,9 @@ Se cambia en `Config.EtapasPorCarrera`, `Config.OrdenAleatorio` y `Config.EtapaF
 | 4 | 🎯 Lanzadardos | Te subes al botón azul y un cañón dispara dardos que atraviesan globos |
 | 5 | 🦘 Trampolines | Los trampolines te lanzan hacia torres de globos |
 | 6 | 🌧️ Lluvia de globos | Caen globos del cielo, sobre todo cerca de ti |
-| 7 | 🌽 Laberinto | Zigzag lleno de globos, con una esfera morada de súper poder ⚡ |
-| 8 | 💥 Globo gigante | Lo chocas una y otra vez: rebotas, se infla, se pone rojo… ¡y explota! |
+| 7 | 🏃 Globos huidizos | Los globos se escapan cuando te acercas: acorrálalos contra las paredes |
+| 8 | 🌽 Laberinto | Zigzag lleno de globos, con una esfera morada de súper poder ⚡ |
+| 9 | 💥 Globo gigante | Lo chocas una y otra vez: rebotas, se infla, se pone rojo… ¡y explota! |
 
 Cada puerta muestra cuántos globos te faltan (🎈 12 / 32).
 
@@ -64,7 +65,8 @@ Cada puerta muestra cuántos globos te faltan (🎈 12 / 32).
 - **Wins:** ganas 1 por cada carrera 1 contra 1. No se gastan; al llegar a cierta cantidad desbloqueas cosas para siempre.
 - **Estelas (9):** Nube, Eléctrica, Fuego, Menta, Chicle, Galaxia, Arcoíris, Oro y Diamante (hasta 50 Wins).
 - **Títulos (6):** se ven sobre tu cabeza con tus Wins. Van de «Novato» a «Dios del Pop».
-- **Tienda:** el botón ✨ ESTELAS del lobby.
+- **Bailes de victoria (5):** tu personaje baila el que tengas equipado cuando ganas.
+- **Tienda:** el botón ✨ TIENDA del lobby, con pestañas de Estelas, Títulos y Bailes. Al equipar un baile, tu personaje lo prueba.
 - **Tablas globales en el lobby:** 🏆 Más Wins, ⏱ Mejores tiempos y 🎈 Más globos.
 
 ## Cambiar el juego

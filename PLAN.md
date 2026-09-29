@@ -53,9 +53,13 @@ Principios de diseño:
 - [x] Las plataformas del lobby lanzan anillos de luz para que se vea dónde pararse
 - [x] El ganador baila y aparece una corona 👑 sobre su cabeza
 
+## Vuelta de mejora 5
+- [x] Etapa nueva: 🏃 Globos huidizos (se escapan cuando te acercas; hay que acorralarlos). El banco ya tiene 9 etapas
+- [x] Bailes de victoria desbloqueables con Wins (5), con pestaña en la tienda y vista previa al equipar
+- [x] El botón del lobby ahora dice «✨ TIENDA»
+
 ## Próximas ideas (se revisan en cada vuelta de mejora)
 - Personajes redondos tipo «huevito» (opcional)
-- Bailes de victoria desbloqueables con Wins
 - Más etapas: Rodillo gigante, Globos que huyen, Pisos que se hunden, Cañón humano
 - Efecto de explosión desbloqueable (color del confeti)
 - Espectadores: cámara que sigue a los corredores desde el lobby

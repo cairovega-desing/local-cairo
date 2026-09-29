@@ -1,6 +1,6 @@
 --[[
-	RECOMPENSAS: las Wins desbloquean estelas (rastro que dejas al correr) y
-	títulos (cartel sobre tu cabeza). Las Wins no se gastan: al llegar a cierta
+	RECOMPENSAS: las Wins desbloquean estelas (rastro que dejas al correr),
+	títulos (cartel sobre tu cabeza) y bailes de victoria. Las Wins no se gastan: al llegar a cierta
 	cantidad se desbloquea para siempre.
 ]]
 
@@ -22,8 +22,14 @@ local function find(list, id: any)
 	return nil
 end
 
+local LISTS = {
+	Estela = Config.Estelas,
+	Titulo = Config.Titulos,
+	Baile = Config.Bailes,
+}
+
 local function equipped(player: Player, kind: string)
-	local list = if kind == "Estela" then Config.Estelas else Config.Titulos
+	local list = LISTS[kind]
 	local item = find(list, player:GetAttribute(kind))
 	-- Si no tiene nada válido (o ya no le alcanza), usamos el primero (gratis)
 	if not item or Datos.get(player, "Wins") < item.Wins then
@@ -130,17 +136,18 @@ function Recompensas.sendState(player: Player)
 			"tienda",
 			Datos.get(player, "Wins"),
 			equipped(player, "Estela").Id,
-			equipped(player, "Titulo").Id
+			equipped(player, "Titulo").Id,
+			equipped(player, "Baile").Id
 		)
 	end
 end
 
 -- Llamado cuando el cliente toca «Equipar» en la tienda
 function Recompensas.equip(player: Player, kind: any, id: any)
-	if kind ~= "Estela" and kind ~= "Titulo" or type(id) ~= "string" then
+	local list = LISTS[kind]
+	if not list or type(id) ~= "string" then
 		return
 	end
-	local list = if kind == "Estela" then Config.Estelas else Config.Titulos
 	local item = find(list, id)
 	if item and Datos.get(player, "Wins") >= item.Wins then
 		player:SetAttribute(kind, id)
@@ -163,10 +170,15 @@ function Recompensas.onWin(player: Player)
 			table.insert(unlocked, "Título «" .. item.Nombre .. "»")
 		end
 	end
+	for _, item in Config.Bailes do
+		if item.Wins == wins then
+			table.insert(unlocked, "Baile " .. item.Icono .. " " .. item.Nombre)
+		end
+	end
 
 	-- Próxima recompensa, para que siempre haya una meta
 	local nextItem = nil
-	for _, list in { Config.Estelas, Config.Titulos } do
+	for _, list in LISTS do
 		for _, item in list do
 			if item.Wins > wins and (not nextItem or item.Wins < nextItem.Wins) then
 				nextItem = item

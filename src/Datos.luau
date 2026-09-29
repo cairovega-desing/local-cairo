@@ -8,7 +8,7 @@ local Config = require(script.Parent.Config)
 local Datos = {}
 
 local STATS = { "Wins", "Globos" }
-local SAVED_ATTRIBUTES = { "Estela", "Titulo", "MejorTiempo" } -- lo equipado y tu récord
+local SAVED_ATTRIBUTES = { "Estela", "Titulo", "Baile", "MejorTiempo" } -- lo equipado y tu récord
 local store: DataStore? = nil
 
 local function key(player: Player): string

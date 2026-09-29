@@ -42,7 +42,7 @@ Config.ColoresPista = {
 
 -- ─── Etapas (en orden). Cada nombre es un módulo dentro de la carpeta «Stages» ─
 -- Banco de etapas. Puedes quitar, repetir o agregar etapas libremente.
-Config.Etapas = { "Aspas", "Neumaticos", "Cinta", "Dardos", "Trampolines", "Lluvia", "Laberinto", "Gigante" }
+Config.Etapas = { "Aspas", "Neumaticos", "Cinta", "Dardos", "Trampolines", "Lluvia", "Huidizos", "Laberinto", "Gigante" }
 Config.OrdenAleatorio = true -- cada carrera mezcla el orden (las dos pistas siempre iguales)
 Config.EtapasPorCarrera = 6 -- cuántas etapas del banco se juegan por carrera
 Config.EtapaFinal = "Gigante" -- esta siempre va al final, como «jefe» ("" = ninguna)
@@ -87,6 +87,13 @@ Config.Lluvia = {
 	Intervalo = 0.3, -- segundos entre globo y globo que cae
 	VelocidadCaida = 10,
 	Altura = 28,
+}
+
+Config.Huidizos = {
+	Globos = 8,
+	DistanciaSusto = 12, -- a qué distancia se asustan y huyen
+	VelocidadHuida = 15, -- más lento que tú (VelocidadCarrera) para que puedas alcanzarlos
+	VelocidadPaseo = 4,
 }
 
 Config.Gigante = {
@@ -169,6 +176,15 @@ Config.Titulos = {
 	{ Id = "rey", Nombre = "Rey del Globo", Wins = 15, Color = Color3.fromRGB(255, 120, 200) },
 	{ Id = "leyenda", Nombre = "Leyenda", Wins = 30, Color = Color3.fromRGB(190, 110, 255) },
 	{ Id = "dios", Nombre = "Dios del Pop", Wins = 60, Color = Color3.fromRGB(255, 200, 40) },
+}
+
+-- Bailes de victoria (emotes de Roblox: "dance", "dance2", "dance3", "cheer", "laugh", "wave", "point")
+Config.Bailes = {
+	{ Id = "dance", Nombre = "Baile clásico", Wins = 0, Icono = "💃" },
+	{ Id = "cheer", Nombre = "¡Hurra!", Wins = 1, Icono = "🙌" },
+	{ Id = "laugh", Nombre = "Risa", Wins = 3, Icono = "😂" },
+	{ Id = "dance2", Nombre = "Baile loco", Wins = 7, Icono = "🕺" },
+	{ Id = "dance3", Nombre = "Baile pro", Wins = 15, Icono = "🪩" },
 }
 
 return Config

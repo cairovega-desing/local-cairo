@@ -553,7 +553,7 @@ end
 -- ════════════════════════════════════════════════════════════════════
 
 local myWins = 0
-local myEquipped = { Estela = "nube", Titulo = "novato" }
+local myEquipped = { Estela = "nube", Titulo = "novato", Baile = "dance" }
 local shopTab = "Estela"
 
 local shopButton = make("TextButton", {
@@ -565,7 +565,7 @@ local shopButton = make("TextButton", {
 	Font = FONT,
 	TextScaled = true,
 	TextColor3 = WHITE,
-	Text = "✨ ESTELAS\n🏆 0",
+	Text = "✨ TIENDA\n🏆 0",
 	Parent = gui,
 }, { corner(14), stroke(3, WHITE) })
 local shopButtonScale = make("UIScale", { Parent = shopButton })
@@ -627,9 +627,9 @@ local grid = make("ScrollingFrame", {
 local renderShop
 
 local tabButtons = {}
-for _, info in { { "Estela", "✨ Estelas" }, { "Titulo", "👑 Títulos" } } do
+for _, info in { { "Estela", "✨ Estelas" }, { "Titulo", "👑 Títulos" }, { "Baile", "💃 Bailes" } } do
 	local button = make("TextButton", {
-		Size = UDim2.fromOffset(150, 36),
+		Size = UDim2.fromOffset(140, 36),
 		BackgroundColor3 = Color3.fromRGB(90, 60, 160),
 		Font = FONT,
 		TextScaled = true,
@@ -655,7 +655,7 @@ function renderShop()
 			child:Destroy()
 		end
 	end
-	local list = if shopTab == "Estela" then Config.Estelas else Config.Titulos
+	local list = if shopTab == "Estela" then Config.Estelas elseif shopTab == "Titulo" then Config.Titulos else Config.Bailes
 	for order, item in list do
 		local unlocked = myWins >= item.Wins
 		local isEquipped = myEquipped[shopTab] == item.Id
@@ -682,9 +682,12 @@ function renderShop()
 				table.insert(keypoints, ColorSequenceKeypoint.new(1, item.Colores[1]))
 			end
 			make("UIGradient", { Color = ColorSequence.new(keypoints), Parent = swatch })
-		else
+		elseif shopTab == "Titulo" then
 			swatch.BackgroundTransparency = 1
 			label({ Size = UDim2.fromScale(1, 1), Text = item.Nombre, TextColor3 = item.Color, ZIndex = 24, Parent = swatch })
+		else
+			swatch.BackgroundTransparency = 1
+			label({ Size = UDim2.fromScale(1, 1), Text = item.Icono, ZIndex = 24, Parent = swatch })
 		end
 
 		label({
@@ -715,6 +718,15 @@ function renderShop()
 				remote:FireServer("equipar", shopTab, item.Id)
 				myEquipped[shopTab] = item.Id
 				play("Desbloqueo", 1.4, 0.6)
+				if shopTab == "Baile" then
+					-- Vista previa: tu personaje baila al equiparlo
+					local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+					if humanoid then
+						pcall(function()
+							humanoid:PlayEmote(item.Id)
+						end)
+					end
+				end
 				renderShop()
 			end
 		end)
@@ -947,7 +959,7 @@ function handlers.ganador(
 			local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 			if humanoid then
 				pcall(function()
-					humanoid:PlayEmote("dance")
+					humanoid:PlayEmote(myEquipped.Baile)
 				end)
 			end
 		end)
@@ -974,11 +986,12 @@ function handlers.desbloqueo(unlocked: { string }, nextName: string?, nextWins: 
 	end)
 end
 
-function handlers.tienda(wins: number, estela: string, titulo: string)
+function handlers.tienda(wins: number, estela: string, titulo: string, baile: string)
 	myWins = wins
 	myEquipped.Estela = estela
 	myEquipped.Titulo = titulo
-	shopButton.Text = "✨ ESTELAS\n🏆 " .. wins
+	myEquipped.Baile = baile
+	shopButton.Text = "✨ TIENDA\n🏆 " .. wins
 	if shop.Visible then
 		renderShop()
 	end
