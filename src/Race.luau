@@ -228,6 +228,8 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 				powerUntil = 0,
 				aura = nil :: ParticleEmitter?,
 				won = false,
+				checkPos = nil :: Vector3?, -- anti-trampas: última posición revisada
+				checkTime = 0,
 			}
 			lanes[i] = lane
 
@@ -258,6 +260,9 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 						noBob = opts.noBob,
 					})
 					local body = model.PrimaryPart :: BasePart
+				-- Para que el cliente sepa de quién es y de qué etapa (resaltar los últimos)
+				model:SetAttribute("Dueno", player.UserId)
+				model:SetAttribute("Etapa", s)
 					st.balloons[model] = { pos = pos, radius = size * 0.55, golden = golden, color = body.Color }
 					return model
 				end
@@ -325,6 +330,7 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 						return
 					end
 					character:PivotTo(checkpoint(lane))
+					lane.checkPos = nil
 					if humanoid then
 						humanoid.WalkSpeed = Config.VelocidadCarrera
 					end
@@ -368,7 +374,22 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 			local pos = root.Position
 			if pos.Y < map.floorY - 30 then
 				teleport(lane.player, checkpoint(lane))
+				lane.checkPos = nil
 				return
+			end
+
+			-- Anti-trampas: cada medio segundo revisamos que no se haya movido más de lo posible
+			local now = os.clock()
+			if not lane.checkPos then
+				lane.checkPos, lane.checkTime = pos, now
+			elseif now - lane.checkTime >= 0.5 then
+				local moved = Vector3.new(pos.X - lane.checkPos.X, 0, pos.Z - lane.checkPos.Z).Magnitude
+				if moved > Config.VelocidadMaximaTrampa * (now - lane.checkTime) then
+					teleport(lane.player, checkpoint(lane))
+					lane.checkPos = nil
+					return
+				end
+				lane.checkPos, lane.checkTime = pos, now
 			end
 
 			-- ¿En qué etapa está? (para mostrar el cartel e instrucciones)

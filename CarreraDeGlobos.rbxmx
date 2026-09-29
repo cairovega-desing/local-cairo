@@ -758,6 +758,38 @@ local function renderRace(list, total: number)
 	points.Visible = racing
 end
 
+-- Cuando faltan pocos globos, los tuyos brillan a través de las paredes (¡así los encuentras!)
+local highlighted: { Highlight } = {}
+
+local function clearHighlights()
+	for _, h in highlighted do
+		h:Destroy()
+	end
+	table.clear(highlighted)
+end
+
+local function highlightRemaining(stage: number)
+	clearHighlights()
+	for _, model in CollectionService:GetTagged("GloboCarrera") do
+		if model:GetAttribute("Dueno") == player.UserId and model:GetAttribute("Etapa") == stage then
+			table.insert(
+				highlighted,
+				make("Highlight", {
+					Adornee = model,
+					FillColor = Color3.fromRGB(255, 255, 120),
+					FillTransparency = 0.5,
+					OutlineColor = WHITE,
+					DepthMode = Enum.HighlightDepthMode.AlwaysOnTop,
+					Parent = model,
+				})
+			)
+			if #highlighted >= 10 then
+				break -- Roblox permite pocos Highlights a la vez
+			end
+		end
+	end
+end
+
 local function setCounter(popped: number, goal: number, done: boolean?)
 	counter.Visible = racing
 	if done or popped >= goal then
@@ -1023,6 +1055,10 @@ end
 
 function handlers.etapa(s: number, total: number, title: string, hintText: string, popped: number, goal: number, done: boolean)
 	currentStage = s
+	clearHighlights()
+	if not done and goal - popped <= Config.ResaltarUltimos then
+		highlightRemaining(s)
+	end
 	hint.Visible = true
 	hint.Text = if done then "¡Puerta abierta, sigue corriendo! ➜" else hintText
 	setCounter(popped, goal, done)
@@ -1048,6 +1084,12 @@ function handlers.progreso(s: number, popped: number, goal: number, pts: number)
 	if s == currentStage then
 		setCounter(popped, goal)
 		bump(counterScale, 1.18)
+		local left = goal - popped
+		if left > 0 and left <= Config.ResaltarUltimos then
+			highlightRemaining(s)
+		else
+			clearHighlights()
+		end
 	end
 end
 
@@ -1259,6 +1301,7 @@ function handlers.aviso(title: string, sub: string?)
 end
 
 function handlers.fin()
+	clearHighlights()
 	racing = false
 	currentStage = 0
 	table.clear(lastCleared)
@@ -1453,6 +1496,7 @@ Config.CuentaAtras = 3 -- segundos de «3, 2, 1, ¡YA!»
 Config.VelocidadNormal = 16 -- velocidad al caminar en el lobby
 Config.VelocidadCarrera = 26 -- velocidad durante la carrera (más rápido = más divertido)
 Config.TiempoCelebracion = 7 -- segundos de fiesta antes de volver al lobby
+Config.VelocidadMaximaTrampa = 120 -- studs/seg horizontales; más rápido que esto = trampa (vuelves a tu puerta)
 Config.TiempoMaximoCarrera = 240 -- si nadie llega a la meta en este tiempo, la carrera termina
 Config.EsperaSolo = 6 -- si estás solo en una plataforma, a los X segundos juegas contra el reloj (0 = desactivado)
 Config.AutoGuardado = 120 -- cada cuántos segundos se guarda el progreso de todos
@@ -1554,6 +1598,7 @@ Config.Laberinto = {
 -- ─── Efectos ───────────────────────────────────────────────────────────
 Config.MejorarIluminacion = true -- colores vivos, brillo neón y cielo suave (ver Ambiente)
 Config.VentanaCombo = 1.2 -- segundos entre globos para que el combo siga vivo
+Config.ResaltarUltimos = 3 -- cuando te faltan estos globos o menos, brillan a través de las paredes
 
 --[[
 	SONIDOS
@@ -2615,6 +2660,8 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 				powerUntil = 0,
 				aura = nil :: ParticleEmitter?,
 				won = false,
+				checkPos = nil :: Vector3?, -- anti-trampas: última posición revisada
+				checkTime = 0,
 			}
 			lanes[i] = lane
 
@@ -2645,6 +2692,9 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 						noBob = opts.noBob,
 					})
 					local body = model.PrimaryPart :: BasePart
+				-- Para que el cliente sepa de quién es y de qué etapa (resaltar los últimos)
+				model:SetAttribute("Dueno", player.UserId)
+				model:SetAttribute("Etapa", s)
 					st.balloons[model] = { pos = pos, radius = size * 0.55, golden = golden, color = body.Color }
 					return model
 				end
@@ -2712,6 +2762,7 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 						return
 					end
 					character:PivotTo(checkpoint(lane))
+					lane.checkPos = nil
 					if humanoid then
 						humanoid.WalkSpeed = Config.VelocidadCarrera
 					end
@@ -2755,7 +2806,22 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 			local pos = root.Position
 			if pos.Y < map.floorY - 30 then
 				teleport(lane.player, checkpoint(lane))
+				lane.checkPos = nil
 				return
+			end
+
+			-- Anti-trampas: cada medio segundo revisamos que no se haya movido más de lo posible
+			local now = os.clock()
+			if not lane.checkPos then
+				lane.checkPos, lane.checkTime = pos, now
+			elseif now - lane.checkTime >= 0.5 then
+				local moved = Vector3.new(pos.X - lane.checkPos.X, 0, pos.Z - lane.checkPos.Z).Magnitude
+				if moved > Config.VelocidadMaximaTrampa * (now - lane.checkTime) then
+					teleport(lane.player, checkpoint(lane))
+					lane.checkPos = nil
+					return
+				end
+				lane.checkPos, lane.checkTime = pos, now
 			end
 
 			-- ¿En qué etapa está? (para mostrar el cartel e instrucciones)

@@ -75,8 +75,11 @@ Principio que pidió el usuario: **emocionante y dopamínico, pero simple y senc
 - [x] Rendimiento en red: los globos huidizos y la lluvia se mueven solo con el jugador adentro, 20 veces por segundo
 - [x] Seguridad: límite de mensajes por jugador en el RemoteEvent
 
+## Vuelta de mejora 8 (simple e intuitivo)
+- [x] Cuando te faltan 3 globos o menos, tus globos brillan a través de las paredes (se acabó buscar el último)
+- [x] Anti-trampas de velocidad: si te mueves más rápido de lo posible, vuelves a tu última puerta (margen amplio para trampolines, cintas y rebotes)
+
 ## Próximas ideas (se revisan en cada vuelta de mejora)
-- Anti-trampas de velocidad (rechazar movimientos imposibles)
 - Personajes redondos tipo «huevito» (opcional)
 - Más etapas: Rodillo gigante, Globos que huyen, Pisos que se hunden, Cañón humano
 - Efecto de explosión desbloqueable (color del confeti)

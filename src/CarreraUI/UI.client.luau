@@ -588,6 +588,38 @@ local function renderRace(list, total: number)
 	points.Visible = racing
 end
 
+-- Cuando faltan pocos globos, los tuyos brillan a través de las paredes (¡así los encuentras!)
+local highlighted: { Highlight } = {}
+
+local function clearHighlights()
+	for _, h in highlighted do
+		h:Destroy()
+	end
+	table.clear(highlighted)
+end
+
+local function highlightRemaining(stage: number)
+	clearHighlights()
+	for _, model in CollectionService:GetTagged("GloboCarrera") do
+		if model:GetAttribute("Dueno") == player.UserId and model:GetAttribute("Etapa") == stage then
+			table.insert(
+				highlighted,
+				make("Highlight", {
+					Adornee = model,
+					FillColor = Color3.fromRGB(255, 255, 120),
+					FillTransparency = 0.5,
+					OutlineColor = WHITE,
+					DepthMode = Enum.HighlightDepthMode.AlwaysOnTop,
+					Parent = model,
+				})
+			)
+			if #highlighted >= 10 then
+				break -- Roblox permite pocos Highlights a la vez
+			end
+		end
+	end
+end
+
 local function setCounter(popped: number, goal: number, done: boolean?)
 	counter.Visible = racing
 	if done or popped >= goal then
@@ -853,6 +885,10 @@ end
 
 function handlers.etapa(s: number, total: number, title: string, hintText: string, popped: number, goal: number, done: boolean)
 	currentStage = s
+	clearHighlights()
+	if not done and goal - popped <= Config.ResaltarUltimos then
+		highlightRemaining(s)
+	end
 	hint.Visible = true
 	hint.Text = if done then "¡Puerta abierta, sigue corriendo! ➜" else hintText
 	setCounter(popped, goal, done)
@@ -878,6 +914,12 @@ function handlers.progreso(s: number, popped: number, goal: number, pts: number)
 	if s == currentStage then
 		setCounter(popped, goal)
 		bump(counterScale, 1.18)
+		local left = goal - popped
+		if left > 0 and left <= Config.ResaltarUltimos then
+			highlightRemaining(s)
+		else
+			clearHighlights()
+		end
 	end
 end
 
@@ -1089,6 +1131,7 @@ function handlers.aviso(title: string, sub: string?)
 end
 
 function handlers.fin()
+	clearHighlights()
 	racing = false
 	currentStage = 0
 	table.clear(lastCleared)

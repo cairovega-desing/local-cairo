@@ -14,6 +14,7 @@ Config.CuentaAtras = 3 -- segundos de «3, 2, 1, ¡YA!»
 Config.VelocidadNormal = 16 -- velocidad al caminar en el lobby
 Config.VelocidadCarrera = 26 -- velocidad durante la carrera (más rápido = más divertido)
 Config.TiempoCelebracion = 7 -- segundos de fiesta antes de volver al lobby
+Config.VelocidadMaximaTrampa = 120 -- studs/seg horizontales; más rápido que esto = trampa (vuelves a tu puerta)
 Config.TiempoMaximoCarrera = 240 -- si nadie llega a la meta en este tiempo, la carrera termina
 Config.EsperaSolo = 6 -- si estás solo en una plataforma, a los X segundos juegas contra el reloj (0 = desactivado)
 Config.AutoGuardado = 120 -- cada cuántos segundos se guarda el progreso de todos
@@ -115,6 +116,7 @@ Config.Laberinto = {
 -- ─── Efectos ───────────────────────────────────────────────────────────
 Config.MejorarIluminacion = true -- colores vivos, brillo neón y cielo suave (ver Ambiente)
 Config.VentanaCombo = 1.2 -- segundos entre globos para que el combo siga vivo
+Config.ResaltarUltimos = 3 -- cuando te faltan estos globos o menos, brillan a través de las paredes
 
 --[[
 	SONIDOS

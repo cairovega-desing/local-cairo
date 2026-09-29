@@ -63,6 +63,7 @@ Cada puerta muestra cuántos globos te faltan (🎈 12 / 32).
 - Confeti del color del globo, una onda expansiva, números **+10** flotantes y una leve sacudida de cámara.
 - Carteles de **¡GENIAL!**, **¡INCREÍBLE!** e **¡IMPARABLE!** al encadenar combos.
 - **Globos dorados** (8 %) que valen +50 y brillan.
+- Cuando te faltan 3 globos o menos, **brillan a través de las paredes** para que los encuentres.
 - Puertas que se hunden con fanfarria y confeti.
 - Una barra arriba que muestra en qué etapa vas tú y en cuál tu rival.
 - Una lluvia de confeti al ganar, más el aviso **¡NUEVO RÉCORD!** si mejoras tu tiempo.
