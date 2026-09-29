@@ -104,6 +104,7 @@ src/
 tools/build.py         genera CarreraDeGlobos.rbxmx (y sourcemap.json)
 tools/make_sounds.py   genera los sonidos de sounds/
 tools/make_music.py    genera la música de fondo (loops perfectos)
+tools/make_context.py  genera CONTEXTO_COMPLETO.md (todo el proyecto en un archivo, para otra conversación de Claude)
 ```
 
 - Compatible con **Rojo** (`rojo serve`), usando `default.project.json`.
