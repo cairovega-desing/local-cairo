@@ -509,7 +509,7 @@ local function renderRace(list, total: number)
 	end
 	raceFrame.Size = UDim2.new(0, 140 + total * 24 + 40, 0, 12 + #list * 30)
 	raceFrame.Visible = true
-	status.Visible = not racing
+	status.Visible = false -- la barra de carrera ya dice todo (evita que se encimen)
 	points.Visible = racing
 end
 
@@ -724,7 +724,7 @@ local handlers = {}
 
 function handlers.estado(text: string)
 	status.Text = text
-	status.Visible = not racing
+	status.Visible = not raceFrame.Visible
 end
 
 function handlers.carrera(list, total: number)
@@ -847,13 +847,21 @@ function handlers.poderJugador(seconds: number)
 	end)
 end
 
-function handlers.rebote(velocity: Vector3)
+-- Lanza a tu personaje (trampolines, globo gigante). Primero lo ponemos en
+-- estado de salto; si no, el Humanoid «se pega» al piso y frena el impulso.
+local function launch(velocity: Vector3)
 	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	if root then
+	if humanoid and root then
+		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 		root.AssemblyLinearVelocity = velocity
-		play("Rebote", 0.8 + math.random() * 0.2)
 	end
+end
+
+function handlers.rebote(velocity: Vector3)
+	launch(velocity)
+	play("Rebote", 0.8 + math.random() * 0.2)
 end
 
 function handlers.golpeGigante(pos: Vector3, progress: number, ownerId: number)
@@ -886,10 +894,18 @@ function handlers.explosion(pos: Vector3, size: number, color: Color3)
 	end
 end
 
-function handlers.ganador(name: string, userId: number, pts: number, seconds: number, isRecord: boolean)
+function handlers.ganador(name: string, userId: number, pts: number, seconds: number, isRecord: boolean, solo: boolean)
 	hint.Visible = false
 	counter.Visible = false
-	if userId == player.UserId then
+	if solo and userId == player.UserId then
+		local sub = string.format("⏱ %s · ⭐ %d puntos", formatTime(seconds), pts)
+		showBanner(if isRecord then "🔥 ¡NUEVO RÉCORD! 🔥" else "⏱ ¡TERMINASTE!", GOLD, sub, 5)
+		play("Victoria", 1)
+		flash(GOLD, 0.4)
+		if isRecord then
+			confettiRain(2)
+		end
+	elseif userId == player.UserId then
 		local sub = string.format("⭐ %d puntos · ⏱ %s", pts, formatTime(seconds))
 		if isRecord then
 			sub ..= " · ¡NUEVO RÉCORD! 🔥"
@@ -906,7 +922,7 @@ function handlers.ganador(name: string, userId: number, pts: number, seconds: nu
 end
 
 function handlers.desbloqueo(unlocked: { string }, nextName: string?, nextWins: number?, wins: number)
-	task.delay(2.5, function()
+	task.delay(5.2, function()
 		if #unlocked > 0 then
 			showBanner("✨ ¡DESBLOQUEASTE! ✨", GOLD, table.concat(unlocked, " · "), 3)
 			play("Desbloqueo", 1)
@@ -991,21 +1007,29 @@ for _, part in CollectionService:GetTagged("FranjaCinta") do
 end
 
 local lastBounce = 0
+local bobParts: { BasePart } = {}
+local bobCFrames: { CFrame } = {}
 
 RunService.RenderStepped:Connect(function(dt)
 	local t = os.clock()
 	local camera = Workspace.CurrentCamera
 	local camPos = camera.CFrame.Position
 
-	-- Globos que flotan suavemente
+	-- Globos que flotan suavemente (solo los cercanos, todos juntos con BulkMoveTo: rápido en celular)
+	table.clear(bobParts)
+	table.clear(bobCFrames)
 	for _, entry in floating do
 		local first = entry.parts[1]
-		if first and (first.base.Position - camPos).Magnitude < 160 then
+		if first and (first.base.Position - camPos).Magnitude < 140 then
 			local offset = Vector3.new(0, math.sin(t * 2.2 + entry.phase) * 0.3, 0)
 			for _, p in entry.parts do
-				p.part.CFrame = p.base + offset
+				table.insert(bobParts, p.part)
+				table.insert(bobCFrames, p.base + offset)
 			end
 		end
+	end
+	if #bobParts > 0 then
+		Workspace:BulkMoveTo(bobParts, bobCFrames, Enum.BulkMoveMode.FireCFrameChanged)
 	end
 
 	-- Franjas de las cintas: se deslizan en la dirección en que empujan
@@ -1038,7 +1062,7 @@ RunService.RenderStepped:Connect(function(dt)
 				if Vector3.new(d.X, 0, d.Z).Magnitude < pad.Size.Y / 2 + 0.5 and d.Y > 0 and d.Y < 4.5 then
 					lastBounce = t
 					local toCenter = Vector3.new(-d.X, 0, -d.Z) * 2
-					root.AssemblyLinearVelocity = toCenter + Vector3.new(0, pad:GetAttribute("Fuerza") or 85, 0)
+					launch(toCenter + Vector3.new(0, pad:GetAttribute("Fuerza") or 85, 0))
 					play("Rebote", 1 + math.random() * 0.15)
 					shake(0.3)
 					break

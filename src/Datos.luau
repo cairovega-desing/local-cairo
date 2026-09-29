@@ -105,6 +105,15 @@ function Datos.init(loadedCallback: (Player) -> ())
 		setup(player)
 	end
 	Players.PlayerRemoving:Connect(save)
+	-- Guardado automático por si el servidor se cae
+	task.spawn(function()
+		while true do
+			task.wait(Config.AutoGuardado)
+			for _, player in Players:GetPlayers() do
+				save(player)
+			end
+		end
+	end)
 	game:BindToClose(function()
 		for _, player in Players:GetPlayers() do
 			save(player)

@@ -25,6 +25,14 @@ Principios de diseño:
 - [x] 13 sonidos hechos a medida (`sounds/`)
 - [x] Un solo archivo `.rbxmx` para instalar
 
+## Vuelta de mejora 1
+- [x] Arreglo: el texto de estado se encimaba con la barra de carrera (espectadores)
+- [x] Arreglo: trampolines y globo gigante lanzan de forma fiable (estado de salto antes del impulso)
+- [x] Contra el reloj muestra «¡TERMINASTE!» o «¡NUEVO RÉCORD!» en vez de «¡GANASTE!»
+- [x] El cartel de desbloqueo ya no tapa la pantalla de victoria
+- [x] Rendimiento en celular: los globos flotan moviéndose todos juntos con `BulkMoveTo`
+- [x] Guardado automático cada 2 minutos
+
 ## Próximas ideas (se revisan en cada vuelta de mejora)
 - Mezclar el orden de las etapas en cada carrera, o sortear 6 de un banco más grande
 - Más etapas: Rodillo gigante, Globos que huyen, Pisos que se hunden, Cañón humano

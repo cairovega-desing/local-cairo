@@ -403,7 +403,15 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 	if winner then
 		local seconds = os.clock() - startTime
 		local isRecord = Tablas.recordTime(winner.player, seconds)
-		remote:FireAllClients("ganador", winner.player.DisplayName, winner.player.UserId, winner.points, seconds, isRecord)
+		remote:FireAllClients(
+			"ganador",
+			winner.player.DisplayName,
+			winner.player.UserId,
+			winner.points,
+			seconds,
+			isRecord,
+			laneCount == 1
+		)
 		-- Contra el reloj (solo) no suma Win: solo cuenta el tiempo
 		if laneCount > 1 then
 			Datos.add(winner.player, "Wins", 1)
