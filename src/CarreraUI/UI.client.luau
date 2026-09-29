@@ -603,6 +603,25 @@ local function formatTime(seconds: number): string
 	return string.format("%d:%05.2f", seconds // 60, seconds % 60)
 end
 
+-- Hace bailar a tu personaje con el script «Animate» de Roblox
+local function dance(emote: string)
+	local character = player.Character
+	local animate = character and character:FindFirstChild("Animate")
+	local bindable = animate and animate:FindFirstChild("PlayEmote")
+	if bindable and bindable:IsA("BindableFunction") then
+		pcall(function()
+			bindable:Invoke(emote)
+		end)
+		return
+	end
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		pcall(function()
+			humanoid:PlayEmote(emote)
+		end)
+	end
+end
+
 -- ════════════════════════════════════════════════════════════════════
 -- Tienda de estelas y títulos
 -- ════════════════════════════════════════════════════════════════════
@@ -774,13 +793,7 @@ function renderShop()
 				myEquipped[shopTab] = item.Id
 				play("Desbloqueo", 1.4, 0.6)
 				if shopTab == "Baile" then
-					-- Vista previa: tu personaje baila al equiparlo
-					local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-					if humanoid then
-						pcall(function()
-							humanoid:PlayEmote(item.Id)
-						end)
-					end
+					dance(item.Id) -- vista previa: tu personaje baila al equiparlo
 				end
 				renderShop()
 			end
@@ -957,8 +970,16 @@ local function launch(velocity: Vector3)
 	if humanoid and root then
 		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 		root.AssemblyLinearVelocity = velocity
+		-- El salto del Humanoid se procesa en el siguiente paso de física y podría
+		-- pisar nuestro impulso: lo volvemos a aplicar justo después
+		task.defer(function()
+			if root.Parent then
+				root.AssemblyLinearVelocity = velocity
+			end
+		end)
 	end
 end
+
 
 function handlers.rebote(velocity: Vector3)
 	launch(velocity)
@@ -1025,13 +1046,9 @@ function handlers.ganador(
 		end
 		showBanner(if streak >= 3 then "🔥 ¡IMPARABLE! 🔥" else "🏆 ¡GANASTE! 🏆", GOLD, sub, 5)
 		-- ¡A bailar! (emote de Roblox; si el personaje no lo soporta, no pasa nada)
-		task.delay(0.4, function()
-			local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-			if humanoid then
-				pcall(function()
-					humanoid:PlayEmote(myEquipped.Baile)
-				end)
-			end
+		-- (el servidor te deja quieto; esperamos a que el personaje frene del todo)
+		task.delay(0.8, function()
+			dance(myEquipped.Baile)
 		end)
 		play("Victoria", 1)
 		flash(GOLD, 0.5)
@@ -1065,6 +1082,10 @@ function handlers.tienda(wins: number, estela: string, titulo: string, baile: st
 	if shop.Visible then
 		renderShop()
 	end
+end
+
+function handlers.aviso(title: string, sub: string?)
+	showBanner(title, Color3.fromRGB(255, 200, 120), sub, 3)
 end
 
 function handlers.fin()

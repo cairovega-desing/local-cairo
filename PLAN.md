@@ -65,7 +65,18 @@ Principios de diseño:
 
 Principio que pidió el usuario: **emocionante y dopamínico, pero simple y sencillo.**
 
+## Vuelta de mejora 7 (auditoría de errores)
+- [x] Trampa: si el rival se va, ya no se regala una Win ni se guarda un tiempo récord falso de 0 segundos
+- [x] Datos: si falla la carga, ya no se guarda encima (antes se podían borrar las Wins)
+- [x] La carrera termina a los 4 minutos si nadie llega (antes alguien AFK bloqueaba el juego)
+- [x] La limpieza de la carrera corre siempre, aunque haya un error
+- [x] El baile de victoria usa el script Animate de Roblox y el ganador se queda quieto para que se vea
+- [x] Trampolines: el impulso se vuelve a aplicar después del salto, para que no se pierda
+- [x] Rendimiento en red: los globos huidizos y la lluvia se mueven solo con el jugador adentro, 20 veces por segundo
+- [x] Seguridad: límite de mensajes por jugador en el RemoteEvent
+
 ## Próximas ideas (se revisan en cada vuelta de mejora)
+- Anti-trampas de velocidad (rechazar movimientos imposibles)
 - Personajes redondos tipo «huevito» (opcional)
 - Más etapas: Rodillo gigante, Globos que huyen, Pisos que se hunden, Cañón humano
 - Efecto de explosión desbloqueable (color del confeti)

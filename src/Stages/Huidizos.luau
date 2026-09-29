@@ -53,7 +53,19 @@ function Huidizos.start(handle, rt)
 		runners[model] = { pos = pos, wander = Vector3.new(math.cos(a), 0, math.sin(a)) }
 	end
 
-	local function update(dt: number, root: BasePart, inside: boolean)
+	local MOVE_STEP = 0.05 -- movemos los globos 20 veces por segundo (menos datos por la red)
+	local accumulated = 0
+
+	local function update(frameDt: number, root: BasePart, inside: boolean)
+		if not inside then
+			return -- nadie los mira: no gastamos red moviéndolos
+		end
+		accumulated += frameDt
+		if accumulated < MOVE_STEP then
+			return
+		end
+		local dt = accumulated
+		accumulated = 0
 		local me = root.Position
 		for model, r in runners do
 			if not model.Parent then
@@ -62,7 +74,7 @@ function Huidizos.start(handle, rt)
 			end
 			local away = Vector3.new(r.pos.X - me.X, 0, r.pos.Z - me.Z)
 			local velocity
-			if inside and away.Magnitude < cfg.DistanciaSusto then
+			if away.Magnitude < cfg.DistanciaSusto then
 				-- ¡Huye! (más lento que tú, así que puedes alcanzarlo)
 				velocity = away.Unit * cfg.VelocidadHuida + r.wander * 3
 			else

@@ -180,328 +180,355 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 		end)
 	end
 
-	-- ─── Preparar cada pista ───────────────────────────────────────────
-	for i, player in players do
-		local laneMap = map.lanes[i]
-		local lane = {
-			player = player,
-			index = i,
-			map = laneMap,
-			stages = {},
-			current = -1,
-			cleared = 0,
-			points = 0,
-			powerUntil = 0,
-			aura = nil :: ParticleEmitter?,
-			won = false,
-		}
-		lanes[i] = lane
-
-		for s, stageMap in laneMap.stages do
-			local st = { balloons = {}, popped = 0, goal = 0, done = false, update = nil, stop = nil }
-			lane.stages[s] = st
-			setBarriers(stageMap, false)
-
-			local rng = Random.new(seed + s) -- misma semilla en las dos pistas
-			local rt = {
-				player = player,
-				folder = raceFolder,
-				rng = rng,
-			}
-			function rt.addBalloon(pos: Vector3, opts)
-				-- Siempre usamos el rng las mismas veces para que las dos pistas sean idénticas
-				local color = Config.ColoresGlobo[rng:NextInteger(1, #Config.ColoresGlobo)]
-				local golden = rng:NextNumber() < Config.ProbabilidadDorado
-				if opts.golden ~= nil then
-					golden = opts.golden
-				end
-				local size = opts.size or 3
-				local model = Balloons.create(raceFolder, pos, {
-					size = size,
-					color = opts.color or color,
-					golden = golden,
-					noString = opts.noString,
-					noBob = opts.noBob,
-				})
-				local body = model.PrimaryPart :: BasePart
-				st.balloons[model] = { pos = pos, radius = size * 0.55, golden = golden, color = body.Color }
-				return model
-			end
-			function rt.pop(model: Model)
-				popBalloon(lane, s, model)
-			end
-			function rt.balloons()
-				return st.balloons
-			end
-			function rt.move(model: Model, pos: Vector3)
-				local info = st.balloons[model]
-				if info then
-					info.pos = pos
-					model:PivotTo(CFrame.new(pos))
-				end
-			end
-			function rt.hit(pos: Vector3, color: Color3, radius: number)
-				if not cleaned then
-					score(lane, s, pos, color, radius, false)
-				end
-			end
-			function rt.done(): boolean
-				return st.done
-			end
-			function rt.bounce(velocity: Vector3)
-				remote:FireClient(player, "rebote", velocity)
-			end
-			function rt.fx(kind: string, ...)
-				remote:FireAllClients(kind, ...)
-			end
-			function rt.powerUp(seconds: number)
-				powerUp(lane, seconds)
-			end
-
-			local control = stageMap.module.start(stageMap.handle, rt)
-			st.goal = control.goal
-			st.update = control.update
-			st.stop = control.stop
-			updateDoor(lane, s)
+	-- Limpieza: SIEMPRE se ejecuta (aunque haya un error), así nadie queda atrapado
+	local function cleanup()
+		Race.lastProgress = nil
+		cleaned = true
+		for _, connection in connections do
+			connection:Disconnect()
 		end
-		for s, st in lane.stages do
-			if st.goal <= 0 then
-				clearStage(lane, s)
-			end
-		end
-	end
-
-	-- Si alguien se muere o se reinicia, reaparece en su última puerta
-	for _, lane in lanes do
-		table.insert(
-			connections,
-			lane.player.CharacterAdded:Connect(function(character)
-				local root = character:WaitForChild("HumanoidRootPart", 10)
-				local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid?
-				if cleaned or not root then
-					return
+		for _, lane in lanes do
+			endPower(lane)
+			if lane.player.Parent == Players then
+				local humanoid, root = getCharacter(lane.player)
+				if root then
+					root.Anchored = false
 				end
-				task.wait()
-				lane.aura = nil
-				if countingDown then
-					-- Reiniciarse en la cuenta atrás no da ventaja: vuelves a la salida, quieto
-					local frozen = root :: BasePart
-					character:PivotTo(lane.map.startCFrame)
-					frozen.Anchored = true
-					return
-				end
-				character:PivotTo(checkpoint(lane))
 				if humanoid then
-					humanoid.WalkSpeed = Config.VelocidadCarrera
+					humanoid.WalkSpeed = Config.VelocidadNormal
 				end
-			end)
-		)
-	end
-
-	-- ─── Cuenta atrás ──────────────────────────────────────────────────
-	for _, lane in lanes do
-		local _, root = getCharacter(lane.player)
-		if root then
-			teleport(lane.player, lane.map.startCFrame)
-			root.Anchored = true
-		end
-	end
-	broadcastProgress()
-	for n = Config.CuentaAtras, 1, -1 do
-		remote:FireAllClients("cuenta", n)
-		task.wait(1)
-	end
-	remote:FireAllClients("cuenta", 0)
-	countingDown = false
-	startTime = os.clock()
-	for _, lane in lanes do
-		local humanoid, root = getCharacter(lane.player)
-		if root then
-			root.Anchored = false
-		end
-		if humanoid then
-			humanoid.WalkSpeed = Config.VelocidadCarrera
-		end
-	end
-
-	-- ─── Bucle de la carrera ───────────────────────────────────────────
-	local laneCount = 0
-	for _ in lanes do
-		laneCount += 1
-	end
-
-	local function stepLane(lane, root: BasePart, dt: number)
-		local pos = root.Position
-		if pos.Y < map.floorY - 30 then
-			teleport(lane.player, checkpoint(lane))
-			return
-		end
-
-		-- ¿En qué etapa está? (para mostrar el cartel e instrucciones)
-		local current = 0
-		for s, stageMap in lane.map.stages do
-			if pos.X >= stageMap.x0 and pos.X < stageMap.x1 + 2 then
-				current = s
+				teleport(lane.player, map.lobbyCFrame * CFrame.new(0, 0, (lane.index - 1.5) * 6))
+			end
+			for s, st in lane.stages do
+				if st.stop then
+					st.stop()
+				end
+				table.clear(st.balloons)
+				local stageMap = lane.map.stages[s]
+				setBarriers(stageMap, false)
+				stageMap.doorLabel.Text = "🎈"
 			end
 		end
-		if current ~= lane.current then
-			lane.current = current
-			if current > 0 then
-				local st = lane.stages[current]
-				local module = lane.map.stages[current].module
-				remote:FireClient(
-					lane.player,
-					"etapa",
-					current,
-					#lane.stages,
-					module.Title,
-					module.Hint,
-					math.min(st.popped, st.goal),
-					st.goal,
-					st.done
-				)
-			end
-		end
+		raceFolder:Destroy()
+		remote:FireAllClients("fin")
+	end
 
-		-- Tu cuerpo explota los globos que toca
-		local reach = Config.AlcanceCuerpo
-		if os.clock() < lane.powerUntil then
-			reach += Config.Laberinto.PoderAlcanceExtra
-		end
-		for s, st in lane.stages do
-			for model, info in st.balloons do
-				if (info.pos - pos).Magnitude <= info.radius + reach then
+	local function body()
+		-- ─── Preparar cada pista ───────────────────────────────────────────
+		for i, player in players do
+			local laneMap = map.lanes[i]
+			local lane = {
+				player = player,
+				index = i,
+				map = laneMap,
+				stages = {},
+				current = -1,
+				cleared = 0,
+				points = 0,
+				powerUntil = 0,
+				aura = nil :: ParticleEmitter?,
+				won = false,
+			}
+			lanes[i] = lane
+
+			for s, stageMap in laneMap.stages do
+				local st = { balloons = {}, popped = 0, goal = 0, done = false, update = nil, stop = nil }
+				lane.stages[s] = st
+				setBarriers(stageMap, false)
+
+				local rng = Random.new(seed + s) -- misma semilla en las dos pistas
+				local rt = {
+					player = player,
+					folder = raceFolder,
+					rng = rng,
+				}
+				function rt.addBalloon(pos: Vector3, opts)
+					-- Siempre usamos el rng las mismas veces para que las dos pistas sean idénticas
+					local color = Config.ColoresGlobo[rng:NextInteger(1, #Config.ColoresGlobo)]
+					local golden = rng:NextNumber() < Config.ProbabilidadDorado
+					if opts.golden ~= nil then
+						golden = opts.golden
+					end
+					local size = opts.size or 3
+					local model = Balloons.create(raceFolder, pos, {
+						size = size,
+						color = opts.color or color,
+						golden = golden,
+						noString = opts.noString,
+						noBob = opts.noBob,
+					})
+					local body = model.PrimaryPart :: BasePart
+					st.balloons[model] = { pos = pos, radius = size * 0.55, golden = golden, color = body.Color }
+					return model
+				end
+				function rt.pop(model: Model)
 					popBalloon(lane, s, model)
 				end
+				function rt.balloons()
+					return st.balloons
+				end
+				function rt.move(model: Model, pos: Vector3)
+					local info = st.balloons[model]
+					if info then
+						info.pos = pos
+						model:PivotTo(CFrame.new(pos))
+					end
+				end
+				function rt.hit(pos: Vector3, color: Color3, radius: number)
+					if not cleaned then
+						score(lane, s, pos, color, radius, false)
+					end
+				end
+				function rt.done(): boolean
+					return st.done
+				end
+				function rt.bounce(velocity: Vector3)
+					remote:FireClient(player, "rebote", velocity)
+				end
+				function rt.fx(kind: string, ...)
+					remote:FireAllClients(kind, ...)
+				end
+				function rt.powerUp(seconds: number)
+					powerUp(lane, seconds)
+				end
+
+				local control = stageMap.module.start(stageMap.handle, rt)
+				st.goal = control.goal
+				st.update = control.update
+				st.stop = control.stop
+				updateDoor(lane, s)
 			end
-			if st.update then
-				st.update(dt, root, s == current)
+			for s, st in lane.stages do
+				if st.goal <= 0 then
+					clearStage(lane, s)
+				end
 			end
 		end
 
-		if lane.cleared >= #lane.stages and pos.X >= lane.map.finishX then
-			lane.won = true
-		end
-	end
-
-	local winner = nil
-	while not winner do
-		local dt = RunService.Heartbeat:Wait()
-		local present = {}
+		-- Si alguien se muere o se reinicia, reaparece en su última puerta
 		for _, lane in lanes do
-			if lane.player.Parent == Players then
-				table.insert(present, lane)
-			end
+			table.insert(
+				connections,
+				lane.player.CharacterAdded:Connect(function(character)
+					local root = character:WaitForChild("HumanoidRootPart", 10)
+					local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid?
+					if cleaned or not root then
+						return
+					end
+					task.wait()
+					lane.aura = nil
+					if countingDown then
+						-- Reiniciarse en la cuenta atrás no da ventaja: vuelves a la salida, quieto
+						local frozen = root :: BasePart
+						character:PivotTo(lane.map.startCFrame)
+						frozen.Anchored = true
+						return
+					end
+					character:PivotTo(checkpoint(lane))
+					if humanoid then
+						humanoid.WalkSpeed = Config.VelocidadCarrera
+					end
+				end)
+			)
 		end
-		if #present == 0 then
-			break
-		end
-		if #present == 1 and laneCount > 1 then
-			winner = present[1] -- el rival se fue
-			break
-		end
-		for _, lane in present do
+
+		-- ─── Cuenta atrás ──────────────────────────────────────────────────
+		for _, lane in lanes do
 			local _, root = getCharacter(lane.player)
 			if root then
-				stepLane(lane, root, dt)
-				if lane.won then
-					winner = lane
-					break
-				end
+				teleport(lane.player, lane.map.startCFrame)
+				root.Anchored = true
 			end
 		end
-	end
-
-	-- ─── Ganador y limpieza ────────────────────────────────────────────
-	if winner then
-		local seconds = os.clock() - startTime
-		local isRecord = Tablas.recordTime(winner.player, seconds)
-		remote:FireAllClients(
-			"ganador",
-			winner.player.DisplayName,
-			winner.player.UserId,
-			winner.points,
-			seconds,
-			isRecord,
-			laneCount == 1,
-			(tonumber(winner.player:GetAttribute("Racha")) or 0) + (if laneCount > 1 then 1 else 0)
-		)
-		-- Corona sobre la cabeza del ganador mientras dura la fiesta
-		local head = winner.player.Character and winner.player.Character:FindFirstChild("Head")
-		if head and head:IsA("BasePart") then
-			local crown = Instance.new("BillboardGui")
-			crown.Name = "CoronaGanador"
-			crown.Size = UDim2.fromScale(4, 4)
-			crown.StudsOffset = Vector3.new(0, 4.5, 0)
-			crown.LightInfluence = 0
-			local icon = Instance.new("TextLabel")
-			icon.Size = UDim2.fromScale(1, 1)
-			icon.BackgroundTransparency = 1
-			icon.TextScaled = true
-			icon.Text = "👑"
-			icon.Parent = crown
-			crown.Parent = head
-			task.delay(Config.TiempoCelebracion, function()
-				crown:Destroy()
-			end)
+		broadcastProgress()
+		for n = Config.CuentaAtras, 1, -1 do
+			remote:FireAllClients("cuenta", n)
+			task.wait(1)
 		end
-
-		-- Racha de victorias seguidas (solo en 1 contra 1)
-		local streak = 0
-		if laneCount > 1 then
-			streak = (tonumber(winner.player:GetAttribute("Racha")) or 0) + 1
-			winner.player:SetAttribute("Racha", streak)
-			for _, lane in lanes do
-				if lane ~= winner and lane.player.Parent == Players then
-					lane.player:SetAttribute("Racha", 0)
-					Recompensas.apply(lane.player)
-				end
-			end
-		end
-		-- Contra el reloj (solo) no suma Win: solo cuenta el tiempo
-		if laneCount > 1 then
-			Datos.add(winner.player, "Wins", 1)
-			Tablas.saveWins(winner.player)
-			Recompensas.onWin(winner.player)
-		end
-		task.wait(Config.TiempoCelebracion)
-	end
-	for _, lane in lanes do
-		if lane.player.Parent == Players then
-			Tablas.saveGlobos(lane.player)
-		end
-	end
-	Tablas.refreshSoon()
-
-	Race.lastProgress = nil
-	cleaned = true
-	for _, connection in connections do
-		connection:Disconnect()
-	end
-	for _, lane in lanes do
-		endPower(lane)
-		if lane.player.Parent == Players then
+		remote:FireAllClients("cuenta", 0)
+		countingDown = false
+		startTime = os.clock()
+		for _, lane in lanes do
 			local humanoid, root = getCharacter(lane.player)
 			if root then
 				root.Anchored = false
 			end
 			if humanoid then
-				humanoid.WalkSpeed = Config.VelocidadNormal
+				humanoid.WalkSpeed = Config.VelocidadCarrera
 			end
-			teleport(lane.player, map.lobbyCFrame * CFrame.new(0, 0, (lane.index - 1.5) * 6))
 		end
-		for s, st in lane.stages do
-			if st.stop then
-				st.stop()
+
+		-- ─── Bucle de la carrera ───────────────────────────────────────────
+		local laneCount = 0
+		for _ in lanes do
+			laneCount += 1
+		end
+
+		local function stepLane(lane, root: BasePart, dt: number)
+			local pos = root.Position
+			if pos.Y < map.floorY - 30 then
+				teleport(lane.player, checkpoint(lane))
+				return
 			end
-			table.clear(st.balloons)
-			local stageMap = lane.map.stages[s]
-			setBarriers(stageMap, false)
-			stageMap.doorLabel.Text = "🎈"
+
+			-- ¿En qué etapa está? (para mostrar el cartel e instrucciones)
+			local current = 0
+			for s, stageMap in lane.map.stages do
+				if pos.X >= stageMap.x0 and pos.X < stageMap.x1 + 2 then
+					current = s
+				end
+			end
+			if current ~= lane.current then
+				lane.current = current
+				if current > 0 then
+					local st = lane.stages[current]
+					local module = lane.map.stages[current].module
+					remote:FireClient(
+						lane.player,
+						"etapa",
+						current,
+						#lane.stages,
+						module.Title,
+						module.Hint,
+						math.min(st.popped, st.goal),
+						st.goal,
+						st.done
+					)
+				end
+			end
+
+			-- Tu cuerpo explota los globos que toca
+			local reach = Config.AlcanceCuerpo
+			if os.clock() < lane.powerUntil then
+				reach += Config.Laberinto.PoderAlcanceExtra
+			end
+			for s, st in lane.stages do
+				for model, info in st.balloons do
+					if (info.pos - pos).Magnitude <= info.radius + reach then
+						popBalloon(lane, s, model)
+					end
+				end
+				if st.update then
+					st.update(dt, root, s == current)
+				end
+			end
+
+			if lane.cleared >= #lane.stages and pos.X >= lane.map.finishX then
+				lane.won = true
+			end
 		end
+
+		local winner = nil
+		local timedOut = false
+		while not winner do
+			local dt = RunService.Heartbeat:Wait()
+			if os.clock() - startTime > Config.TiempoMaximoCarrera then
+				timedOut = true
+				break
+			end
+			local present = {}
+			for _, lane in lanes do
+				if lane.player.Parent == Players then
+					table.insert(present, lane)
+				end
+			end
+			if #present == 0 then
+				break
+			end
+			if #present == 1 and laneCount > 1 then
+				winner = present[1] -- el rival se fue
+				break
+			end
+			for _, lane in present do
+				local _, root = getCharacter(lane.player)
+				if root then
+					stepLane(lane, root, dt)
+					if lane.won then
+						winner = lane
+						break
+					end
+				end
+			end
+		end
+
+		-- ─── Ganador ──────────────────────────────────────────────────────
+		if timedOut then
+			remote:FireAllClients("aviso", "⏱ ¡Se acabó el tiempo!", "Nadie llegó a la meta. ¡Otra vez!")
+			task.wait(3)
+		elseif winner and not winner.won then
+			-- El rival se fue: no cuenta como Win (evita hacer trampa con otra cuenta)
+			remote:FireClient(winner.player, "aviso", "Tu rival se fue 😢", "Esta carrera no cuenta. ¡Busca otro rival!")
+			task.wait(3)
+		elseif winner then
+			local seconds = os.clock() - startTime
+			local isRecord = Tablas.recordTime(winner.player, seconds)
+			remote:FireAllClients(
+				"ganador",
+				winner.player.DisplayName,
+				winner.player.UserId,
+				winner.points,
+				seconds,
+				isRecord,
+				laneCount == 1,
+				(tonumber(winner.player:GetAttribute("Racha")) or 0) + (if laneCount > 1 then 1 else 0)
+			)
+			-- El ganador se queda quieto (así puede bailar) y le ponemos una corona
+			local winnerHumanoid = getCharacter(winner.player)
+			if winnerHumanoid then
+				winnerHumanoid.WalkSpeed = 0
+			end
+			local head = winner.player.Character and winner.player.Character:FindFirstChild("Head")
+			if head and head:IsA("BasePart") then
+				local crown = Instance.new("BillboardGui")
+				crown.Name = "CoronaGanador"
+				crown.Size = UDim2.fromScale(4, 4)
+				crown.StudsOffset = Vector3.new(0, 4.5, 0)
+				crown.LightInfluence = 0
+				local icon = Instance.new("TextLabel")
+				icon.Size = UDim2.fromScale(1, 1)
+				icon.BackgroundTransparency = 1
+				icon.TextScaled = true
+				icon.Text = "👑"
+				icon.Parent = crown
+				crown.Parent = head
+				task.delay(Config.TiempoCelebracion, function()
+					crown:Destroy()
+				end)
+			end
+
+			-- Racha de victorias seguidas (solo en 1 contra 1)
+			local streak = 0
+			if laneCount > 1 then
+				streak = (tonumber(winner.player:GetAttribute("Racha")) or 0) + 1
+				winner.player:SetAttribute("Racha", streak)
+				for _, lane in lanes do
+					if lane ~= winner and lane.player.Parent == Players then
+						lane.player:SetAttribute("Racha", 0)
+						Recompensas.apply(lane.player)
+					end
+				end
+			end
+			-- Contra el reloj (solo) no suma Win: solo cuenta el tiempo
+			if laneCount > 1 then
+				Datos.add(winner.player, "Wins", 1)
+				Tablas.saveWins(winner.player)
+				Recompensas.onWin(winner.player)
+			end
+			task.wait(Config.TiempoCelebracion)
+		end
+		for _, lane in lanes do
+			if lane.player.Parent == Players then
+				Tablas.saveGlobos(lane.player)
+			end
+		end
+		Tablas.refreshSoon()
 	end
-	raceFolder:Destroy()
-	remote:FireAllClients("fin")
+
+	local ok, err = pcall(body)
+	cleanup()
+	if not ok then
+		error(err, 0)
+	end
 end
 
 return Race

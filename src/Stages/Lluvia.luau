@@ -50,7 +50,19 @@ function Lluvia.start(handle, rt)
 		falling[model] = pos
 	end
 
-	local function update(dt: number, root: BasePart, inside: boolean)
+	local MOVE_STEP = 0.05 -- 20 veces por segundo (menos datos por la red)
+	local accumulated = 0
+
+	local function update(frameDt: number, root: BasePart, inside: boolean)
+		if not inside then
+			return
+		end
+		accumulated += frameDt
+		if accumulated < MOVE_STEP then
+			return
+		end
+		local dt = accumulated
+		accumulated = 0
 		local alive = 0
 		for model, pos in falling do
 			if not model.Parent then
@@ -66,7 +78,7 @@ function Lluvia.start(handle, rt)
 			end
 		end
 
-		if not inside or rt.done() then
+		if rt.done() then
 			return
 		end
 		timer -= dt

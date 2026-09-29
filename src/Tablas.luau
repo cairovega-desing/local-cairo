@@ -155,7 +155,7 @@ end
 local function write(id: string, player: Player, value: number, onlyIfBetter: boolean)
 	local board = boards[id]
 	local store = board and board.store
-	if not store or value <= 0 then
+	if not store or value <= 0 or not Datos.loaded(player) then
 		return
 	end
 	task.spawn(function()

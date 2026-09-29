@@ -33,6 +33,12 @@ local function setup(player: Player)
 			local ok, data = pcall(function()
 				return ds:GetAsync(key(player))
 			end)
+			if not ok then
+				warn("[CarreraGlobos] No se pudieron cargar los datos de " .. player.Name .. ". No se guardará para no borrar nada.")
+			elseif player.Parent then
+				-- Solo se guarda si la carga salió bien (si no, guardaríamos ceros encima)
+				player:SetAttribute("DatosCargados", true)
+			end
 			if ok and type(data) == "table" then
 				for _, name in STATS do
 					local value = leaderstats:FindFirstChild(name) :: IntValue?
@@ -56,7 +62,7 @@ end
 local function save(player: Player)
 	local ds = store
 	local leaderstats = player:FindFirstChild("leaderstats")
-	if not ds or not leaderstats then
+	if not ds or not leaderstats or not player:GetAttribute("DatosCargados") then
 		return
 	end
 	local data = {}
@@ -70,6 +76,11 @@ local function save(player: Player)
 	pcall(function()
 		ds:SetAsync(key(player), data)
 	end)
+end
+
+-- true si se puede escribir en las tablas globales (los datos se cargaron bien)
+function Datos.loaded(player: Player): boolean
+	return player:GetAttribute("DatosCargados") == true
 end
 
 function Datos.get(player: Player, stat: string): number

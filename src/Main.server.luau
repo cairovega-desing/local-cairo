@@ -103,7 +103,18 @@ local function setStatus(text: string)
 	end
 end
 
+-- Límite de mensajes: evita que alguien sature el servidor mandando eventos sin parar
+local lastMessage: { [Player]: number } = {}
+Players.PlayerRemoving:Connect(function(player)
+	lastMessage[player] = nil
+end)
+
 remote.OnServerEvent:Connect(function(player, kind, ...)
+	local now = os.clock()
+	if now - (lastMessage[player] or 0) < 0.2 then
+		return
+	end
+	lastMessage[player] = now
 	if kind == "hola" then
 		remote:FireClient(player, "estado", status)
 		Recompensas.sendState(player)
