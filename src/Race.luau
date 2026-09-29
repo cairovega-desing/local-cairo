@@ -16,6 +16,9 @@ local Tablas = require(script.Parent.Tablas)
 
 local Race = {}
 
+-- Último estado de la barra de carrera (para quien entra a mitad de una carrera)
+Race.lastProgress = nil :: { any }?
+
 local function getCharacter(player: Player): (Humanoid?, BasePart?)
 	local character = player.Character
 	if not character then
@@ -60,6 +63,7 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 	local lanes = {}
 	local connections: { RBXScriptConnection } = {}
 	local cleaned = false
+	local countingDown = true
 	local startTime = os.clock()
 
 	local function checkpoint(lane): CFrame
@@ -81,6 +85,7 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 				lane = lane.index,
 			})
 		end
+		Race.lastProgress = { list, #map.lanes[1].stages }
 		remote:FireAllClients("carrera", list, #map.lanes[1].stages)
 	end
 
@@ -277,11 +282,18 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 					return
 				end
 				task.wait()
+				lane.aura = nil
+				if countingDown then
+					-- Reiniciarse en la cuenta atrás no da ventaja: vuelves a la salida, quieto
+					local frozen = root :: BasePart
+					character:PivotTo(lane.map.startCFrame)
+					frozen.Anchored = true
+					return
+				end
 				character:PivotTo(checkpoint(lane))
 				if humanoid then
 					humanoid.WalkSpeed = Config.VelocidadCarrera
 				end
-				lane.aura = nil
 			end)
 		)
 	end
@@ -300,6 +312,7 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 		task.wait(1)
 	end
 	remote:FireAllClients("cuenta", 0)
+	countingDown = false
 	startTime = os.clock()
 	for _, lane in lanes do
 		local humanoid, root = getCharacter(lane.player)
@@ -413,6 +426,26 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 			laneCount == 1,
 			(tonumber(winner.player:GetAttribute("Racha")) or 0) + (if laneCount > 1 then 1 else 0)
 		)
+		-- Corona sobre la cabeza del ganador mientras dura la fiesta
+		local head = winner.player.Character and winner.player.Character:FindFirstChild("Head")
+		if head and head:IsA("BasePart") then
+			local crown = Instance.new("BillboardGui")
+			crown.Name = "CoronaGanador"
+			crown.Size = UDim2.fromScale(4, 4)
+			crown.StudsOffset = Vector3.new(0, 4.5, 0)
+			crown.LightInfluence = 0
+			local icon = Instance.new("TextLabel")
+			icon.Size = UDim2.fromScale(1, 1)
+			icon.BackgroundTransparency = 1
+			icon.TextScaled = true
+			icon.Text = "👑"
+			icon.Parent = crown
+			crown.Parent = head
+			task.delay(Config.TiempoCelebracion, function()
+				crown:Destroy()
+			end)
+		end
+
 		-- Racha de victorias seguidas (solo en 1 contra 1)
 		local streak = 0
 		if laneCount > 1 then
@@ -440,6 +473,7 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 	end
 	Tablas.refreshSoon()
 
+	Race.lastProgress = nil
 	cleaned = true
 	for _, connection in connections do
 		connection:Disconnect()

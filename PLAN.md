@@ -47,11 +47,16 @@ Principios de diseño:
 - [x] Lobby con piso a cuadros pastel y racimos de globos en las esquinas
 - [x] Paneles de la interfaz con degradado morado-rosa y borde blanco
 
+## Vuelta de mejora 4
+- [x] Arreglo: reiniciarse durante la cuenta atrás ya no te deja empezar en la etapa 1 con ventaja
+- [x] Arreglo: quien entra al servidor a mitad de una carrera ve la barra de progreso
+- [x] Las plataformas del lobby lanzan anillos de luz para que se vea dónde pararse
+- [x] El ganador baila y aparece una corona 👑 sobre su cabeza
+
 ## Próximas ideas (se revisan en cada vuelta de mejora)
-- Plataformas del lobby que laten y un anillo de luz al pararte
-- Personajes redondos tipo «huevito» (opcional) y animación de baile al ganar
+- Personajes redondos tipo «huevito» (opcional)
+- Bailes de victoria desbloqueables con Wins
 - Más etapas: Rodillo gigante, Globos que huyen, Pisos que se hunden, Cañón humano
-- Emotes o bailes de victoria desbloqueables
 - Efecto de explosión desbloqueable (color del confeti)
 - Espectadores: cámara que sigue a los corredores desde el lobby
 - Carrera de 4 jugadores

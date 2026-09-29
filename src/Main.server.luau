@@ -107,6 +107,9 @@ remote.OnServerEvent:Connect(function(player, kind, ...)
 	if kind == "hola" then
 		remote:FireClient(player, "estado", status)
 		Recompensas.sendState(player)
+		if Race.lastProgress then
+			remote:FireClient(player, "carrera", table.unpack(Race.lastProgress))
+		end
 	elseif kind == "equipar" then
 		Recompensas.equip(player, ...)
 	end

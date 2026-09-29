@@ -942,6 +942,15 @@ function handlers.ganador(
 			sub ..= string.format(" · 🔥 ¡RACHA DE %d!", streak)
 		end
 		showBanner(if streak >= 3 then "🔥 ¡IMPARABLE! 🔥" else "🏆 ¡GANASTE! 🏆", GOLD, sub, 5)
+		-- ¡A bailar! (emote de Roblox; si el personaje no lo soporta, no pasa nada)
+		task.delay(0.4, function()
+			local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				pcall(function()
+					humanoid:PlayEmote("dance")
+				end)
+			end
+		end)
 		play("Victoria", 1)
 		flash(GOLD, 0.5)
 		confettiRain(3)
@@ -1038,6 +1047,40 @@ for _, part in CollectionService:GetTagged("FranjaCinta") do
 end
 
 local lastBounce = 0
+local lastPadPulse = 0
+
+-- Anillo de luz que sale de las plataformas del lobby (para que se vea dónde pararse)
+local function padPulse()
+	local map = Workspace:FindFirstChild("MapaCarreraGlobos")
+	local lobby = map and map:FindFirstChild("Lobby")
+	if not lobby or racing then
+		return
+	end
+	for i = 1, 2 do
+		local pad = lobby:FindFirstChild("Plataforma" .. i)
+		if pad and pad:IsA("BasePart") then
+			local ring = make("Part", {
+				Shape = Enum.PartType.Cylinder,
+				Size = Vector3.new(0.2, pad.Size.Y, pad.Size.Z),
+				CFrame = pad.CFrame,
+				Color = pad.Color,
+				Material = Enum.Material.Neon,
+				Transparency = 0.3,
+				Anchored = true,
+				CanCollide = false,
+				CanQuery = false,
+				CanTouch = false,
+				CastShadow = false,
+				Parent = Workspace,
+			})
+			TweenService:Create(ring, TweenInfo.new(1.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = Vector3.new(0.2, pad.Size.Y * 1.9, pad.Size.Z * 1.9),
+				Transparency = 1,
+			}):Play()
+			Debris:AddItem(ring, 1.2)
+		end
+	end
+end
 local bobParts: { BasePart } = {}
 local bobCFrames: { CFrame } = {}
 
@@ -1071,6 +1114,11 @@ RunService.RenderStepped:Connect(function(dt)
 		local rel = base.Position.Z - centerZ + width / 2
 		local z = (rel + t * speed) % width
 		part.CFrame = CFrame.new(base.Position.X, base.Position.Y, centerZ - width / 2 + z)
+	end
+
+	if t - lastPadPulse > 1.2 then
+		lastPadPulse = t
+		padPulse()
 	end
 
 	-- Combo que se apaga si dejas de explotar
