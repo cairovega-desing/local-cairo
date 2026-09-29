@@ -18,6 +18,8 @@ una **Win**. Las Wins desbloquean **estelas** y **títulos**.
 > Para que se guarden las Wins y funcionen las tablas globales:
 > **Home → Game Settings → Security → Enable Studio Access to API Services** (el juego tiene que estar publicado).
 
+> 🧪 **Primera vez:** sigue [`PRUEBAS.md`](PRUEBAS.md) para probar todo en unos 15 minutos. Con `Config.ProbarEtapa` puedes probar una etapa sola.
+
 ### Poner los sonidos buenos (recomendado)
 
 En `sounds/` hay 13 sonidos hechos a medida para este juego. El pop tiene 4 capas

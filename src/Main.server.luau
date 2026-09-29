@@ -63,6 +63,11 @@ end
 
 -- Elige las etapas de la próxima carrera (mezcladas, con la final siempre al final)
 local function pickStages()
+	local test = stageModules[Config.ProbarEtapa]
+	if test then
+		warn("[CarreraGlobos] Modo prueba: la carrera solo tiene la etapa «" .. Config.ProbarEtapa .. "»")
+		return { test }
+	end
 	local names = {}
 	for _, name in Config.Etapas do
 		if stageModules[name] and name ~= Config.EtapaFinal then

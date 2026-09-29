@@ -48,6 +48,7 @@ Config.Etapas = { "Aspas", "Neumaticos", "Cinta", "Dardos", "Trampolines", "Lluv
 Config.OrdenAleatorio = true -- cada carrera mezcla el orden (las dos pistas siempre iguales)
 Config.EtapasPorCarrera = 6 -- cuántas etapas del banco se juegan por carrera
 Config.EtapaFinal = "Gigante" -- esta siempre va al final, como «jefe» ("" = ninguna)
+Config.ProbarEtapa = "" -- PARA PROBAR: pon el nombre de una etapa (ej. "Aspas") y la carrera tendrá solo esa
 
 Config.Aspas = {
 	Anillos = 2, -- cuántos anillos de globos hay

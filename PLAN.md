@@ -79,6 +79,10 @@ Principio que pidió el usuario: **emocionante y dopamínico, pero simple y senc
 - [x] Cuando te faltan 3 globos o menos, tus globos brillan a través de las paredes (se acabó buscar el último)
 - [x] Anti-trampas de velocidad: si te mueves más rápido de lo posible, vuelves a tu última puerta (margen amplio para trampolines, cintas y rebotes)
 
+## Vuelta de mejora 9 (pruebas)
+- [x] `Config.ProbarEtapa`: la carrera tiene solo esa etapa, para probarlas una por una
+- [x] `PRUEBAS.md`: lista de pruebas en Studio y cómo reportar errores
+
 ## Próximas ideas (se revisan en cada vuelta de mejora)
 - Personajes redondos tipo «huevito» (opcional)
 - Más etapas: Rodillo gigante, Globos que huyen, Pisos que se hunden, Cañón humano
