@@ -11,6 +11,7 @@
 
 local Workspace = game:GetService("Workspace")
 
+local Balloons = require(script.Parent.Balloons)
 local Config = require(script.Parent.Config)
 local Util = require(script.Parent.Util)
 
@@ -23,6 +24,65 @@ local WALL_H = 20
 local START_ZONE = 20
 local DOOR_T = 2
 local FINISH_ZONE = 34
+
+-- Colores pastel para el piso de cada etapa (se repiten si hay más etapas)
+local STAGE_TINTS = {
+	Color3.fromRGB(180, 240, 210), -- menta
+	Color3.fromRGB(215, 200, 255), -- lila
+	Color3.fromRGB(255, 215, 185), -- durazno
+	Color3.fromRGB(190, 225, 255), -- celeste
+	Color3.fromRGB(255, 245, 180), -- limón
+	Color3.fromRGB(255, 205, 225), -- rosa
+	Color3.fromRGB(185, 245, 245), -- agua
+	Color3.fromRGB(230, 215, 255), -- lavanda
+}
+local FLAG_COLORS = {
+	Color3.fromRGB(255, 80, 110),
+	Color3.fromRGB(255, 200, 50),
+	Color3.fromRGB(80, 200, 255),
+	Color3.fromRGB(120, 230, 120),
+	Color3.fromRGB(200, 120, 255),
+}
+
+-- Adorno: pieza sin colisión ni sombra (no molesta ni pesa)
+local function decor(props: { [string]: any }): Part
+	props.CanCollide = false
+	props.CanQuery = false
+	props.CanTouch = false
+	props.CastShadow = false
+	return Util.part(props)
+end
+
+-- Racimo de 3 globos de adorno (no se pueden explotar)
+local function balloonBunch(parent: Instance, base: Vector3, size: number)
+	for k = 0, 2 do
+		local a = k / 3 * math.pi * 2
+		local offset = Vector3.new(math.cos(a) * size * 0.45, size * (1.2 + 0.25 * k), math.sin(a) * size * 0.45)
+		Balloons.create(parent, base + offset, { size = size })
+	end
+end
+
+-- Banderines de fiesta colgando a lo largo de una pared
+local function bunting(parent: Instance, fromX: number, toX: number, y: number, z: number)
+	decor({
+		Name = "Cuerda",
+		Size = Vector3.new(toX - fromX, 0.1, 0.1),
+		CFrame = CFrame.new((fromX + toX) / 2, y, z),
+		Color = Color3.fromRGB(255, 255, 255),
+		Parent = parent,
+	})
+	local n = 0
+	for x = fromX + 2, toX - 2, 4 do
+		n += 1
+		decor({
+			Name = "Banderin",
+			Size = Vector3.new(1.3, 1.3, 0.1),
+			CFrame = CFrame.new(x, y - 0.9, z) * CFrame.Angles(0, 0, math.rad(45)),
+			Color = FLAG_COLORS[(n - 1) % #FLAG_COLORS + 1],
+			Parent = parent,
+		})
+	end
+end
 
 -- Construye el lobby (una sola vez). Las pistas se hacen con buildTrack.
 function MapBuilder.build()
@@ -48,6 +108,23 @@ function MapBuilder.build()
 		Color = Color3.fromRGB(255, 240, 200),
 		Parent = lobby,
 	})
+	-- Cuadros pastel encima del piso
+	for gx = 0, 7 do
+		for gz = 0, 7 do
+			if (gx + gz) % 2 == 0 then
+				decor({
+					Name = "Cuadro",
+					Size = Vector3.new(8, 0.04, 8),
+					CFrame = CFrame.new(O + Vector3.new(-28 + gx * 8, 1.02, -28 + gz * 8)),
+					Color = STAGE_TINTS[(gx + gz * 3) % #STAGE_TINTS + 1],
+					Parent = lobby,
+				})
+			end
+		end
+	end
+	for _, corner in { Vector3.new(-28, 1, -28), Vector3.new(-28, 1, 28), Vector3.new(28, 1, -28), Vector3.new(28, 1, 28) } do
+		balloonBunch(lobby, O + corner, 3)
+	end
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "SpawnCarrera"
@@ -143,6 +220,13 @@ function MapBuilder.buildTrack(map, stageModules)
 			Parent = track,
 		})
 	end
+	for _, side in { -1, 1 } do
+		local wallZ = O.Z + side * (W + 1.5)
+		bunting(track, startX, endX, floorY + WALL_H - 1.5, wallZ - side * 0.8)
+		for bx = startX + 15, endX - 10, 30 do
+			balloonBunch(track, Vector3.new(bx, floorY + WALL_H, wallZ), 2.5)
+		end
+	end
 	for _, wx in { startX - 0.5, endX + 0.5 } do
 		Util.part({
 			Name = "ParedFinal",
@@ -212,6 +296,34 @@ function MapBuilder.buildTrack(map, stageModules)
 				end,
 			}
 			local handle = module.build(ctx)
+
+			-- Piso de color de la etapa y arco de entrada con su nombre
+			local tint = STAGE_TINTS[(s - 1) % #STAGE_TINTS + 1]
+			decor({
+				Name = "PisoEtapa",
+				Size = Vector3.new(range.x1 - range.x0, 0.04, W - 1),
+				CFrame = CFrame.new((range.x0 + range.x1) / 2, floorY + 0.02, z),
+				Color = tint,
+				Parent = stageFolder,
+			})
+			local archColor = tint:Lerp(Color3.new(0, 0, 0), 0.25)
+			for _, side in { -1, 1 } do
+				decor({
+					Name = "ArcoPilar",
+					Size = Vector3.new(1.5, 13, 1.5),
+					CFrame = CFrame.new(range.x0 + 0.75, floorY + 6.5, z + side * (W / 2 - 0.75)),
+					Color = archColor,
+					Parent = stageFolder,
+				})
+			end
+			local archTop = decor({
+				Name = "ArcoTecho",
+				Size = Vector3.new(1.5, 3, W),
+				CFrame = CFrame.new(range.x0 + 0.75, floorY + 14.5, z),
+				Color = archColor,
+				Parent = stageFolder,
+			})
+			Util.surfaceText(archTop, Enum.NormalId.Left, string.format("%d · %s", s, string.upper(module.Title)))
 
 			local door = Util.part({
 				Name = "Puerta",

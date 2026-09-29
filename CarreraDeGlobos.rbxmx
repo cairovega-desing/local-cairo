@@ -1,4 +1,69 @@
-<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Item class="Folder" referent="RBX00000015"><Properties><string name="Name">CarreraGlobos</string></Properties><Item class="ModuleScript" referent="RBX00000001"><Properties><string name="Name">Balloons</string><ProtectedString name="Source"><![CDATA[-- Crea globos. Los efectos de explosión (partículas, sonido, «+10») los dibuja
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Item class="Folder" referent="RBX00000016"><Properties><string name="Name">CarreraGlobos</string></Properties><Item class="ModuleScript" referent="RBX00000001"><Properties><string name="Name">Ambiente</string><ProtectedString name="Source"><![CDATA[--[[
+	AMBIENTE: iluminación alegre tipo «juguete». Colores más vivos, brillo
+	en lo neón, rayos de sol y un cielo suave. Se desactiva con
+	Config.MejorarIluminacion = false (si prefieres tu propia iluminación).
+]]
+
+local Lighting = game:GetService("Lighting")
+
+local Config = require(script.Parent.Config)
+
+local Ambiente = {}
+
+local function effect(className: string, name: string, props: { [string]: any })
+	local inst = Lighting:FindFirstChild(name)
+	if not inst then
+		inst = Instance.new(className)
+		inst.Name = name
+	end
+	for key, value in props do
+		(inst :: any)[key] = value
+	end
+	inst.Parent = Lighting
+	return inst
+end
+
+function Ambiente.apply()
+	if not Config.MejorarIluminacion then
+		return
+	end
+
+	Lighting.ClockTime = 14.5
+	Lighting.Brightness = 2.5
+	Lighting.GlobalShadows = true
+	Lighting.Ambient = Color3.fromRGB(95, 85, 120)
+	Lighting.OutdoorAmbient = Color3.fromRGB(160, 150, 180)
+	Lighting.EnvironmentDiffuseScale = 1
+	Lighting.EnvironmentSpecularScale = 1
+	Lighting.ShadowSoftness = 0.3
+
+	effect("ColorCorrectionEffect", "ColorCarrera", {
+		Saturation = 0.25,
+		Contrast = 0.08,
+		Brightness = 0.02,
+		TintColor = Color3.fromRGB(255, 248, 242),
+	})
+	effect("BloomEffect", "BrilloCarrera", {
+		Intensity = 0.7,
+		Size = 28,
+		Threshold = 1.4, -- solo brilla lo neón (globos dorados, botones, meta)
+	})
+	effect("SunRaysEffect", "RayosCarrera", {
+		Intensity = 0.05,
+		Spread = 0.7,
+	})
+	effect("Atmosphere", "CieloCarrera", {
+		Density = 0.18,
+		Offset = 0.15,
+		Color = Color3.fromRGB(205, 225, 255),
+		Decay = Color3.fromRGB(255, 200, 230),
+		Glare = 0.25,
+		Haze = 1,
+	})
+end
+
+return Ambiente
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000002"><Properties><string name="Name">Balloons</string><ProtectedString name="Source"><![CDATA[-- Crea globos. Los efectos de explosión (partículas, sonido, «+10») los dibuja
 -- cada cliente en UI.client.luau para que se vean fluidos.
 
 local CollectionService = game:GetService("CollectionService")
@@ -41,6 +106,22 @@ function Balloons.create(parent: Instance, position: Vector3, opts: Options): Mo
 	mesh.MeshType = Enum.MeshType.Sphere
 	mesh.Parent = body
 	body.Parent = model
+
+	-- Brillo blanco (le da aspecto de globo de verdad, como en Eggy Party)
+	local shine = Instance.new("Part")
+	shine.Name = "Brillo"
+	shine.Shape = Enum.PartType.Ball
+	shine.Size = Vector3.one * size * 0.22
+	shine.CFrame = CFrame.new(position + Vector3.new(-size * 0.28, size * 0.3, -size * 0.18))
+	shine.Color = Color3.new(1, 1, 1)
+	shine.Material = Enum.Material.SmoothPlastic
+	shine.Transparency = 0.35
+	shine.Anchored = true
+	shine.CanCollide = false
+	shine.CanTouch = false
+	shine.CanQuery = false
+	shine.CastShadow = false
+	shine.Parent = model
 
 	if not opts.noString then
 		local knot = Instance.new("Part")
@@ -87,7 +168,7 @@ function Balloons.create(parent: Instance, position: Vector3, opts: Options): Mo
 end
 
 return Balloons
-]]></ProtectedString></Properties></Item><Item class="ScreenGui" referent="RBX00000003"><Properties><string name="Name">CarreraUI</string><bool name="ResetOnSpawn">false</bool></Properties><Item class="LocalScript" referent="RBX00000002"><Properties><string name="Name">UI</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ScreenGui" referent="RBX00000004"><Properties><string name="Name">CarreraUI</string><bool name="ResetOnSpawn">false</bool></Properties><Item class="LocalScript" referent="RBX00000003"><Properties><string name="Name">UI</string><ProtectedString name="Source"><![CDATA[--[[
 	INTERFAZ Y EFECTOS DEL JUGADOR
 	Todo lo que hace que explotar globos se sienta bien: partículas, «+10»
 	flotantes, combos con notas musicales que suben, temblor de cámara,
@@ -167,6 +248,23 @@ local function label(props: { [string]: any }): TextLabel
 	return l
 end
 
+-- Panel con degradado morado→rosa y borde blanco (estilo caricatura)
+local function stylePanel(frame: GuiObject)
+	frame.BackgroundTransparency = 0.1
+	frame.BackgroundColor3 = WHITE
+	make("UIGradient", {
+		Color = ColorSequence.new(Color3.fromRGB(110, 60, 220), Color3.fromRGB(255, 90, 170)),
+		Rotation = 90,
+		Parent = frame,
+	})
+	make("UIStroke", {
+		Thickness = 3,
+		Color = WHITE,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = frame,
+	})
+end
+
 local function bump(scale: UIScale, amount: number?)
 	scale.Scale = amount or 1.3
 	TweenService:Create(scale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
@@ -187,6 +285,7 @@ local status = label({
 	Parent = gui,
 })
 corner(12).Parent = status
+stylePanel(status)
 make("UISizeConstraint", { MaxSize = Vector2.new(620, 38), Parent = status })
 
 local raceFrame = make("Frame", {
@@ -199,6 +298,7 @@ local raceFrame = make("Frame", {
 	Visible = false,
 	Parent = gui,
 }, { corner(12), make("UIListLayout", { Padding = UDim.new(0, 4), HorizontalAlignment = Enum.HorizontalAlignment.Center, VerticalAlignment = Enum.VerticalAlignment.Center }) })
+stylePanel(raceFrame)
 
 local hint = label({
 	Name = "Instruccion",
@@ -224,6 +324,7 @@ local counter = label({
 	Parent = gui,
 })
 corner(18).Parent = counter
+stylePanel(counter)
 local counterScale = make("UIScale", { Parent = counter })
 local counterBar = make("Frame", {
 	Name = "Barra",
@@ -1182,7 +1283,7 @@ RunService.RenderStepped:Connect(function(dt)
 		end
 	end
 end)
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000004"><Properties><string name="Name">Config</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000005"><Properties><string name="Name">Config</string><ProtectedString name="Source"><![CDATA[--[[
 	CONFIGURACIÓN DE «CARRERA DE GLOBOS»
 	Aquí puedes cambiar casi todo el juego sin tocar el resto del código.
 ]]
@@ -1289,6 +1390,7 @@ Config.Laberinto = {
 }
 
 -- ─── Efectos ───────────────────────────────────────────────────────────
+Config.MejorarIluminacion = true -- colores vivos, brillo neón y cielo suave (ver Ambiente)
 Config.VentanaCombo = 1.2 -- segundos entre globos para que el combo siga vivo
 
 --[[
@@ -1355,7 +1457,7 @@ Config.Titulos = {
 }
 
 return Config
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000005"><Properties><string name="Name">Datos</string><ProtectedString name="Source"><![CDATA[-- Tabla de líderes (Wins y Globos), estela/título equipados y guardado con DataStore.
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000006"><Properties><string name="Name">Datos</string><ProtectedString name="Source"><![CDATA[-- Tabla de líderes (Wins y Globos), estela/título equipados y guardado con DataStore.
 
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
@@ -1479,7 +1581,7 @@ function Datos.init(loadedCallback: (Player) -> ())
 end
 
 return Datos
-]]></ProtectedString></Properties></Item><Item class="Script" referent="RBX00000006"><Properties><string name="Name">Main</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="Script" referent="RBX00000007"><Properties><string name="Name">Main</string><ProtectedString name="Source"><![CDATA[--[[
 	🎈 CARRERA DE GLOBOS 🎈
 	Script principal: construye el mapa, maneja el lobby y arranca carreras.
 
@@ -1494,6 +1596,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 
 local root = script.Parent
+local Ambiente = require(root.Ambiente)
 local Config = require(root.Config)
 local Datos = require(root.Datos)
 local MapBuilder = require(root.MapBuilder)
@@ -1567,6 +1670,7 @@ local function pickStages()
 	return chosen
 end
 
+Ambiente.apply()
 local map = MapBuilder.build()
 MapBuilder.buildTrack(map, pickStages())
 Tablas.init(map.lobby)
@@ -1684,7 +1788,7 @@ while true do
 		setStatus("Párate en una plataforma para jugar 🎈")
 	end
 end
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000007"><Properties><string name="Name">MapBuilder</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000008"><Properties><string name="Name">MapBuilder</string><ProtectedString name="Source"><![CDATA[--[[
 	Construye todo el mapa con código: lobby, plataformas de «Jugador 1 / Jugador 2»,
 	dos pistas paralelas separadas por vidrio, las etapas, las puertas y la meta.
 
@@ -1697,6 +1801,7 @@ end
 
 local Workspace = game:GetService("Workspace")
 
+local Balloons = require(script.Parent.Balloons)
 local Config = require(script.Parent.Config)
 local Util = require(script.Parent.Util)
 
@@ -1709,6 +1814,65 @@ local WALL_H = 20
 local START_ZONE = 20
 local DOOR_T = 2
 local FINISH_ZONE = 34
+
+-- Colores pastel para el piso de cada etapa (se repiten si hay más etapas)
+local STAGE_TINTS = {
+	Color3.fromRGB(180, 240, 210), -- menta
+	Color3.fromRGB(215, 200, 255), -- lila
+	Color3.fromRGB(255, 215, 185), -- durazno
+	Color3.fromRGB(190, 225, 255), -- celeste
+	Color3.fromRGB(255, 245, 180), -- limón
+	Color3.fromRGB(255, 205, 225), -- rosa
+	Color3.fromRGB(185, 245, 245), -- agua
+	Color3.fromRGB(230, 215, 255), -- lavanda
+}
+local FLAG_COLORS = {
+	Color3.fromRGB(255, 80, 110),
+	Color3.fromRGB(255, 200, 50),
+	Color3.fromRGB(80, 200, 255),
+	Color3.fromRGB(120, 230, 120),
+	Color3.fromRGB(200, 120, 255),
+}
+
+-- Adorno: pieza sin colisión ni sombra (no molesta ni pesa)
+local function decor(props: { [string]: any }): Part
+	props.CanCollide = false
+	props.CanQuery = false
+	props.CanTouch = false
+	props.CastShadow = false
+	return Util.part(props)
+end
+
+-- Racimo de 3 globos de adorno (no se pueden explotar)
+local function balloonBunch(parent: Instance, base: Vector3, size: number)
+	for k = 0, 2 do
+		local a = k / 3 * math.pi * 2
+		local offset = Vector3.new(math.cos(a) * size * 0.45, size * (1.2 + 0.25 * k), math.sin(a) * size * 0.45)
+		Balloons.create(parent, base + offset, { size = size })
+	end
+end
+
+-- Banderines de fiesta colgando a lo largo de una pared
+local function bunting(parent: Instance, fromX: number, toX: number, y: number, z: number)
+	decor({
+		Name = "Cuerda",
+		Size = Vector3.new(toX - fromX, 0.1, 0.1),
+		CFrame = CFrame.new((fromX + toX) / 2, y, z),
+		Color = Color3.fromRGB(255, 255, 255),
+		Parent = parent,
+	})
+	local n = 0
+	for x = fromX + 2, toX - 2, 4 do
+		n += 1
+		decor({
+			Name = "Banderin",
+			Size = Vector3.new(1.3, 1.3, 0.1),
+			CFrame = CFrame.new(x, y - 0.9, z) * CFrame.Angles(0, 0, math.rad(45)),
+			Color = FLAG_COLORS[(n - 1) % #FLAG_COLORS + 1],
+			Parent = parent,
+		})
+	end
+end
 
 -- Construye el lobby (una sola vez). Las pistas se hacen con buildTrack.
 function MapBuilder.build()
@@ -1734,6 +1898,23 @@ function MapBuilder.build()
 		Color = Color3.fromRGB(255, 240, 200),
 		Parent = lobby,
 	})
+	-- Cuadros pastel encima del piso
+	for gx = 0, 7 do
+		for gz = 0, 7 do
+			if (gx + gz) % 2 == 0 then
+				decor({
+					Name = "Cuadro",
+					Size = Vector3.new(8, 0.04, 8),
+					CFrame = CFrame.new(O + Vector3.new(-28 + gx * 8, 1.02, -28 + gz * 8)),
+					Color = STAGE_TINTS[(gx + gz * 3) % #STAGE_TINTS + 1],
+					Parent = lobby,
+				})
+			end
+		end
+	end
+	for _, corner in { Vector3.new(-28, 1, -28), Vector3.new(-28, 1, 28), Vector3.new(28, 1, -28), Vector3.new(28, 1, 28) } do
+		balloonBunch(lobby, O + corner, 3)
+	end
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "SpawnCarrera"
@@ -1829,6 +2010,13 @@ function MapBuilder.buildTrack(map, stageModules)
 			Parent = track,
 		})
 	end
+	for _, side in { -1, 1 } do
+		local wallZ = O.Z + side * (W + 1.5)
+		bunting(track, startX, endX, floorY + WALL_H - 1.5, wallZ - side * 0.8)
+		for bx = startX + 15, endX - 10, 30 do
+			balloonBunch(track, Vector3.new(bx, floorY + WALL_H, wallZ), 2.5)
+		end
+	end
 	for _, wx in { startX - 0.5, endX + 0.5 } do
 		Util.part({
 			Name = "ParedFinal",
@@ -1899,6 +2087,34 @@ function MapBuilder.buildTrack(map, stageModules)
 			}
 			local handle = module.build(ctx)
 
+			-- Piso de color de la etapa y arco de entrada con su nombre
+			local tint = STAGE_TINTS[(s - 1) % #STAGE_TINTS + 1]
+			decor({
+				Name = "PisoEtapa",
+				Size = Vector3.new(range.x1 - range.x0, 0.04, W - 1),
+				CFrame = CFrame.new((range.x0 + range.x1) / 2, floorY + 0.02, z),
+				Color = tint,
+				Parent = stageFolder,
+			})
+			local archColor = tint:Lerp(Color3.new(0, 0, 0), 0.25)
+			for _, side in { -1, 1 } do
+				decor({
+					Name = "ArcoPilar",
+					Size = Vector3.new(1.5, 13, 1.5),
+					CFrame = CFrame.new(range.x0 + 0.75, floorY + 6.5, z + side * (W / 2 - 0.75)),
+					Color = archColor,
+					Parent = stageFolder,
+				})
+			end
+			local archTop = decor({
+				Name = "ArcoTecho",
+				Size = Vector3.new(1.5, 3, W),
+				CFrame = CFrame.new(range.x0 + 0.75, floorY + 14.5, z),
+				Color = archColor,
+				Parent = stageFolder,
+			})
+			Util.surfaceText(archTop, Enum.NormalId.Left, string.format("%d · %s", s, string.upper(module.Title)))
+
 			local door = Util.part({
 				Name = "Puerta",
 				Size = Vector3.new(DOOR_T, WALL_H, W),
@@ -1962,7 +2178,7 @@ function MapBuilder.buildTrack(map, stageModules)
 end
 
 return MapBuilder
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000008"><Properties><string name="Name">Race</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000009"><Properties><string name="Name">Race</string><ProtectedString name="Source"><![CDATA[--[[
 	Una carrera completa: prepara los globos de cada etapa, hace la cuenta atrás,
 	explota globos cuando tu cuerpo los toca, abre puertas y anuncia al ganador.
 ]]
@@ -2435,7 +2651,7 @@ function Race.run(map, players: { Player }, remote: RemoteEvent)
 end
 
 return Race
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000009"><Properties><string name="Name">Recompensas</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000A"><Properties><string name="Name">Recompensas</string><ProtectedString name="Source"><![CDATA[--[[
 	RECOMPENSAS: las Wins desbloquean estelas (rastro que dejas al correr) y
 	títulos (cartel sobre tu cabeza). Las Wins no se gastan: al llegar a cierta
 	cantidad se desbloquea para siempre.
@@ -2641,7 +2857,7 @@ function Recompensas.init(remoteEvent: RemoteEvent)
 end
 
 return Recompensas
-]]></ProtectedString></Properties></Item><Item class="Folder" referent="RBX00000012"><Properties><string name="Name">Stages</string></Properties><Item class="ModuleScript" referent="RBX0000000A"><Properties><string name="Name">Aspas</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="Folder" referent="RBX00000013"><Properties><string name="Name">Stages</string></Properties><Item class="ModuleScript" referent="RBX0000000B"><Properties><string name="Name">Aspas</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: ASPAS GIRATORIAS
 	Anillos de globos alrededor de una plataforma con un botón verde.
 	Mientras estés parado en el botón, el brazo gira y revienta todo el anillo.
@@ -2843,7 +3059,7 @@ function Aspas.start(handle, rt)
 end
 
 return Aspas
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000B"><Properties><string name="Name">Cinta</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000C"><Properties><string name="Name">Cinta</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: CINTA LOCA
 	Franjas de piso que te arrastran de lado. Cruza y deja que la cinta te
 	lleve por la fila de globos.
@@ -2919,7 +3135,7 @@ function Cinta.start(handle, rt)
 end
 
 return Cinta
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000C"><Properties><string name="Name">Dardos</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000D"><Properties><string name="Name">Dardos</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: LANZADARDOS
 	Súbete al botón azul: el cañón gira de lado a lado disparando dardos que
 	atraviesan todos los globos que encuentran. Detrás del vidrio está el campo de globos.
@@ -3078,7 +3294,7 @@ function Dardos.start(handle, rt)
 end
 
 return Dardos
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000D"><Properties><string name="Name">Gigante</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000E"><Properties><string name="Name">Gigante</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA FINAL: GLOBO GIGANTE
 	Un globo enorme. Cada vez que lo chocas rebotas, se infla un poco más
 	y se pone más rojo… ¡hasta que explota!
@@ -3156,6 +3372,12 @@ function Gigante.start(handle, rt)
 			body.Size *= grow
 			body.CFrame = CFrame.new(handle.center + Vector3.new(0, body.Size.Y / 2 + 0.5, 0))
 			body.Color = startColor:Lerp(DANGER, progress)
+			local shine = model:FindFirstChild("Brillo") :: BasePart?
+			if shine then
+				local d = body.Size.X
+				shine.Size = Vector3.one * d * 0.22
+				shine.CFrame = body.CFrame + Vector3.new(-d * 0.28, d * 0.3, -d * 0.18)
+			end
 		end
 		rt.hit(contact, body.Color, 1.5)
 	end
@@ -3164,7 +3386,7 @@ function Gigante.start(handle, rt)
 end
 
 return Gigante
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000E"><Properties><string name="Name">Laberinto</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000F"><Properties><string name="Name">Laberinto</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: LABERINTO
 	Pasillos en zigzag llenos de globos: corre y revienta todo con el cuerpo.
 	Las esferas moradas dan SÚPER PODER (más rápido y explotas desde más lejos).
@@ -3269,7 +3491,7 @@ function Laberinto.start(handle, rt)
 end
 
 return Laberinto
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000000F"><Properties><string name="Name">Lluvia</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000010"><Properties><string name="Name">Lluvia</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: LLUVIA DE GLOBOS
 	Cuando entras, empiezan a caer globos del cielo (muchos cerca de ti).
 	Atrápalos corriendo debajo de ellos.
@@ -3351,7 +3573,7 @@ function Lluvia.start(handle, rt)
 end
 
 return Lluvia
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000010"><Properties><string name="Name">Neumaticos</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000011"><Properties><string name="Name">Neumaticos</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: NEUMÁTICOS
 	Llantas en el piso; algunas esconden un globo. ¡Písalos!
 ]]
@@ -3419,7 +3641,7 @@ function Neumaticos.start(handle, rt)
 end
 
 return Neumaticos
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000011"><Properties><string name="Name">Trampolines</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000012"><Properties><string name="Name">Trampolines</string><ProtectedString name="Source"><![CDATA[--[[
 	ETAPA: TRAMPOLINES
 	Pisa un trampolín y sales volando hacia arriba, reventando la torre de
 	globos que tiene encima. (El salto lo aplica el cliente: ver UI.client.luau)
@@ -3478,7 +3700,7 @@ function Trampolines.start(handle, rt)
 end
 
 return Trampolines
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000013"><Properties><string name="Name">Tablas</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000014"><Properties><string name="Name">Tablas</string><ProtectedString name="Source"><![CDATA[--[[
 	TABLAS DE LÍDERES del lobby: 🏆 Más Wins · ⏱ Mejores tiempos · 🎈 Más globos
 	Son globales (todos los servidores) usando OrderedDataStore. Si DataStore no
 	está disponible (por ejemplo en Studio sin «API Services»), muestran a los
@@ -3721,7 +3943,7 @@ function Tablas.refreshSoon()
 end
 
 return Tablas
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000014"><Properties><string name="Name">Util</string><ProtectedString name="Source"><![CDATA[-- Utilidades para construir piezas del mapa.
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000015"><Properties><string name="Name">Util</string><ProtectedString name="Source"><![CDATA[-- Utilidades para construir piezas del mapa.
 
 local Util = {}
 

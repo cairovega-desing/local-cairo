@@ -76,6 +76,12 @@ function Gigante.start(handle, rt)
 			body.Size *= grow
 			body.CFrame = CFrame.new(handle.center + Vector3.new(0, body.Size.Y / 2 + 0.5, 0))
 			body.Color = startColor:Lerp(DANGER, progress)
+			local shine = model:FindFirstChild("Brillo") :: BasePart?
+			if shine then
+				local d = body.Size.X
+				shine.Size = Vector3.one * d * 0.22
+				shine.CFrame = body.CFrame + Vector3.new(-d * 0.28, d * 0.3, -d * 0.18)
+			end
 		end
 		rt.hit(contact, body.Color, 1.5)
 	end

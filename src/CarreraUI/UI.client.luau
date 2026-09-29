@@ -78,6 +78,23 @@ local function label(props: { [string]: any }): TextLabel
 	return l
 end
 
+-- Panel con degradado morado→rosa y borde blanco (estilo caricatura)
+local function stylePanel(frame: GuiObject)
+	frame.BackgroundTransparency = 0.1
+	frame.BackgroundColor3 = WHITE
+	make("UIGradient", {
+		Color = ColorSequence.new(Color3.fromRGB(110, 60, 220), Color3.fromRGB(255, 90, 170)),
+		Rotation = 90,
+		Parent = frame,
+	})
+	make("UIStroke", {
+		Thickness = 3,
+		Color = WHITE,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = frame,
+	})
+end
+
 local function bump(scale: UIScale, amount: number?)
 	scale.Scale = amount or 1.3
 	TweenService:Create(scale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
@@ -98,6 +115,7 @@ local status = label({
 	Parent = gui,
 })
 corner(12).Parent = status
+stylePanel(status)
 make("UISizeConstraint", { MaxSize = Vector2.new(620, 38), Parent = status })
 
 local raceFrame = make("Frame", {
@@ -110,6 +128,7 @@ local raceFrame = make("Frame", {
 	Visible = false,
 	Parent = gui,
 }, { corner(12), make("UIListLayout", { Padding = UDim.new(0, 4), HorizontalAlignment = Enum.HorizontalAlignment.Center, VerticalAlignment = Enum.VerticalAlignment.Center }) })
+stylePanel(raceFrame)
 
 local hint = label({
 	Name = "Instruccion",
@@ -135,6 +154,7 @@ local counter = label({
 	Parent = gui,
 })
 corner(18).Parent = counter
+stylePanel(counter)
 local counterScale = make("UIScale", { Parent = counter })
 local counterBar = make("Frame", {
 	Name = "Barra",

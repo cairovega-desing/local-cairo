@@ -105,6 +105,7 @@ Config.Laberinto = {
 }
 
 -- ─── Efectos ───────────────────────────────────────────────────────────
+Config.MejorarIluminacion = true -- colores vivos, brillo neón y cielo suave (ver Ambiente)
 Config.VentanaCombo = 1.2 -- segundos entre globos para que el combo siga vivo
 
 --[[

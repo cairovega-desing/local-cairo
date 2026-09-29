@@ -39,7 +39,17 @@ Principios de diseño:
 - [x] Rachas de victorias 🔥: se ven en el título y en la pantalla de ganador («¡IMPARABLE!» con 3 o más)
 - [x] Seguridad: si una carrera falla por un error, los jugadores vuelven al lobby
 
+## Vuelta de mejora 3 (visual)
+- [x] Iluminación alegre: colores más vivos, brillo en lo neón, rayos de sol y cielo suave (`Ambiente`, se apaga con `Config.MejorarIluminacion`)
+- [x] Cada etapa con su piso de color pastel y un arco de entrada con su número y nombre
+- [x] Banderines de fiesta y racimos de globos sobre las paredes
+- [x] Globos con brillo blanco tipo juguete (el globo gigante lo agranda al inflarse)
+- [x] Lobby con piso a cuadros pastel y racimos de globos en las esquinas
+- [x] Paneles de la interfaz con degradado morado-rosa y borde blanco
+
 ## Próximas ideas (se revisan en cada vuelta de mejora)
+- Plataformas del lobby que laten y un anillo de luz al pararte
+- Personajes redondos tipo «huevito» (opcional) y animación de baile al ganar
 - Más etapas: Rodillo gigante, Globos que huyen, Pisos que se hunden, Cañón humano
 - Emotes o bailes de victoria desbloqueables
 - Efecto de explosión desbloqueable (color del confeti)

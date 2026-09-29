@@ -42,6 +42,22 @@ function Balloons.create(parent: Instance, position: Vector3, opts: Options): Mo
 	mesh.Parent = body
 	body.Parent = model
 
+	-- Brillo blanco (le da aspecto de globo de verdad, como en Eggy Party)
+	local shine = Instance.new("Part")
+	shine.Name = "Brillo"
+	shine.Shape = Enum.PartType.Ball
+	shine.Size = Vector3.one * size * 0.22
+	shine.CFrame = CFrame.new(position + Vector3.new(-size * 0.28, size * 0.3, -size * 0.18))
+	shine.Color = Color3.new(1, 1, 1)
+	shine.Material = Enum.Material.SmoothPlastic
+	shine.Transparency = 0.35
+	shine.Anchored = true
+	shine.CanCollide = false
+	shine.CanTouch = false
+	shine.CanQuery = false
+	shine.CastShadow = false
+	shine.Parent = model
+
 	if not opts.noString then
 		local knot = Instance.new("Part")
 		knot.Name = "Nudo"

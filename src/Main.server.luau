@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 
 local root = script.Parent
+local Ambiente = require(root.Ambiente)
 local Config = require(root.Config)
 local Datos = require(root.Datos)
 local MapBuilder = require(root.MapBuilder)
@@ -86,6 +87,7 @@ local function pickStages()
 	return chosen
 end
 
+Ambiente.apply()
 local map = MapBuilder.build()
 MapBuilder.buildTrack(map, pickStages())
 Tablas.init(map.lobby)
