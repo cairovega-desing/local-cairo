@@ -1,4 +1,5 @@
 import About from "@/components/About";
+import Cases from "@/components/Cases";
 import Contact from "@/components/Contact";
 import Experience from "@/components/Experience";
 import FAQ from "@/components/FAQ";
@@ -30,6 +31,7 @@ export default function Home() {
         <Marquee />
         <About />
         <Treatments />
+        <Cases />
         <Testimonials />
         <Gallery />
         <Experience />

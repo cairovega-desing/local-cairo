@@ -155,6 +155,7 @@ export const ui = {
   imagePlaceholderPrefix: "Imagen pendiente:",
   starsLabel: "5 de 5 estrellas",
   logoHome: "Ir al inicio",
+  logoAlt: "Logo del Consultorio Odontológico Dra. Gabriela Fraga",
 };
 
 // ───────────────────────── Navegación ─────────────────────────
@@ -163,8 +164,8 @@ export const navigation = {
   links: [
     { label: "La clínica", href: "#sobre" },
     { label: "Tratamientos", href: "#tratamientos" },
+    { label: "Casos", href: "#casos" },
     { label: "Opiniones", href: "#opiniones" },
-    { label: "El espacio", href: "#espacio" },
     { label: "Preguntas", href: "#faq" },
   ] satisfies NavLink[],
   cta: "Agendar",
@@ -329,6 +330,30 @@ export const treatments: Treatment[] = [
     ],
   },
 ];
+
+// ───────────────────────── Casos reales ─────────────────────────
+
+// Fotos de antes y después publicadas en el Facebook del consultorio.
+// Son chicas (206 px): reemplazar por versiones grandes cuando estén.
+export const cases = {
+  eyebrow: "Casos reales",
+  title: "Resultados de nuestros pacientes",
+  description:
+    "Algunos tratamientos realizados en el consultorio: ortodoncia, blanqueamiento y resinas.",
+  more: "Ver más casos en Instagram",
+  images: [
+    { src: "/images/casos/caso-01.jpg", alt: "Ortodoncia: antes y después" },
+    { src: "/images/casos/caso-02.jpg", alt: "Ortodoncia, cirugía y resinas: antes y después" },
+    { src: "/images/casos/caso-03.jpg", alt: "Blanqueamiento interno y resinas: antes y después" },
+    { src: "/images/casos/caso-04.jpg", alt: "Blanqueamiento: antes y después" },
+    { src: "/images/casos/caso-05.jpg", alt: "Caso clínico: antes y después" },
+    { src: "/images/casos/caso-06.jpg", alt: "Caso clínico del maxilar superior: antes y después" },
+    { src: "/images/casos/caso-07.jpg", alt: "Caso clínico de ambos maxilares: antes y después" },
+    { src: "/images/casos/caso-08.jpg", alt: "Caso clínico de dientes anteriores: antes y después" },
+    { src: "/images/casos/caso-09.jpg", alt: "Ortodoncia: antes y durante el tratamiento" },
+    { src: "/images/casos/caso-10.jpg", alt: "Ortodoncia con brackets: antes y durante el tratamiento" },
+  ],
+};
 
 // ───────────────────────── Testimonios ─────────────────────────
 

@@ -1,4 +1,4 @@
-import { ArrowUpRight, Mail, MapPin, Phone, Smile } from "lucide-react";
+import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import { business, footer, treatments, whatsappUrl } from "@/data/content";
 
 // lucide-react v1 ya no incluye íconos de marcas: SVG propios.
@@ -66,10 +66,11 @@ export default function Footer() {
         <div className="lg:col-span-1">
           <a href="#inicio" className="flex items-center gap-2 text-lg font-bold">
             <span
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-deep to-accent text-white"
+              className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl bg-white"
               aria-hidden="true"
             >
-              <Smile className="h-5 w-5" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/logo-icon.png" alt="" width={44} height={44} className="h-full w-full object-contain p-0.5" />
             </span>
             {business.shortName}
           </a>

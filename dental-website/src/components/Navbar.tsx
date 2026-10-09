@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, MessageCircle, Smile, X } from "lucide-react";
+import { Menu, MessageCircle, X } from "lucide-react";
 import { business, navigation, ui, whatsappUrl } from "@/data/content";
 import { cn } from "@/lib/utils";
 
@@ -64,10 +64,11 @@ export default function Navbar() {
           className="flex items-center gap-2 rounded-lg text-lg font-bold tracking-tight text-ink"
         >
           <span
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-deep to-accent text-white shadow-md shadow-primary/30 transition-transform duration-500 hover:rotate-12"
+            className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-md shadow-primary/20 ring-1 ring-line transition-transform duration-500 hover:rotate-6"
             aria-hidden="true"
           >
-            <Smile className="h-5 w-5" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/logo-icon.png" alt="" width={44} height={44} className="h-full w-full object-contain p-0.5" />
           </span>
           <span className="whitespace-nowrap font-display text-lg font-medium sm:text-xl">{business.shortName}</span>
         </a>
