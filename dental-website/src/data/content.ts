@@ -88,32 +88,22 @@ export const business = {
   // Opcionales: si quedan vacíos, el sitio no los muestra.
   email: "" as string,
   instagram: {
-    handle: "",
-    url: "" as string,
+    handle: "@dra.gabriela.fraga",
+    url: "https://www.instagram.com/dra.gabriela.fraga" as string,
   },
   facebook: {
     handle: "/dragabrielafraga",
     url: "https://www.facebook.com/dragabrielafraga",
   },
+  // Horarios de Google Maps (pueden variar)
   hours: [
-    {
-      label: "Lunes a Viernes",
-      time: "9:00–19:00",
-      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-      opens: "09:00",
-      closes: "19:00",
-    },
-    {
-      label: "Sábados",
-      time: "9:00–13:00",
-      days: ["Saturday"],
-      opens: "09:00",
-      closes: "13:00",
-    },
-    { label: "Domingos", time: "Cerrado", days: [] },
+    { label: "Lunes", time: "13:00–19:00", days: ["Monday"], opens: "13:00", closes: "19:00" },
+    { label: "Martes", time: "12:00–16:00", days: ["Tuesday"], opens: "12:00", closes: "16:00" },
+    { label: "Miércoles", time: "Cerrado", days: [] },
+    { label: "Jueves", time: "13:00–19:00", days: ["Thursday"], opens: "13:00", closes: "19:00" },
+    { label: "Viernes", time: "9:00–16:00", days: ["Friday"], opens: "09:00", closes: "16:00" },
+    { label: "Sábados y domingos", time: "Cerrado", days: [] },
   ] satisfies BusinessHours[],
-  // Rating de Google mostrado en el sitio. Actualizar con el número real de reseñas al pasar a producción.
-  rating: { value: "5.0", reviewCount: 5 },
 };
 
 export const whatsappUrl = `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(
@@ -161,7 +151,6 @@ export const ui = {
   whatsappTooltip: "Agendar por WhatsApp",
   newTab: "(se abre en una pestaña nueva)",
   imagePlaceholderPrefix: "Imagen pendiente:",
-  starsLabel: "5 de 5 estrellas",
   logoHome: "Ir al inicio",
 };
 
@@ -195,7 +184,7 @@ export const hero = {
     { label: "Historia clínica digital", icon: "file" },
   ] satisfies HeroBadge[],
   imageLabel: "Foto de la Dra. Gabriela Fraga",
-  ratingCard: { value: "5.0", label: "en Google Maps" },
+  ratingCard: { value: "Recomendada", label: "por sus pacientes en Google" },
   patientsCard: { value: "+500", label: "sonrisas felices" },
   availabilityCard: "Turnos disponibles esta semana",
   painlessCard: "Atención sin dolor",
@@ -224,7 +213,7 @@ export const about = {
     "Nuestro consultorio en Montevideo cuenta con equipamiento digital de última generación — radiografías digitales, historia clínica electrónica y materiales de primera calidad — para que cada decisión clínica esté respaldada por la mejor tecnología disponible.",
   ],
   stats: [
-    { value: "5.0", label: "Rating en Google Maps" },
+    { value: "4", label: "Días de atención por semana" },
     { value: "+500", label: "Pacientes atendidos" },
     { value: "10+", label: "Años de experiencia" },
   ] satisfies Stat[],
@@ -344,36 +333,38 @@ export const testimonialsSection = {
   eyebrow: "Opiniones",
   title: "Lo que dicen quienes ya pasaron por la consulta",
   scrollRegionLabel: "Opiniones de pacientes, desplazá horizontalmente para ver más",
-  googleBadge: "5.0 en Google",
-  googleLinkLabel: "Dejanos tu opinión en Google Maps",
-  ratingCaption: "Calificación promedio de nuestros pacientes",
+  googleBadge: "Ver todas en Google Maps",
+  googleLinkLabel: "y dejanos tu opinión",
+  ratingCaption: "Reseñas reales de pacientes en Google Maps",
+  reviewSource: "Reseña de Google",
 };
 
+// Reseñas reales de Google Maps
 export const testimonials: Testimonial[] = [
   {
-    name: "María González",
-    time: "Hace 3 meses",
-    text: "“Excelente profesional. Muy atenta, cálida y dedicada. Me explicó todo el tratamiento con claridad desde el primer momento. La recomiendo totalmente.”",
+    name: "Andrea",
+    time: "Hace un año",
+    text: "“Excelente atención. Siempre dispuesta a soluciones de horarios y muy profesional. Con los niños una dulce. Aman ir al dentista gracias a profesionales como Gaby.”",
   },
   {
-    name: "Carlos Rodríguez",
-    time: "Hace 5 meses",
-    text: "“Fui por una urgencia y me atendieron el mismo día. El trato es impecable y los precios son muy accesibles. Ahora toda mi familia se atiende ahí.”",
+    name: "Verónica Rodríguez",
+    time: "Hace un año",
+    text: "“Una doctora joven, con una muy buena atención y paciencia tanto para adultos como para niños. Un espacio súper cómodo, agradable y moderno que hace que te sientas muy seguro.”",
   },
   {
-    name: "Laura Martínez",
-    time: "Hace 2 meses",
-    text: "“Mi hijo le tenía miedo al dentista y la Dra. Fraga logró que se sintiera cómodo desde la primera consulta. Increíble el trato con los niños.”",
+    name: "Agustina Murillo Castro",
+    time: "Hace 2 años",
+    text: "“Re buena atención y disposición, súper profesional.”",
   },
   {
-    name: "Andrés Silva",
-    time: "Hace 4 meses",
-    text: "“Me hice el blanqueamiento y quedé muy conforme con el resultado. Siempre explica todo antes de hacer cualquier procedimiento. Muy profesional.”",
+    name: "Martha Colasa",
+    time: "Hace 3 años",
+    text: "“Súper cálido el lugar y la atención maravillosa.”",
   },
   {
-    name: "Valentina Pérez",
-    time: "Hace 1 mes",
-    text: "“Llevo más de un año con el tratamiento de ortodoncia y los resultados son increíbles. El seguimiento es constante y siempre está disponible por WhatsApp.”",
+    name: "Cristina Frontini",
+    time: "Hace 3 años",
+    text: "“Excelente atención, buena profesional.”",
   },
 ];
 

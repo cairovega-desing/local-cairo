@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
-import { business, seo, testimonials } from "@/data/content";
+import { business, seo } from "@/data/content";
 import "./globals.css";
 
 // Sans moderna para el texto + serif con personalidad para los títulos
@@ -73,12 +73,6 @@ const jsonLd = {
       closes: row.closes,
     })),
   sameAs: [business.instagram.url, business.facebook.url].filter(Boolean),
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: business.rating.value,
-    reviewCount: business.rating.reviewCount ?? testimonials.length,
-    bestRating: "5",
-  },
 };
 
 export default function RootLayout({
