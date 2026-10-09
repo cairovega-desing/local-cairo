@@ -79,6 +79,8 @@ export const business = {
     countryCode: "UY",
     full: "Guaycurú 2924, 11800 Montevideo, Departamento de Montevideo",
   },
+  // Coordenadas de la ficha de Google Maps
+  geo: { lat: -34.8728225, lng: -56.1911623 },
   // Datos de la página de Facebook del consultorio
   phone: "092 044 197",
   phoneIntl: "+598 92 044 197",
@@ -151,6 +153,7 @@ export const ui = {
   whatsappTooltip: "Agendar por WhatsApp",
   newTab: "(se abre en una pestaña nueva)",
   imagePlaceholderPrefix: "Imagen pendiente:",
+  starsLabel: "5 de 5 estrellas",
   logoHome: "Ir al inicio",
 };
 
@@ -184,7 +187,7 @@ export const hero = {
     { label: "Historia clínica digital", icon: "file" },
   ] satisfies HeroBadge[],
   imageLabel: "Foto de la Dra. Gabriela Fraga",
-  ratingCard: { value: "Recomendada", label: "por sus pacientes en Google" },
+  ratingCard: { value: "5.0", label: "en Google Maps" },
   patientsCard: { value: "+500", label: "sonrisas felices" },
   availabilityCard: "Turnos disponibles esta semana",
   painlessCard: "Atención sin dolor",
@@ -333,10 +336,9 @@ export const testimonialsSection = {
   eyebrow: "Opiniones",
   title: "Lo que dicen quienes ya pasaron por la consulta",
   scrollRegionLabel: "Opiniones de pacientes, desplazá horizontalmente para ver más",
-  googleBadge: "Ver todas en Google Maps",
-  googleLinkLabel: "y dejanos tu opinión",
-  ratingCaption: "Reseñas reales de pacientes en Google Maps",
-  reviewSource: "Reseña de Google",
+  googleBadge: "5.0 en Google",
+  googleLinkLabel: "Dejanos tu opinión en Google Maps",
+  ratingCaption: "Puntuación en Google Maps · reseñas reales de pacientes",
 };
 
 // Reseñas reales de Google Maps

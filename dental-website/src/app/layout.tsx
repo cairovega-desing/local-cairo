@@ -64,6 +64,11 @@ const jsonLd = {
     addressRegion: business.address.city,
     addressCountry: business.address.countryCode,
   },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: business.geo.lat,
+    longitude: business.geo.lng,
+  },
   openingHoursSpecification: business.hours
     .filter((row) => row.days.length > 0)
     .map((row) => ({

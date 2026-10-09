@@ -1,4 +1,4 @@
-import { ExternalLink, MapPin, Quote } from "lucide-react";
+import { ExternalLink, Quote, Star } from "lucide-react";
 import type { Testimonial } from "@/data/content";
 import {
   googleMapsUrl,
@@ -7,6 +7,7 @@ import {
   ui,
 } from "@/data/content";
 import { cn } from "@/lib/utils";
+import { Counter } from "./Counter";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 
@@ -22,10 +23,11 @@ function TestimonialCard({ testimonial, index }: { testimonial: Testimonial; ind
   return (
     <article className="relative flex w-[20rem] shrink-0 flex-col rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-sm transition-colors duration-300 hover:border-mint/40 hover:bg-white/10 sm:w-[24rem]">
       <Quote className="absolute right-6 top-6 h-8 w-8 text-white/10" aria-hidden="true" />
-      <p className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-mint">
-        <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-        {testimonialsSection.reviewSource}
-      </p>
+      <div role="img" aria-label={ui.starsLabel} className="flex gap-1">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
+        ))}
+      </div>
       <blockquote className="mt-4 flex-1 leading-relaxed text-white/85">
         {testimonial.text}
       </blockquote>
@@ -96,7 +98,20 @@ export default function Testimonials() {
             title={testimonialsSection.title}
             dark
           />
-          <p className="mt-6 text-center text-white/60">{testimonialsSection.ratingCaption}</p>
+          <div className="mt-10 flex flex-col items-center gap-2">
+            <p className="flex items-center gap-4">
+              <Counter
+                value="5.0"
+                className="font-display text-6xl font-semibold text-white sm:text-7xl"
+              />
+              <span className="flex gap-1" role="img" aria-label={ui.starsLabel}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-6 w-6 fill-amber-400 text-amber-400 sm:h-7 sm:w-7" aria-hidden="true" />
+                ))}
+              </span>
+            </p>
+            <p className="text-sm text-white/60">{testimonialsSection.ratingCaption}</p>
+          </div>
         </Reveal>
       </div>
 
@@ -118,7 +133,7 @@ export default function Testimonials() {
           rel="noopener noreferrer"
           className="group inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-5 py-3 text-white backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-mint/50 hover:bg-white/15"
         >
-          <MapPin className="h-5 w-5 text-mint" aria-hidden="true" />
+          <Star className="h-5 w-5 fill-amber-400 text-amber-400" aria-hidden="true" />
           <span className="font-semibold">{testimonialsSection.googleBadge}</span>
           <span className="hidden text-sm text-mint sm:inline">
             {testimonialsSection.googleLinkLabel}

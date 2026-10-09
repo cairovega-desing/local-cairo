@@ -245,7 +245,10 @@ export default function Hero() {
                 <Star className="h-5 w-5 fill-white" aria-hidden="true" />
               </span>
               <div>
-                <p className="text-lg font-bold leading-none text-ink">{hero.ratingCard.value}</p>
+                <p className="text-xl font-bold leading-none text-ink">
+                  {hero.ratingCard.value}
+                  <span className="sr-only"> {ui.starsLabel}</span>
+                </p>
                 <p className="mt-1 text-xs font-medium text-muted">{hero.ratingCard.label}</p>
               </div>
             </div>
