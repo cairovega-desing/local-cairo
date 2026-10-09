@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { hero, testimonials, ui, whatsappUrl } from "@/data/content";
 import type { HeroBadgeIcon } from "@/data/content";
-import { Sparkle, Tooth } from "./Tooth";
+import { Sparkle } from "./Tooth";
 
 const badgeIcons: Record<HeroBadgeIcon, LucideIcon> = {
   users: Users,
@@ -72,8 +72,8 @@ export default function Hero() {
   const my = useMotionValue(0);
   const sx = useSpring(mx, { stiffness: 60, damping: 18 });
   const sy = useSpring(my, { stiffness: 60, damping: 18 });
-  const toothX = useTransform(sx, (v) => v * 24);
-  const toothY = useTransform(sy, (v) => v * 24);
+  const photoX = useTransform(sx, (v) => v * -12);
+  const photoY = useTransform(sy, (v) => v * -12);
   const cardX = useTransform(sx, (v) => v * -40);
   const cardY = useTransform(sy, (v) => v * -40);
   const rotateY = useTransform(sx, (v) => v * 8);
@@ -200,42 +200,27 @@ export default function Hero() {
         >
           <motion.div
             style={{ rotateX, rotateY }}
-            role="img"
-            aria-label={`${ui.imagePlaceholderPrefix} ${hero.imageLabel}`}
-            className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-primary-deep via-primary to-mint shadow-2xl shadow-primary-deep/30 [transform-style:preserve-3d]"
+            className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-section shadow-2xl shadow-primary-deep/30 ring-4 ring-white [transform-style:preserve-3d]"
           >
-            <div className="bg-grid-dark absolute inset-0 opacity-60" aria-hidden="true" />
-            <div aria-hidden="true" className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
-            <div aria-hidden="true" className="absolute -bottom-20 -left-10 h-72 w-72 rounded-full bg-navy/30 blur-3xl" />
-            {/* Anillos que giran */}
-            <div aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[92%] items-center justify-center">
-              <div className="absolute h-96 w-96 rounded-full border border-white/15" />
-              <div className="h-72 w-72 animate-spin-slow rounded-full border border-dashed border-white/40" />
-            </div>
-
-            {/* framer-motion maneja el transform, por eso centramos con flex y no con translate */}
-            <div className="absolute inset-x-0 top-0 flex h-[92%] items-center justify-center">
-              <motion.div style={{ x: toothX, y: toothY }}>
-                <Tooth className="h-52 w-48 animate-float sm:h-60 sm:w-56" />
-              </motion.div>
-            </div>
-
+            <motion.img
+              src={hero.image}
+              alt={hero.imageLabel}
+              width={400}
+              height={406}
+              style={{ x: photoX, y: photoY, scale: 1.08 }}
+              className="h-full w-full object-cover object-[88%_center]"
+            />
+            <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-navy/50 to-transparent" />
             {[
-              "left-[16%] top-[18%] h-6 w-6",
-              "right-[18%] top-[28%] h-4 w-4",
-              "left-[24%] bottom-[30%] h-3 w-3",
-              "right-[22%] bottom-[24%] h-5 w-5",
+              "left-[12%] top-[14%] h-5 w-5",
+              "right-[14%] top-[40%] h-4 w-4",
             ].map((pos, i) => (
               <Sparkle
                 key={pos}
                 className={`absolute animate-twinkle text-white ${pos}`}
-                style={{ animationDelay: `${i * 0.7}s` }}
+                style={{ animationDelay: `${i * 0.9}s` }}
               />
             ))}
-
-            <p className="absolute bottom-7 right-8 text-right font-display text-2xl italic text-white/90">
-              {hero.painlessCard}
-            </p>
           </motion.div>
 
           {/* Tarjeta: rating */}
@@ -255,7 +240,7 @@ export default function Hero() {
           </motion.div>
 
           {/* Tarjeta: pacientes */}
-          <motion.div style={{ x: cardX, y: cardY }} className="absolute -right-2 top-10 sm:-right-10">
+          <motion.div style={{ x: cardX, y: cardY }} className="absolute -left-2 top-10 sm:-left-12">
             <div
               className="glass flex animate-float-slow items-center gap-3 rounded-2xl px-4 py-3"
               style={{ animationDelay: "-3s" }}

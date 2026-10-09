@@ -1,7 +1,6 @@
-import { CheckCircle2, Quote, Stethoscope } from "lucide-react";
+import { CheckCircle2, Quote } from "lucide-react";
 import { about } from "@/data/content";
 import { Counter } from "./Counter";
-import { ImagePlaceholder } from "./ImagePlaceholder";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 
@@ -36,7 +35,15 @@ export default function About() {
         <Reveal className="order-2 lg:order-1">
           <div className="relative mx-auto max-w-md">
             <div className="aspect-[5/6] overflow-hidden rounded-[2.5rem] shadow-2xl shadow-primary-deep/20">
-              <ImagePlaceholder label={about.imageLabel} icon={Stethoscope} tone={2} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={about.image}
+                alt={about.imageLabel}
+                width={250}
+                height={406}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
             </div>
             <div className="absolute -right-4 -top-8 rounded-full bg-white p-1 shadow-xl sm:-right-10">
               <RotatingBadge />

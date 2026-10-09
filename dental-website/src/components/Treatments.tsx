@@ -1,13 +1,15 @@
 import {
-  Activity,
   ArrowUpRight,
   Baby,
   Check,
   Clock,
+  Droplets,
+  Moon,
+  Puzzle,
   ShieldCheck,
   Smile,
   Sparkles,
-  Wrench,
+  Syringe,
   type LucideIcon,
 } from "lucide-react";
 import { treatments, treatmentsSection, whatsappUrl } from "@/data/content";
@@ -17,12 +19,14 @@ import { SectionHeading } from "./SectionHeading";
 import { SpotlightCard } from "./SpotlightCard";
 
 const icons: Record<TreatmentIcon, LucideIcon> = {
-  smile: Smile,
-  sparkles: Sparkles,
-  implant: Wrench,
-  activity: Activity,
-  baby: Baby,
+  droplets: Droplets,
+  syringe: Syringe,
   shield: ShieldCheck,
+  puzzle: Puzzle,
+  moon: Moon,
+  sparkles: Sparkles,
+  smile: Smile,
+  baby: Baby,
 };
 
 export default function Treatments() {
@@ -45,13 +49,13 @@ export default function Treatments() {
           />
         </Reveal>
 
-        <ul className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {treatments.map((treatment, index) => {
             const Icon = icons[treatment.icon];
             return (
               <li key={treatment.id}>
-                <Reveal delay={(index % 3) * 0.12} className="h-full">
-                  <SpotlightCard className="h-full rounded-3xl border border-line bg-white p-7 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary-deep/10">
+                <Reveal delay={(index % 4) * 0.1} className="h-full">
+                  <SpotlightCard className="h-full rounded-3xl border border-line bg-white p-6 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary-deep/10">
                     <span
                       aria-hidden="true"
                       className="absolute right-6 top-4 font-display text-6xl font-semibold text-section transition-colors duration-500 group-hover:text-primary/15"
@@ -66,15 +70,17 @@ export default function Treatments() {
                         <Icon className="h-7 w-7" />
                       </span>
                     </div>
-                    <h3 className="mt-6 font-display text-2xl font-medium text-ink">
+                    <h3 className="mt-6 font-display text-xl font-medium text-ink">
                       {treatment.title}
                     </h3>
                     <p className="mt-2 text-muted">{treatment.description}</p>
-                    <span className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary-deep">
-                      <Clock className="h-3.5 w-3.5" aria-hidden="true" />
-                      <span className="sr-only">{treatmentsSection.durationLabel}:</span>
-                      {treatment.duration}
-                    </span>
+                    {treatment.duration ? (
+                      <span className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary-deep">
+                        <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span className="sr-only">{treatmentsSection.durationLabel}:</span>
+                        {treatment.duration}
+                      </span>
+                    ) : null}
                     <p className="sr-only">{treatmentsSection.includesLabel}:</p>
                     <ul className="mt-6 flex-1 space-y-2.5 border-t border-dashed border-line pt-6">
                       {treatment.includes.map((item) => (

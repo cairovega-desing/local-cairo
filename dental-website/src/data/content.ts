@@ -6,12 +6,14 @@
 // ───────────────────────── Tipos ─────────────────────────
 
 export type TreatmentIcon =
-  | "smile"
+  | "droplets"
+  | "syringe"
+  | "shield"
+  | "puzzle"
+  | "moon"
   | "sparkles"
-  | "implant"
-  | "activity"
-  | "baby"
-  | "shield";
+  | "smile"
+  | "baby";
 
 export type HeroBadgeIcon = "users" | "scan" | "file";
 
@@ -34,7 +36,7 @@ export interface Treatment {
   id: string;
   title: string;
   description: string;
-  duration: string;
+  duration?: string;
   includes: string[];
   icon: TreatmentIcon;
 }
@@ -125,17 +127,17 @@ export const googleMapsEmbedUrl = `https://www.google.com/maps?q=${encodeURIComp
 export const seo = {
   title: `${business.name} | Odontología en Montevideo`,
   description:
-    "Odontología integral para toda la familia en el corazón de Montevideo. Ortodoncia, estética dental, implantes, endodoncia y odontopediatría con tecnología actual y trato cercano.",
+    "Consultorio odontológico en Montevideo para adultos y niños. Limpieza de sarro, extracciones, caries, prótesis, placas para bruxismo, blanqueamientos, ortodoncia y ortopedia.",
   keywords: [
     "odontología Montevideo",
     "dentista Montevideo",
     "consultorio odontológico Montevideo",
     "ortodoncia Montevideo",
-    "alineadores invisibles Montevideo",
+    "ortopedia dental niños Montevideo",
     "blanqueamiento dental Montevideo",
-    "implantes dentales Montevideo",
-    "endodoncia Montevideo",
-    "odontopediatría Montevideo",
+    "limpieza de sarro Montevideo",
+    "prótesis dental Montevideo",
+    "placa para bruxismo Montevideo",
     "Dra. Gabriela Fraga",
   ],
   locale: "es_UY",
@@ -187,24 +189,24 @@ export const hero = {
     { label: "Radiografías digitales", icon: "scan" },
     { label: "Historia clínica digital", icon: "file" },
   ] satisfies HeroBadge[],
-  imageLabel: "Foto de la Dra. Gabriela Fraga",
+  image: "/images/dra-gabriela-fraga.jpg",
+  imageLabel: "La Dra. Gabriela Fraga en su consultorio",
   ratingCard: { value: "5.0", label: "en Google Maps" },
   patientsCard: { value: "+500", label: "sonrisas felices" },
   availabilityCard: "Turnos disponibles esta semana",
-  painlessCard: "Atención sin dolor",
   scrollHint: "Deslizá para conocernos",
 };
 
 // Cinta animada debajo del hero
 export const marquee = [
-  "Ortodoncia invisible",
-  "Blanqueamiento",
-  "Implantes",
-  "Diseño de sonrisa",
-  "Odontopediatría",
-  "Endodoncia",
-  "Limpieza profesional",
-  "Urgencias",
+  "Limpieza de sarro",
+  "Blanqueamientos",
+  "Ortodoncia",
+  "Ortopedia",
+  "Prótesis",
+  "Eliminación de caries",
+  "Placas neuromiorrelajantes",
+  "Extracciones",
 ];
 
 // ───────────────────────── Sobre nosotros ─────────────────────────
@@ -225,7 +227,8 @@ export const about = {
     "Odontóloga graduada de la Facultad de Odontología (UdelaR)",
     "Especialista en ortodoncia y estética dental",
   ],
-  imageLabel: "Foto de la Dra. Gabriela Fraga en el consultorio",
+  image: "/images/consultorio.jpg",
+  imageLabel: "El consultorio de la Dra. Gabriela Fraga",
   badgeRing: "Odontología · Montevideo · ",
   badgeCenter: "10+",
   badgeCenterLabel: "años",
@@ -238,96 +241,69 @@ export const about = {
 export const treatmentsSection = {
   eyebrow: "Tratamientos",
   title: "Servicios para tu salud dental",
-  description: "Un consultorio, todos los tratamientos que tu familia necesita.",
+  description: "Atención para adultos y niños, en un solo lugar.",
   durationLabel: "Duración",
   includesLabel: "Incluye",
   cta: "Consultar por WhatsApp",
 };
 
+// Tratamientos que figuran en las redes del consultorio
 export const treatments: Treatment[] = [
+  {
+    id: "limpieza",
+    title: "Limpieza de sarro",
+    description: "Limpieza profesional para quitar el sarro y la placa, y mantener encías sanas.",
+    icon: "droplets",
+    includes: ["Remoción de sarro y placa", "Pulido dental", "Consejos de higiene en casa"],
+  },
+  {
+    id: "extracciones",
+    title: "Extracciones",
+    description: "Extracción de piezas dentales con anestesia local y el máximo cuidado.",
+    icon: "syringe",
+    includes: ["Evaluación previa", "Anestesia local", "Indicaciones para después"],
+  },
+  {
+    id: "caries",
+    title: "Eliminación de caries",
+    description: "Tratamos las caries y restauramos el diente con resinas del color natural.",
+    icon: "shield",
+    includes: ["Diagnóstico de caries", "Restauraciones con resinas", "Cambio de resinas antiguas"],
+  },
+  {
+    id: "protesis",
+    title: "Prótesis",
+    description: "Recuperá las piezas que faltan para volver a masticar y sonreír con comodidad.",
+    icon: "puzzle",
+    includes: ["Evaluación y plan a medida", "Prótesis removibles y fijas", "Controles y ajustes"],
+  },
+  {
+    id: "placas",
+    title: "Placas neuromiorrelajantes",
+    description: "Placas a medida para el bruxismo: protegen los dientes y relajan la mandíbula.",
+    icon: "moon",
+    includes: ["Para bruxismo (apretar o rechinar)", "Hechas a medida", "Controles periódicos"],
+  },
+  {
+    id: "blanqueamiento",
+    title: "Blanqueamientos",
+    description: "Aclará el color de tus dientes con un blanqueamiento profesional y seguro.",
+    icon: "sparkles",
+    includes: ["Blanqueamiento profesional", "Blanqueamiento interno", "Seguimiento del resultado"],
+  },
   {
     id: "ortodoncia",
     title: "Ortodoncia",
-    description:
-      "Brackets, alineadores y aparatología funcional para niños, adolescentes y adultos.",
-    duration: "12–24 meses",
+    description: "Alineamos los dientes y corregimos la mordida con brackets.",
     icon: "smile",
-    includes: [
-      "Estudio ortodóntico completo",
-      "Brackets metálicos y estéticos",
-      "Alineadores invisibles",
-      "Control y seguimiento mensual",
-    ],
+    includes: ["Estudio y plan de tratamiento", "Brackets", "Controles mensuales"],
   },
   {
-    id: "estetica",
-    title: "Estética dental",
-    description:
-      "Blanqueamiento, carillas y diseño de sonrisa para una imagen impecable.",
-    duration: "1–3 sesiones",
-    icon: "sparkles",
-    includes: [
-      "Blanqueamiento dental profesional",
-      "Carillas de porcelana y composite",
-      "Diseño digital de sonrisa",
-      "Recontorneado estético",
-    ],
-  },
-  {
-    id: "implantes",
-    title: "Implantes dentales",
-    description:
-      "Recuperá piezas perdidas con implantes de titanio y rehabilitación completa.",
-    duration: "3–6 meses",
-    icon: "implant",
-    includes: [
-      "Implantes de titanio",
-      "Cirugía guiada por imágenes",
-      "Coronas sobre implantes",
-      "Rehabilitación completa",
-    ],
-  },
-  {
-    id: "endodoncia",
-    title: "Endodoncia",
-    description:
-      "Tratamiento de conducto con técnicas modernas para salvar tus dientes.",
-    duration: "1–2 sesiones",
-    icon: "activity",
-    includes: [
-      "Tratamiento de conducto",
-      "Retratamiento endodóntico",
-      "Restauraciones post-endodoncia",
-      "Pernos y coronas",
-    ],
-  },
-  {
-    id: "odontopediatria",
-    title: "Odontopediatría",
-    description:
-      "Atención dental especializada para bebés, niños y adolescentes.",
-    duration: "30–45 min",
+    id: "ortopedia",
+    title: "Ortopedia",
+    description: "Guía el crecimiento de los huesos maxilares en niños, detectando a tiempo.",
     icon: "baby",
-    includes: [
-      "Primera consulta de adaptación",
-      "Sellantes y fluorización",
-      "Control de caries",
-      "Ortopedia funcional",
-    ],
-  },
-  {
-    id: "prevencion",
-    title: "Prevención y limpieza",
-    description:
-      "Limpieza profesional, control de caries y educación para la salud bucal.",
-    duration: "30–45 min",
-    icon: "shield",
-    includes: [
-      "Limpieza y destartarización",
-      "Fluorización",
-      "Control periódico",
-      "Educación en higiene oral",
-    ],
+    includes: ["Para niños en crecimiento", "Aparatos de ortopedia", "Evita tratamientos más complejos"],
   },
 ];
 
@@ -467,7 +443,7 @@ export const faq: FAQItem[] = [
   {
     question: "¿Aceptan pagos en cuotas?",
     answer:
-      "Sí. Para tratamientos largos (ortodoncia, implantes) coordinamos planes de pago en cuotas con tarjeta de crédito o transferencia.",
+      "Sí. Para tratamientos largos (ortodoncia, prótesis) coordinamos planes de pago en cuotas con tarjeta de crédito o transferencia.",
   },
   {
     question: "¿Hay estacionamiento cerca?",
