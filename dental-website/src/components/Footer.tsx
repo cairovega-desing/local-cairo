@@ -75,15 +75,17 @@ export default function Footer() {
           </a>
           <p className="mt-4 max-w-xs text-white/70">{footer.slogan}</p>
           <div className="mt-6 flex items-center gap-3">
-            <a
-              href={business.instagram.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={footer.socialLabel.instagram}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors duration-300 hover:-translate-y-0.5 hover:bg-mint hover:text-navy"
-            >
-              <InstagramIcon />
-            </a>
+            {business.instagram.url ? (
+              <a
+                href={business.instagram.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={footer.socialLabel.instagram}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors duration-300 hover:-translate-y-0.5 hover:bg-mint hover:text-navy"
+              >
+                <InstagramIcon />
+              </a>
+            ) : null}
             <a
               href={business.facebook.url}
               target="_blank"
@@ -141,15 +143,17 @@ export default function Footer() {
                 {business.phone}
               </a>
             </li>
-            <li className="flex gap-3">
-              <Mail className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-              <a
-                href={`mailto:${business.email}`}
-                className="break-all transition-colors hover:text-white"
-              >
-                {business.email}
-              </a>
-            </li>
+            {business.email ? (
+              <li className="flex gap-3">
+                <Mail className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+                <a
+                  href={`mailto:${business.email}`}
+                  className="break-all transition-colors hover:text-white"
+                >
+                  {business.email}
+                </a>
+              </li>
+            ) : null}
           </ul>
         </div>
       </div>

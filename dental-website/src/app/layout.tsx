@@ -53,8 +53,8 @@ const jsonLd = {
   name: business.name,
   description: seo.description,
   url: business.siteUrl,
-  telephone: business.phone,
-  email: business.email,
+  telephone: business.phoneIntl,
+  email: business.email || undefined,
   image: `${business.siteUrl}/opengraph-image`,
   address: {
     "@type": "PostalAddress",
@@ -72,7 +72,7 @@ const jsonLd = {
       opens: row.opens,
       closes: row.closes,
     })),
-  sameAs: [business.instagram.url, business.facebook.url],
+  sameAs: [business.instagram.url, business.facebook.url].filter(Boolean),
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: business.rating.value,

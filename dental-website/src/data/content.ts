@@ -79,14 +79,17 @@ export const business = {
     countryCode: "UY",
     full: "Guaycurú 2924, 11800 Montevideo, Departamento de Montevideo",
   },
-  phone: "+598 99 123 456",
-  phoneHref: "tel:+59899123456",
-  whatsappNumber: "59899123456",
+  // Datos de la página de Facebook del consultorio
+  phone: "092 044 197",
+  phoneIntl: "+598 92 044 197",
+  phoneHref: "tel:+59892044197",
+  whatsappNumber: "59892044197",
   whatsappMessage: "Hola, quisiera agendar una consulta",
-  email: "consultas@dragabrielafraga.com",
+  // Opcionales: si quedan vacíos, el sitio no los muestra.
+  email: "" as string,
   instagram: {
-    handle: "@dragabrielafraga",
-    url: "https://www.instagram.com/dragabrielafraga",
+    handle: "",
+    url: "" as string,
   },
   facebook: {
     handle: "/dragabrielafraga",
@@ -441,7 +444,7 @@ export const faq: FAQItem[] = [
   {
     question: "¿Cómo agendo una cita?",
     answer:
-      "El canal más rápido es WhatsApp al +598 99 123 456. Respondemos en horario de consultorio. También podés usar el formulario de contacto.",
+      "El canal más rápido es WhatsApp al 092 044 197. Respondemos en horario de consultorio. También podés usar el formulario de contacto.",
   },
   {
     question: "¿Aceptan pagos en cuotas?",
