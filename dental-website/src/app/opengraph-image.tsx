@@ -20,7 +20,7 @@ export default function OpengraphImage() {
           color: "#FFFFFF",
         }}
       >
-        <div style={{ fontSize: 34, opacity: 0.9 }}>Odontología · Cordón, Montevideo</div>
+        <div style={{ fontSize: 34, opacity: 0.9 }}>Odontología · Montevideo</div>
         <div style={{ fontSize: 76, fontWeight: 700, marginTop: 24, lineHeight: 1.05 }}>
           {business.name}
         </div>

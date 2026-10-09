@@ -73,14 +73,12 @@ export const business = {
   slogan: "Tu sonrisa, nuestra prioridad.",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://dragabrielafraga.com",
   address: {
-    street: "Av. 18 de Julio 1234",
-    neighborhood: "Cordón",
+    street: "Guaycurú 2924",
+    postalCode: "11800",
     city: "Montevideo",
     countryCode: "UY",
-    full: "Av. 18 de Julio 1234, Cordón, Montevideo, Uruguay",
+    full: "Guaycurú 2924, 11800 Montevideo, Departamento de Montevideo",
   },
-  // Coordenadas placeholder (CONTENT.md)
-  geo: { lat: -34.9055, lng: -56.1782 },
   phone: "+598 99 123 456",
   phoneHref: "tel:+59899123456",
   whatsappNumber: "59899123456",
@@ -120,22 +118,22 @@ export const whatsappUrl = `https://wa.me/${business.whatsappNumber}?text=${enco
 )}`;
 
 export const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-  business.address.full,
+  `${business.address.full}, Uruguay`,
 )}`;
 
 export const googleMapsEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(
-  business.address.full,
+  `${business.address.full}, Uruguay`,
 )}&z=16&output=embed`;
 
 // ───────────────────────── SEO ─────────────────────────
 
 export const seo = {
-  title: `${business.name} | Odontología en Cordón, Montevideo`,
+  title: `${business.name} | Odontología en Montevideo`,
   description:
     "Odontología integral para toda la familia en el corazón de Montevideo. Ortodoncia, estética dental, implantes, endodoncia y odontopediatría con tecnología actual y trato cercano.",
   keywords: [
     "odontología Montevideo",
-    "dentista Cordón",
+    "dentista Montevideo",
     "consultorio odontológico Montevideo",
     "ortodoncia Montevideo",
     "alineadores invisibles Montevideo",
@@ -180,7 +178,7 @@ export const navigation = {
 // ───────────────────────── Hero ─────────────────────────
 
 export const hero = {
-  eyebrow: "Consultorio odontológico · Cordón, Montevideo",
+  eyebrow: "Consultorio odontológico · Montevideo",
   titleStart: "Tu sonrisa,",
   titleHighlight: "nuestra prioridad.",
   subtitle:
@@ -220,7 +218,7 @@ export const about = {
   title: "Odontología integral en un solo lugar",
   paragraphs: [
     "El Consultorio Odontológico de la Dra. Gabriela Fraga es un espacio pensado para resolver todas tus necesidades dentales sin derivaciones innecesarias. Con más de 10 años de experiencia, la Dra. Fraga lidera un equipo de especialistas que trabajan de forma coordinada para ofrecerte un tratamiento completo y personalizado.",
-    "Nuestro consultorio en Cordón cuenta con equipamiento digital de última generación — radiografías digitales, historia clínica electrónica y materiales de primera calidad — para que cada decisión clínica esté respaldada por la mejor tecnología disponible.",
+    "Nuestro consultorio en Montevideo cuenta con equipamiento digital de última generación — radiografías digitales, historia clínica electrónica y materiales de primera calidad — para que cada decisión clínica esté respaldada por la mejor tecnología disponible.",
   ],
   stats: [
     { value: "5.0", label: "Rating en Google Maps" },
@@ -471,14 +469,14 @@ export const faq: FAQItem[] = [
 
 export const location = {
   eyebrow: "Ubicación",
-  title: "Encontranos en Cordón",
+  title: "Encontranos en Guaycurú 2924",
   description:
-    "En pleno Cordón, a minutos del Centro y bien conectado en transporte público. Entrada accesible y edificio con ascensor.",
+    "Estamos en Guaycurú 2924, Montevideo, bien conectados en transporte público. Si tenés dudas de cómo llegar, escribinos por WhatsApp.",
   addressLabel: "Dirección",
   hoursLabel: "Horarios",
   contactLabel: "Teléfono",
   mapCta: "Ver en Google Maps",
-  mapTitle: "Mapa de Google Maps con la ubicación del consultorio en Cordón, Montevideo",
+  mapTitle: "Mapa de Google Maps con la ubicación del consultorio en Guaycurú 2924, Montevideo",
   openNow: "Abierto ahora",
   closedNow: "Cerrado ahora",
 };
