@@ -1,5 +1,5 @@
 // Guarda la app para que abra sin internet. Los datos de GitHub los guarda la página aparte.
-const CACHE = "radar-skills-v1";
+const CACHE = "skillario-v1";
 const APP = ["./", "index.html", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(APP))); self.skipWaiting(); });
 self.addEventListener("activate", e => {

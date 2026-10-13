@@ -1,6 +1,6 @@
 {
-  "name": "Radar de Skills",
-  "short_name": "Radar Skills",
+  "name": "Skillario",
+  "short_name": "Skillario",
   "description": "Las skills de Claude más populares y útiles de GitHub, con filtro de seguridad.",
   "lang": "es",
   "start_url": "./",
