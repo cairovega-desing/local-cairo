@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Radar de Skills</title>
+<meta name="description" content="Las skills de Claude más populares y útiles de GitHub, con filtro de seguridad.">
+<meta name="theme-color" content="#0a7570">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: mesa de inspección. Cabecera con radar, pestañas fijas, y fichas con sello de revisión. */
+:root {
+  --bg: #e9eff2;
+  --surface: #ffffff;
+  --surface-2: #f4f7f9;
+  --ink: #12202a;
+  --muted: #566a78;
+  --line: #cfdae1;
+  --accent: #0a7570;
+  --accent-ink: #ffffff;
+  --official: #1d2f6f;
+  --ok: #1d7a4b;
+  --warn: #a46a12;
+  --bad: #b3261e;
+  --ok-bg: #e3f3ea;
+  --warn-bg: #fbf0dc;
+  --bad-bg: #fbe5e3;
+  --heart: #d6336c;
+  --shadow: 0 1px 2px rgba(18, 32, 42, .06), 0 6px 18px rgba(18, 32, 42, .06);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c141a; --surface: #131f28; --surface-2: #182733; --ink: #e4edf2; --muted: #93a6b4; --line: #253541;
+    --accent: #3cc4b8; --accent-ink: #062320; --official: #a9b8ff; --ok: #57d394; --warn: #f0b44c; --bad: #ff8a80;
+    --ok-bg: #12301f; --warn-bg: #33270f; --bad-bg: #3a1714; --heart: #ff6b9a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c141a; --surface: #131f28; --surface-2: #182733; --ink: #e4edf2; --muted: #93a6b4; --line: #253541;
+  --accent: #3cc4b8; --accent-ink: #062320; --official: #a9b8ff; --ok: #57d394; --warn: #f0b44c; --bad: #ff8a80;
+  --ok-bg: #12301f; --warn-bg: #33270f; --bad-bg: #3a1714; --heart: #ff6b9a;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 0 48px; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Cabecera */
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding-block: 22px 14px; }
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1 1 320px; }
+.radar { width: 52px; height: 52px; flex: none; color: var(--accent); }
+.radar .sweep { transform-origin: 26px 26px; }
+.radar.busy .sweep { animation: sweep 1.4s linear infinite; }
+@keyframes sweep { to { transform: rotate(360deg); } }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(26px, 4vw, 34px); line-height: 1.05; margin: 0; letter-spacing: -.02em; }
+.tagline { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+.status { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.live { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-bg); }
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 14px; text-decoration: none; color: var(--ink); }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.btn[disabled] { opacity: .55; cursor: default; }
+
+/* Pestañas */
+.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); display: flex; gap: 4px; border-bottom: 1px solid var(--line); padding-top: 6px; }
+.tab { border: 0; background: none; padding: 10px 14px 12px; cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: 17px; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; display: inline-flex; gap: 8px; align-items: center; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.count { font-family: var(--f-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 99px; padding: 0 7px; color: var(--muted); }
+
+/* Controles */
+.controls { display: flex; flex-direction: column; gap: 12px; padding-block: 16px 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.search { flex: 1 1 260px; min-width: 0; position: relative; }
+.search input { width: 100%; font: inherit; padding: 10px 12px 10px 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 5px 12px; cursor: pointer; font-size: 14px; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 7px 12px; cursor: pointer; font-size: 14px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.toggle { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; color: var(--muted); cursor: pointer; }
+.toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+
+/* Fichas */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 14px; padding-block: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; box-shadow: var(--shadow); }
+.card.lvl-revisar { border-style: dashed; }
+.card-top { display: flex; align-items: center; gap: 8px; min-height: 28px; }
+.seal { display: inline-flex; align-items: center; gap: 5px; font-family: var(--f-mono); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; border: 1.5px solid currentColor; white-space: nowrap; }
+.seal.oficial { color: var(--official); }
+.seal.ok { color: var(--ok); }
+.seal.revisar { color: var(--warn); }
+.cat { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fav { margin-left: auto; border: 0; background: none; cursor: pointer; padding: 4px; color: var(--muted); border-radius: 8px; display: inline-flex; }
+.fav:hover { color: var(--heart); }
+.fav[aria-pressed="true"] { color: var(--heart); }
+.fav[aria-pressed="true"] path { fill: currentColor; }
+.card h3 { font-family: var(--f-display); font-weight: 600; font-size: 20px; line-height: 1.2; margin: 0; overflow-wrap: anywhere; text-wrap: balance; }
+.repo { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); text-decoration: none; overflow-wrap: anywhere; }
+.repo:hover { color: var(--accent); text-decoration: underline; }
+.desc { margin: 0; overflow-wrap: anywhere; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta b { font-family: var(--f-mono); font-weight: 600; color: var(--ink); }
+.warnnote { font-size: 13px; background: var(--surface-2); border-left: 3px solid var(--warn); padding: 6px 10px; border-radius: 0 6px 6px 0; margin: 0; }
+.fails { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.fails li { font-size: 12px; color: var(--warn); background: var(--warn-bg); border-radius: 6px; padding: 2px 8px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 4px; }
+.actions .btn { font-size: 13px; padding: 5px 10px; }
+
+/* Resultado del análisis */
+.scan { border-radius: 10px; padding: 10px 12px; font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+.scan.ok { background: var(--ok-bg); }
+.scan.warn { background: var(--warn-bg); }
+.scan.bad { background: var(--bad-bg); }
+.scan.wait { background: var(--surface-2); color: var(--muted); }
+.scan strong { font-family: var(--f-display); font-size: 16px; }
+.scan.ok strong { color: var(--ok); }
+.scan.warn strong { color: var(--warn); }
+.scan.bad strong { color: var(--bad); }
+.scan ul { margin: 0; padding-left: 18px; }
+.scan code { font-family: var(--f-mono); font-size: 12px; overflow-wrap: anywhere; }
+
+.empty { grid-column: 1 / -1; text-align: center; padding: 40px 16px; color: var(--muted); }
+.empty h2 { font-family: var(--f-display); color: var(--ink); font-size: 22px; margin: 0 0 6px; }
+
+/* Ayuda */
+.help { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 14px; margin-top: 24px; }
+details.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+details.panel summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: 17px; }
+details.panel p, details.panel li { font-size: 14px; }
+details.panel code, .codebox { font-family: var(--f-mono); font-size: 12.5px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; overflow-wrap: anywhere; }
+.codebox { display: block; width: 100%; padding: 8px; min-height: 70px; color: var(--ink); resize: vertical; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 14px; z-index: 20; max-width: calc(100% - 32px); }
+
+@media (max-width: 520px) {
+  .tab { font-size: 15px; padding-inline: 10px; }
+  .top { padding-block: 16px 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .radar.busy .sweep { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg class="radar" id="radar" viewBox="0 0 52 52" aria-hidden="true">
+        <circle cx="26" cy="26" r="24" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <circle cx="26" cy="26" r="16" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <circle cx="26" cy="26" r="8" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="sweep"><path d="M26 26 L26 2 A24 24 0 0 1 46.8 14 Z" fill="currentColor" fill-opacity=".22"/><line x1="26" y1="26" x2="26" y2="2" stroke="currentColor" stroke-width="2"/></g>
+        <circle cx="35" cy="15" r="2.6" fill="currentColor"/>
+        <circle cx="16" cy="33" r="2" fill="currentColor" fill-opacity=".7"/>
+      </svg>
+      <div>
+        <h1>Radar de Skills</h1>
+        <p class="tagline">Las skills de Claude que más se usan en GitHub, filtradas por seguridad.</p>
+      </div>
+    </div>
+    <div class="status">
+      <span class="dot" id="dot"></span>
+      <span id="statusText">Cargando…</span>
+      <button class="btn primary" id="refresh" type="button">Actualizar</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Secciones">
+    <button class="tab" role="tab" id="tab-populares" data-tab="populares" aria-selected="true">Populares</button>
+    <button class="tab" role="tab" id="tab-utiles" data-tab="utiles" aria-selected="false">Más útiles</button>
+    <button class="tab" role="tab" id="tab-favoritas" data-tab="favoritas" aria-selected="false">Favoritas <span class="count" id="favCount">0</span></button>
+  </nav>
+
+  <section class="controls">
+    <div class="row">
+      <label class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Buscar: pdf, diseño, excel, seguridad…" autocomplete="off" aria-label="Buscar skills">
+      </label>
+      <div class="seg" id="momentSeg" role="group" aria-label="Período">
+        <button type="button" data-moment="0" aria-pressed="true">De siempre</button>
+        <button type="button" data-moment="1" aria-pressed="false">Nuevas del mes</button>
+      </div>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Categorías"></div>
+    <div class="row">
+      <label class="toggle"><input type="checkbox" id="showAll"> Mostrar también las que no pasaron el filtro</label>
+      <p class="note" id="tabNote"></p>
+    </div>
+  </section>
+
+  <main class="grid" id="list" aria-live="polite"></main>
+
+  <section class="help">
+    <details class="panel" id="helpFilter">
+      <summary>¿Cómo elige y qué revisa el filtro?</summary>
+      <p><b>Todo es automático.</b> La app busca en GitHub los repositorios de skills para Claude y nadie elige a mano cuáles entran. Para encontrarlos usa los temas <code>agent-skills</code>, <code>claude-skills</code> y <code>claude-code-skills</code>, las palabras «claude skills» y los README que hablan de <code>SKILL.md</code>. Se actualiza sola cada hora mientras la usás. Con el botón «Actualizar» la actualizás al instante.</p>
+      <p><b>Populares:</b> las que tienen más estrellas. <b>Nuevas del mes:</b> las creadas en las últimas 6 semanas que más rápido suman estrellas. <b>Más útiles:</b> las que más gente copia para usarlas (forks), que siguen recibiendo cambios. No cuenta las listas de enlaces.</p>
+      <p><b>Sellos:</b></p>
+      <ul>
+        <li><span class="seal oficial">Oficial</span> la publicó la empresa dueña de la herramienta, por ejemplo Anthropic, Adobe, Google o Microsoft.</li>
+        <li><span class="seal ok">Pasó el filtro</span> cumplió todos los controles.</li>
+        <li><span class="seal revisar">Revisar</span> falló alguno. Queda oculta salvo que la pidas.</li>
+      </ul>
+      <p><b>Controles:</b> no está archivada, tiene licencia, tuvo cambios en los últimos 6 meses, tiene al menos 25 estrellas, existe hace más de una semana, es el repositorio original (no una copia) y no tiene palabras típicas de estafa («crack», «keygen», «stealer»…).</p>
+      <p><b>Botón «Analizar seguridad»:</b> lee la lista de archivos, el SKILL.md y hasta 6 scripts. Busca:</p>
+      <ul>
+        <li>programas ejecutables (.exe, .dll, .jar…)</li>
+        <li>comandos que descargan y ejecutan cosas de internet (<code>curl … | sh</code>)</li>
+        <li>acceso a tus claves (<code>.ssh</code>, <code>.env</code>, billeteras)</li>
+        <li>envío de datos a webhooks o pastebin</li>
+        <li>texto oculto y caracteres invisibles</li>
+        <li>frases para engañar a Claude («ignore previous instructions»)</li>
+      </ul>
+      <p><b>Ojo:</b> ningún filtro es perfecto. Las estrellas se pueden comprar. Antes de instalar, leé el SKILL.md (es texto) y desconfiá de cualquier skill que te pida claves o contraseñas.</p>
+    </details>
+    <details class="panel" id="helpInstall">
+      <summary>¿Cómo instalo una skill?</summary>
+      <p><b>En Claude (web, escritorio o app):</b> entrá a <i>Configuración → Capacidades</i> y activá las skills. Para una de GitHub, descargá la carpeta que tiene el <code>SKILL.md</code>, comprimila en .zip y subila con «Subir skill».</p>
+      <p><b>En Claude Code:</b> tocá <b>«Copiar pedido»</b> en la ficha y pegalo en Claude Code. Le pide que la instale en <code>~/.claude/skills/</code> y que te muestre antes qué hace. Si el repositorio es un «marketplace», también sirve <code>/plugin marketplace add dueño/repositorio</code>.</p>
+    </details>
+    <details class="panel" id="helpSync">
+      <summary>Pasar mis favoritas a otro dispositivo</summary>
+      <p>Tus favoritas se guardan en este dispositivo. Para tenerlas también en el celular (o en la PC), copiá el código acá y pegalo allá.</p>
+      <div class="row"><button class="btn" type="button" id="exportFav">Copiar código de favoritas</button></div>
+      <label for="importBox" class="note">Pegá acá el código que copiaste en el otro dispositivo:</label>
+      <textarea id="importBox" class="codebox" spellcheck="false"></textarea>
+      <div class="row"><button class="btn primary" type="button" id="importFav">Importar favoritas</button></div>
+    </details>
+    <details class="panel" id="helpApp">
+      <summary>Tenerla como app (PC y celular)</summary>
+      <p><b>PC (Chrome o Edge):</b> en la barra de direcciones tocá el ícono de instalar (un monitor con una flecha), o entrá a <i>Menú ⋮ → Transmitir, guardar y compartir → Instalar página como app</i>. Te queda un ícono en el escritorio y se abre en su propia ventana.</p>
+      <p><b>Android (Chrome):</b> <i>Menú ⋮ → Agregar a la pantalla principal → Instalar</i>.</p>
+      <p><b>iPhone (Safari):</b> botón compartir → <i>Agregar a inicio</i>.</p>
+      <p id="installRow" hidden><button class="btn primary" type="button" id="installBtn">Instalar ahora</button></p>
+    </details>
+  </section>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ===== Utilidades ===== */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const DAY = 864e5;
+const nf = new Intl.NumberFormat("es", { notation: "compact", maximumFractionDigits: 1 });
+const rtf = new Intl.RelativeTimeFormat("es", { numeric: "auto" });
+function ago(t) {
+  if (!t) return "";
+  const d = (new Date(t) - Date.now()) / DAY;
+  if (Math.abs(d) < 1 / 24) { const m = Math.round(d * 1440); return Math.abs(m) < 1 ? "recién" : rtf.format(m, "minute"); }
+  if (Math.abs(d) < 1) return rtf.format(Math.round(d * 24), "hour");
+  if (Math.abs(d) < 45) return rtf.format(Math.round(d), "day");
+  if (Math.abs(d) < 365) return rtf.format(Math.round(d / 30), "month");
+  return rtf.format(Math.round(d / 365), "year");
+}
+const store = {
+  get(k, def) { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch { return def; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+let toastTimer;
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 2800);
+}
+async function copyText(text, okMsg) {
+  try { await navigator.clipboard.writeText(text); toast(okMsg); return true; }
+  catch { return false; }
+}
+
+/* ===== Reglas (no son una lista de skills: solo cómo se clasifican) ===== */
+// Organizaciones de empresas: sus repos llevan el sello «Oficial» si además pasan el filtro.
+const DUENOS_OFICIALES = ["anthropics", "adobe", "vercel-labs", "google", "google-labs-code", "googleworkspace", "figma", "huggingface", "microsoft", "cloudflare", "supabase", "expo", "remotion-dev", "stripe", "getsentry", "makenotion", "trailofbits", "radareorg", "openai", "github", "aws", "awslabs", "canva", "notionhq", "atlassian", "shopify", "netlify", "mongodb", "elastic", "datadog", "hashicorp", "docker", "jetbrains"];
+const TEMAS = ["agent-skills", "claude-skills", "claude-code-skills"];
+const ES_LISTA = /\b(awesome|curated|list|directory|catalog(ue)?|index of|collection of)\b|awesome-/i;
+const CATEGORIAS = ["Todas", "Documentos", "Diseño", "Código", "Productividad", "Datos", "Seguridad", "Marketing", "Colecciones", "Otras"];
+const PISTAS_CATEGORIA = [
+  ["Colecciones", /awesome|curated|collection|marketplace|directory|\d{2,}\+?\s*(skills|plugins)/i],
+  ["Seguridad", /secur|reverse|ghidra|\bida\b|radare|malware|pentest|\bctf\b|forensic|vuln|exploit|semgrep|yara/i],
+  ["Documentos", /\bpdf\b|docx|\bword\b|excel|xlsx|pptx|powerpoint|document|slides|presentation/i],
+  ["Diseño", /design|figma|adobe|photoshop|illustrator|canva|\bui\b|\bux\b|frontend|css|image|video|art\b|brand|animation|remotion/i],
+  ["Marketing", /marketing|\bseo\b|copywrit|social media|\bads\b|newsletter|growth|sales/i],
+  ["Datos", /\bdata\b|dataset|sql|analytics|csv|chart|bigquery|pandas|notebook|scien/i],
+  ["Productividad", /productiv|notion|obsidian|email|calendar|notes|task|meeting|writing|research/i],
+  ["Código", /code|coding|developer|\btest|\bgit\b|debug|refactor|typescript|python|react|next\.?js|\bapi\b|\bmcp\b|engineer/i],
+];
+function guessCat(text) { for (const [c, re] of PISTAS_CATEGORIA) if (re.test(text)) return c; return "Otras"; }
+
+/* ===== Filtro automático ===== */
+const PALABRAS_ESTAFA = /\b(crack(ed)?|keygen|nulled|stealer|grabber|token[- ]?logger|free[- ]?(premium|pro|robux|vbucks)|aimbot|wallet[- ]?drain(er)?|bypass[- ]?(license|paywall)|account[- ]?checker)\b/i;
+function fromRepo(r) {
+  const now = Date.now();
+  const owner = (r.owner?.login || r.full_name.split("/")[0]).toLowerCase();
+  const text = `${r.name} ${r.description || ""} ${(r.topics || []).join(" ")}`;
+  const checks = [
+    { ok: !r.archived && !r.disabled, label: "Está archivada" },
+    { ok: !!r.license, label: "Sin licencia" },
+    { ok: now - new Date(r.pushed_at) <= 180 * DAY, label: "Sin cambios hace más de 6 meses" },
+    { ok: r.stargazers_count >= 25, label: "Menos de 25 estrellas" },
+    { ok: now - new Date(r.created_at) >= 7 * DAY, label: "Creada hace menos de una semana" },
+    { ok: !r.fork, label: "Es una copia (fork)" },
+    { ok: !PALABRAS_ESTAFA.test(text), label: "Palabras típicas de estafa" },
+    { ok: !!(r.description || "").trim(), label: "Sin descripción" },
+  ];
+  const passed = checks.every(c => c.ok);
+  return {
+    id: r.full_name.toLowerCase(),
+    name: r.name,
+    repo: r.full_name,
+    branch: r.default_branch,
+    desc: r.description || "",
+    cat: guessCat(text),
+    isList: ES_LISTA.test(`${r.name} ${r.description || ""}`),
+    stars: r.stargazers_count,
+    forks: r.forks_count,
+    updated: r.pushed_at,
+    created: r.created_at,
+    license: r.license ? (r.license.spdx_id && r.license.spdx_id !== "NOASSERTION" ? r.license.spdx_id : "Licencia propia") : "",
+    level: passed ? (DUENOS_OFICIALES.includes(owner) ? "oficial" : "ok") : "revisar",
+    fails: checks.filter(c => !c.ok).map(c => c.label),
+    url: r.html_url,
+  };
+}
+// «Más útiles»: lo que la gente copia para usar (forks), que sigue mantenido, sin listas de enlaces.
+function utilScore(it) {
+  const days = (Date.now() - new Date(it.updated)) / DAY;
+  const fresh = days <= 30 ? 1 : days <= 90 ? 0.5 : 0;
+  return Math.log10(1 + (it.forks || 0)) * 2 + Math.log10(1 + it.stars) + fresh + (it.level === "oficial" ? 0.5 : 0);
+}
+// «Nuevas del mes»: estrellas por día desde que se creó.
+const perDay = it => it.stars / Math.max(1, (Date.now() - new Date(it.created)) / DAY);
+
+/* ===== GitHub en vivo ===== */
+const GH = "https://api.github.com";
+async function gh(path) {
+  const r = await fetch(GH + path, { headers: { Accept: "application/vnd.github+json" } });
+  if (r.status === 403 || r.status === 429) { const e = new Error("límite"); e.rate = true; throw e; }
+  if (!r.ok) throw new Error("GitHub respondió " + r.status);
+  return r.json();
+}
+async function fetchLive() {
+  const since = new Date(Date.now() - 45 * DAY).toISOString().slice(0, 10);
+  const queries = [
+    ...TEMAS.map(t => `topic:${t}`),
+    "claude skills in:name,description",
+    "SKILL.md claude in:readme",
+    `claude skills in:name,description,topics created:>${since}`,
+    `topic:agent-skills created:>${since}`,
+  ];
+  const results = await Promise.allSettled(queries.map(q => gh(`/search/repositories?q=${encodeURIComponent(q)}&sort=stars&order=desc&per_page=100`)));
+  const ok = results.filter(r => r.status === "fulfilled").map(r => r.value);
+  if (!ok.length) throw results[0].reason;
+  const byId = new Map();
+  for (const res of ok) for (const r of res.items || []) byId.set(r.full_name.toLowerCase(), r);
+  return { items: [...byId.values()].map(fromRepo), partial: ok.length < queries.length };
+}
+
+/* ===== Análisis de seguridad (lee los archivos) ===== */
+const EXT_BINARIOS = /\.(exe|dll|so|dylib|bin|msi|scr|jar|apk|dmg|pkg|deb|rpm|sys|elf)$/i;
+const EXT_SCRIPTS_WIN = /\.(bat|cmd|vbs|ps1|psm1)$/i;
+const EXT_SCRIPTS = /\.(sh|bash|zsh|py|js|mjs|cjs|ts|rb|pl|php|ps1|bat|cmd)$/i;
+const PATRONES = [
+  ["alto", /(curl|wget)[^\n|]{0,200}\|\s*(sudo\s+)?(ba|z)?sh\b/i, "Descarga un programa de internet y lo ejecuta sin mostrarlo (curl | sh)"],
+  ["alto", /\b(iex|Invoke-Expression)\b[^\n]{0,80}(iwr|irm|Invoke-WebRequest|Invoke-RestMethod|DownloadString|New-Object)/i, "PowerShell que descarga y ejecuta código"],
+  ["alto", /\bnc(at)?\s+-e\b|\/dev\/tcp\/|bash\s+-i\s+>&/i, "Abre una conexión remota a tu computadora (reverse shell)"],
+  ["alto", /(\.ssh\/|id_rsa|id_ed25519|\.aws\/credentials|wallet\.dat|Login Data|\.git-credentials|\.npmrc|keychain)/i, "Toca archivos de claves, contraseñas o billeteras"],
+  ["alto", /(discord(app)?\.com\/api\/webhooks|pastebin\.com|webhook\.site|ngrok\.(io|app)|transfer\.sh|requestbin|pipedream\.net)/i, "Envía datos a servicios típicos para robar información"],
+  ["alto", /(ignore|disregard|forget)\s+(all\s+)?(the\s+)?(previous|prior|above|earlier)\s+(instructions|rules)/i, "Intenta engañar a Claude para que ignore sus reglas"],
+  ["alto", /(do\s+not|don'?t|never)\s+(tell|mention|inform|show)\s+(this\s+to\s+)?the\s+user/i, "Le pide a Claude que te oculte cosas"],
+  ["alto", /[​-‍⁠‪-‮⁦-⁩]{2,}|[\u{E0000}-\u{E007F}]/u, "Tiene caracteres invisibles que pueden esconder instrucciones"],
+  ["alto", /rm\s+-rf\s+(\/(\s|$)|~|\$HOME|\/\*)/i, "Puede borrar carpetas enteras de tu equipo"],
+  ["medio", /\bbase64\s+(-d|--decode)\b|\bb64decode\(|\batob\(|FromBase64String/i, "Decodifica texto escondido en base64"],
+  ["medio", /[A-Za-z0-9+/]{240,}={0,2}/, "Tiene un bloque largo de texto codificado"],
+  ["medio", /\beval\s*\(|\bexec\s*\(\s*(compile|base64|requests|urllib|__import__)/, "Ejecuta código armado en el momento (eval/exec)"],
+  ["medio", /\bsudo\s+/, "Pide permisos de administrador (sudo)"],
+  ["medio", /chmod\s+(\+x|7[0-7]{2})\s/, "Vuelve ejecutable un archivo"],
+  ["medio", /(api[_-]?key|token|password)[^\n]{0,40}(requests\.post|fetch\(|curl\s)/i, "Manda una clave o token a algún servidor"],
+];
+const DOMINIOS_COMUNES = /(^|\.)(github\.com|githubusercontent\.com|github\.io|anthropic\.com|claude\.(ai|com)|python\.org|pypi\.org|npmjs\.(com|org)|mozilla\.org|microsoft\.com|google\.com|googleapis\.com|w3\.org|wikipedia\.org|readthedocs\.io|example\.(com|org)|localhost|schema\.org|shields\.io)$/i;
+const scanCache = new Map();
+async function rawText(repo, branch, path) {
+  const url = `https://raw.githubusercontent.com/${repo}/${encodeURIComponent(branch)}/${path.split("/").map(encodeURIComponent).join("/")}`;
+  const r = await fetch(url);
+  return r.ok ? r.text() : "";
+}
+async function scanItem(it) {
+  if (scanCache.has(it.id)) return scanCache.get(it.id);
+  const branch = it.branch || (await gh(`/repos/${it.repo}`)).default_branch;
+  const tree = await gh(`/repos/${it.repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`);
+  const files = (tree.tree || []).filter(f => f.type === "blob");
+  const findings = [];
+  const bins = files.filter(f => EXT_BINARIOS.test(f.path));
+  const winScripts = files.filter(f => EXT_SCRIPTS_WIN.test(f.path));
+  const scripts = files.filter(f => EXT_SCRIPTS.test(f.path));
+  const skillMds = files.filter(f => /(^|\/)SKILL\.md$/i.test(f.path));
+  if (bins.length) findings.push({ sev: "alto", what: `Trae ${bins.length} programa(s) ya compilado(s) que no se pueden revisar a simple vista`, file: bins.slice(0, 3).map(f => f.path).join(", ") });
+  if (winScripts.length) findings.push({ sev: "medio", what: `Trae ${winScripts.length} script(s) de Windows (.bat/.ps1/.vbs)`, file: winScripts.slice(0, 3).map(f => f.path).join(", ") });
+  const toRead = [...skillMds.slice(0, 4), ...scripts.filter(f => (f.size || 0) < 150000).slice(0, 6)];
+  const texts = await Promise.all(toRead.map(async f => [f.path, await rawText(it.repo, branch, f.path).catch(() => "")]));
+  const domains = new Set();
+  for (const [path, text] of texts) {
+    for (const [sev, re, what] of PATRONES) if (re.test(text)) findings.push({ sev, what, file: path });
+    for (const m of text.matchAll(/https?:\/\/([a-z0-9.-]+\.[a-z]{2,})/gi)) if (!DOMINIOS_COMUNES.test(m[1])) domains.add(m[1].toLowerCase());
+  }
+  const high = findings.some(f => f.sev === "alto"), mid = findings.some(f => f.sev === "medio");
+  const res = {
+    verdict: high ? "bad" : mid ? "warn" : "ok",
+    files: files.length, skills: skillMds.length, scripts: scripts.length, read: texts.length,
+    truncated: !!tree.truncated, domains: [...domains].slice(0, 6), findings,
+  };
+  scanCache.set(it.id, res);
+  return res;
+}
+function scanHtml(res) {
+  const title = { ok: "Sin señales de peligro", warn: "Revisá antes de instalar", bad: "Cuidado: señales de riesgo" }[res.verdict];
+  const lines = res.findings.map(f => `<li>${f.sev === "alto" ? "<b>Alto:</b> " : ""}${esc(f.what)}${f.file ? ` <code>${esc(f.file)}</code>` : ""}</li>`).join("");
+  const scriptsTxt = res.scripts ? `Trae ${res.scripts} script(s): es código que Claude puede ejecutar, normal en skills avanzadas.` : "No trae scripts: son solo textos e instrucciones.";
+  const skillsTxt = res.skills ? `${res.skills} SKILL.md` : "ningún SKILL.md (puede ser un conector o una lista)";
+  return `<strong>${title}</strong>
+    <span>${res.files} archivo(s), ${skillsTxt}. ${scriptsTxt} Leí ${res.read} archivo(s).</span>
+    ${lines ? `<ul>${lines}</ul>` : ""}
+    ${res.domains.length ? `<span>Menciona estos sitios: <code>${esc(res.domains.join(", "))}</code></span>` : ""}
+    ${res.truncated ? `<span>El repositorio es muy grande y GitHub no mandó la lista completa de archivos.</span>` : ""}`;
+}
+
+/* ===== Favoritas (en este dispositivo; se pasan con un código) ===== */
+const Favs = {
+  items: store.get("radar.favs", {}),
+  has(id) { return !!this.items[id]; },
+  list() { return Object.values(this.items).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0)); },
+  save() { store.set("radar.favs", this.items); },
+  toggle(it) {
+    if (this.items[it.id]) delete this.items[it.id];
+    else {
+      const { id, name, repo, desc, cat, stars, forks, level, url, branch, license, updated } = it;
+      this.items[id] = { id, name, repo, desc, cat, stars, forks, level, url, branch, license, updated, savedAt: Date.now() };
+    }
+    this.save();
+  },
+  merge(incoming) {
+    let n = 0;
+    for (const [id, v] of Object.entries(incoming || {})) if (!this.items[id] && v && typeof v.repo === "string") { this.items[id] = v; n++; }
+    if (n) this.save();
+    return n;
+  },
+};
+
+/* ===== Estado y dibujo ===== */
+const state = { tab: "populares", cat: "Todas", q: "", moment: false, showAll: false, live: null, liveAt: 0, loading: false, error: "", partial: false };
+const hashTab = (location.hash || "").slice(1);
+state.tab = ["populares", "utiles", "favoritas"].includes(hashTab) ? hashTab : store.get("radar.tab", "populares");
+
+function sourceItems() {
+  if (state.tab === "favoritas") {
+    // Si la favorita aparece en los datos nuevos, muestro sus números actualizados.
+    const live = new Map((state.live || []).map(i => [i.id, i]));
+    return Favs.list().map(f => live.get(f.id) || f);
+  }
+  const items = state.live || [];
+  if (state.tab === "utiles") return items.filter(i => !i.isList).sort((a, b) => utilScore(b) - utilScore(a)).slice(0, 80);
+  if (state.moment) return items.filter(i => Date.now() - new Date(i.created) <= 45 * DAY).sort((a, b) => perDay(b) - perDay(a));
+  return [...items].sort((a, b) => b.stars - a.stars);
+}
+function visible(items) {
+  const q = state.q.trim().toLowerCase();
+  return items.filter(it => {
+    if (state.tab !== "favoritas" && !state.showAll && it.level === "revisar") return false;
+    if (state.cat !== "Todas" && it.cat !== state.cat) return false;
+    if (q && !`${it.name} ${it.repo} ${it.desc} ${it.cat}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+const SELLOS = { oficial: "Oficial", ok: "Pasó el filtro", revisar: "Revisar" };
+const HEART = `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.5 8.1 3.6 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.6 0 5.7 3.6 4.5 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+const SHIELD = `<svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" fill="currentColor"/></svg>`;
+
+function cardHtml(it) {
+  const fav = Favs.has(it.id);
+  const meta = [
+    `<span>★ <b>${nf.format(it.stars || 0)}</b> estrellas</span>`,
+    it.forks ? `<span><b>${nf.format(it.forks)}</b> copias</span>` : "",
+    it.updated ? `<span>Cambios ${esc(ago(it.updated))}</span>` : "",
+    it.license ? `<span>${esc(it.license)}</span>` : "",
+  ].join("");
+  const scanned = scanCache.get(it.id);
+  return `<article class="card lvl-${it.level}" data-id="${esc(it.id)}">
+    <div class="card-top">
+      <span class="seal ${it.level}">${it.level !== "revisar" ? SHIELD : ""}${SELLOS[it.level] || ""}</span>
+      <span class="cat">${esc(it.cat)}</span>
+      <button class="fav" type="button" data-act="fav" aria-pressed="${fav}" aria-label="${fav ? "Quitar de favoritas" : "Guardar en favoritas"}" title="${fav ? "Quitar de favoritas" : "Guardar en favoritas"}">${HEART}</button>
+    </div>
+    <h3>${esc(it.name)}</h3>
+    <a class="repo" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(it.repo)}</a>
+    <p class="desc">${esc(it.desc)}</p>
+    <div class="meta">${meta}</div>
+    ${it.level === "revisar" && it.fails?.length ? `<ul class="fails">${it.fails.map(f => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}
+    <div class="scan ${scanned ? scanned.verdict : ""}" ${scanned ? "" : "hidden"}>${scanned ? scanHtml(scanned) : ""}</div>
+    <div class="actions">
+      <button class="btn" type="button" data-act="scan">Analizar seguridad</button>
+      <button class="btn" type="button" data-act="copy">Copiar pedido</button>
+      <a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">Ver en GitHub</a>
+    </div>
+  </article>`;
+}
+
+let currentItems = [];
+function render() {
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === state.tab)));
+  $("#favCount").textContent = Object.keys(Favs.items).length;
+  $("#momentSeg").hidden = state.tab !== "populares";
+  $("#showAll").closest(".toggle").hidden = state.tab === "favoritas";
+  document.querySelectorAll("#momentSeg button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.moment === "1") === state.moment)));
+
+  const all = sourceItems();
+  const cats = new Set(all.map(i => i.cat));
+  if (state.cat !== "Todas" && !cats.has(state.cat)) state.cat = "Todas";
+  $("#chips").innerHTML = CATEGORIAS.filter(c => c === "Todas" || cats.has(c))
+    .map(c => `<button type="button" class="chip" data-cat="${c}" aria-pressed="${c === state.cat}">${c}</button>`).join("");
+
+  currentItems = visible(all);
+  const hidden = state.tab !== "favoritas" && !state.showAll ? all.filter(i => i.level === "revisar").length : 0;
+  const hiddenTxt = hidden ? ` Oculté ${hidden} que no pasaron el filtro.` : "";
+  $("#tabNote").textContent = {
+    populares: (state.moment ? "Creadas en las últimas 6 semanas, ordenadas por estrellas por día." : "Ordenadas por estrellas en GitHub.") + hiddenTxt,
+    utiles: "Las que más gente copia para usar y siguen con cambios. No incluye listas de enlaces." + hiddenTxt,
+    favoritas: "Guardadas en este dispositivo.",
+  }[state.tab];
+
+  const list = $("#list");
+  if (!currentItems.length) {
+    let msg;
+    if (state.tab === "favoritas" && !all.length) msg = `<h2>Todavía no guardaste ninguna</h2><p>Tocá el corazón de cualquier skill y aparece acá.</p>`;
+    else if (!state.live && state.loading) msg = `<h2>Buscando en GitHub…</h2><p>Tarda unos segundos.</p>`;
+    else if (!state.live) msg = `<h2>No pude conectarme con GitHub</h2><p>${esc(state.error || "Revisá tu conexión a internet.")}</p><p><button class="btn primary" type="button" id="retry">Probar de nuevo</button></p>`;
+    else msg = `<h2>No encontré nada</h2><p>Probá con otra palabra o elegí «Todas».</p>`;
+    list.innerHTML = `<div class="empty">${msg}</div>`;
+    const retry = $("#retry"); if (retry) retry.onclick = () => loadLive(true);
+    return;
+  }
+  list.innerHTML = currentItems.map(cardHtml).join("");
+}
+
+function setStatus() {
+  $("#radar").classList.toggle("busy", state.loading);
+  $("#refresh").disabled = state.loading;
+  $("#dot").classList.toggle("live", !!state.live && Date.now() - state.liveAt < 2 * REFRESH_EVERY);
+  const txt = $("#statusText");
+  if (state.loading) txt.textContent = "Buscando en GitHub…";
+  else if (state.live) txt.textContent = `${state.live.length} repositorios · actualizado ${ago(state.liveAt)}${state.partial ? " (incompleto)" : ""}`;
+  else txt.textContent = "Sin datos todavía";
+}
+
+const CACHE_KEY = "radar.vivo.v2";
+const REFRESH_EVERY = 60 * 60 * 1000; // se actualiza sola cada hora
+let lastFetch = 0;
+async function loadLive(force) {
+  if (state.loading) return;
+  if (force && Date.now() - lastFetch < 60 * 1000) { toast("Ya está actualizado. GitHub permite pocas búsquedas por minuto."); return; }
+  const cached = store.get(CACHE_KEY, null);
+  if (!state.live && cached?.items?.length) { state.live = cached.items; state.liveAt = cached.at; state.partial = !!cached.partial; }
+  if (!force && state.live && Date.now() - state.liveAt < REFRESH_EVERY) { setStatus(); render(); return; }
+  state.loading = true; state.error = ""; setStatus(); render();
+  lastFetch = Date.now();
+  try {
+    const { items, partial } = await fetchLive();
+    state.live = items; state.liveAt = Date.now(); state.partial = partial;
+    store.set(CACHE_KEY, { at: state.liveAt, items, partial });
+    if (force) toast(`Listo: ${items.length} repositorios revisados.`);
+  } catch (e) {
+    state.error = e.rate ? "GitHub permite pocas búsquedas por minuto sin cuenta. Esperá un minuto y probá de nuevo." : "Revisá tu conexión a internet.";
+    if (state.live) toast(e.rate ? "GitHub pidió esperar un minuto. Te muestro lo último que bajé." : "Sin conexión. Te muestro lo último que bajé.");
+  } finally {
+    state.loading = false; setStatus(); render();
+  }
+}
+
+/* ===== Eventos ===== */
+document.querySelector(".tabs").addEventListener("click", e => {
+  const b = e.target.closest(".tab"); if (!b) return;
+  state.tab = b.dataset.tab; state.cat = "Todas"; store.set("radar.tab", state.tab);
+  history.replaceState(null, "", "#" + state.tab);
+  render();
+});
+$("#chips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (b) { state.cat = b.dataset.cat; render(); } });
+$("#momentSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { state.moment = b.dataset.moment === "1"; render(); } });
+$("#showAll").addEventListener("change", e => { state.showAll = e.target.checked; render(); });
+let qTimer;
+$("#q").addEventListener("input", e => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.q = e.target.value; render(); }, 120); });
+$("#refresh").addEventListener("click", () => loadLive(true));
+// Al volver a la app, si pasó más de una hora, se actualiza sola.
+document.addEventListener("visibilitychange", () => { if (!document.hidden) loadLive(false); });
+setInterval(() => { if (!document.hidden) { loadLive(false); setStatus(); } }, 5 * 60 * 1000);
+
+function pedido(it) {
+  return `Instalá la skill del repositorio https://github.com/${it.repo} en ~/.claude/skills/. Antes de copiar nada, leé su SKILL.md y sus scripts y decime en pocas palabras qué hace y si ejecuta algo, se conecta a internet o pide claves. Esperá a que te diga que sí.`;
+}
+
+$("#list").addEventListener("click", async e => {
+  const btn = e.target.closest("button[data-act]"); if (!btn) return;
+  const card = btn.closest(".card");
+  const it = currentItems.find(i => i.id === card.dataset.id); if (!it) return;
+  const act = btn.dataset.act;
+  if (act === "fav") {
+    const was = Favs.has(it.id); Favs.toggle(it); render();
+    toast(was ? "Quitada de favoritas" : "Guardada en favoritas");
+  } else if (act === "copy") {
+    const text = pedido(it);
+    if (!(await copyText(text, "Copiado. Pegalo en Claude Code."))) {
+      const box = card.querySelector(".scan");
+      box.className = "scan wait"; box.hidden = false;
+      box.innerHTML = `<span>Copiá este texto y pegalo en Claude Code:</span><textarea class="codebox" readonly>${esc(text)}</textarea>`;
+      box.querySelector("textarea").select();
+    }
+  } else if (act === "scan") {
+    const box = card.querySelector(".scan");
+    box.hidden = false; box.className = "scan wait"; box.textContent = "Leyendo los archivos…";
+    btn.disabled = true;
+    try {
+      const res = await scanItem(it);
+      box.className = "scan " + res.verdict; box.innerHTML = scanHtml(res);
+    } catch (err) {
+      box.className = "scan warn";
+      box.innerHTML = err.rate
+        ? "<strong>GitHub pidió esperar</strong><span>Sin cuenta permite unas 60 consultas por hora. Probá de nuevo en un rato.</span>"
+        : "<strong>No pude analizarla</strong><span>Revisá tu conexión o abrila en GitHub.</span>";
+    } finally { btn.disabled = false; }
+  }
+});
+
+$("#exportFav").addEventListener("click", async () => {
+  const code = "RADAR1:" + btoa(unescape(encodeURIComponent(JSON.stringify(Favs.items))));
+  if (!(await copyText(code, "Código copiado. Pegalo en el otro dispositivo."))) {
+    const box = $("#importBox"); box.value = code; box.select();
+    toast("Seleccioné el código: copialo a mano.");
+  }
+});
+$("#importFav").addEventListener("click", () => {
+  const raw = $("#importBox").value.trim();
+  try {
+    if (!raw.startsWith("RADAR1:")) throw 0;
+    const n = Favs.merge(JSON.parse(decodeURIComponent(escape(atob(raw.slice(7))))));
+    $("#importBox").value = "";
+    toast(n ? `Importé ${n} favorita(s).` : "Ya tenías todas esas favoritas.");
+    render();
+  } catch { toast("Ese código no sirve. Copialo de nuevo desde el otro dispositivo."); }
+});
+
+/* ===== App instalable ===== */
+let installEvt = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; $("#installRow").hidden = false; });
+$("#installBtn").addEventListener("click", async () => { if (!installEvt) return; installEvt.prompt(); await installEvt.userChoice; installEvt = null; $("#installRow").hidden = true; });
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+
+render();
+setStatus();
+loadLive(false);
+</script>
+</body>
+</html>
