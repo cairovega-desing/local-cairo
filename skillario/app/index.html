@@ -184,6 +184,7 @@ details.panel code, .codebox { font-family: var(--f-mono); font-size: 12.5px; ba
     <div class="status">
       <span class="dot" id="dot"></span>
       <span id="statusText">Cargando…</span>
+      <button class="btn" id="toClaude" type="button" title="Copia las listas para pegarlas en el chat con Claude">Copiar para Claude</button>
       <button class="btn primary" id="refresh" type="button">Actualizar</button>
     </div>
   </header>
@@ -250,12 +251,15 @@ details.panel code, .codebox { font-family: var(--f-mono); font-size: 12.5px; ba
       <textarea id="importBox" class="codebox" spellcheck="false"></textarea>
       <div class="row"><button class="btn primary" type="button" id="importFav">Importar favoritas</button></div>
     </details>
+    <details class="panel" id="claudeBox" hidden>
+      <summary>Listas para pegarle a Claude</summary>
+      <p class="note">No se pudo copiar solo. Seleccioná todo el texto (Ctrl+A adentro del cuadro), copialo y pegalo en el chat.</p>
+      <textarea id="claudeText" class="codebox" readonly spellcheck="false" style="min-height: 200px"></textarea>
+    </details>
     <details class="panel" id="helpApp">
-      <summary>Tenerla como app (PC y celular)</summary>
-      <p><b>PC (Chrome o Edge):</b> en la barra de direcciones tocá el ícono de instalar (un monitor con una flecha), o entrá a <i>Menú ⋮ → Transmitir, guardar y compartir → Instalar página como app</i>. Te queda un ícono en el escritorio y se abre en su propia ventana.</p>
-      <p><b>Android (Chrome):</b> <i>Menú ⋮ → Agregar a la pantalla principal → Instalar</i>.</p>
-      <p><b>iPhone (Safari):</b> botón compartir → <i>Agregar a inicio</i>.</p>
-      <p id="installRow" hidden><button class="btn primary" type="button" id="installBtn">Instalar ahora</button></p>
+      <summary>Sobre esta app</summary>
+      <p>Skillario corre en tu compu (<code>localhost</code>). El ícono del escritorio la abre en su propia ventana. Los datos los busca directo en GitHub y tus favoritas quedan guardadas en esta PC.</p>
+      <p>Para que Claude vea tus listas, tocá <b>«Copiar para Claude»</b> arriba y pegalo en el chat.</p>
     </details>
   </section>
 </div>
@@ -612,6 +616,34 @@ $("#showAll").addEventListener("change", e => { state.showAll = e.target.checked
 let qTimer;
 $("#q").addEventListener("input", e => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.q = e.target.value; render(); }, 120); });
 $("#refresh").addEventListener("click", () => loadLive(true));
+
+// Arma un resumen en texto de las tres listas para pegarlo en el chat con Claude.
+function listsForClaude() {
+  const line = it => `- ${it.repo} | ${SELLOS[it.level] || ""} | ${it.cat} | ★${it.stars || 0} | copias ${it.forks || 0} | cambios ${it.updated ? ago(it.updated) : "?"} | ${(it.desc || "").replace(/\s+/g, " ").slice(0, 140)}`;
+  const items = state.live || [];
+  const okOnly = arr => arr.filter(i => i.level !== "revisar");
+  const pop = okOnly([...items].sort((a, b) => b.stars - a.stars)).slice(0, 40);
+  const nuevas = okOnly(items.filter(i => Date.now() - new Date(i.created) <= 45 * DAY).sort((a, b) => perDay(b) - perDay(a))).slice(0, 15);
+  const util = okOnly(items.filter(i => !i.isList).sort((a, b) => utilScore(b) - utilScore(a))).slice(0, 40);
+  const favs = Favs.list();
+  return [
+    `SKILLARIO — datos de GitHub ${state.liveAt ? "actualizados " + ago(state.liveAt) : "(sin datos)"} · ${items.length} repositorios revisados`,
+    "Formato: repo | sello | categoría | estrellas | copias (forks) | últimos cambios | descripción",
+    "", `## POPULARES (top ${pop.length})`, ...pop.map(line),
+    "", `## NUEVAS DEL MES (top ${nuevas.length})`, ...nuevas.map(line),
+    "", `## MÁS ÚTILES (top ${util.length})`, ...util.map(line),
+    "", `## MIS FAVORITAS (${favs.length})`, ...(favs.length ? favs.map(line) : ["(ninguna)"]),
+  ].join("\n");
+}
+$("#toClaude").addEventListener("click", async () => {
+  if (!state.live) { toast("Primero esperá a que carguen los datos."); return; }
+  const text = listsForClaude();
+  if (!(await copyText(text, "Copiado. Pegalo en el chat con Claude."))) {
+    const box = $("#claudeBox"); box.hidden = false; box.open = true;
+    $("#claudeText").value = text; $("#claudeText").select();
+    box.scrollIntoView({ behavior: "smooth" });
+  }
+});
 // Al volver a la app, si pasó más de una hora, se actualiza sola.
 document.addEventListener("visibilitychange", () => { if (!document.hidden) loadLive(false); });
 setInterval(() => { if (!document.hidden) { loadLive(false); setStatus(); } }, 5 * 60 * 1000);
@@ -670,11 +702,8 @@ $("#importFav").addEventListener("click", () => {
   } catch { toast("Ese código no sirve. Copialo de nuevo desde el otro dispositivo."); }
 });
 
-/* ===== App instalable ===== */
-let installEvt = null;
-window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; $("#installRow").hidden = false; });
-$("#installBtn").addEventListener("click", async () => { if (!installEvt) return; installEvt.prompt(); await installEvt.userChoice; installEvt = null; $("#installRow").hidden = true; });
-if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+/* ===== Funciona sin internet (guarda la app) ===== */
+if ("serviceWorker" in navigator && (location.protocol === "https:" || ["localhost", "127.0.0.1"].includes(location.hostname))) navigator.serviceWorker.register("sw.js").catch(() => {});
 
 render();
 setStatus();
