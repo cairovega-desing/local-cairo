@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="es-UY">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>VISSION — Tu negocio, visto como tiene que ser</title>
+  <meta name="description" content="VISSION es un estudio de diseño web en Montevideo. Webs a medida, redes, automatizaciones y apps para estudios, consultorios y empresas donde la imagen importa.">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:title" content="VISSION — Estudio de diseño web · Montevideo">
+  <meta property="og:description" content="Tu negocio, visto como tiene que ser.">
+  <meta property="og:image" content="assets/eye/full.webp">
+  <link rel="preload" href="fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/eye/iris.webp" as="image">
+  <link rel="preload" href="assets/eye/open.webp" as="image">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body class="is-loading">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" data-theme="dark">
+    <a class="nav__logo" href="#inicio" aria-label="VISSION, inicio">VISSION</a>
+    <nav class="nav__links" aria-label="Principal">
+      <a href="#servicios">Servicios</a>
+      <a href="#planes">Planes</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#trabajos">Trabajos</a>
+      <a href="#nosotros">Nosotros</a>
+    </nav>
+    <a class="nav__cta" href="#contacto">Pedí tu demo <span aria-hidden="true">→</span></a>
+  </header>
+
+  <main id="contenido">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="inicio" aria-label="VISSION">
+      <div class="hero__sticky">
+        <div class="hero__stage">
+          <h1 class="hero__title">
+            <span class="hero__title-a">
+              <span class="mask"><span>Tu negocio</span></span>
+              <span class="mask"><span>merece</span></span>
+            </span>
+            <span class="hero__title-b">
+              <span class="mask"><span>ser visto.</span></span>
+            </span>
+          </h1>
+
+          <canvas class="eye__canvas" aria-hidden="true"></canvas>
+          <div class="eye__clip" aria-hidden="true">
+            <div class="eye__wordmark"><span class="wm-mask"><span class="wm-l">V</span></span><span class="wm-mask"><span class="wm-l">I</span></span><span class="wm-mask"><span class="wm-l wm-s1">S</span></span><span class="wm-mask"><span class="wm-l wm-s2">S</span></span><span class="wm-mask"><span class="wm-l">I</span></span><span class="wm-mask"><span class="wm-l">O</span></span><span class="wm-mask"><span class="wm-l">N</span></span></div>
+          </div>
+          <canvas class="eye__cornea" aria-hidden="true"></canvas>
+          <img class="eye__fallback" src="assets/eye/full.webp" alt="" aria-hidden="true">
+
+          <svg class="hero__lines" aria-hidden="true"></svg>
+          <ul class="hero__annos" aria-label="Qué incluye tu web">
+            <li class="anno anno--mobile" data-anchor="990,425" data-off="240,-70" data-off-m="60,-120" data-side="r"><span class="anno__label">Diseño a medida</span></li>
+            <li class="anno" data-anchor="742,392" data-off="-300,-60" data-side="l"><span class="anno__label">SEO y Google Maps</span></li>
+            <li class="anno anno--mobile" data-anchor="1250,585" data-off="190,-10" data-off-m="40,110" data-side="r"><span class="anno__label">WhatsApp integrado</span></li>
+          </ul>
+
+          <div class="hero__ui">
+            <p class="hero__pill"><span class="dot" aria-hidden="true"></span>Estudio de diseño web · Montevideo</p>
+            <div class="hero__info">
+              <p class="hero__lead">Diseñamos webs a medida para estudios, consultorios y empresas que quieren verse profesionales.</p>
+              <div class="hero__ctas">
+                <a class="btn btn--dark" href="#contacto" data-dilate>Pedí tu demo gratis <span aria-hidden="true">→</span></a>
+                <a class="btn btn--ghost" href="#planes">Ver planes</a>
+              </div>
+            </div>
+            <dl class="hero__stats">
+              <div class="hstat hstat--a"><dt>7–10 días</dt><dd>Entrega de tu web</dd></div>
+              <div class="hstat hstat--b"><dt>100%</dt><dd>Adaptada a celular</dd></div>
+              <div class="hstat hstat--c"><dt>Desde USD 99</dt><dd>Pago único</dd></div>
+              <div class="hstat hstat--d"><dt>Gratis</dt><dd>Demo antes de decidir</dd></div>
+            </dl>
+          </div>
+
+          <div class="hero__scroll" aria-hidden="true"><span>Scroll</span><i></i></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DATOS ============ -->
+    <section class="facts" aria-label="En números">
+      <div class="facts__inner">
+        <p class="eyebrow reveal-fade">Lo que te ofrecemos, en claro</p>
+        <dl class="facts__row">
+          <div class="fact"><dt><span class="count" data-to="3">3</span></dt><dd>Planes claros</dd></div>
+          <div class="fact"><dt><span class="count" data-to="7">7</span>–<span class="count" data-to="10">10</span><small> días</small></dt><dd>Para tener tu web online</dd></div>
+          <div class="fact"><dt><small>USD </small><span class="count" data-to="99">99</span></dt><dd>Desde, pago único</dd></div>
+          <div class="fact"><dt><span class="count" data-to="0">0</span></dt><dd>Costo por ver tu demo</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ============ SERVICIOS ============ -->
+    <section class="services" id="servicios" data-nav="dark">
+      <div class="services__box">
+        <div class="services__head">
+          <h2 class="title-xl split"><span class="mask"><span>Todo lo que tu negocio</span></span> <span class="mask"><span>necesita para verse</span></span> <span class="mask"><span>en serio.</span></span></h2>
+          <p class="services__intro reveal-fade">Webs, redes y automatizaciones pensadas para estudios, consultorios y empresas donde la imagen importa.</p>
+        </div>
+
+        <div class="services__cards">
+          <!-- 1 · Páginas web -->
+          <article class="scard" data-par="0,-20">
+            <div class="scard__media scard__media--web" aria-hidden="true">
+              <div class="mock-browser">
+                <div class="mock-browser__bar"><i></i><i></i><i></i><span>ferrandabogados.com.uy</span></div>
+                <div class="site-ferrand">
+                  <div class="sf-nav"><b>FERRAND</b><span>Áreas</span><span>Equipo</span><span>Contacto</span></div>
+                  <div class="sf-hero">
+                    <p class="sf-kicker">Estudio jurídico · Desde 1998</p>
+                    <p class="sf-h">Derecho claro<br>para decisiones<br>importantes.</p>
+                    <span class="sf-btn">Agendá una consulta</span>
+                  </div>
+                  <div class="sf-photo"></div>
+                </div>
+              </div>
+              <div class="mock-phone mock-phone--card">
+                <div class="mock-phone__screen site-ferrand site-ferrand--m">
+                  <div class="sf-nav"><b>FERRAND</b></div>
+                  <p class="sf-h">Derecho claro para decisiones importantes.</p>
+                  <span class="sf-btn">Escribinos</span>
+                  <span class="sf-wa">WhatsApp</span>
+                </div>
+              </div>
+            </div>
+            <div class="scard__body">
+              <span class="scard__num">01</span>
+              <h3>Páginas web</h3>
+              <p>Diseño a medida, adaptado a celular, con SEO y WhatsApp integrado.</p>
+            </div>
+          </article>
+
+          <!-- 2 · Redes y contenido -->
+          <article class="scard" data-par="20,-10">
+            <div class="scard__media scard__media--social" aria-hidden="true">
+              <div class="mock-phone mock-phone--social">
+                <div class="mock-phone__screen ig">
+                  <div class="ig__top"><span class="ig__avatar">CR</span><div><b>clinica.rambla</b><small>Odontología · Pocitos</small></div></div>
+                  <div class="ig__stats"><span><b>124</b> publicaciones</span><span><b>Turnos</b> online</span></div>
+                  <div class="ig__grid">
+                    <i class="t1"><em>Tu sonrisa,<br>sin apuro.</em></i><i class="t2"></i><i class="t3"><em>Turnos<br>online</em></i>
+                    <i class="t4"></i><i class="t5"><em>3 tips<br>para tus encías</em></i><i class="t6"></i>
+                    <i class="t7"><em>Nuevo<br>horario</em></i><i class="t8"></i><i class="t9"><em>Conocé<br>al equipo</em></i>
+                  </div>
+                </div>
+              </div>
+              <div class="cal-chip">
+                <b>Calendario de mayo</b>
+                <span><i></i>Lun · Reel</span><span><i></i>Mié · Carrusel</span><span><i></i>Vie · Historia</span>
+              </div>
+            </div>
+            <div class="scard__body">
+              <span class="scard__num">02</span>
+              <h3>Redes y contenido</h3>
+              <p>Calendario, diseño y gestión de tus cuentas.</p>
+            </div>
+          </article>
+
+          <!-- 3 · Automatización y apps -->
+          <article class="scard" data-par="40,0">
+            <div class="scard__media scard__media--auto" aria-hidden="true">
+              <div class="flow">
+                <div class="flow__node"><span class="flow__ic">◎</span><div><b>Mensaje nuevo</b><small>WhatsApp · 09:41</small></div></div>
+                <div class="flow__link"></div>
+                <div class="flow__node"><span class="flow__ic">▢</span><div><b>Se agenda el turno</b><small>Martes 14 · 10:30</small></div></div>
+                <div class="flow__link"></div>
+                <div class="flow__node"><span class="flow__ic">◷</span><div><b>Recordatorio automático</b><small>24 h antes</small></div></div>
+                <div class="flow__link"></div>
+                <div class="flow__node flow__node--done"><span class="flow__ic">✓</span><div><b>Listo, sin que muevas un dedo</b><small>Todo queda registrado</small></div></div>
+              </div>
+            </div>
+            <div class="scard__body">
+              <span class="scard__num">03</span>
+              <h3>Automatización y apps</h3>
+              <p>Procesos que se resuelven solos y herramientas a medida.</p>
+            </div>
+          </article>
+        </div>
+
+        <ul class="services__more reveal-fade">
+          <li>Páginas web</li><li>Diseño web y de redes</li><li>Gestión de redes y contenido</li><li>Automatización de procesos</li><li>Apps a medida</li><li>Mantenimiento</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ PLANES ============ -->
+    <section class="plans" id="planes">
+      <div class="plans__head">
+        <p class="eyebrow reveal-fade">Planes</p>
+        <h2 class="title-xl split"><span class="mask"><span>Tres planes.</span></span> <span class="mask"><span>Cero letra chica.</span></span></h2>
+        <p class="plans__note reveal-fade">Pago único por el desarrollo. Ves tu demo gratis antes de decidir.</p>
+      </div>
+      <!-- EDITAR: precios y contenidos de cada plan -->
+      <div class="plans__grid">
+        <article class="plan">
+          <header><h3>Esencial</h3><p class="plan__price"><small>Desde</small> USD 99</p><p class="plan__for">Para estar en Google y recibir consultas.</p></header>
+          <ul><li>Web de una página, a medida</li><li>Adaptada a celular</li><li>Botón de WhatsApp</li><li>Ubicación en Google Maps</li><li>Online en 7–10 días</li></ul>
+          <a class="plan__cta" href="#contacto">Pedí tu demo <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="plan plan--featured">
+          <header><h3>Profesional</h3><p class="plan__price">A medida</p><p class="plan__for">Para estudios y consultorios que quieren destacarse.</p></header>
+          <ul><li>Hasta 5 secciones</li><li>SEO y Google Business</li><li>Formulario y WhatsApp</li><li>Textos ordenados con vos</li><li>Diseño de portadas para redes</li></ul>
+          <a class="plan__cta" href="#contacto">Pedí tu demo <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="plan">
+          <header><h3>A medida</h3><p class="plan__price">Cotización</p><p class="plan__for">Para procesos, apps y gestión de redes.</p></header>
+          <ul><li>Automatización de procesos</li><li>Apps y herramientas internas</li><li>Gestión de redes y contenido</li><li>Mantenimiento mensual</li><li>Te acompañamos después</li></ul>
+          <a class="plan__cta" href="#contacto">Contanos tu idea <span aria-hidden="true">→</span></a>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ PROCESO ============ -->
+    <section class="process" id="proceso">
+      <div class="process__sticky">
+        <div class="process__head">
+          <p class="eyebrow">Proceso</p>
+          <h2 class="title-lg split"><span class="mask"><span>Así se construye</span></span> <span class="mask"><span>una web que se ve.</span></span></h2>
+        </div>
+
+        <div class="process__scene" aria-hidden="true">
+          <div class="devices">
+            <div class="laptop">
+              <div class="laptop__lid">
+                <div class="laptop__screen">
+                  <div class="layers">
+                    <div class="layer layer--grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span class="layer__tag">Grilla</span></div>
+                    <div class="layer layer--design"><div class="ld-photo"></div><div class="ld-block"></div><div class="ld-band"></div><span class="layer__tag">Diseño</span></div>
+                    <div class="layer layer--content">
+                      <div class="lc-nav"><b>FERRAND</b><span>Áreas</span><span>Equipo</span><span>Honorarios</span><span class="lc-pill">Agendá</span></div>
+                      <p class="lc-kicker">Estudio jurídico · Montevideo</p>
+                      <p class="lc-h">Derecho claro para<br>decisiones importantes.</p>
+                      <p class="lc-p">Asesoramiento laboral, civil y de empresas.<br>Te respondemos en el día.</p>
+                      <div class="lc-btns"><span class="lc-btn">Agendá una consulta</span><span class="lc-btn lc-btn--wa">WhatsApp</span></div>
+                      <span class="layer__tag">Contenido</span>
+                    </div>
+                    <div class="layer layer--seo">
+                      <div class="seo-card">
+                        <small>ferrandabogados.com.uy</small>
+                        <b>Ferrand Abogados | Estudio jurídico en Montevideo</b>
+                        <p>Asesoramiento laboral, civil y de empresas. Agendá tu consulta por WhatsApp.</p>
+                      </div>
+                      <pre class="code">&lt;title&gt;Ferrand Abogados&lt;/title&gt;
+&lt;meta name="description"…&gt;
+"@type": "LegalService"
+"areaServed": "Montevideo"</pre>
+                      <span class="layer__tag">SEO / código</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="laptop__base"><i></i></div>
+            </div>
+            <div class="phone">
+              <div class="phone__screen">
+                <div class="lc-nav lc-nav--m"><b>FERRAND</b><span class="lc-burger"></span></div>
+                <div class="ld-photo ld-photo--m"></div>
+                <p class="lc-h lc-h--m">Derecho claro para decisiones importantes.</p>
+                <span class="lc-btn">Agendá una consulta</span>
+                <span class="lc-btn lc-btn--wa">WhatsApp</span>
+              </div>
+            </div>
+          </div>
+          <ul class="process__labels">
+            <li class="plabel plabel--1">Diseño a medida</li>
+            <li class="plabel plabel--2">Adaptada a celular</li>
+            <li class="plabel plabel--3">SEO y Google Business</li>
+            <li class="plabel plabel--4">WhatsApp y formulario</li>
+          </ul>
+        </div>
+
+        <ol class="process__steps">
+          <li class="pstep"><span>01</span><b>Nos contás de tu negocio</b><p>Una charla corta: qué hacés, a quién le hablás y qué querés lograr.</p></li>
+          <li class="pstep"><span>02</span><b>Te armamos una demo gratis</b><p>Ves tu web funcionando antes de pagar nada.</p></li>
+          <li class="pstep"><span>03</span><b>La ajustamos juntos</b><p>Textos, colores y fotos hasta que sea tuya de verdad.</p></li>
+          <li class="pstep"><span>04</span><b>Tu web, online</b><p>Publicada, conectada a Google y lista para recibir clientes.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ ANTES / DESPUÉS ============ -->
+    <section class="ba" id="trabajos">
+      <div class="ba__head">
+        <p class="eyebrow reveal-fade">Trabajos</p>
+        <h2 class="title-xl split"><span class="mask"><span>Tu web, antes</span></span> <span class="mask"><span>y después.</span></span></h2>
+        <div class="ba__tabs" role="tablist" aria-label="Casos">
+          <button role="tab" aria-selected="true" data-case="0">Estudio contable</button>
+          <button role="tab" aria-selected="false" data-case="1">Clínica odontológica</button>
+        </div>
+      </div>
+
+      <div class="ba__frame" style="--split: 50%">
+        <span class="ba__badge">Caso conceptual</span>
+        <!-- Caso 1 -->
+        <div class="ba__case is-active" data-case="0">
+          <div class="ba__after">
+            <div class="new-site new-site--acc">
+              <div class="ns-nav"><b>Pereira <em>Contadores</em></b><span>Servicios</span><span>Equipo</span><span>Contacto</span><span class="ns-cta">Agendá una consulta</span></div>
+              <div class="ns-hero">
+                <div>
+                  <p class="ns-kicker">Estudio contable · Montevideo</p>
+                  <p class="ns-h">Tus números,<br>en orden.</p>
+                  <p class="ns-p">Liquidación de sueldos, impuestos y asesoramiento para pymes y profesionales.</p>
+                  <div class="ns-btns"><span class="ns-btn">Agendá una consulta</span><span class="ns-btn ns-btn--ghost">WhatsApp</span></div>
+                </div>
+                <div class="ns-visual ns-visual--acc"><div class="ns-card"><small>Vencimientos de este mes</small><b>IRPF · BPS · DGI</b><i></i><i></i><i></i></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="ba__before">
+            <div class="old-site">
+              <div class="os-top"><span class="os-logo">PEREIRA &amp; HNOS.</span><span class="os-sub">Contadores Publicos - Asesoramiento Contable e Impositivo</span></div>
+              <div class="os-marquee"><span>*** NOVEDADES: Nuevos vencimientos DGI 2011 *** Consulte nuestros servicios *** Bienvenidos a nuestra pagina web ***</span></div>
+              <table class="os-body"><tr>
+                <td class="os-menu"><a>» Inicio</a><a>» Quienes somos</a><a>» Servicios</a><a>» Links utiles</a><a>» Contacto</a><a>» Libro de visitas</a></td>
+                <td class="os-main">
+                  <h4>BIENVENIDOS!!!</h4>
+                  <p>Somos un estudio con amplia trayectoria en el medio. Brindamos servicios contables, impositivos, laborales y de auditoria a empresas y particulares. Para mas informacion comuniquese al telefono o envienos un fax.</p>
+                  <p class="os-red">Horario de atencion: Lunes a Viernes de 9 a 13 y de 14 a 18 hs.</p>
+                  <div class="os-img">[ imagen no disponible ]</div>
+                  <p class="os-small">Pagina optimizada para Internet Explorer 6.0 · Resolucion 800x600</p>
+                  <p class="os-counter">Visitante N° <b>004521</b></p>
+                </td>
+              </tr></table>
+            </div>
+          </div>
+        </div>
+        <!-- Caso 2 -->
+        <div class="ba__case" data-case="1">
+          <div class="ba__after">
+            <div class="new-site new-site--dent">
+              <div class="ns-nav"><b>Rambla <em>Odontología</em></b><span>Tratamientos</span><span>Equipo</span><span>Contacto</span><span class="ns-cta">Reservá tu turno</span></div>
+              <div class="ns-hero">
+                <div>
+                  <p class="ns-kicker">Clínica odontológica · Pocitos</p>
+                  <p class="ns-h">Tu sonrisa,<br>sin apuro.</p>
+                  <p class="ns-p">Odontología general, ortodoncia e implantes. Turnos online y recordatorios por WhatsApp.</p>
+                  <div class="ns-btns"><span class="ns-btn">Reservá tu turno</span><span class="ns-btn ns-btn--ghost">Ver tratamientos</span></div>
+                </div>
+                <div class="ns-visual ns-visual--dent"><div class="ns-card"><small>Próximo turno libre</small><b>Hoy · 17:30</b><i></i><i></i><i></i></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="ba__before">
+            <div class="old-site old-site--dent">
+              <div class="os-top"><span class="os-logo">CLINICA DENTAL RAMBLA</span><span class="os-sub">Su sonrisa es nuestra prioridad!!</span></div>
+              <div class="os-marquee"><span>*** PROMOCION LIMPIEZA *** LLAME YA *** ACEPTAMOS TODAS LAS MUTUALISTAS (consultar) ***</span></div>
+              <table class="os-body"><tr>
+                <td class="os-menu"><a>» Home</a><a>» La clinica</a><a>» Tratamientos</a><a>» Fotos</a><a>» Ubicacion</a><a>» Contactenos</a></td>
+                <td class="os-main">
+                  <h4>Bienvenido a nuestro sitio web</h4>
+                  <p>Contamos con los mas modernos equipos y profesionales altamente capacitados. Para solicitar hora llame en horario de oficina. NO se reservan horas por mail.</p>
+                  <p class="os-red">ATENCION: sitio en construccion</p>
+                  <div class="os-img">[ foto_clinica_01.jpg ]</div>
+                  <p class="os-small">Copyright 2009 · Todos los derechos reservados · Webmaster</p>
+                  <p class="os-counter">Visitante N° <b>001207</b></p>
+                </td>
+              </tr></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="ba__labels" aria-hidden="true"><span>Antes</span><span>Después</span></div>
+        <div class="ba__handle" role="slider" tabindex="0" aria-label="Comparar antes y después" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><i></i><span>‹ ›</span></div>
+      </div>
+      <p class="ba__foot reveal-fade">Casos conceptuales para mostrar el tipo de cambio que hacemos. Negocios ficticios.</p>
+    </section>
+
+    <!-- ============ EQUIPO ============ -->
+    <section class="team" id="nosotros">
+      <div class="team__head">
+        <p class="eyebrow reveal-fade">Nosotros</p>
+        <h2 class="title-xl split"><span class="mask"><span>Las personas</span></span> <span class="mask"><span>detrás de tu web.</span></span></h2>
+      </div>
+      <div class="team__grid">
+        <!-- EDITAR: poné las fotos reales en assets/equipo/lorenzo.jpg y alejandro.jpg -->
+        <figure class="person">
+          <div class="person__photo" data-initial="L"><img src="assets/equipo/lorenzo.jpg" alt="Lorenzo" loading="lazy"></div>
+          <figcaption><b>Lorenzo</b><span>Diseño y desarrollo web</span></figcaption>
+        </figure>
+        <figure class="person person--offset">
+          <div class="person__photo" data-initial="A"><img src="assets/equipo/alejandro.jpg" alt="Alejandro" loading="lazy"></div>
+          <figcaption><b>Alejandro</b><span>Clientes, redes y estrategia</span></figcaption>
+        </figure>
+      </div>
+      <p class="team__line reveal-fade">Somos estudiantes de Negocios Digitales en Montevideo. Te atendemos nosotros, sin intermediarios.</p>
+    </section>
+
+    <!-- ============ EXPERIENCIA ============ -->
+    <section class="exp">
+      <div class="exp__bg" aria-hidden="true"></div>
+      <div class="exp__inner">
+        <h2 class="title-huge split"><span class="mask"><span>Tu web,</span></span> <span class="mask"><span>sin vueltas.</span></span></h2>
+        <ol class="exp__points">
+          <li><span>01</span>Ves tu demo antes de pagar</li>
+          <li><span>02</span>Pago único, sin sorpresas</li>
+          <li><span>03</span>Te acompañamos después</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ FRASES / TESTIMONIOS ============ -->
+    <section class="quotes" aria-label="Lo que pensamos">
+      <div class="quotes__sticky">
+        <p class="eyebrow quotes__eyebrow">Lo que pensamos</p>
+        <div class="quotes__track"></div>
+        <div class="quotes__progress" aria-hidden="true"><i></i></div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACTO ============ -->
+    <section class="cta" id="contacto" data-nav="dark">
+      <div class="cta__eye">
+        <canvas class="eye__canvas" aria-hidden="true"></canvas>
+        <div class="eye__clip" aria-hidden="true"><div class="eye__wordmark eye__wordmark--small">VISSION</div></div>
+        <canvas class="eye__cornea" aria-hidden="true"></canvas>
+        <img class="eye__fallback" src="assets/eye/full.webp" alt="" aria-hidden="true">
+      </div>
+      <h2 class="cta__title split"><span class="mask"><span>¿Listo para que</span></span> <span class="mask"><span>tu negocio se vea?</span></span></h2>
+      <div class="cta__btns reveal-fade">
+        <a class="btn btn--light" href="mailto:hola@vission.uy?subject=Quiero%20mi%20demo%20gratis">Pedí tu demo gratis <span aria-hidden="true">→</span></a>
+        <a class="btn btn--line" data-wa href="#" target="_blank" rel="noopener">Escribinos por WhatsApp</a>
+      </div>
+      <ul class="cta__details reveal-fade">
+        <li>Montevideo, Uruguay</li>
+        <li><a href="https://www.instagram.com/vission.uy" target="_blank" rel="noopener">@vission.uy</a></li>
+        <li>WhatsApp: <a data-wa href="#" target="_blank" rel="noopener" class="wa-number">[número]</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="footer__cols">
+      <div><h4>Servicios</h4><a href="#servicios">Páginas web</a><a href="#servicios">Diseño web y de redes</a><a href="#servicios">Gestión de redes</a><a href="#servicios">Automatización</a><a href="#servicios">Apps a medida</a><a href="#servicios">Mantenimiento</a></div>
+      <div><h4>Planes</h4><a href="#planes">Esencial</a><a href="#planes">Profesional</a><a href="#planes">A medida</a></div>
+      <div><h4>Estudio</h4><a href="#proceso">Proceso</a><a href="#trabajos">Trabajos</a><a href="#nosotros">Nosotros</a><a href="#contacto">Contacto</a></div>
+      <div><h4>Redes</h4><a href="https://www.instagram.com/vission.uy" target="_blank" rel="noopener">Instagram</a><a data-wa href="#" target="_blank" rel="noopener">WhatsApp</a></div>
+    </div>
+    <p class="footer__word" aria-hidden="true">VISSION</p>
+    <div class="footer__base"><span>© <span class="year">2026</span> VISSION · Montevideo, Uruguay</span><span>Tu negocio, visto como tiene que ser.</span></div>
+  </footer>
+
+  <script src="vendor/gsap.min.js"></script>
+  <script src="vendor/ScrollTrigger.min.js"></script>
+  <script src="vendor/lenis.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
