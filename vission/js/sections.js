@@ -6,13 +6,14 @@ const { gsap, ScrollTrigger } = window;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
 // ---------- Frases de marca / testimonios ----------
-// Cuando haya testimonios reales, se cargan acá: { quote, name, business, rubro }.
-// El diseño no cambia: si hay nombre, aparece la firma debajo.
+// Cuando haya testimonios reales, se cargan acá: { quote, soft?, name, business, rubro }.
+// `soft` es el final de la frase en gris. El diseño no cambia: si hay nombre, aparece la firma.
 export const STATEMENTS = [
-  { quote: 'Si tu cliente no te encuentra, <span class="soft">no existe.</span>' },
-  { quote: 'La primera impresión <span class="soft">ya no es en persona.</span>' },
-  { quote: 'Una buena web trabaja <span class="soft">mientras vos atendés.</span>' },
+  { quote: 'Si tu cliente no te encuentra,', soft: 'no existe.' },
+  { quote: 'La primera impresión', soft: 'ya no es en persona.' },
+  { quote: 'Una buena web trabaja', soft: 'mientras vos atendés.' },
 ];
+const QUOTE_TIME = 5.5; // segundos que queda cada frase
 
 // ---------- Contacto ----------
 // EDITAR: número de WhatsApp en formato internacional, sin + ni espacios (ej.: 59899123456)
@@ -28,8 +29,9 @@ export function initSections({ reduced, lenis, assets }) {
   team();
   experience(reduced);
   quotes(reduced);
-  contact({ reduced, assets });
+  const contactApi = contact({ reduced, assets });
   links(lenis);
+  return { contact: contactApi };
 }
 
 // Revelado con máscara: líneas que suben desde abajo
@@ -236,26 +238,58 @@ function experience(reduced) {
   });
 }
 
+// Frases: pasan solas, una por una, sin necesidad de scrollear
 function quotes(reduced) {
   const section = document.querySelector('.quotes');
-  const track = section.querySelector('.quotes__track');
-  track.innerHTML = STATEMENTS.map((s) => {
-    const sign = s.name ? `<figcaption><b>${s.name}</b> · ${s.business}${s.rubro ? ' · ' + s.rubro : ''}</figcaption>` : '';
-    return `<figure class="quote"><blockquote>${s.name ? '“' + s.quote + '”' : s.quote}</blockquote>${sign}</figure>`;
-  }).join('');
-  section.style.height = `${(STATEMENTS.length + 0.3) * 100}svh`;
-  const bar = section.querySelector('.quotes__progress i');
+  const stage = section.querySelector('.quotes__stage');
+  const nav = section.querySelector('.quotes__nav');
   const n = STATEMENTS.length;
-  // cada frase se queda quieta un momento antes de deslizar a la siguiente
-  const hold = 0.7, move = 1;
-  const total = hold + (n - 1) * (move + hold);
-  const tl = gsap.timeline({ defaults: { ease: 'none' } });
-  for (let i = 1; i < n; i++) {
-    tl.to(track, { xPercent: (-100 * i) / n, duration: move, ease: 'power2.inOut' }, hold * 0.5 + (i - 1) * (move + hold) + hold * 0.5);
+  const words = (text, cls = '') => text.split(' ').map((w) => `<span class="mask"><span class="w${cls}">${w}</span></span>`).join(' ');
+  stage.innerHTML = STATEMENTS.map((q) => {
+    const body = words(q.quote) + (q.soft ? ' ' + words(q.soft, ' soft') : '');
+    const sign = q.name ? `<figcaption><b>${q.name}</b> · ${q.business}${q.rubro ? ' · ' + q.rubro : ''}</figcaption>` : '';
+    return `<figure class="quote"><blockquote>${q.name ? '“' : ''}${body}${q.name ? '”' : ''}</blockquote>${sign}</figure>`;
+  }).join('');
+  nav.style.setProperty('--n', n);
+  nav.innerHTML = STATEMENTS.map((_, i) => `<button role="tab" aria-label="Frase ${i + 1}"><i></i></button>`).join('');
+  section.querySelector('.quotes__n').textContent = String(n).padStart(2, '0');
+  const counter = section.querySelector('.quotes__i');
+  const slides = [...stage.children];
+  const bars = [...nav.querySelectorAll('i')];
+  const buttons = [...nav.children];
+  slides.forEach((sl) => gsap.set(sl.querySelectorAll('.w'), { yPercent: 108 }));
+
+  let current = -1, timer = null, visible = false;
+  function show(i) {
+    const prev = slides[current];
+    if (prev && current !== i) {
+      gsap.killTweensOf(prev.querySelectorAll('.w'));
+      gsap.to(prev.querySelectorAll('.w'), {
+        yPercent: -108, duration: reduced ? 0.01 : 0.6, stagger: 0.02, ease: 'power3.in',
+        onComplete: () => prev.classList.remove('is-on'),
+      });
+    }
+    current = i;
+    const sl = slides[i];
+    sl.classList.add('is-on');
+    gsap.killTweensOf(sl.querySelectorAll('.w'));
+    gsap.fromTo(sl.querySelectorAll('.w'), { yPercent: 108 }, {
+      yPercent: 0, duration: reduced ? 0.01 : 1.1, stagger: 0.04, ease: 'expo.out', delay: prev ? 0.45 : 0,
+    });
+    counter.textContent = String(i + 1).padStart(2, '0');
+    buttons.forEach((b, j) => b.setAttribute('aria-selected', j === i ? 'true' : 'false'));
+    // barra de progreso de cada frase
+    gsap.killTweensOf(bars);
+    bars.forEach((b, j) => gsap.set(b, { scaleX: j < i ? 1 : 0 }));
+    if (timer) timer.kill();
+    timer = gsap.to(bars[i], { scaleX: 1, duration: QUOTE_TIME, ease: 'none', paused: !visible, onComplete: () => show((i + 1) % n) });
   }
-  tl.to(bar, { scaleX: 1, duration: total }, 0);
-  track.style.width = `${n * 100}vw`;
-  ScrollTrigger.create({ trigger: section, start: 'top top', end: 'bottom bottom', scrub: reduced ? true : 1.2, animation: tl });
+  buttons.forEach((b, j) => b.addEventListener('click', () => show(j)));
+  new IntersectionObserver((en) => {
+    visible = en[0].isIntersecting;
+    if (current < 0 && visible) show(0);
+    else if (timer) visible ? timer.resume() : timer.pause();
+  }, { threshold: 0.35 }).observe(section);
 }
 
 function contact({ reduced, assets }) {
@@ -285,6 +319,7 @@ function contact({ reduced, assets }) {
   const life = new EyeLife(eye, { reduced, maxYaw: 0.34, maxPitch: 0.2 });
   const st = eye.state;
   const open = { v: 0 };
+  let override = null; // apertura forzada (viaje desde el CTA del hero)
   let inView = false;
   const fit = () => {
     eye.resize();
@@ -309,21 +344,31 @@ function contact({ reduced, assets }) {
     last = now;
     if (!inView) { eye.setVisible(false); life.setAlive(false, now); return; }
     eye.setVisible(true);
-    const opened = open.v > 0.97;
+    const ov = override ? override.v : open.v;
+    const opened = ov > 0.97;
     life.setAlive(opened, now);
     const lf = life.update(now, dt);
-    const lid = 1 - easeOut(open.v);
+    const lid = 1 - easeOut(ov);
     st.blink = Math.max(lid, lf.blink);
-    st.pupil = lf.pupil * (1.1 - 0.12 * open.v);
+    st.pupil = lf.pupil * (1.1 - 0.12 * ov);
     st.floatY = 0;
     st.hiAmt = 1;
     eye.render(now / 1000);
   });
+
+  return {
+    // el ojo arranca cerrado y se abre despacio
+    playOpen(duration = 1.8) {
+      override = { v: 0 };
+      inView = true;
+      return gsap.to(override, { v: 1, duration, ease: 'power2.inOut', onComplete: () => { override = null; open.v = 1; } });
+    },
+  };
 }
 const easeOut = (t) => 1 - Math.pow(1 - t, 2.2);
 
 function links(lenis) {
-  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+  document.querySelectorAll('a[href^="#"]:not([data-eyejump])').forEach((a) => {
     a.addEventListener('click', (e) => {
       const id = a.getAttribute('href');
       if (id.length < 2) return;

@@ -2,6 +2,7 @@
 import { loadEyeAssets } from './eye.js';
 import { initHero } from './hero.js';
 import { initSections } from './sections.js';
+import { initJourney } from './journey.js';
 
 const { gsap, ScrollTrigger } = window;
 gsap.registerPlugin(ScrollTrigger);
@@ -55,13 +56,14 @@ async function boot() {
   if (!hero) {
     document.documentElement.classList.add('no-webgl');
     gsap.set(['.hero__title .mask > span'], { yPercent: 0 });
-    gsap.set(['.hero__pill', '.hero__lead', '.hero__ctas', '.hstat', '.nav', '.hero__scroll > *'], { opacity: 1 });
+    gsap.set(['.hero__eyebrow', '.hero__lead', '.hero__ctas', '.hstat', '.nav', '.hero__scroll > *'], { opacity: 1 });
     document.querySelector('.hero').style.height = '100svh';
     document.querySelector('.hero__stage').classList.add('is-light');
     document.querySelector('.nav').dataset.theme = 'light';
     unlock();
   }
-  initSections({ reduced, lenis, assets });
+  const sections = initSections({ reduced, lenis, assets });
+  initJourney({ hero, contact: sections.contact, lenis, reduced });
   ScrollTrigger.refresh();
   if (hero) hero.playIntro();
   // por si algo falla en la intro, nunca dejamos el scroll trabado

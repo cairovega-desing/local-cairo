@@ -64,6 +64,8 @@ export class EyeLife {
     this.hoverTarget = 1;
     this.wander = { t: 0, yaw: 0, pitch: 0 };
     this.floatAmp = 0;
+    this.closeAmt = 0;       // cierre lento y sostenido (viaje al contacto)
+    this.forceCenter = false; // mirar al frente, ignorando el cursor
   }
 
   setAlive(v, now = performance.now()) {
@@ -94,7 +96,8 @@ export class EyeLife {
 
     // --- objetivo de la mirada ---
     let ty = 0, tp = 0, rate = 0.05;
-    if (this.alive && !this.reduced) {
+    if (this.forceCenter) rate = 0.14;
+    else if (this.alive && !this.reduced) {
       const fresh = input.tilt && now - input.tilt.t < 1500;
       if (input.fine && input.active) {
         const c = eye.project(eye.geo.irisC[0], eye.geo.irisC[1], {});
@@ -144,7 +147,7 @@ export class EyeLife {
     this.floatAmp = lerp(this.floatAmp, this.alive && !this.reduced ? 4 : 0, k(0.02));
 
     return {
-      blink: this.blink,
+      blink: Math.max(this.blink, this.closeAmt),
       pupil: this.focus * this.hover * (this.alive ? hippus : 1),
       floatY: Math.sin(now * 0.0009) * this.floatAmp,
     };

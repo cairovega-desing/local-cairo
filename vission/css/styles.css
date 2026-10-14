@@ -227,15 +227,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* UI del hero */
 .hero__ui { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
 .hero__ui > * { pointer-events: auto; }
-.hero__pill {
-  position: absolute; left: var(--gutter); top: calc(15.5svh - 48px);
-  display: inline-flex; align-items: center; gap: 10px;
-  height: 30px; padding: 0 14px 0 12px; border-radius: 99px;
-  font: 500 12px/1 var(--text); letter-spacing: 0.01em; color: var(--ink);
-  background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(18,19,20,.10);
-  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+.hero__eyebrow {
+  position: absolute; left: var(--gutter); top: calc(15.5svh - 44px);
+  display: flex; align-items: center; gap: 14px;
+  font: 500 11px/1 var(--text); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink);
+  white-space: nowrap;
 }
-.dot { width: 6px; height: 6px; border-radius: 50%; background: #4f8fae; box-shadow: 0 0 0 4px rgba(159,195,212,.35); }
+.hero__eyebrow i { width: 34px; height: 1px; background: var(--ink); opacity: .4; }
+.hero__coords { color: var(--gray); letter-spacing: 0.1em; font-variant-numeric: tabular-nums; }
+.hero__coords::before { content: ""; display: inline-block; width: 1px; height: 10px; background: var(--ink); opacity: .25; margin: 0 14px -1px 0; }
 .hero__info { position: absolute; left: var(--gutter); bottom: 6svh; width: min(410px, 34vw); }
 .hero__lead { font: 400 16px/1.45 var(--text); color: #3a3d44; letter-spacing: -0.005em; margin-bottom: 22px; }
 .hero__ctas { display: flex; align-items: center; gap: 6px; }
@@ -250,7 +250,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .hstat::before { content: ""; display: block; width: 18px; height: 1px; background: var(--ink); opacity: .35; margin-bottom: 12px; }
 .hstat--a::before, .hstat--b::before, .hstat--d::before { margin-left: auto; }
 
-.js .hero__pill, .js .hero__lead, .js .hero__ctas, .js .hstat, .js .anno__label { opacity: 0; }
+.js .hero__eyebrow, .js .hero__lead, .js .hero__ctas, .js .hstat, .js .anno__label { opacity: 0; }
 
 .hero__scroll {
   position: absolute; left: 50%; bottom: 28px; z-index: 7;
@@ -654,17 +654,22 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* =========================================================
    FRASES
    ========================================================= */
-.quotes { position: relative; z-index: 11; height: 330svh; background: var(--white); }
-.quotes__sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; align-items: center; }
-.quotes__eyebrow { position: absolute; left: var(--gutter); top: 110px; }
-.quotes__track { display: flex; will-change: transform; }
-.quote { flex: none; width: 100vw; padding: 0 var(--gutter); }
-.quote blockquote { margin: 0; font: 500 clamp(44px, 7vw, 132px)/0.95 var(--display); letter-spacing: -0.05em; max-width: 14em; }
-.quote blockquote .soft { color: #a6acb5; }
-.quote figcaption { margin-top: 36px; font: 400 15px/1.4 var(--text); color: var(--gray); }
+.quotes { position: relative; z-index: 11; background: var(--white); padding: 16svh var(--gutter) 12svh; }
+.quotes__head { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; margin-bottom: 7svh; }
+.quotes__head .eyebrow { margin-bottom: 0; }
+.quotes__count { font: 500 12px/1 var(--text); letter-spacing: .12em; color: var(--gray); font-variant-numeric: tabular-nums; }
+.quotes__stage { display: grid; min-height: 3.1em; font: 500 clamp(44px, 7vw, 132px)/0.95 var(--display); letter-spacing: -0.05em; }
+.quote { grid-area: 1 / 1; max-width: 14em; visibility: hidden; }
+.quote.is-on { visibility: visible; }
+.quote blockquote { margin: 0; font: inherit; }
+.quote .w { display: inline-block; }
+.quote .soft { color: #a6acb5; }
+.quote figcaption { margin-top: 36px; font: 400 15px/1.4 var(--text); letter-spacing: 0; color: var(--gray); }
 .quote figcaption b { color: var(--ink); font-weight: 500; }
-.quotes__progress { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 9svh; height: 1px; background: var(--line); }
-.quotes__progress i { position: absolute; inset: 0; background: var(--ink); transform-origin: left; transform: scaleX(0); }
+.quotes__nav { display: grid; grid-template-columns: repeat(var(--n, 3), 1fr); gap: 10px; margin-top: 8svh; }
+.quotes__nav button { position: relative; height: 22px; display: flex; align-items: center; }
+.quotes__nav button::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line); }
+.quotes__nav button i { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--ink); transform-origin: left; transform: scaleX(0); }
 
 /* =========================================================
    CONTACTO
@@ -738,7 +743,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .hero__title { font-size: clamp(54px, 16.4vw, 84px); }
   .hero__title-a { top: 12svh; flex-direction: column; gap: 0; }
   .hero__title-b { bottom: auto; top: 63svh; }
-  .hero__pill { top: calc(12svh - 42px); height: 26px; font-size: 11px; }
+  .hero__eyebrow { top: calc(12svh - 34px); font-size: 10px; gap: 10px; }
+  .hero__eyebrow i { width: 20px; }
+  .hero__coords { display: none; }
   .hero__info { left: var(--gutter); right: var(--gutter); width: auto; bottom: 4svh; }
   .hero__lead { font-size: 14px; margin-bottom: 14px; max-width: 320px; }
   .btn { height: 48px; padding: 0 18px; font-size: 14px; }
@@ -756,7 +763,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .services { padding: 0 8px 8px; }
   .services__box { border-radius: 26px; padding-top: 11svh; }
   .cta { border-radius: 34px 34px 0 0; }
-  .quote blockquote { font-size: clamp(38px, 11vw, 64px); }
+  .quotes__stage { font-size: clamp(38px, 11vw, 64px); min-height: 4.1em; }
 }
 @media (max-width: 380px) {
   .hero__title { font-size: 50px; }
@@ -765,3 +772,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (prefers-reduced-motion: reduce) {
   .hero__scroll i::after, .os-marquee span { animation: none; }
 }
+
+/* «poca visión»: solo mientras dura el viaje «Pedí tu demo» → contacto */
+.vision { position: fixed; inset: 0; z-index: 90; pointer-events: none; visibility: hidden; }
+.vision.is-on { visibility: visible; pointer-events: auto; }
+.vision > * { position: absolute; inset: 0; }
+.vision__blur { -webkit-backdrop-filter: blur(var(--b, 0px)) saturate(var(--sat, 1)); backdrop-filter: blur(var(--b, 0px)) saturate(var(--sat, 1)); }
+.vision__vig { background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0) 35%, rgba(0,0,0,.92) 100%); opacity: 0; }
+.vision__lid { height: 62%; inset: auto 0; }
+.vision__lid--top { top: 0; background: linear-gradient(180deg, #000 72%, rgba(0,0,0,0)); }
+.vision__lid--bot { bottom: 0; background: linear-gradient(0deg, #000 72%, rgba(0,0,0,0)); }
+.vision__black { background: #000; opacity: 0; }

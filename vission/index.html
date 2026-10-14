@@ -62,11 +62,11 @@
           </ul>
 
           <div class="hero__ui">
-            <p class="hero__pill"><span class="dot" aria-hidden="true"></span>Estudio de diseño web · Montevideo</p>
+            <p class="hero__eyebrow"><span>Estudio de diseño web</span><i aria-hidden="true"></i><span>Montevideo, Uruguay</span><span class="hero__coords">34°54′ S · 56°10′ O</span></p>
             <div class="hero__info">
               <p class="hero__lead">Diseñamos webs a medida para estudios, consultorios y empresas que quieren verse profesionales.</p>
               <div class="hero__ctas">
-                <a class="btn btn--dark" href="#contacto" data-dilate>Pedí tu demo gratis <span aria-hidden="true">→</span></a>
+                <a class="btn btn--dark" href="#contacto" data-dilate data-eyejump>Pedí tu demo gratis <span aria-hidden="true">→</span></a>
                 <a class="btn btn--ghost" href="#planes">Ver planes</a>
               </div>
             </div>
@@ -406,12 +406,13 @@
     </section>
 
     <!-- ============ FRASES / TESTIMONIOS ============ -->
-    <section class="quotes" aria-label="Lo que pensamos">
-      <div class="quotes__sticky">
-        <p class="eyebrow quotes__eyebrow">Lo que pensamos</p>
-        <div class="quotes__track"></div>
-        <div class="quotes__progress" aria-hidden="true"><i></i></div>
+    <section class="quotes" aria-label="Lo que pensamos" aria-roledescription="carrusel">
+      <div class="quotes__head">
+        <p class="eyebrow">Lo que pensamos</p>
+        <p class="quotes__count" aria-hidden="true"><span class="quotes__i">01</span> / <span class="quotes__n">03</span></p>
       </div>
+      <div class="quotes__stage" aria-live="polite"></div>
+      <div class="quotes__nav" role="tablist" aria-label="Elegir frase"></div>
     </section>
 
     <!-- ============ CONTACTO ============ -->
@@ -446,6 +447,8 @@
     <p class="footer__word" aria-hidden="true">VISSION</p>
     <div class="footer__base"><span>© <span class="year">2026</span> VISSION · Montevideo, Uruguay</span><span>Tu negocio, visto como tiene que ser.</span></div>
   </footer>
+
+  <div class="vision" aria-hidden="true"><div class="vision__blur"></div><div class="vision__vig"></div><div class="vision__lid vision__lid--top"></div><div class="vision__lid vision__lid--bot"></div><div class="vision__black"></div></div>
 
   <script src="vendor/gsap.min.js"></script>
   <script src="vendor/ScrollTrigger.min.js"></script>

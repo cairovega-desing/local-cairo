@@ -97,7 +97,7 @@ export function initHero({ assets, reduced, lenis }) {
   const tl = gsap.timeline({ defaults: { ease: 'none' } });
   tl.to(S, { p: 1, duration: 1 }, 0);
   tl.to(titleSpans, { yPercent: 0, duration: 0.09, stagger: 0.025, ease: 'power3.out' }, 0.7);
-  tl.fromTo('.hero__pill', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.06, ease: 'power2.out' }, 0.72);
+  tl.fromTo('.hero__eyebrow', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.06, ease: 'power2.out' }, 0.72);
   annoData.forEach((a, i) => {
     tl.to(a.draw, { v: 1, duration: 0.08, ease: 'power2.inOut' }, 0.74 + i * 0.025);
     tl.fromTo(a.li.querySelector('.anno__label'), { opacity: 0, x: a.ox < 0 ? 8 : -8 }, { opacity: 1, x: 0, duration: 0.05, ease: 'power2.out' }, 0.79 + i * 0.025);
