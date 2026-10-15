@@ -26,12 +26,15 @@ export const fragmentShader = /* glsl */ `
 
   uniform sampler2D uOpen;   // ojo sin iris (esclerótica + párpados + piel)
   uniform sampler2D uClosed; // ojo cerrado
+  uniform sampler2D uHalf;   // ojo entrecerrado (paso intermedio del parpadeo)
   uniform sampler2D uIris;   // iris en macro
   uniform vec2  uImg;        // 1671, 941
 
   uniform float uUp[N_CURVE];
   uniform float uLo[N_CURVE];
   uniform float uCl[N_CURVE];
+  uniform float uHu[N_CURVE];
+  uniform float uHl[N_CURVE];
   uniform vec2  uCurveX;     // x0, x1
 
   uniform vec2  uIrisC;      // centro del iris en reposo
@@ -85,10 +88,13 @@ export const fragmentShader = /* glsl */ `
   }
   float curveUp(float x) { float f = curveIdx(x); int i = int(floor(f)); int j = min(i + 1, N_CURVE - 1); return mix(uUp[i], uUp[j], fract(f)); }
   float curveLo(float x) { float f = curveIdx(x); int i = int(floor(f)); int j = min(i + 1, N_CURVE - 1); return mix(uLo[i], uLo[j], fract(f)); }
+  float curveHu(float x) { float f = curveIdx(x); int i = int(floor(f)); int j = min(i + 1, N_CURVE - 1); return mix(uHu[i], uHu[j], fract(f)); }
+  float curveHl(float x) { float f = curveIdx(x); int i = int(floor(f)); int j = min(i + 1, N_CURVE - 1); return mix(uHl[i], uHl[j], fract(f)); }
   float curveCl(float x) { float f = curveIdx(x); int i = int(floor(f)); int j = min(i + 1, N_CURVE - 1); return mix(uCl[i], uCl[j], fract(f)); }
 
   vec3 texOpen(vec2 p)   { return texture2D(uOpen,   p / uImg).rgb; }
   vec3 texClosed(vec2 p) { return texture2D(uClosed, p / uImg).rgb; }
+  vec3 texHalf(vec2 p)   { return texture2D(uHalf,   p / uImg).rgb; }
 
   float luma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }
 
@@ -116,8 +122,11 @@ export const fragmentShader = /* glsl */ `
 
     float e = max(2.0, aa * 0.9);
     float b = uBlink;
-    float eU = mix(up0 + lid, cl, b);
-    float eL = mix(lo0, cl, b);
+    // parpadeo en dos tramos: abierto → entrecerrado → cerrado (los bordes siguen fotos reales)
+    float hu = curveHu(x), hl = curveHl(x);
+    float bA = clamp(b * 2.0, 0.0, 1.0), bB = clamp(b * 2.0 - 1.0, 0.0, 1.0);
+    float eU = b < 0.5 ? mix(up0 + lid, hu, bA) : mix(hu, cl, bB);
+    float eL = b < 0.5 ? mix(lo0, hl, bA) : mix(hl, cl, bB);
     float opening = smoothstep(eU - e, eU + e, P.y) * (1.0 - smoothstep(eL - e, eL + e, P.y)) * xIn;
 
     // ---- iris ------------------------------------------------------------
@@ -228,24 +237,29 @@ export const fragmentShader = /* glsl */ `
 
     vec3 col = mix(S, iris, aI * opening);
 
-    // ---- parpadeo: cortinas que bajan/suben con la foto del ojo cerrado ----
+    // ---- parpadeo: cada foto se alinea con el borde actual del párpado y se funden entre sí ----
     if (b > 0.0005) {
-      float k = smoothstep(0.0, 0.16, b);
       float xIn2 = smoothstep(uCurveX.x - 50.0, uCurveX.x + 10.0, x) * (1.0 - smoothstep(uCurveX.y - 10.0, uCurveX.y + 50.0, x));
-      vec3 lidCol = col;
+      float tb = b < 0.5 ? bA : bB;
+      vec3 lidCol;
       if (P.y < eU) {
-        float ys = P.y + (cl - eU) * smoothstep(eU - 260.0, eU, P.y);
-        lidCol = texClosed(vec2(x, ys));
+        float r = smoothstep(eU - 260.0, eU, P.y);
+        vec3 A = b < 0.5 ? texOpen(vec2(x, P.y + (up0 - eU) * r)) : texHalf(vec2(x, P.y + (hu - eU) * r));
+        vec3 B = b < 0.5 ? texHalf(vec2(x, P.y + (hu - eU) * r)) : texClosed(vec2(x, P.y + (cl - eU) * r));
+        lidCol = mix(A, B, tb);
       } else if (P.y > eL) {
-        float ys = P.y - (eL - cl) * (1.0 - smoothstep(eL, eL + 170.0, P.y));
-        lidCol = texClosed(vec2(x, ys));
+        float r = 1.0 - smoothstep(eL, eL + 170.0, P.y);
+        vec3 A = b < 0.5 ? texOpen(vec2(x, P.y + (lo0 - eL) * r)) : texHalf(vec2(x, P.y + (hl - eL) * r));
+        vec3 B = b < 0.5 ? texHalf(vec2(x, P.y + (hl - eL) * r)) : texClosed(vec2(x, P.y + (cl - eL) * r));
+        lidCol = mix(A, B, tb);
       } else {
         // sombra del borde del párpado sobre el ojo
         float sh = exp(-(P.y - eU) / 9.0) * 0.45 + exp(-(eL - P.y) / 6.0) * 0.2;
-        lidCol = col * (1.0 - sh * k);
+        lidCol = col * (1.0 - sh * smoothstep(0.0, 0.15, b));
       }
-      vec3 fade = mix(col, texClosed(P), k);
-      col = mix(col, mix(fade, lidCol, xIn2), k);
+      // fuera de las comisuras: fundido simple entre las fotos
+      vec3 far = b < 0.5 ? mix(texOpen(P), texHalf(P), tb) : mix(texHalf(P), texClosed(P), tb);
+      col = mix(far, lidCol, xIn2);
     }
 
     // ajuste de color: la piel termina exactamente en el color del fondo

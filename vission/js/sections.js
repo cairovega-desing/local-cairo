@@ -228,8 +228,9 @@ function team() {
 
 function experience(reduced) {
   if (reduced) return;
-  gsap.fromTo('.exp__bg', { scale: 1.0, yPercent: 6 }, {
-    scale: 1.18, yPercent: -6, ease: 'none',
+  // el iris real, en macro: se acerca apenas mientras pasa la sección
+  gsap.fromTo('.exp__iris', { scale: 0.88, yPercent: 8 }, {
+    scale: 1.04, yPercent: -6, ease: 'none',
     scrollTrigger: { trigger: '.exp', start: 'top bottom', end: 'bottom top', scrub: 1.2 },
   });
   gsap.from('.exp__points li', {
@@ -318,24 +319,32 @@ function contact({ reduced, assets }) {
   eye.wordmarkRatio = 0.66;
   const life = new EyeLife(eye, { reduced, maxYaw: 0.34, maxPitch: 0.2 });
   const st = eye.state;
-  const open = { v: 0 };
-  let override = null; // apertura forzada (viaje desde el CTA del hero)
+  // apertura: cerrado → entrecerrado (pausa corta, como al despertar) → abierto,
+  // mientras la cámara se acerca hasta un primer plano del iris
+  const anim = { lid: 1, zoom: 0 };
   let inView = false;
-  const fit = () => {
-    eye.resize();
-    st.s = (eye.w * 1.02) / 1000;
-    st.tx = 850; st.ty = 492;
-  };
+  let base = 1;
+  const fit = () => { eye.resize(); base = (eye.w * 1.02) / 1000; };
   fit();
   box.querySelector('.eye__wordmark').style.visibility = 'visible';
   window.addEventListener('resize', fit);
   new IntersectionObserver((en) => { inView = en[0].isIntersecting; }).observe(box);
 
-  // el ojo se abre despacio cuando entra la sección
-  gsap.to(open, {
-    v: 1, ease: 'none',
-    scrollTrigger: { trigger: '.cta', start: 'top 75%', end: 'top 10%', scrub: 1.4 },
-  });
+  let openTl = null;
+  function playOpen(speed = 1) {
+    if (openTl) openTl.kill();
+    anim.lid = 1; anim.zoom = 0;
+    inView = true;
+    if (reduced) { anim.lid = 0; anim.zoom = 1; return null; }
+    openTl = gsap.timeline()
+      .to(anim, { lid: 0.5, duration: 0.95, ease: 'sine.inOut' }, 0)
+      .to(anim, { lid: 0, duration: 0.85, ease: 'power3.out' }, 1.12)
+      .to(anim, { zoom: 1, duration: 2.3, ease: 'power2.inOut' }, 0.1);
+    openTl.timeScale(speed);
+    return openTl;
+  }
+  function reset() { if (openTl) openTl.kill(); anim.lid = 1; anim.zoom = 0; }
+  ScrollTrigger.create({ trigger: '.cta', start: 'top 62%', onEnter: () => playOpen(), onLeaveBack: reset });
 
   let last = performance.now();
   gsap.ticker.add(() => {
@@ -344,28 +353,24 @@ function contact({ reduced, assets }) {
     last = now;
     if (!inView) { eye.setVisible(false); life.setAlive(false, now); return; }
     eye.setVisible(true);
-    const ov = override ? override.v : open.v;
-    const opened = ov > 0.97;
-    life.setAlive(opened, now);
+    life.setAlive(anim.lid < 0.03, now);
     const lf = life.update(now, dt);
-    const lid = 1 - easeOut(ov);
-    st.blink = Math.max(lid, lf.blink);
-    st.pupil = lf.pupil * (1.1 - 0.12 * ov);
+    const z = anim.zoom;
+    st.s = base * (1 + 0.28 * z);
+    st.tx = 850 - 3 * z;
+    st.ty = 492 - 12 * z;
+    st.blink = Math.max(anim.lid, lf.blink);
+    // la pupila se contrae a medida que entra la luz
+    st.pupil = lf.pupil * (1.12 - 0.14 * (1 - anim.lid));
     st.floatY = 0;
     st.hiAmt = 1;
     eye.render(now / 1000);
   });
 
-  return {
-    // el ojo arranca cerrado y se abre despacio
-    playOpen(duration = 1.8) {
-      override = { v: 0 };
-      inView = true;
-      return gsap.to(override, { v: 1, duration, ease: 'power2.inOut', onComplete: () => { override = null; open.v = 1; } });
-    },
-  };
+  // el viaje desde el CTA del hero abre el ojo con su propio ritmo
+  return { playOpen: () => playOpen(0.95) };
 }
-const easeOut = (t) => 1 - Math.pow(1 - t, 2.2);
+
 
 function links(lenis) {
   document.querySelectorAll('a[href^="#"]:not([data-eyejump])').forEach((a) => {

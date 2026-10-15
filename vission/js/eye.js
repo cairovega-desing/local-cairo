@@ -24,8 +24,8 @@ export function loadEyeAssets(base = 'assets/eye/') {
           resolve(t);
         }, undefined, reject)
       );
-    texturesPromise = Promise.all([load('open.webp'), load('closed.webp'), load('iris.webp')]).then(
-      ([open, closed, iris]) => ({ open, closed, iris })
+    texturesPromise = Promise.all([load('open.webp'), load('closed.webp'), load('iris.webp'), load('half.webp')]).then(
+      ([open, closed, iris, half]) => ({ open, closed, iris, half })
     );
   }
   return Promise.all([geometryPromise, texturesPromise]).then(([geometry, textures]) => ({ geometry, textures }));
@@ -77,11 +77,14 @@ export class Eye {
       uTime: { value: 0 },
       uOpen: { value: assets.textures.open },
       uClosed: { value: assets.textures.closed },
+      uHalf: { value: assets.textures.half },
       uIris: { value: assets.textures.iris },
       uImg: { value: new THREE.Vector2(g.imgW, g.imgH) },
       uUp: { value: g.up },
       uLo: { value: g.lo },
       uCl: { value: g.cl },
+      uHu: { value: g.hu },
+      uHl: { value: g.hl },
       uCurveX: { value: new THREE.Vector2(g.x0, g.x1) },
       uIrisC: { value: new THREE.Vector2(g.irisC[0], g.irisC[1]) },
       uIrisR: { value: g.irisR },
@@ -115,6 +118,7 @@ export class Eye {
         // la córnea no necesita las fotos
         material.uniforms.uOpen.value = null;
         material.uniforms.uClosed.value = null;
+        material.uniforms.uHalf.value = null;
         material.uniforms.uIris.value = null;
       }
       material.extensions = { derivatives: true };
@@ -279,8 +283,11 @@ export class Eye {
       const cl = g.cl[i0] + (g.cl[i1] - g.cl[i0]) * fr;
       const xn = (x - g.x0) / (g.x1 - g.x0);
       const lid = this.gaze.lid * Math.sin(Math.PI * xn);
-      const eU = up + lid + (cl - up - lid) * st.blink;
-      const eL = lo + (cl - lo) * st.blink;
+      const hu = g.hu[i0] + (g.hu[i1] - g.hu[i0]) * fr;
+      const hl = g.hl[i0] + (g.hl[i1] - g.hl[i0]) * fr;
+      const b = st.blink, bA = Math.min(1, b * 2), bB = Math.max(0, b * 2 - 1);
+      const eU = b < 0.5 ? up + lid + (hu - up - lid) * bA : hu + (cl - hu) * bB;
+      const eL = b < 0.5 ? lo + (hl - lo) * bA : hl + (cl - hl) * bB;
       this.project(x, eU, pt); top.push(`${pt.x.toFixed(1)}px ${pt.y.toFixed(1)}px`);
       this.project(x, eL, pt); bot.push(`${pt.x.toFixed(1)}px ${pt.y.toFixed(1)}px`);
     }

@@ -91,6 +91,13 @@
       </div>
     </section>
 
+    <!-- ============ RUBROS ============ -->
+    <section class="sectors" aria-label="Para quién trabajamos">
+      <p class="sectors__label">Para negocios donde la imagen importa</p>
+      <div class="sectors__track" aria-hidden="true"><div class="sectors__row"><span>Estudios jurídicos</span><i></i><span>Escribanías</span><i></i><span>Contadores</span><i></i><span>Arquitectos</span><i></i><span>Inmobiliarias</span><i></i><span>Seguros</span><i></i><span>Constructoras</span><i></i><span>Clínicas</span><i></i><span>Consultorios</span><i></i><span>Empresas B2B</span><i></i><span>Estudios jurídicos</span><i></i><span>Escribanías</span><i></i><span>Contadores</span><i></i><span>Arquitectos</span><i></i><span>Inmobiliarias</span><i></i><span>Seguros</span><i></i><span>Constructoras</span><i></i><span>Clínicas</span><i></i><span>Consultorios</span><i></i><span>Empresas B2B</span><i></i></div></div>
+      <p class="sr-only">Estudios jurídicos, Escribanías, Contadores, Arquitectos, Inmobiliarias, Seguros, Constructoras, Clínicas, Consultorios, Empresas B2B.</p>
+    </section>
+
     <!-- ============ SERVICIOS ============ -->
     <section class="services" id="servicios" data-nav="dark">
       <div class="services__box">
@@ -187,26 +194,46 @@
     <!-- ============ PLANES ============ -->
     <section class="plans" id="planes">
       <div class="plans__head">
-        <p class="eyebrow reveal-fade">Planes</p>
-        <h2 class="title-xl split"><span class="mask"><span>Tres planes.</span></span></h2>
-        <p class="plans__note reveal-fade">Pago único por el desarrollo. Ves tu demo gratis antes de decidir.</p>
+        <div>
+          <p class="eyebrow reveal-fade">Planes</p>
+          <h2 class="title-xl split"><span class="mask"><span>Tres planes.</span></span></h2>
+        </div>
+        <div class="plans__aside reveal-fade">
+          <p class="plans__note">Pago único por el desarrollo. Ves tu demo gratis antes de decidir.</p>
+          <ul class="plans__all"><li>Demo gratis</li><li>Adaptada a celular</li><li>Pago único</li><li>Te acompañamos después</li></ul>
+        </div>
       </div>
       <!-- EDITAR: precios y contenidos de cada plan -->
       <div class="plans__grid">
         <article class="plan">
-          <header><h3>Esencial</h3><p class="plan__price"><small>Desde</small> USD 99</p><p class="plan__for">Para estar en Google y recibir consultas.</p></header>
-          <ul><li>Web de una página, a medida</li><li>Adaptada a celular</li><li>Botón de WhatsApp</li><li>Ubicación en Google Maps</li><li>Online en 7–10 días</li></ul>
-          <a class="plan__cta" href="#contacto">Pedí tu demo <span aria-hidden="true">→</span></a>
+          <div class="plan__visual plan__visual--one" aria-hidden="true"><div class="pv-page"><i class="pv-nav"></i><i class="pv-hero"></i><i class="pv-line"></i><i class="pv-line pv-line--s"></i><i class="pv-btn"></i><i class="pv-wa"></i></div></div>
+          <div class="plan__body">
+            <h3>Esencial</h3>
+            <p class="plan__price"><small>Desde</small><b>USD 99</b><span>pago único</span></p>
+            <p class="plan__for">Para estar en Google y recibir consultas.</p>
+            <ul><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Web de una página, a medida</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Adaptada a celular</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Botón de WhatsApp</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Ubicación en Google Maps</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Online en 7–10 días</li></ul>
+            <a class="plan__cta" href="#contacto">Pedí tu demo <span aria-hidden="true">→</span></a>
+          </div>
         </article>
         <article class="plan plan--featured">
-          <header><h3>Profesional</h3><p class="plan__price"><small>Desde</small> USD 199</p><p class="plan__for">Para estudios y consultorios que quieren destacarse.</p></header>
-          <ul><li>Hasta 5 secciones</li><li>SEO y Google Business</li><li>Formulario y WhatsApp</li><li>Textos ordenados con vos</li><li>Diseño de portadas para redes</li></ul>
-          <a class="plan__cta" href="#contacto">Pedí tu demo <span aria-hidden="true">→</span></a>
+          <div class="plan__visual plan__visual--stack" aria-hidden="true"><div class="pv-page pv-page--3"></div><div class="pv-page pv-page--2"></div><div class="pv-page"><i class="pv-nav"></i><i class="pv-hero"></i><i class="pv-line"></i><i class="pv-line pv-line--s"></i><i class="pv-btn"></i></div><div class="pv-g"><b>G</b><span>Tu estudio · ★ Google</span></div></div>
+          <div class="plan__body">
+            <h3>Profesional <em>Más elegido</em></h3>
+            <p class="plan__price"><small>Desde</small><b>USD 199</b><span>pago único</span></p>
+            <p class="plan__for">Para estudios y consultorios que quieren destacarse.</p>
+            <ul><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Hasta 5 secciones</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>SEO y Google Business</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Formulario y WhatsApp</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Textos ordenados con vos</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Diseño de portadas para redes</li></ul>
+            <a class="plan__cta" href="#contacto">Pedí tu demo <span aria-hidden="true">→</span></a>
+          </div>
         </article>
         <article class="plan">
-          <header><h3>A medida</h3><p class="plan__price">Cotización</p><p class="plan__for">Para procesos, apps y gestión de redes.</p></header>
-          <ul><li>Automatización de procesos</li><li>Apps y herramientas internas</li><li>Gestión de redes y contenido</li><li>Mantenimiento mensual</li><li>Te acompañamos después</li></ul>
-          <a class="plan__cta" href="#contacto">Contanos tu idea <span aria-hidden="true">→</span></a>
+          <div class="plan__visual plan__visual--flow" aria-hidden="true"><span class="pv-node">Consulta</span><i></i><span class="pv-node">Turno</span><i></i><span class="pv-node pv-node--on">Recordatorio</span></div>
+          <div class="plan__body">
+            <h3>A medida</h3>
+            <p class="plan__price"><b>Cotización</b><span>según el proyecto</span></p>
+            <p class="plan__for">Para procesos, apps y gestión de redes.</p>
+            <ul><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Automatización de procesos</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Apps y herramientas internas</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Gestión de redes y contenido</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Mantenimiento mensual</li><li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Te acompañamos después</li></ul>
+            <a class="plan__cta" href="#contacto">Contanos tu idea <span aria-hidden="true">→</span></a>
+          </div>
         </article>
       </div>
     </section>
@@ -389,14 +416,17 @@
 
     <!-- ============ EXPERIENCIA ============ -->
     <section class="exp">
-      <div class="exp__bg" aria-hidden="true"></div>
       <div class="exp__inner">
-        <h2 class="title-huge split"><span class="mask"><span>Tu web,</span></span> <span class="mask"><span>sin vueltas.</span></span></h2>
-        <ol class="exp__points">
-          <li><span>01</span>Ves tu demo antes de pagar</li>
-          <li><span>02</span>Pago único, sin sorpresas</li>
-          <li><span>03</span>Te acompañamos después</li>
-        </ol>
+        <div class="exp__text">
+          <p class="eyebrow reveal-fade">Cómo trabajamos</p>
+          <h2 class="title-huge split"><span class="mask"><span>Tu web,</span></span> <span class="mask"><span>sin vueltas.</span></span></h2>
+          <ol class="exp__points">
+            <li><span>01</span><b>Ves tu demo antes de pagar</b><p>Decidís con la web delante, no con una promesa.</p></li>
+            <li><span>02</span><b>Pago único, sin sorpresas</b><p>El precio que hablamos es el precio final.</p></li>
+            <li><span>03</span><b>Te acompañamos después</b><p>Si necesitás un cambio, nos escribís y lo vemos.</p></li>
+          </ol>
+        </div>
+        <div class="exp__visual" aria-hidden="true"><div class="exp__iris"></div></div>
       </div>
     </section>
 
@@ -416,7 +446,7 @@
         <canvas class="eye__canvas" aria-hidden="true"></canvas>
         <div class="eye__clip" aria-hidden="true"><div class="eye__wordmark eye__wordmark--small">VISSION</div></div>
         <canvas class="eye__cornea" aria-hidden="true"></canvas>
-        <img class="eye__fallback" src="assets/eye/full.webp" alt="" aria-hidden="true">
+        <img class="eye__fallback" src="assets/eye/wide.webp" alt="" aria-hidden="true">
       </div>
       <h2 class="cta__title split"><span class="mask"><span>¿Listo para que</span></span> <span class="mask"><span>tu negocio se vea?</span></span></h2>
       <div class="cta__btns reveal-fade">
