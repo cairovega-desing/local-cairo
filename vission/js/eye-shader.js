@@ -249,7 +249,9 @@ export const fragmentShader = /* glsl */ `
     }
 
     // ajuste de color: la piel termina exactamente en el color del fondo
-    col = col * uGrade;
+    // el tono de la foto se corrige hacia el fondo solo lejos del ojo (el ojo queda intacto)
+    float vdG = length((P - uVigC) / uVigR);
+    col = col * mix(vec3(1.0), uGrade, smoothstep(0.3, 0.75, vdG));
 
     // grano de película casi invisible
     col += (hash12(frag + fract(uTime * 7.3) * 113.0) - 0.5) * uGrain;
@@ -259,8 +261,8 @@ export const fragmentShader = /* glsl */ `
     if (uVignette > 0.5) {
       float vd = length((P - uVigC) / uVigR);
       // fundido "high-key": la piel se aclara hacia el fondo y recién ahí se vuelve transparente
-      col = mix(col, uBgCol, smoothstep(0.40, 0.86, vd));
-      alpha = 1.0 - smoothstep(0.66, 0.98, vd);
+      col = mix(col, uBgCol, smoothstep(0.36, 0.80, vd));
+      alpha = 1.0 - smoothstep(0.5, 0.9, vd);
       vec2 inImg = step(vec2(0.0), P) * step(P, uImg);
       alpha *= inImg.x * inImg.y;
     }
