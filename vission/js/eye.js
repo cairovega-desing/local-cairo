@@ -9,11 +9,13 @@ let texturesPromise = null;
 let geometryPromise = null;
 
 export function loadEyeAssets(base = 'assets/eye/') {
-  if (!geometryPromise) geometryPromise = fetch(base + 'geometry.json').then((r) => r.json());
+  // versión de un solo archivo: geometría e imágenes vienen incrustadas en la página
+  const inline = window.__VISSION_ASSETS;
+  if (!geometryPromise) geometryPromise = inline ? Promise.resolve(inline.geometry) : fetch(base + 'geometry.json').then((r) => r.json());
   if (!texturesPromise) {
     const load = (name) =>
       new Promise((resolve, reject) =>
-        loader.load(base + name, (t) => {
+        loader.load(inline ? inline.images[name] : base + name, (t) => {
           t.flipY = false;
           t.colorSpace = THREE.NoColorSpace;
           t.minFilter = THREE.LinearMipmapLinearFilter;

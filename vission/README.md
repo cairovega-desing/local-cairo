@@ -11,6 +11,16 @@ npm start            # → http://localhost:5173
 
 (Sin Node: `python3 -m http.server 5173` dentro de `vission/` también sirve.)
 
+## Un solo archivo descargable
+
+`dist/VISSION.html` es el sitio entero en un archivo (código, librerías, fuentes e imágenes adentro).
+Se abre con doble clic, sin servidor y sin internet. Para regenerarlo después de cambiar algo:
+
+```bash
+npm install esbuild   # una vez, en cualquier carpeta
+ESBUILD=/ruta/a/node_modules/esbuild/lib/main.js node tools/build-single.mjs
+```
+
 ## Cómo está hecho el ojo
 
 - Tres fotos en capas (`assets/eye/`): ojo sin iris (`open.webp`), ojo cerrado (`closed.webp`) e iris en macro (`iris.webp`).
