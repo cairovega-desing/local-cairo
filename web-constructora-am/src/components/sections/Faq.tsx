@@ -12,7 +12,7 @@ export function Faq() {
   const reduce = useReducedMotion();
   const { faq } = site;
   return (
-    <section id="preguntas" aria-labelledby="preguntas-titulo" className="bg-section py-24 sm:py-32">
+    <section id="preguntas" aria-labelledby="preguntas-titulo" className="bg-surface py-24 sm:py-32">
       <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr]">
         <SectionHeading id="preguntas-titulo" title={faq.titulo} className="lg:sticky lg:top-28 lg:self-start" />
         <ul className="grid gap-3">
@@ -21,7 +21,7 @@ export function Faq() {
             const btnId = `faq-boton-${i}`;
             const panelId = `faq-panel-${i}`;
             return (
-              <li key={item.pregunta} className={cn("rounded-[1.5rem] border bg-surface transition-colors", isOpen ? "border-ink/20 shadow-tinted" : "border-transparent")}>
+              <li key={item.pregunta} className={cn("rounded-[1.5rem] border bg-surface transition-colors", isOpen ? "border-accent/50 bg-white shadow-tinted" : "border-line bg-white")}>
                 <h3>
                   <button
                     id={btnId}
@@ -36,7 +36,7 @@ export function Faq() {
                       aria-hidden="true"
                       className={cn(
                         "flex size-9 shrink-0 items-center justify-center rounded-full transition-[transform,background-color] duration-300 motion-reduce:transition-none",
-                        isOpen ? "rotate-45 bg-accent text-ink" : "bg-ink text-surface",
+                        isOpen ? "rotate-45 bg-accent text-ink" : "bg-primary-deep text-surface",
                       )}
                     >
                       <Plus className="size-5" />

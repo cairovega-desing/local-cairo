@@ -22,20 +22,21 @@ export function Location() {
   const { contacto, horarios, direccion, ubicacion } = site;
 
   return (
-    <section id="ubicacion" aria-labelledby="ubicacion-titulo" className="bg-surface py-24 sm:py-32">
+    <section id="ubicacion" aria-labelledby="ubicacion-titulo" className="bg-section py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
-          <h2 id="ubicacion-titulo" className="max-w-3xl font-title text-[2rem] leading-[1.02] font-extrabold tracking-[-0.02em] text-balance text-ink sm:text-5xl">
+          <span aria-hidden="true" className="mb-6 block h-0.5 w-14 rounded-full bg-accent" />
+          <h2 id="ubicacion-titulo" className="max-w-3xl font-title text-[2.1rem] leading-[1.05] font-extrabold text-balance text-ink sm:text-5xl">
             {ubicacion.titulo} {direccionTexto}
           </h2>
         </Reveal>
 
         <div className="mt-12 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-          <Reveal className="rounded-[2rem] border border-line bg-white p-6 shadow-tinted sm:p-8">
+          <Reveal className="rounded-[2rem] bg-white p-6 shadow-tinted sm:p-8">
             <dl className="grid gap-6">
               <div className="flex gap-4">
                 <dt>
-                  <MapPin className="size-6 text-primary" aria-hidden="true" />
+                  <MapPin className="size-6 text-accent-deep" aria-hidden="true" />
                   <span className="sr-only">Dirección</span>
                 </dt>
                 <dd className="text-base text-ink">
@@ -52,7 +53,7 @@ export function Location() {
               </div>
               <div className="flex gap-4">
                 <dt>
-                  <Phone className="size-6 text-primary" aria-hidden="true" />
+                  <Phone className="size-6 text-accent-deep" aria-hidden="true" />
                   <span className="sr-only">Teléfono</span>
                 </dt>
                 <dd>
@@ -63,7 +64,7 @@ export function Location() {
               </div>
               <div className="flex gap-4">
                 <dt>
-                  <Clock className="size-6 text-primary" aria-hidden="true" />
+                  <Clock className="size-6 text-accent-deep" aria-hidden="true" />
                   <span className="sr-only">Horarios</span>
                 </dt>
                 <dd className="flex-1">
@@ -74,7 +75,7 @@ export function Location() {
                         <tr
                           key={h.dia}
                           aria-current={i === hoy ? "date" : undefined}
-                          className={cn(i === hoy ? "bg-accent/25 font-bold text-ink" : "text-muted")}
+                          className={cn(i === hoy ? "bg-accent/30 font-bold text-ink" : "text-muted")}
                         >
                           <th scope="row" className="rounded-l-lg py-1.5 pl-2 text-left font-semibold">
                             {h.dia}
@@ -96,7 +97,7 @@ export function Location() {
             </ExternalLink>
           </Reveal>
 
-          <Reveal delay={0.1} className="min-h-[22rem] overflow-hidden rounded-[2rem] border border-line bg-section shadow-tinted">
+          <Reveal delay={0.1} className="min-h-[22rem] overflow-hidden rounded-[2rem] bg-sand shadow-tinted">
             <iframe
               src={mapsEmbedUrl}
               title={ubicacion.tituloMapa}

@@ -8,6 +8,7 @@ Para poner las fotos reales: reemplazá el archivo en public/images/ con el MISM
 nombre (jpg) y volvé a correr `npm run package`. No hace falta tocar código.
 
 Uso: python3 scripts/make_images.py  (necesita Pillow)
+Después: python3 scripts/importar_fotos.py "<carpeta con las fotos del cliente>"
 """
 from __future__ import annotations
 
@@ -173,7 +174,7 @@ def logo_png(path: Path, s: int = 512) -> None:
     img.save(path)
 
 
-def og_image(path: Path) -> None:
+def og_image_placeholder(path: Path) -> None:
     w, h = 1200, 630
     img = house_scene(w, h, random.Random(7), "tarde")
     shade = Image.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -194,31 +195,12 @@ def og_image(path: Path) -> None:
 
 
 def main() -> None:
-    obras = [
-        "Vivienda terminada", "Reforma de baño", "Ampliación", "Cocina terminada", "Techo impermeabilizado",
-        "Steel framing", "Fachada renovada", "Reforma integral", "Instalación sanitaria", "Vivienda llave en mano",
-    ]
-    for i, title in enumerate(obras, start=1):
-        placeholder(OUT / "obras" / f"obra-{i:02d}.jpg", (800, 800), title, seed=i)
-
-    servicios = [
-        "Obra nueva", "Reformas", "Ampliaciones", "Baños y cocinas",
-        "Techos", "Steel framing", "Fachadas", "Instalaciones",
-    ]
-    for i, title in enumerate(servicios, start=1):
-        placeholder(OUT / "servicios" / f"servicio-{i:02d}.jpg", (800, 560), title, seed=100 + i)
-
-    placeholder(OUT / "portada.jpg", (1920, 1200), "Portada", seed=30, mood="tarde")
-    placeholder(OUT / "responsable.jpg", (960, 1200), "Responsable u obra terminada", seed=40, mood="dia")
+    # Solo los lugares que todavía no tienen foto real (las reales las pone importar_fotos.py).
+    placeholder(OUT / "servicios" / "servicio-01.jpg", (800, 560), "Obra nueva", seed=101)
+    placeholder(OUT / "servicios" / "servicio-04.jpg", (800, 560), "Baños y cocinas", seed=104)
     placeholder(OUT / "oficina.jpg", (1200, 900), "Oficina / showroom", seed=41)
-    placeholder(OUT / "equipo.jpg", (900, 900), "Equipo en obra", seed=42)
-    placeholder(OUT / "maquinaria.jpg", (900, 900), "Maquinaria", seed=43)
-    placeholder(OUT / "obra-en-proceso.jpg", (900, 900), "Obra en proceso", seed=44)
-    placeholder(OUT / "fachada.jpg", (1200, 900), "Fachada terminada", seed=45, mood="noche")
-    placeholder(OUT / "cierre.jpg", (1920, 1000), "Imagen de cierre", seed=46, mood="noche")
     logo_png(OUT / "logo-icon.png")
-    og_image(OUT / "og.jpg")
-    print("Imágenes generadas en", OUT)
+    print("Placeholders y logo generados en", OUT)
 
 
 if __name__ == "__main__":

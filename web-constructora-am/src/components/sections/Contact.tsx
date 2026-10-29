@@ -65,17 +65,17 @@ export function Contact() {
 
   return (
     <section id="presupuesto" aria-labelledby="presupuesto-titulo" className="bg-surface px-3 py-4 sm:px-5">
-      <div className="relative isolate overflow-hidden rounded-[2.5rem] bg-navy px-5 py-16 text-surface sm:px-10 sm:py-24">
+      <div className="on-dark relative isolate overflow-hidden rounded-[2.5rem] bg-navy px-5 py-16 text-surface sm:px-10 sm:py-24">
         {/* Fondo: grilla de plano + blobs tipo aurora + destellos */}
         <div className="bg-plano-dark absolute inset-0 -z-10" aria-hidden="true" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="animate-aurora absolute -top-1/4 -left-1/4 size-[36rem] rounded-full bg-primary/50 blur-3xl" />
-          <div className="animate-aurora absolute -right-1/4 -bottom-1/3 size-[32rem] rounded-full bg-accent/20 blur-3xl [animation-delay:-6s]" />
-          <div className="animate-aurora absolute top-1/3 left-1/2 size-[22rem] rounded-full bg-[#3b7ea8]/30 blur-3xl [animation-delay:-11s]" />
+          <div className="animate-aurora absolute -top-1/4 -left-1/4 size-[36rem] rounded-full bg-primary/60 blur-3xl" />
+          <div className="animate-aurora absolute -right-1/4 -bottom-1/3 size-[32rem] rounded-full bg-accent/25 blur-3xl [animation-delay:-6s]" />
+          <div className="animate-aurora absolute top-1/3 left-1/2 size-[22rem] rounded-full bg-accent-light/15 blur-3xl [animation-delay:-11s]" />
           {DESTELLOS.map(([x, y, d], i) => (
             <span
               key={i}
-              className="animate-twinkle absolute size-1.5 rounded-full bg-white"
+              className="animate-twinkle absolute size-1.5 rounded-full bg-accent-light"
               style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${d}s` }}
             />
           ))}
@@ -83,7 +83,7 @@ export function Contact() {
 
         <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-2 lg:gap-16">
           <Reveal>
-            <h2 id="presupuesto-titulo" className="font-title-xl text-[2.4rem] leading-[0.98] font-black tracking-[-0.03em] text-balance sm:text-6xl">
+            <h2 id="presupuesto-titulo" className="font-title-xl text-[2.4rem] leading-[1] font-extrabold text-balance text-white sm:text-6xl">
               {c.titulo}
             </h2>
             <p className="mt-5 max-w-md text-lg text-fog">{c.texto}</p>

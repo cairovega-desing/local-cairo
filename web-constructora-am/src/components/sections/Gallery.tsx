@@ -6,7 +6,7 @@ import { SectionHeading } from "../ui/SectionHeading";
 export function Gallery() {
   const { galeria } = site;
   return (
-    <section id="nuestra-empresa" aria-labelledby="galeria-titulo" className="bg-section py-24 sm:py-32">
+    <section id="nuestra-empresa" aria-labelledby="galeria-titulo" className="bg-surface py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading id="galeria-titulo" title={galeria.titulo} intro={galeria.texto} />
         <Reveal delay={0.1}>
@@ -15,7 +15,7 @@ export function Gallery() {
               <li
                 key={img.etiqueta}
                 className={cn(
-                  "relative overflow-hidden rounded-[1.75rem] bg-primary-deep",
+                  "group relative overflow-hidden rounded-[1.75rem] bg-sand shadow-tinted",
                   i === 0 && "col-span-2 row-span-2",
                 )}
               >
@@ -27,14 +27,14 @@ export function Gallery() {
                     height={900}
                     loading="lazy"
                     decoding="async"
-                    className="size-full object-cover"
+                    className="size-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105 motion-reduce:transition-none"
                   />
                 ) : (
                   <div className="flex size-full items-center justify-center bg-plano-dark p-6 text-center font-semibold text-fog">
                     Imagen pendiente: {img.etiqueta}
                   </div>
                 )}
-                <span className="absolute bottom-3 left-3 rounded-full bg-surface/95 px-3 py-1.5 text-xs font-bold text-ink shadow-tinted sm:text-sm">
+                <span className="absolute bottom-3 left-3 rounded-full bg-surface/95 px-3 py-1.5 text-xs font-bold text-ink shadow-tinted backdrop-blur sm:text-sm">
                   {img.etiqueta}
                 </span>
               </li>

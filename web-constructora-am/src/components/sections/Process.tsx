@@ -5,15 +5,15 @@ import { SectionHeading } from "../ui/SectionHeading";
 export function Process() {
   const { pasos } = site;
   return (
-    <section id="como-trabajamos" aria-labelledby="pasos-titulo" className="bg-surface bg-plano py-24 sm:py-32">
+    <section id="como-trabajamos" aria-labelledby="pasos-titulo" className="bg-section py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading id="pasos-titulo" title={pasos.titulo} intro={pasos.intro} />
         <ol className="relative mt-14 grid gap-10 lg:grid-cols-4 lg:gap-6">
           {/* Línea conectora: vertical en mobile, horizontal en escritorio. */}
-          <span aria-hidden="true" className="absolute top-2 bottom-2 left-7 w-0.5 bg-line lg:top-7 lg:right-[12%] lg:bottom-auto lg:left-[12%] lg:h-0.5 lg:w-auto" />
+          <span aria-hidden="true" className="absolute top-2 bottom-2 left-7 w-0 border-l-2 border-dashed border-accent/60 lg:top-7 lg:right-[12%] lg:bottom-auto lg:left-[12%] lg:h-0 lg:w-auto lg:border-t-2 lg:border-l-0" />
           {pasos.items.map((p, i) => (
             <Reveal as="li" key={p.titulo} delay={i * 0.1} className="relative flex gap-5 lg:flex-col lg:items-center lg:text-center">
-              <span className="relative z-10 flex size-14 shrink-0 items-center justify-center rounded-full border-4 border-surface bg-ink font-title text-lg font-black text-accent shadow-tinted">
+              <span className="relative z-10 flex size-14 shrink-0 items-center justify-center rounded-full border-4 border-section bg-primary-deep font-title text-lg font-extrabold text-accent-light shadow-tinted">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div>

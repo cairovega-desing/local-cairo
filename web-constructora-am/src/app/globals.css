@@ -7,7 +7,7 @@
   --color-accent: #c9a15a; /* dorado */
   --color-accent-light: #e2c68f;
   --color-accent-deep: #b08a45;
-  --color-accent-ink: #8a6a2e; /* dorado para texto sobre fondo claro (AA) */
+  --color-accent-ink: #75571f; /* dorado para texto sobre fondo claro (AA) */
   --color-ink: #2a1f17; /* espresso: texto principal */
   --color-navy: #33251b; /* cacao: bloques oscuros */
   --color-surface: #fbf8f3; /* blanco cálido */
@@ -74,21 +74,7 @@
     letter-spacing: -0.045em;
   }
 
-  /* Texto dorado con brillo sutil (solo para cifras grandes sobre fondo oscuro). */
-  .text-gold-gradient {
-    background: linear-gradient(135deg, #e2c68f 0%, #c9a15a 45%, #9c7a3c 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  /* Cuadrícula de plano. */
-  .bg-plano {
-    background-image:
-      linear-gradient(to right, rgb(107 74 51 / 0.06) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(107 74 51 / 0.06) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
+  /* Cuadrícula sutil (evoca planos) para el bloque de contacto. */
   .bg-plano-dark {
     background-image:
       linear-gradient(to right, rgb(226 198 143 / 0.06) 1px, transparent 1px),

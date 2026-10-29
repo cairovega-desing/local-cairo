@@ -4,6 +4,7 @@ import { MotionProvider } from "@/components/MotionProvider";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 import { About } from "@/components/sections/About";
+import { BeforeAfterSection } from "@/components/sections/BeforeAfterSection";
 import { Contact } from "@/components/sections/Contact";
 import { Experience } from "@/components/sections/Experience";
 import { Faq } from "@/components/sections/Faq";
@@ -35,6 +36,7 @@ export default function Home() {
         <Experience />
         <About />
         <Services />
+        <BeforeAfterSection />
         <Portfolio />
         <Reviews />
         <Gallery />

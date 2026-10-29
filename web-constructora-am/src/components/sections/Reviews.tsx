@@ -33,7 +33,7 @@ function ReviewCard({ r }: { r: Card }) {
       <figcaption className="mt-6 flex items-center gap-3">
         <span
           aria-hidden="true"
-          className="flex size-10 items-center justify-center rounded-full bg-primary font-title font-bold text-white"
+          className="flex size-10 items-center justify-center rounded-full bg-accent font-title font-extrabold text-ink"
         >
           {r.pendiente ? "?" : r.nombre.trim()[0]?.toUpperCase()}
         </span>
@@ -75,18 +75,19 @@ export function Reviews() {
   const fila2 = cards.length > 3 ? cards.slice(mitad) : [...cards].reverse();
 
   return (
-    <section id="opiniones" aria-labelledby="opiniones-titulo" className="relative overflow-hidden bg-ink py-24 text-surface sm:py-32">
-      <div className="bg-plano-dark absolute inset-0" aria-hidden="true" />
+    <section id="opiniones" aria-labelledby="opiniones-titulo" className="on-dark relative overflow-hidden bg-ink py-24 text-surface sm:py-32">
+      <div aria-hidden="true" className="absolute -top-40 left-1/2 size-[40rem] -translate-x-1/2 rounded-full bg-primary/30 blur-3xl" />
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 id="opiniones-titulo" className="font-title text-[2rem] leading-[1.02] font-extrabold tracking-[-0.02em] sm:text-5xl">
+            <span aria-hidden="true" className="mb-6 block h-0.5 w-14 rounded-full bg-accent" />
+            <h2 id="opiniones-titulo" className="font-title text-[2.1rem] leading-[1.05] font-extrabold text-white sm:text-5xl">
               {resenas.titulo}
             </h2>
             <p className="mt-4 text-lg text-fog">{resenas.bajada}</p>
           </div>
           <div className="flex items-center gap-4">
-            <p className="font-title-xl text-7xl leading-none font-black text-accent sm:text-8xl">
+            <p className="font-title-xl text-7xl leading-none font-extrabold text-accent sm:text-8xl">
               {google.calificacion.toFixed(1)}
             </p>
             <div className="flex" role="img" aria-label={site.a11y.estrellas(google.calificacion)}>

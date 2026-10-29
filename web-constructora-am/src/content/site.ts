@@ -36,6 +36,17 @@ export type Horario = { dia: string; abre: string | null; cierra: string | null 
 
 export type Imagen = { src: string | null; alt: string; etiqueta?: string };
 
+export type AntesDespues = {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  antes: { src: string; alt: string };
+  despues: { src: string; alt: string };
+  /** Tamaño real de las fotos (las dos iguales), para reservar el espacio sin saltos. */
+  ancho: number;
+  alto: number;
+};
+
 const nombre = "Constructora A&M";
 const zona = "La Paloma, Rocha";
 const whatsapp = "59895034296";
@@ -118,12 +129,10 @@ export const site = {
     dominio: "https://www.constructora.com.uy",
   },
 
-  // PENDIENTE: nombre y cargo del responsable (aparece en la cita y la foto).
+  // PENDIENTE: nombre y cargo del responsable (aparecen firmando la cita).
   responsable: {
     nombre: null as string | null,
     cargo: null as string | null,
-    foto: "images/responsable.jpg",
-    fotoAlt: "Responsable de Constructora A&M en una obra terminada",
   },
 
   zona,
@@ -213,9 +222,12 @@ export const site = {
 
   // ───────────────────────── Secciones ─────────────────────────
   hero: {
-    // Foto de fondo a pantalla completa (ideal: una obra terminada, horizontal, 1920×1200).
+    // Foto de fondo a pantalla completa (horizontal) y foto destacada en el marco 4:5.
     fondo: "images/portada.jpg",
-    fondoAlt: "Vivienda terminada por Constructora A&M",
+    fondoMovil: "images/portada-movil.jpg",
+    fondoAlt: "Cerramiento en madera con postigos construido por Constructora A&M",
+    foto: "images/obra-destacada.jpg",
+    fotoAlt: "Cerramiento terminado: fachada blanca con puerta y postigos de madera",
     badge: `Constructora · ${zona}`,
     titular: ["Construimos", "tu", "proyecto."],
     bajada:
@@ -235,8 +247,8 @@ export const site = {
   empresa: {
     titulo: "Construcción integral en un solo lugar",
     fotos: [
-      { src: "images/oficina.jpg", alt: "Oficina y showroom de Constructora A&M" },
-      { src: "images/obra-en-proceso.jpg", alt: "Obra en proceso a cargo del equipo de Constructora A&M" },
+      { src: "images/obra-en-proceso.jpg", alt: "Estructura de madera y aberturas de un cerramiento en obra" },
+      { src: "images/hormigonado.jpg", alt: "Integrante del equipo nivelando un contrapiso recién hormigonado" },
     ],
     parrafos: [
       "Trabajamos con equipo propio y coordinamos a todos los gremios de la obra: albañilería, sanitaria, eléctrica, herrería y terminaciones. Sin subcontratos innecesarios, vos tenés un solo interlocutor y nosotros respondemos por todo.",
@@ -255,18 +267,46 @@ export const site = {
     intro: "Algunas de las obras que entregamos en la zona.",
     // Reemplazá cada foto en public/images/obras/ manteniendo el nombre.
     items: [
-      { src: "images/obras/obra-01.jpg", alt: "Vivienda terminada" },
-      { src: "images/obras/obra-02.jpg", alt: "Reforma de baño: antes y después" },
-      { src: "images/obras/obra-03.jpg", alt: "Ampliación de vivienda: antes y después" },
-      { src: "images/obras/obra-04.jpg", alt: "Cocina terminada" },
-      { src: "images/obras/obra-05.jpg", alt: "Techo impermeabilizado" },
-      { src: "images/obras/obra-06.jpg", alt: "Estructura de steel framing" },
-      { src: "images/obras/obra-07.jpg", alt: "Fachada renovada" },
-      { src: "images/obras/obra-08.jpg", alt: "Reforma integral: antes y después" },
-      { src: "images/obras/obra-09.jpg", alt: "Instalación sanitaria nueva" },
-      { src: "images/obras/obra-10.jpg", alt: "Vivienda llave en mano terminada" },
+      { src: "images/obras/obra-01.jpg", alt: "Cerramiento terminado: fachada blanca con puerta y postigos de madera" },
+      { src: "images/obras/obra-02.jpg", alt: "Cerramiento en madera con postigos, antes de la pintura" },
+      { src: "images/obras/obra-03.jpg", alt: "Habitación nueva terminada, con puerta y ventana de madera" },
+      { src: "images/obras/obra-04.jpg", alt: "Puertas de madera con vidrio repartido instaladas" },
+      { src: "images/obras/obra-05.jpg", alt: "Piso nuevo colocado en la habitación" },
+      { src: "images/obras/obra-06.jpg", alt: "Parrillero nuevo de ladrillo en el fondo de una casa" },
+      { src: "images/obras/obra-07.jpg", alt: "Parrilla revestida con ladrillo refractario" },
+      { src: "images/obras/obra-08.jpg", alt: "Mesada y parrillero en obra gruesa" },
+      { src: "images/obras/obra-09.jpg", alt: "Cerramiento con postigos y puerta, visto desde el pasillo" },
+      { src: "images/obras/obra-10.jpg", alt: "Pérgola de madera con techo traslúcido" },
     ] satisfies Imagen[],
     ctaInstagram: "Ver más obras en Instagram",
+  },
+
+  antesDespues: {
+    titulo: "Antes y después",
+    intro: "Deslizá la barra para ver cómo cambió cada espacio.",
+    etiquetaAntes: "Antes",
+    etiquetaDespues: "Después",
+    ayuda: "Arrastrá o usá las flechas del teclado para comparar",
+    items: [
+      {
+        id: "cerramiento",
+        titulo: "De pasillo abierto a habitación",
+        descripcion: "Cerramos un pasillo techado con estructura de madera, puerta, ventana con postigos y piso nuevo.",
+        antes: { src: "images/antes-despues/cerramiento-antes.jpg", alt: "Antes: pasillo techado con pérgola, abierto a la calle" },
+        despues: { src: "images/antes-despues/cerramiento-despues.jpg", alt: "Después: el pasillo convertido en habitación con ventana de madera" },
+        ancho: 900,
+        alto: 1200,
+      },
+      {
+        id: "parrillero",
+        titulo: "Patio con parrillero nuevo",
+        descripcion: "Demolimos el parrillero viejo y levantamos uno nuevo de ladrillo, con revoques y contrapiso.",
+        antes: { src: "images/antes-despues/parrillero-antes.jpg", alt: "Antes: patio con el parrillero viejo y techito de chapa" },
+        despues: { src: "images/antes-despues/parrillero-despues.jpg", alt: "Después: parrillero nuevo de ladrillo y paredes pintadas" },
+        ancho: 1280,
+        alto: 666,
+      },
+    ] satisfies AntesDespues[],
   },
 
   resenas: {
@@ -281,14 +321,15 @@ export const site = {
   galeria: {
     titulo: "Nuestra empresa",
     texto:
-      "Detrás de cada obra hay un equipo que se conoce, herramientas propias y una oficina donde podés ver materiales y terminaciones antes de decidir.",
+      "Detrás de cada obra hay un equipo que se conoce y trabaja con herramientas propias. Así se ve nuestro trabajo en el día a día.",
     // Si src es null se muestra «Imagen pendiente: …».
     items: [
+      { src: "images/fachada.jpg", alt: "Fachada de un cerramiento terminado, vista desde la calle", etiqueta: "Fachada de obra terminada" },
+      { src: "images/equipo.jpg", alt: "Integrante del equipo armando hierros para una platea", etiqueta: "Equipo en obra" },
+      { src: "images/obra-en-proceso.jpg", alt: "Cerramiento de madera en proceso", etiqueta: "Obra en proceso" },
+      { src: "images/hormigonado.jpg", alt: "Contrapiso recién hormigonado", etiqueta: "Hormigonado" },
+      // PENDIENTE: foto de la oficina / showroom.
       { src: "images/oficina.jpg", alt: "Oficina y showroom de Constructora A&M", etiqueta: "Oficina / showroom" },
-      { src: "images/equipo.jpg", alt: "Equipo de Constructora A&M trabajando en obra", etiqueta: "Equipo en obra" },
-      { src: "images/maquinaria.jpg", alt: "Maquinaria propia de la empresa", etiqueta: "Maquinaria" },
-      { src: "images/obra-en-proceso.jpg", alt: "Obra en proceso de construcción", etiqueta: "Obra en proceso" },
-      { src: "images/fachada.jpg", alt: "Fachada de una obra terminada", etiqueta: "Fachada de obra terminada" },
     ] satisfies Imagen[],
   },
 
@@ -361,6 +402,7 @@ export const site = {
 
   ctaFinal: {
     fondo: "images/cierre.jpg",
+    fondoAlt: "",
     lineas: ["Construí con", "confianza."],
     boton: "Pedir presupuesto",
   },

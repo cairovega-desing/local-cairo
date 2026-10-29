@@ -22,16 +22,16 @@ export function Experience() {
       id="experiencia"
       ref={ref}
       aria-labelledby="experiencia-titulo"
-      className="relative overflow-hidden bg-section py-24 sm:py-32"
+      className="relative overflow-hidden bg-section pt-32 pb-24 sm:pt-40 sm:pb-32"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <m.p
           aria-hidden="true"
           style={reduce ? undefined : { x: numberX }}
-          className="font-title-xl text-[clamp(7rem,34vw,20rem)] leading-[0.8] font-black tracking-[-0.06em] text-primary-deep/90"
+          className="font-title-xl text-[clamp(7rem,34vw,19rem)] leading-[0.8] font-extrabold tracking-[-0.06em] text-primary-deep"
         >
           {anios.valor}
-          <span className="text-accent">{anios.sufijo}</span>
+          <span className="text-accent-ink">{anios.sufijo}</span>
         </m.p>
         <h2 id="experiencia-titulo" className="mt-2 font-title text-2xl font-extrabold text-ink sm:text-3xl">
           <span className="sr-only">
@@ -47,7 +47,7 @@ export function Experience() {
             style={reduce ? undefined : { scaleX: lineScale }}
             className="mb-8 h-1 w-24 origin-left rounded-full bg-accent"
           />
-          <blockquote className="font-display text-[1.75rem] leading-[1.2] font-medium tracking-[-0.01em] text-balance text-ink sm:text-[2.4rem]">
+          <blockquote className="font-title text-[1.75rem] leading-[1.25] font-medium text-balance text-ink sm:text-[2.35rem]">
             “{site.experiencia.cita}”
           </blockquote>
           <figcaption className="mt-6 flex flex-wrap items-center gap-2 text-base text-muted">

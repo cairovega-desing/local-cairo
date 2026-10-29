@@ -61,7 +61,6 @@ export function TiltFrame({
           alt={alt}
           width={width}
           height={height}
-          fetchPriority="high"
           decoding="async"
           style={enabled ? { x: imgX, y: imgY, scale: 1.05 } : undefined}
           className="size-full object-cover"
