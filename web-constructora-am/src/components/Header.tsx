@@ -50,6 +50,7 @@ export function Header() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // Arriba de todo el menú va sobre las fotos oscuras de la portada: texto claro y sin fondo.
   const solid = scrolled || open;
 
   return (
@@ -63,7 +64,7 @@ export function Header() {
         )}
       >
         <a href="#inicio" aria-label={`${site.marca.nombre}, ${site.a11y.inicio.toLowerCase()}`} className="rounded-full">
-          <Logo uid="header" />
+          <Logo uid="header" tone={solid ? "dark" : "light"} />
         </a>
 
         <nav aria-label={site.a11y.navPrincipal} className="hidden lg:block">
@@ -75,7 +76,13 @@ export function Header() {
                   aria-current={active === item.id ? "true" : undefined}
                   className={cn(
                     "rounded-full px-3.5 py-2 text-sm font-semibold transition-colors duration-300",
-                    active === item.id ? "bg-accent/15 text-ink" : "text-muted hover:text-ink",
+                    solid
+                      ? active === item.id
+                        ? "bg-accent/15 text-ink"
+                        : "text-muted hover:text-ink"
+                      : active === item.id
+                        ? "bg-white/15 text-white"
+                        : "text-white/85 hover:text-white",
                   )}
                 >
                   {item.label}

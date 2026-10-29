@@ -6,7 +6,6 @@ import { direccionTexto, mapsEmbedUrl, mapsSearchUrl, site } from "@/content/sit
 import { cn } from "@/lib/utils";
 import { buttonClass } from "../ui/Button";
 import { ExternalLink } from "../ui/ExternalLink";
-import { Pending } from "../ui/Pending";
 import { Reveal } from "../ui/Reveal";
 
 /** Índice del día de hoy en Uruguay, con lunes = 0 (mismo orden que site.horarios). */
@@ -40,11 +39,7 @@ export function Location() {
                   <span className="sr-only">Dirección</span>
                 </dt>
                 <dd className="text-base text-ink">
-                  {direccion.calle ? (
-                    <span className="font-semibold">{direccion.calle}</span>
-                  ) : (
-                    <Pending className="text-accent-ink">Calle y número pendientes</Pending>
-                  )}
+                  {direccion.calle && <span className="font-semibold">{direccion.calle}</span>}
                   <span className="block text-muted">
                     {direccion.localidad}, {direccion.departamento}
                     {direccion.codigoPostal ? ` · CP ${direccion.codigoPostal}` : ""}

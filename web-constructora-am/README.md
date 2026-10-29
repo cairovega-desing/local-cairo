@@ -16,8 +16,10 @@ python3 scripts/importar_fotos.py "<carpeta con fotos de WhatsApp>"   # recorta 
 
 ## Dónde se cambia cada cosa
 
-- **Todos los datos y textos:** `src/content/site.ts`. Los valores `null` son datos pendientes
-  (la web los marca como «pendiente» o esconde el elemento). Buscá `PENDIENTE` en ese archivo.
+- **Todos los datos y textos:** `src/content/site.ts`. Los valores `null` son datos pendientes: la web
+  esconde ese elemento hasta que se complete (no muestra carteles de «pendiente» al público).
+  Buscá `PENDIENTE` en ese archivo. Los registros con `confirmado: false` tampoco se publican.
+- **Portada:** `site.hero.slides` (fotos de fondo que cambian cada `site.hero.intervalo` ms, con pausa).
 - **Fotos:** `public/images/` (mismo nombre de archivo). `scripts/importar_fotos.py` documenta qué foto
   original va en cada lugar, con qué recorte, y les quita los metadatos (ubicación GPS, teléfono).
 - **Antes y después:** `site.antesDespues` en `site.ts`. Cada par necesita dos fotos del mismo tamaño,

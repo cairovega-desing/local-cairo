@@ -14,7 +14,6 @@ import { Location } from "@/components/sections/Location";
 import { Portfolio } from "@/components/sections/Portfolio";
 import { Process } from "@/components/sections/Process";
 import { Reviews } from "@/components/sections/Reviews";
-import { ServiceMarquee } from "@/components/sections/ServiceMarquee";
 import { Services } from "@/components/sections/Services";
 import { site } from "@/content/site";
 
@@ -31,7 +30,6 @@ export default function Home() {
       <Header />
       <main id="contenido" tabIndex={-1} className="outline-none">
         <Hero />
-        <ServiceMarquee />
         <Experience />
         <About />
         <Services />

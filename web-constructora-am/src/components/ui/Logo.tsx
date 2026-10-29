@@ -44,7 +44,7 @@ export function Logo({ className, tone = "dark", uid }: { className?: string; to
         <span
           className={cn(
             "font-title text-[0.66rem] font-medium tracking-[0.3em]",
-            tone === "dark" ? "text-ink" : "text-fog",
+            tone === "dark" ? "text-ink" : "text-white",
           )}
         >
           CONSTRUCTORA

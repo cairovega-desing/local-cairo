@@ -23,12 +23,6 @@ function validar(c: Consulta): Errores {
   return e;
 }
 
-// Destellos fijos (posiciones deterministas para que el HTML exportado sea estable).
-const DESTELLOS = [
-  [8, 18, 0], [22, 72, 0.6], [38, 12, 1.2], [55, 84, 0.3], [68, 30, 1.8],
-  [82, 62, 0.9], [92, 14, 2.2], [14, 90, 1.5], [46, 50, 2.6], [76, 92, 0.4],
-] as const;
-
 export function Contact() {
   const { contactoSeccion: c } = site;
   const reduce = useReducedMotion();
@@ -66,20 +60,9 @@ export function Contact() {
   return (
     <section id="presupuesto" aria-labelledby="presupuesto-titulo" className="bg-surface px-3 py-4 sm:px-5">
       <div className="on-dark relative isolate overflow-hidden rounded-[2.5rem] bg-navy px-5 py-16 text-surface sm:px-10 sm:py-24">
-        {/* Fondo: grilla de plano + blobs tipo aurora + destellos */}
+        {/* Fondo sobrio: grilla de plano muy sutil y un brillo dorado suave en una esquina */}
         <div className="bg-plano-dark absolute inset-0 -z-10" aria-hidden="true" />
-        <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="animate-aurora absolute -top-1/4 -left-1/4 size-[36rem] rounded-full bg-primary/60 blur-3xl" />
-          <div className="animate-aurora absolute -right-1/4 -bottom-1/3 size-[32rem] rounded-full bg-accent/25 blur-3xl [animation-delay:-6s]" />
-          <div className="animate-aurora absolute top-1/3 left-1/2 size-[22rem] rounded-full bg-accent-light/15 blur-3xl [animation-delay:-11s]" />
-          {DESTELLOS.map(([x, y, d], i) => (
-            <span
-              key={i}
-              className="animate-twinkle absolute size-1.5 rounded-full bg-accent-light"
-              style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${d}s` }}
-            />
-          ))}
-        </div>
+        <div aria-hidden="true" className="absolute -right-40 -bottom-40 -z-10 size-[30rem] rounded-full bg-accent/10 blur-3xl" />
 
         <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-2 lg:gap-16">
           <Reveal>

@@ -211,18 +211,21 @@ export const site = {
 
   // ───────────────────────── Secciones ─────────────────────────
   hero: {
-    // Única foto del inicio, en marco 4:5.
-    foto: "images/obra-destacada.jpg",
-    fotoAlt: "Cerramiento terminado: fachada blanca con puerta y postigos de madera",
-    badge: `Constructora · ${zona}`,
-    titular: ["Construimos", "tu", "proyecto."],
+    // Fotos de fondo de la portada: cambian solas cada `intervalo` milisegundos.
+    // `src` es horizontal (computadora) y `srcMovil` vertical (celular).
+    intervalo: 10000,
+    slides: [
+      { src: "images/portada/slide-1.jpg", srcMovil: "images/portada/slide-1-movil.jpg", titulo: "Cerramiento en madera con postigos" },
+      { src: "images/portada/slide-2.jpg", srcMovil: "images/portada/slide-2-movil.jpg", titulo: "Cerramiento terminado y pintado" },
+      { src: "images/portada/slide-3.jpg", srcMovil: "images/portada/slide-3-movil.jpg", titulo: "Parrillero nuevo de ladrillo" },
+      { src: "images/portada/slide-4.jpg", srcMovil: "images/portada/slide-4-movil.jpg", titulo: "Habitación nueva terminada" },
+    ],
+    titular: ["Construimos", "tu proyecto."],
     bajada:
       "Obras llave en mano con presupuesto cerrado y plazos que se cumplen. Un solo equipo responsable, de la primera visita a la entrega.",
     ctaPrincipal: "Pedir presupuesto",
     ctaSecundario: "Ver servicios",
     chips: ["Llave en mano", "Presupuesto sin cargo", "Seguimiento de obra con fotos"],
-    badgeFlotante: "Visitas de obra disponibles esta semana",
-    scroll: "Deslizá para conocernos",
   },
 
   experiencia: {
@@ -253,7 +256,7 @@ export const site = {
       { src: "images/obras/obra-01.jpg", alt: "Fachada del cerramiento terminado, vista desde la calle" },
       { src: "images/obras/obra-02.jpg", alt: "Habitación nueva terminada, con puerta y ventana de madera" },
       { src: "images/obras/obra-03.jpg", alt: "Puertas de madera con vidrio repartido instaladas" },
-      { src: "images/obras/obra-04.jpg", alt: "Cerramiento en madera con postigos, antes de la pintura" },
+      { src: "images/obras/obra-04.jpg", alt: "Mesada y parrillero nuevos en obra gruesa" },
       { src: "images/obras/obra-05.jpg", alt: "Parrilla revestida con ladrillo refractario" },
       { src: "images/obras/obra-06.jpg", alt: "Piso nuevo colocado en la habitación" },
     ] satisfies Imagen[],
@@ -416,6 +419,9 @@ export const site = {
     navPrincipal: "Navegación principal",
     nuevaPestana: "(se abre en una pestaña nueva)",
     inicio: "Ir al inicio",
+    pausar: "Pausar las fotos de fondo",
+    reanudar: "Reanudar las fotos de fondo",
+    verFoto: (n: number, total: number) => `Ver foto ${n} de ${total}`,
     whatsappFlotante: "Pedir presupuesto por WhatsApp",
     estrellas: (n: number) => `${n.toFixed(1)} de 5 estrellas`,
     pendiente: "Pendiente",

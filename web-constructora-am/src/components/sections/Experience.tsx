@@ -3,7 +3,6 @@
 import { m, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { site } from "@/content/site";
-import { Pending } from "../ui/Pending";
 
 /** Años de experiencia + cita del responsable, animados con el scroll. */
 export function Experience() {
@@ -22,7 +21,7 @@ export function Experience() {
       id="experiencia"
       ref={ref}
       aria-labelledby="experiencia-titulo"
-      className="relative overflow-hidden bg-section pt-32 pb-24 sm:pt-40 sm:pb-32"
+      className="relative overflow-hidden bg-section py-24 sm:py-32"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <m.p
@@ -50,12 +49,16 @@ export function Experience() {
           <blockquote className="font-title text-[1.75rem] leading-[1.25] font-medium text-balance text-ink sm:text-[2.35rem]">
             “{site.experiencia.cita}”
           </blockquote>
-          <figcaption className="mt-6 flex flex-wrap items-center gap-2 text-base text-muted">
-            <span className="font-bold text-ink">
-              {responsable.nombre ?? <Pending className="text-accent-ink">Nombre del responsable pendiente</Pending>}
-            </span>
-            <span aria-hidden="true">·</span>
-            <span>{responsable.cargo ?? <Pending className="text-accent-ink">Cargo pendiente</Pending>}</span>
+          {/* Firma: se muestra cuando están cargados el nombre y el cargo en site.ts */}
+          <figcaption className="mt-6 text-base text-muted">
+            {responsable.nombre ? (
+              <>
+                <span className="font-bold text-ink">{responsable.nombre}</span>
+                {responsable.cargo && <span>, {responsable.cargo}</span>}
+              </>
+            ) : (
+              <span className="font-semibold text-ink">{site.marca.nombre}</span>
+            )}
           </figcaption>
         </m.figure>
       </div>

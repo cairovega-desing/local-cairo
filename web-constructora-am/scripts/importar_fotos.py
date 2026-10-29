@@ -18,10 +18,17 @@ OUT = ROOT / "public" / "images"
 PREFIX = "WhatsApp Image 2026-10-28 at "
 
 # destino: (archivo original sin prefijo, tamaño final, recorte opcional en píxeles del original)
-# Solo las fotos necesarias: 1 en el inicio, 4 en «Antes y después» y 6 obras terminadas.
+# Solo las fotos necesarias: 4 de fondo en la portada, 4 en «Antes y después» y 6 obras terminadas.
 FOTOS: dict[str, tuple[str, tuple[int, int], tuple[int, int, int, int] | None]] = {
-    # Foto del inicio (4:5).
-    "obra-destacada.jpg": ("17.09.43 (15).jpeg", (720, 900), (0, 300, 900, 1425)),
+    # Portada: 4 fondos que se van alternando (horizontal para computadora, vertical para celular).
+    "portada/slide-1.jpg": ("17.09.43 (4).jpeg", (1600, 900), None),
+    "portada/slide-1-movil.jpg": ("17.09.43 (4).jpeg", (720, 1280), (572, 0, 1078, 900)),
+    "portada/slide-2.jpg": ("17.09.43 (15).jpeg", (1600, 900), (0, 560, 900, 1066)),
+    "portada/slide-2-movil.jpg": ("17.09.43 (15).jpeg", (720, 1280), None),
+    "portada/slide-3.jpg": ("17.17.22 (9).jpeg", (1600, 900), None),
+    "portada/slide-3-movil.jpg": ("17.17.22 (9).jpeg", (720, 1280), (687, 0, 1193, 899)),
+    "portada/slide-4.jpg": ("17.09.43 (17).jpeg", (1600, 900), (0, 420, 900, 926)),
+    "portada/slide-4-movil.jpg": ("17.09.43 (17).jpeg", (720, 1280), None),
     # Antes y después 1: pasillo techado → habitación cerrada (mismo punto de vista).
     "antes-despues/cerramiento-antes.jpg": ("17.09.42 (9).jpeg", (900, 1200), (0, 200, 900, 1400)),
     "antes-despues/cerramiento-despues.jpg": ("17.09.43 (2).jpeg", (900, 1200), (0, 200, 900, 1400)),
@@ -32,7 +39,7 @@ FOTOS: dict[str, tuple[str, tuple[int, int], tuple[int, int, int, int] | None]] 
     "obras/obra-01.jpg": ("17.09.48 (1).jpeg", (900, 900), (75, 250, 900, 1075)),
     "obras/obra-02.jpg": ("17.09.43 (17).jpeg", (900, 900), (0, 500, 900, 1400)),
     "obras/obra-03.jpg": ("17.09.42.jpeg", (900, 900), (0, 450, 900, 1350)),
-    "obras/obra-04.jpg": ("17.09.43 (4).jpeg", (900, 900), (420, 0, 1320, 900)),
+    "obras/obra-04.jpg": ("17.17.24 (9).jpeg", (900, 900), (520, 0, 1222, 702)),
     "obras/obra-05.jpg": ("17.17.24 (2).jpeg", (900, 900), (350, 0, 1250, 900)),
     "obras/obra-06.jpg": ("17.09.42 (3).jpeg", (900, 900), (0, 700, 900, 1600)),
 }
@@ -56,7 +63,9 @@ def main() -> None:
         out = OUT / dest
         out.parent.mkdir(parents=True, exist_ok=True)
         # Guardar sin exif: se descartan ubicación y datos del teléfono.
-        img.save(out, "JPEG", quality=76, optimize=True, progressive=True)
+        # Los fondos de portada van bajo un velo oscuro: se pueden comprimir más sin que se note.
+        quality = 62 if dest.startswith("portada/") else 76
+        img.save(out, "JPEG", quality=quality, optimize=True, progressive=True)
         print(f"{dest:42s} ← {name}")
 
 

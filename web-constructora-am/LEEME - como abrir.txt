@@ -15,12 +15,14 @@ IMPORTANTE
 CAMBIAR LAS FOTOS
 La web usa pocas fotos, solo las necesarias, todas de obras reales.
 Para cambiar una, reemplazá el archivo dentro de «images» por otro con el MISMO nombre:
-  images/obra-destacada.jpg                  → foto vertical del inicio (4:5)
+  images/portada/slide-1.jpg … slide-4.jpg   → fondos de la portada (horizontales, cambian cada 10 s)
+  images/portada/slide-1-movil.jpg … 4       → los mismos fondos en vertical, para celular
   images/antes-despues/…-antes.jpg / …-despues.jpg → comparador antes y después
                                                (las dos fotos de cada par, mismo tamaño y ángulo)
   images/obras/obra-01.jpg … obra-06.jpg     → obras terminadas (cuadradas)
   images/logo-icon.png y favicon.svg         → ícono del logo
 Usá .jpg y fotos de menos de 300 KB para que la página cargue rápido.
+Los textos que acompañan a cada foto de portada están en site.ts (hero → slides).
 
 CAMBIAR TEXTOS Y DATOS
 Todos los textos y datos están en un solo archivo:
