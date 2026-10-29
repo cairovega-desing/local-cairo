@@ -28,12 +28,12 @@ export function Experience() {
         <m.p
           aria-hidden="true"
           style={reduce ? undefined : { x: numberX }}
-          className="font-title-xl text-[clamp(7rem,34vw,19rem)] leading-[0.8] font-extrabold tracking-[-0.06em] text-primary-deep"
+          className="font-title-xl text-[clamp(7rem,34vw,19rem)] leading-[0.8] font-bold tracking-[-0.05em] text-primary-deep"
         >
           {anios.valor}
           <span className="text-accent-ink">{anios.sufijo}</span>
         </m.p>
-        <h2 id="experiencia-titulo" className="mt-2 font-title text-2xl font-extrabold text-ink sm:text-3xl">
+        <h2 id="experiencia-titulo" className="mt-2 font-title text-2xl font-bold text-ink sm:text-3xl">
           <span className="sr-only">
             {anios.valor}
             {anios.sufijo}{" "}
@@ -45,7 +45,7 @@ export function Experience() {
           <m.div
             aria-hidden="true"
             style={reduce ? undefined : { scaleX: lineScale }}
-            className="mb-8 h-1 w-24 origin-left rounded-full bg-accent"
+            className="bg-gold mb-8 h-1 w-24 origin-left rounded-full"
           />
           <blockquote className="font-title text-[1.75rem] leading-[1.25] font-medium text-balance text-ink sm:text-[2.35rem]">
             “{site.experiencia.cita}”

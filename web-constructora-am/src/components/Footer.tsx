@@ -9,10 +9,10 @@ export function Footer() {
   const year = new Date().getFullYear();
   const link = "text-fog transition-colors hover:text-surface";
   return (
-    <footer className="on-dark border-t border-accent/40 bg-ink text-surface">
+    <footer className="on-dark border-t border-accent/30 bg-navy text-surface">
       <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1.2fr_1fr]">
         <div>
-          <Logo tone="light" />
+          <Logo tone="light" uid="footer" />
           <p className="mt-4 max-w-xs text-fog">{marca.slogan}</p>
           <div className="mt-6 flex gap-2">
             <ExternalLink href={whatsappUrl()} className="flex size-11 items-center justify-center rounded-full bg-white/10 hover:bg-whatsapp" aria-label={`WhatsApp ${site.a11y.nuevaPestana}`}>

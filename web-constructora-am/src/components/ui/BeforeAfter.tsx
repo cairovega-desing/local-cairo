@@ -94,7 +94,7 @@ export function BeforeAfter({ item, labels }: { item: AntesDespues; labels: Labe
       <span className="pointer-events-none absolute top-4 left-4 rounded-full bg-ink/75 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
         {labels.antes}
       </span>
-      <span className="pointer-events-none absolute top-4 right-4 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-ink">
+      <span className="bg-gold pointer-events-none absolute top-4 right-4 rounded-full px-3 py-1.5 text-xs font-bold text-ink">
         {labels.despues}
       </span>
 
@@ -126,7 +126,7 @@ export function BeforeAfter({ item, labels }: { item: AntesDespues; labels: Labe
       <div
         aria-hidden="true"
         style={{ left: `${pos}%` }}
-        className="pointer-events-none absolute top-1/2 flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-accent text-ink shadow-lift transition-transform duration-200 group-active:scale-110 peer-focus-visible:ring-4 peer-focus-visible:ring-white"
+        className="pointer-events-none absolute top-1/2 flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-gold rounded-full border-2 border-white text-ink shadow-lift transition-transform duration-200 group-active:scale-110 peer-focus-visible:ring-4 peer-focus-visible:ring-white"
       >
         <ChevronLeft className="-mr-1 size-4" strokeWidth={3} />
         <ChevronRight className="-ml-1 size-4" strokeWidth={3} />

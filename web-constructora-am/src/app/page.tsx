@@ -9,7 +9,6 @@ import { Contact } from "@/components/sections/Contact";
 import { Experience } from "@/components/sections/Experience";
 import { Faq } from "@/components/sections/Faq";
 import { FinalCta } from "@/components/sections/FinalCta";
-import { Gallery } from "@/components/sections/Gallery";
 import { Hero } from "@/components/sections/Hero";
 import { Location } from "@/components/sections/Location";
 import { Portfolio } from "@/components/sections/Portfolio";
@@ -39,7 +38,6 @@ export default function Home() {
         <BeforeAfterSection />
         <Portfolio />
         <Reviews />
-        <Gallery />
         <Process />
         <Faq />
         <Location />

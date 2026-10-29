@@ -50,7 +50,6 @@ export function Header() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Arriba de todo el header va sobre la foto oscura del hero: texto claro y fondo translúcido.
   const solid = scrolled || open;
 
   return (
@@ -59,12 +58,12 @@ export function Header() {
         className={cn(
           "mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-full border py-2 pr-2 pl-4 transition-[background-color,box-shadow,border-color] duration-500 ease-out-expo",
           solid
-            ? "border-primary/10 bg-surface/90 shadow-tinted backdrop-blur-xl"
-            : "border-white/15 bg-ink/20 backdrop-blur-md",
+            ? "border-accent/25 bg-surface/90 shadow-tinted backdrop-blur-xl"
+            : "border-transparent bg-transparent",
         )}
       >
         <a href="#inicio" aria-label={`${site.marca.nombre}, ${site.a11y.inicio.toLowerCase()}`} className="rounded-full">
-          <Logo tone={solid ? "dark" : "light"} />
+          <Logo uid="header" />
         </a>
 
         <nav aria-label={site.a11y.navPrincipal} className="hidden lg:block">
@@ -76,13 +75,7 @@ export function Header() {
                   aria-current={active === item.id ? "true" : undefined}
                   className={cn(
                     "rounded-full px-3.5 py-2 text-sm font-semibold transition-colors duration-300",
-                    solid
-                      ? active === item.id
-                        ? "bg-primary/10 text-ink"
-                        : "text-muted hover:text-ink"
-                      : active === item.id
-                        ? "bg-white/15 text-white"
-                        : "text-white/85 hover:text-white",
+                    active === item.id ? "bg-accent/15 text-ink" : "text-muted hover:text-ink",
                   )}
                 >
                   {item.label}
@@ -101,7 +94,7 @@ export function Header() {
           <button
             ref={toggleRef}
             type="button"
-            className="inline-flex size-11 items-center justify-center rounded-full bg-primary-deep text-surface lg:hidden"
+            className="inline-flex size-11 items-center justify-center rounded-full bg-navy text-accent-light lg:hidden"
             aria-expanded={open}
             aria-controls="menu-movil"
             aria-label={open ? site.a11y.cerrarMenu : site.a11y.abrirMenu}
@@ -132,7 +125,7 @@ export function Header() {
                     aria-current={active === item.id ? "true" : undefined}
                     className={cn(
                       "flex min-h-12 items-center rounded-2xl px-4 font-title text-lg font-bold",
-                      active === item.id ? "bg-primary-deep text-surface" : "text-ink hover:bg-section",
+                      active === item.id ? "bg-navy text-accent-light" : "text-ink hover:bg-section",
                     )}
                   >
                     {item.label}

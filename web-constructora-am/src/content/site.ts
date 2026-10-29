@@ -21,8 +21,6 @@ export type Servicio = {
   titulo: string;
   descripcion: string;
   incluye: [string, string, string];
-  /** Foto del servicio (public/images/servicios/…). */
-  imagen: string;
 };
 
 export type Resena = {
@@ -56,7 +54,6 @@ const lng = -54.1619254;
 const servicios: Servicio[] = [
   {
     id: "obra-nueva",
-    imagen: "images/servicios/servicio-01.jpg",
     icono: "casa",
     titulo: "Obra nueva llave en mano",
     descripcion: "Tu casa desde el terreno hasta la entrega de llaves.",
@@ -64,7 +61,6 @@ const servicios: Servicio[] = [
   },
   {
     id: "reformas",
-    imagen: "images/servicios/servicio-02.jpg",
     icono: "reforma",
     titulo: "Reformas integrales",
     descripcion: "Renovamos toda la vivienda con un solo responsable.",
@@ -72,7 +68,6 @@ const servicios: Servicio[] = [
   },
   {
     id: "ampliaciones",
-    imagen: "images/servicios/servicio-03.jpg",
     icono: "ampliacion",
     titulo: "Ampliaciones",
     descripcion: "Sumá metros a tu casa sin perder estilo ni calidad.",
@@ -80,7 +75,6 @@ const servicios: Servicio[] = [
   },
   {
     id: "banos-cocinas",
-    imagen: "images/servicios/servicio-04.jpg",
     icono: "bano",
     titulo: "Baños y cocinas",
     descripcion: "Los ambientes más usados, renovados a nuevo.",
@@ -88,7 +82,6 @@ const servicios: Servicio[] = [
   },
   {
     id: "techos",
-    imagen: "images/servicios/servicio-05.jpg",
     icono: "techo",
     titulo: "Impermeabilizaciones y techos",
     descripcion: "Chau humedades y filtraciones, también cerca del mar.",
@@ -96,7 +89,6 @@ const servicios: Servicio[] = [
   },
   {
     id: "steel-framing",
-    imagen: "images/servicios/servicio-06.jpg",
     icono: "steel",
     titulo: "Steel framing y construcción en seco",
     descripcion: "Obras más rápidas, livianas y bien aisladas.",
@@ -104,7 +96,6 @@ const servicios: Servicio[] = [
   },
   {
     id: "fachadas",
-    imagen: "images/servicios/servicio-07.jpg",
     icono: "fachada",
     titulo: "Fachadas y revestimientos",
     descripcion: "Una cara nueva para tu casa que resiste el clima.",
@@ -112,7 +103,6 @@ const servicios: Servicio[] = [
   },
   {
     id: "instalaciones",
-    imagen: "images/servicios/servicio-08.jpg",
     icono: "instalaciones",
     titulo: "Instalaciones sanitarias y eléctricas",
     descripcion: "Instalaciones seguras y en regla, a la vista o embutidas.",
@@ -124,8 +114,7 @@ export const site = {
   // ───────────────────────── Marca ─────────────────────────
   marca: {
     nombre,
-    // PENDIENTE: el slogan es el del ejemplo del brief. Confirmalo o cambialo.
-    slogan: "Construimos lo que imaginás.",
+    slogan: "Tu proyecto, nuestra base.",
     dominio: "https://www.constructora.com.uy",
   },
 
@@ -222,10 +211,7 @@ export const site = {
 
   // ───────────────────────── Secciones ─────────────────────────
   hero: {
-    // Foto de fondo a pantalla completa (horizontal) y foto destacada en el marco 4:5.
-    fondo: "images/portada.jpg",
-    fondoMovil: "images/portada-movil.jpg",
-    fondoAlt: "Cerramiento en madera con postigos construido por Constructora A&M",
+    // Única foto del inicio, en marco 4:5.
     foto: "images/obra-destacada.jpg",
     fotoAlt: "Cerramiento terminado: fachada blanca con puerta y postigos de madera",
     badge: `Constructora · ${zona}`,
@@ -246,10 +232,6 @@ export const site = {
 
   empresa: {
     titulo: "Construcción integral en un solo lugar",
-    fotos: [
-      { src: "images/obra-en-proceso.jpg", alt: "Estructura de madera y aberturas de un cerramiento en obra" },
-      { src: "images/hormigonado.jpg", alt: "Integrante del equipo nivelando un contrapiso recién hormigonado" },
-    ],
     parrafos: [
       "Trabajamos con equipo propio y coordinamos a todos los gremios de la obra: albañilería, sanitaria, eléctrica, herrería y terminaciones. Sin subcontratos innecesarios, vos tenés un solo interlocutor y nosotros respondemos por todo.",
       "Usamos materiales de primera, cumplimos la normativa vigente y dejamos todo por escrito: qué se hace, con qué materiales, cuánto cuesta y cuándo se entrega.",
@@ -263,20 +245,17 @@ export const site = {
   },
 
   obras: {
-    titulo: "Resultados reales",
-    intro: "Algunas de las obras que entregamos en la zona.",
+    titulo: "Obras terminadas",
+    intro: "Algunos trabajos que entregamos en la zona.",
     // Reemplazá cada foto en public/images/obras/ manteniendo el nombre.
+    // Solo las fotos necesarias: 6 obras terminadas. Reemplazá cada una manteniendo el nombre.
     items: [
-      { src: "images/obras/obra-01.jpg", alt: "Cerramiento terminado: fachada blanca con puerta y postigos de madera" },
-      { src: "images/obras/obra-02.jpg", alt: "Cerramiento en madera con postigos, antes de la pintura" },
-      { src: "images/obras/obra-03.jpg", alt: "Habitación nueva terminada, con puerta y ventana de madera" },
-      { src: "images/obras/obra-04.jpg", alt: "Puertas de madera con vidrio repartido instaladas" },
-      { src: "images/obras/obra-05.jpg", alt: "Piso nuevo colocado en la habitación" },
-      { src: "images/obras/obra-06.jpg", alt: "Parrillero nuevo de ladrillo en el fondo de una casa" },
-      { src: "images/obras/obra-07.jpg", alt: "Parrilla revestida con ladrillo refractario" },
-      { src: "images/obras/obra-08.jpg", alt: "Mesada y parrillero en obra gruesa" },
-      { src: "images/obras/obra-09.jpg", alt: "Cerramiento con postigos y puerta, visto desde el pasillo" },
-      { src: "images/obras/obra-10.jpg", alt: "Pérgola de madera con techo traslúcido" },
+      { src: "images/obras/obra-01.jpg", alt: "Fachada del cerramiento terminado, vista desde la calle" },
+      { src: "images/obras/obra-02.jpg", alt: "Habitación nueva terminada, con puerta y ventana de madera" },
+      { src: "images/obras/obra-03.jpg", alt: "Puertas de madera con vidrio repartido instaladas" },
+      { src: "images/obras/obra-04.jpg", alt: "Cerramiento en madera con postigos, antes de la pintura" },
+      { src: "images/obras/obra-05.jpg", alt: "Parrilla revestida con ladrillo refractario" },
+      { src: "images/obras/obra-06.jpg", alt: "Piso nuevo colocado en la habitación" },
     ] satisfies Imagen[],
     ctaInstagram: "Ver más obras en Instagram",
   },
@@ -312,25 +291,44 @@ export const site = {
   resenas: {
     titulo: "Lo que dicen nuestros clientes",
     bajada: "Puntuación en Google Maps · reseñas reales de clientes",
-    // PENDIENTE: pegá acá SOLO reseñas reales de Google Maps (nombre, texto y antigüedad).
-    // Mientras la lista esté vacía, se muestran tarjetas marcadas como pendientes.
-    items: [] as Resena[],
-    cta: "Dejanos tu opinión en Google Maps",
-  },
-
-  galeria: {
-    titulo: "Nuestra empresa",
-    texto:
-      "Detrás de cada obra hay un equipo que se conoce y trabaja con herramientas propias. Así se ve nuestro trabajo en el día a día.",
-    // Si src es null se muestra «Imagen pendiente: …».
+    // Reseñas reales de Google Maps, copiadas tal cual (incluidos los saltos de línea).
+    // Si la lista queda vacía, se muestran tarjetas marcadas como pendientes.
     items: [
-      { src: "images/fachada.jpg", alt: "Fachada de un cerramiento terminado, vista desde la calle", etiqueta: "Fachada de obra terminada" },
-      { src: "images/equipo.jpg", alt: "Integrante del equipo armando hierros para una platea", etiqueta: "Equipo en obra" },
-      { src: "images/obra-en-proceso.jpg", alt: "Cerramiento de madera en proceso", etiqueta: "Obra en proceso" },
-      { src: "images/hormigonado.jpg", alt: "Contrapiso recién hormigonado", etiqueta: "Hormigonado" },
-      // PENDIENTE: foto de la oficina / showroom.
-      { src: "images/oficina.jpg", alt: "Oficina y showroom de Constructora A&M", etiqueta: "Oficina / showroom" },
-    ] satisfies Imagen[],
+      {
+        nombre: "Cintya Ramcke",
+        antiguedad: "Hace 2 años",
+        texto:
+          "Excelente trabajo y muy rápido. Dejan todo limpio y organizado, recomiendo esta empresa! Soy brasileña y me ayudaron mucho, y a pesar de la diferencia de idioma, fueron muy educados. Precio justo.",
+      },
+      {
+        nombre: "Lucía Sciaraffia",
+        antiguedad: "Hace un año",
+        texto:
+          "Muy conforme con el trabajo.\nLos chicos muy dispuestos a todas las dudas y siempre a disposición\nLos recomiendo 100%.\nTrabajo con total garantía!",
+      },
+      {
+        nombre: "Gustavo Rosso",
+        antiguedad: "Hace 3 años",
+        texto:
+          "Realizaron un excelente trabajo,  los recomiendo no solo por eso ,sino por el compromiso y el trato personal.",
+      },
+      {
+        nombre: "Agustín Videla",
+        antiguedad: "Hace 3 años",
+        texto: "Muy buen asesoramiento. Tuve un problema en el techo y lo resolvieron excelentemente!",
+      },
+      {
+        nombre: "Carlos Cáceres",
+        antiguedad: "Hace 3 años",
+        texto: "Muy buenos profesionales, me resolvieron enseguida. Muy cordiales!",
+      },
+      {
+        nombre: "Mauro Correa Gabino",
+        antiguedad: "Hace 2 años",
+        texto: "Trabajos garantidos excelente personas.",
+      },
+    ] as Resena[],
+    cta: "Dejanos tu opinión en Google Maps",
   },
 
   pasos: {
@@ -401,8 +399,6 @@ export const site = {
   },
 
   ctaFinal: {
-    fondo: "images/cierre.jpg",
-    fondoAlt: "",
     lineas: ["Construí con", "confianza."],
     boton: "Pedir presupuesto",
   },

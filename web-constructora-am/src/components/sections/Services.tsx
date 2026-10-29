@@ -3,7 +3,7 @@
 import { Bath, BrickWall, Building2, Check, Droplets, Frame, Home, PaintRoller, Zap, type LucideIcon } from "lucide-react";
 import { m, useReducedMotion } from "framer-motion";
 import { mensajeServicio, site, whatsappUrl, type Servicio } from "@/content/site";
-import { asset, EASE } from "@/lib/utils";
+import { EASE } from "@/lib/utils";
 import { WhatsAppIcon } from "../ui/BrandIcons";
 import { SectionHeading } from "../ui/SectionHeading";
 
@@ -36,28 +36,18 @@ export function Services() {
                 whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 viewport={{ once: true, amount: 0.15 }}
                 transition={reduce ? { duration: 0 } : { duration: 0.8, ease: EASE, delay: (i % 4) * 0.08 }}
-                className="group flex flex-col overflow-hidden rounded-[1.75rem] bg-white shadow-tinted ring-1 ring-primary/[0.07] transition-[transform,box-shadow] duration-500 ease-out-expo hover:-translate-y-1.5 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                className="group flex flex-col overflow-hidden rounded-[1.75rem] bg-white shadow-tinted ring-1 ring-accent/15 transition-[transform,box-shadow] duration-500 ease-out-expo hover:-translate-y-1.5 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
-                <div className="relative aspect-[10/7] overflow-hidden bg-sand">
-                  <img
-                    src={asset(s.imagen)}
-                    alt=""
-                    width={800}
-                    height={560}
-                    loading="lazy"
-                    decoding="async"
-                    className="size-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105 motion-reduce:transition-none"
-                  />
-                  <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink/55 to-transparent" />
-                  <span className="absolute bottom-3 left-4 font-title text-sm font-extrabold text-white tabular-nums" aria-hidden="true">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="absolute -bottom-6 right-5 flex size-12 items-center justify-center rounded-2xl bg-accent text-ink shadow-tinted">
+                <div className="flex items-start justify-between px-6 pt-6">
+                  <span className="bg-gold flex size-12 items-center justify-center rounded-2xl text-ink shadow-tinted">
                     <Icon className="size-6" aria-hidden="true" />
                   </span>
+                  <span className="font-title text-sm font-bold text-accent-ink tabular-nums" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                 </div>
-                <div className="flex flex-1 flex-col p-6 pt-7">
-                  <h3 className="pr-12 font-title text-xl leading-tight font-extrabold text-balance text-ink">{s.titulo}</h3>
+                <div className="flex flex-1 flex-col p-6 pt-5">
+                  <h3 className="font-title text-lg leading-tight font-bold text-balance text-ink">{s.titulo}</h3>
                   <p className="mt-2 text-[0.95rem] leading-relaxed text-muted">{s.descripcion}</p>
                   <p className="mt-5 text-xs font-bold text-accent-ink">Incluye</p>
                   <ul className="mt-2 grid gap-1.5 text-sm text-ink">
@@ -73,7 +63,7 @@ export function Services() {
                       href={whatsappUrl(mensajeServicio(s))}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-primary/20 px-3 text-sm font-bold whitespace-nowrap text-ink transition-colors hover:border-whatsapp hover:bg-whatsapp hover:text-white"
+                      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-accent/40 px-3 text-sm font-bold whitespace-nowrap text-ink transition-colors hover:border-whatsapp hover:bg-whatsapp hover:text-white"
                     >
                       <WhatsAppIcon className="size-4" />
                       Consultar por WhatsApp

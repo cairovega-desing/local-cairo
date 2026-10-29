@@ -13,7 +13,7 @@ export function Process() {
           <span aria-hidden="true" className="absolute top-2 bottom-2 left-7 w-0 border-l-2 border-dashed border-accent/60 lg:top-7 lg:right-[12%] lg:bottom-auto lg:left-[12%] lg:h-0 lg:w-auto lg:border-t-2 lg:border-l-0" />
           {pasos.items.map((p, i) => (
             <Reveal as="li" key={p.titulo} delay={i * 0.1} className="relative flex gap-5 lg:flex-col lg:items-center lg:text-center">
-              <span className="relative z-10 flex size-14 shrink-0 items-center justify-center rounded-full border-4 border-section bg-primary-deep font-title text-lg font-extrabold text-accent-light shadow-tinted">
+              <span className="relative z-10 flex size-14 shrink-0 items-center justify-center rounded-full border-4 border-section bg-navy font-title text-lg font-bold text-accent-light shadow-tinted">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div>

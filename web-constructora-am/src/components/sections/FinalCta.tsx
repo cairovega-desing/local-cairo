@@ -1,27 +1,18 @@
 import { site, whatsappUrl } from "@/content/site";
-import { asset } from "@/lib/utils";
 import { buttonClass } from "../ui/Button";
 import { ExternalLink } from "../ui/ExternalLink";
+import { LogoMark } from "../ui/Logo";
 import { Reveal } from "../ui/Reveal";
 
 export function FinalCta() {
   const { ctaFinal } = site;
   return (
-    <section aria-labelledby="cta-final-titulo" className="on-dark relative isolate mt-4 overflow-hidden bg-primary-deep py-28 text-white sm:py-40">
-      <img
-        src={asset(ctaFinal.fondo)}
-        alt={ctaFinal.fondoAlt}
-        width={1600}
-        height={900}
-        loading="lazy"
-        decoding="async"
-        className="absolute inset-0 -z-20 size-full object-cover"
-      />
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-br from-ink/95 via-primary-deep/85 to-ink/70" />
+    <section aria-labelledby="cta-final-titulo" className="on-dark relative isolate mt-4 overflow-hidden bg-navy py-28 text-white sm:py-36">
+      <LogoMark uid="cta-agua" className="pointer-events-none absolute -right-20 -bottom-16 -z-10 w-[44rem] max-w-none opacity-[0.12]" />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
-          <span aria-hidden="true" className="mb-8 block h-0.5 w-20 rounded-full bg-accent" />
-          <h2 id="cta-final-titulo" className="font-title-xl text-[clamp(3rem,12vw,8rem)] leading-[0.92] font-extrabold text-white">
+          <span aria-hidden="true" className="bg-gold mb-8 block h-1 w-20 rounded-full" />
+          <h2 id="cta-final-titulo" className="font-title-xl text-[clamp(2.8rem,11vw,7rem)] leading-[0.98] font-bold text-white">
             {ctaFinal.lineas.map((l) => (
               <span key={l} className="block">
                 {l}

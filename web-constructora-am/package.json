@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && node scripts/relativize.mjs",
-    "images": "python3 scripts/make_images.py",
+    "brand": "node scripts/make_brand.mjs",
     "package": "npm run build && python3 scripts/package.py",
     "typecheck": "tsc --noEmit"
   },

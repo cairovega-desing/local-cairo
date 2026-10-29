@@ -1,31 +1,31 @@
 @import "tailwindcss";
 
-/* Tokens de marca: marrón, beige, blanco y dorado. */
+/* Tokens de marca, tomados del logo: crema, dorado metálico y marrón casi negro. */
 @theme inline {
-  --color-primary: #6b4a33; /* marrón nogal */
-  --color-primary-deep: #3e2a1e; /* marrón profundo */
-  --color-accent: #c9a15a; /* dorado */
-  --color-accent-light: #e2c68f;
-  --color-accent-deep: #b08a45;
-  --color-accent-ink: #75571f; /* dorado para texto sobre fondo claro (AA) */
-  --color-ink: #2a1f17; /* espresso: texto principal */
-  --color-navy: #33251b; /* cacao: bloques oscuros */
-  --color-surface: #fbf8f3; /* blanco cálido */
-  --color-section: #f2eadf; /* beige */
-  --color-sand: #e6d7c3; /* beige profundo */
-  --color-line: #e4d9ca;
-  --color-muted: #6f6052;
-  --color-fog: #d9cbb8; /* texto secundario sobre oscuro */
+  --color-primary: #6e4e1e; /* bronce (íconos y detalles) */
+  --color-primary-deep: #2e2010; /* marrón muy oscuro */
+  --color-accent: #c49546; /* dorado */
+  --color-accent-light: #e3c27e;
+  --color-accent-deep: #a97b34;
+  --color-accent-ink: #7a5520; /* dorado para texto sobre fondo claro (AA) */
+  --color-ink: #24180d; /* texto principal */
+  --color-navy: #1c140c; /* bloques oscuros: el dorado resalta encima */
+  --color-surface: #fffdf9; /* blanco cálido */
+  --color-section: #f4ede2; /* crema del logo */
+  --color-sand: #e9dcc8;
+  --color-line: #e8dccb;
+  --color-muted: #6b5b4b;
+  --color-fog: #d8cbb8; /* texto secundario sobre oscuro */
   --color-whatsapp: #17803f;
   --color-whatsapp-brand: #25d366;
 
-  --font-display: var(--font-manrope), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-montserrat), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-sans: var(--font-manrope), system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --shadow-tinted: 0 1px 2px rgb(42 31 23 / 0.05), 0 14px 34px -14px rgb(62 42 30 / 0.22);
-  --shadow-lift: 0 2px 4px rgb(42 31 23 / 0.06), 0 28px 56px -18px rgb(62 42 30 / 0.34);
+  --shadow-tinted: 0 1px 2px rgb(36 24 13 / 0.05), 0 14px 34px -14px rgb(110 78 30 / 0.25);
+  --shadow-lift: 0 2px 4px rgb(36 24 13 / 0.06), 0 28px 56px -18px rgb(110 78 30 / 0.35);
 }
 
 @layer base {
@@ -64,14 +64,32 @@
 }
 
 @layer utilities {
-  /* Titulares: Manrope muy pesada y apretada, moderna y limpia. */
+  /* Titulares en Montserrat, la misma familia del logo. */
   .font-title {
     font-family: var(--font-display);
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
   }
   .font-title-xl {
     font-family: var(--font-display);
-    letter-spacing: -0.045em;
+    letter-spacing: -0.035em;
+  }
+
+  /* Dorado metálico del logo (botones, filetes y cifras). */
+  .bg-gold {
+    background-image: linear-gradient(120deg, #b0813a 0%, #d6ac5e 30%, #e6c784 50%, #c99a4c 72%, #b0813a 100%);
+    background-size: 200% 100%;
+    background-position: 0% 0;
+    transition: background-position 0.6s var(--ease-out-expo);
+  }
+  .bg-gold:hover {
+    background-position: 100% 0;
+  }
+  .text-gold {
+    /* Tonos oscuros del dorado: legible sobre crema (contraste AA). */
+    background-image: linear-gradient(120deg, #7a5520 0%, #a97b34 45%, #6e4e1e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   /* Cuadrícula sutil (evoca planos) para el bloque de contacto. */

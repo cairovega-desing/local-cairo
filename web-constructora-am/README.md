@@ -10,7 +10,7 @@ npm install
 npm run dev        # desarrollo en http://localhost:3000
 npm run build      # genera out/ (sitio estático con rutas relativas)
 npm run package    # build + arma Web_ConstructoraAM.zip
-npm run images     # regenera logo e imágenes de relleno (requiere Python + Pillow)
+npm run brand      # regenera logo-icon.png y og.jpg desde el logo en vector (requiere Playwright)
 python3 scripts/importar_fotos.py "<carpeta con fotos de WhatsApp>"   # recorta y comprime las fotos reales
 ```
 
@@ -22,7 +22,9 @@ python3 scripts/importar_fotos.py "<carpeta con fotos de WhatsApp>"   # recorta 
   original va en cada lugar, con qué recorte, y les quita los metadatos (ubicación GPS, teléfono).
 - **Antes y después:** `site.antesDespues` en `site.ts`. Cada par necesita dos fotos del mismo tamaño,
   sacadas desde el mismo ángulo.
-- **Colores y tipografías:** tokens en `src/app/globals.css` (`@theme`) y fuentes en `src/app/layout.tsx`.
+- **Logo:** monograma en vector en `src/components/ui/Logo.tsx` (y `public/favicon.svg`).
+- **Colores y tipografías:** paleta del logo (crema, dorado metálico, marrón casi negro) como tokens en
+  `src/app/globals.css` (`@theme`, más `.bg-gold` y `.text-gold`); Montserrat + Manrope en `src/app/layout.tsx`.
 - **Formulario → Formspree/EmailJS:** poné la URL en `site.formulario.endpoint`; el envío está en
   `src/lib/enviarConsulta.ts`. Sin endpoint, el formulario arma el mensaje y abre WhatsApp.
 

@@ -13,15 +13,15 @@ export function Portfolio() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading id="obras-titulo" title={obras.titulo} intro={obras.intro} />
         <Reveal delay={0.1}>
-          <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+          <ul className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
             {obras.items.map((o) => (
               <li key={o.alt} className="group relative overflow-hidden rounded-2xl bg-sand shadow-tinted sm:rounded-3xl">
                 {o.src ? (
                   <img
                     src={asset(o.src)}
                     alt={o.alt}
-                    width={800}
-                    height={800}
+                    width={900}
+                    height={900}
                     loading="lazy"
                     decoding="async"
                     className="aspect-square size-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100"

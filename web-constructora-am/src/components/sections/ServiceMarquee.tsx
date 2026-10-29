@@ -18,7 +18,7 @@ export function ServiceMarquee() {
   );
   return (
     <div className="relative z-10 -my-8 overflow-hidden py-6" role="region" aria-label="Nuestros servicios">
-      <div className="-mx-4 -rotate-1 border-y border-accent/70 bg-primary-deep py-5 shadow-lift">
+      <div className="-mx-4 -rotate-1 border-y border-accent/70 bg-navy py-5 shadow-lift">
         <div className="mask-fade-x flex overflow-hidden">
           <div className="animate-marquee flex w-max" style={{ ["--marquee-duration" as string]: "35s" }}>
             {row(false)}

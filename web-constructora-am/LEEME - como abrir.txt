@@ -13,18 +13,13 @@ IMPORTANTE
 - El mapa de Google y los botones de WhatsApp necesitan conexión a internet.
 
 CAMBIAR LAS FOTOS
-La web ya usa fotos reales de obras. Las que dicen «Foto pendiente» son de relleno
-(oficina / showroom, y los servicios «Obra nueva» y «Baños y cocinas»).
-Para cambiar una foto, reemplazá el archivo dentro de «images» por otro con el MISMO nombre:
-  images/portada.jpg y portada-movil.jpg     → foto de fondo de la portada
+La web usa pocas fotos, solo las necesarias, todas de obras reales.
+Para cambiar una, reemplazá el archivo dentro de «images» por otro con el MISMO nombre:
   images/obra-destacada.jpg                  → foto vertical del inicio (4:5)
   images/antes-despues/…-antes.jpg / …-despues.jpg → comparador antes y después
                                                (las dos fotos de cada par, mismo tamaño y ángulo)
-  images/obras/obra-01.jpg … obra-10.jpg     → obras realizadas (cuadradas)
-  images/servicios/servicio-01.jpg … 08.jpg  → foto de cada servicio
-  images/oficina.jpg, equipo.jpg, obra-en-proceso.jpg, hormigonado.jpg, fachada.jpg
-  images/cierre.jpg                          → fondo del cierre
-  images/logo-icon.png                       → ícono del logo
+  images/obras/obra-01.jpg … obra-06.jpg     → obras terminadas (cuadradas)
+  images/logo-icon.png y favicon.svg         → ícono del logo
 Usá .jpg y fotos de menos de 300 KB para que la página cargue rápido.
 
 CAMBIAR TEXTOS Y DATOS

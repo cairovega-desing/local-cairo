@@ -18,7 +18,7 @@ function ReviewCard({ r }: { r: Card }) {
     <figure
       className={
         "flex w-[19rem] shrink-0 flex-col rounded-[1.75rem] p-6 sm:w-[23rem] " +
-        (r.pendiente ? "border-2 border-dashed border-white/20 bg-white/[0.03]" : "border border-white/10 bg-white/[0.06]")
+        (r.pendiente ? "border-2 border-dashed border-white/20 bg-white/[0.03]" : "border border-accent/20 bg-white/[0.05]")
       }
     >
       <div className="flex items-center justify-between">
@@ -29,11 +29,11 @@ function ReviewCard({ r }: { r: Card }) {
           </span>
         )}
       </div>
-      <blockquote className="mt-4 flex-1 text-[0.98rem] leading-relaxed text-surface/90">{r.texto}</blockquote>
+      <blockquote className="mt-4 flex-1 text-[0.98rem] leading-relaxed whitespace-pre-line text-surface/90">{r.texto}</blockquote>
       <figcaption className="mt-6 flex items-center gap-3">
         <span
           aria-hidden="true"
-          className="flex size-10 items-center justify-center rounded-full bg-accent font-title font-extrabold text-ink"
+          className="bg-gold flex size-10 items-center justify-center rounded-full font-title font-bold text-ink"
         >
           {r.pendiente ? "?" : r.nombre.trim()[0]?.toUpperCase()}
         </span>
@@ -75,19 +75,19 @@ export function Reviews() {
   const fila2 = cards.length > 3 ? cards.slice(mitad) : [...cards].reverse();
 
   return (
-    <section id="opiniones" aria-labelledby="opiniones-titulo" className="on-dark relative overflow-hidden bg-ink py-24 text-surface sm:py-32">
+    <section id="opiniones" aria-labelledby="opiniones-titulo" className="on-dark relative overflow-hidden bg-navy py-24 text-surface sm:py-32">
       <div aria-hidden="true" className="absolute -top-40 left-1/2 size-[40rem] -translate-x-1/2 rounded-full bg-primary/30 blur-3xl" />
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <span aria-hidden="true" className="mb-6 block h-0.5 w-14 rounded-full bg-accent" />
-            <h2 id="opiniones-titulo" className="font-title text-[2.1rem] leading-[1.05] font-extrabold text-white sm:text-5xl">
+            <span aria-hidden="true" className="bg-gold mb-6 block h-1 w-14 rounded-full" />
+            <h2 id="opiniones-titulo" className="font-title text-[2rem] leading-[1.1] font-bold text-white sm:text-[2.9rem]">
               {resenas.titulo}
             </h2>
             <p className="mt-4 text-lg text-fog">{resenas.bajada}</p>
           </div>
           <div className="flex items-center gap-4">
-            <p className="font-title-xl text-7xl leading-none font-extrabold text-accent sm:text-8xl">
+            <p className="font-title-xl text-7xl leading-none font-bold text-accent-light sm:text-8xl">
               {google.calificacion.toFixed(1)}
             </p>
             <div className="flex" role="img" aria-label={site.a11y.estrellas(google.calificacion)}>
