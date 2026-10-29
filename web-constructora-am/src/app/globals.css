@@ -1,29 +1,31 @@
 @import "tailwindcss";
 
-/* Tokens de marca: carbón + azul acero + amarillo obra sobre hormigón claro. */
+/* Tokens de marca: marrón, beige, blanco y dorado. */
 @theme inline {
-  --color-primary: #2e5673;
-  --color-primary-deep: #1d3a50;
-  --color-accent: #f5b400;
-  --color-accent-deep: #d99c00;
-  --color-accent-ink: #7a5900;
-  --color-ink: #161a1f;
-  --color-navy: #1b2733;
-  --color-surface: #f4f4f1;
-  --color-section: #e7e7e2;
-  --color-line: #d3d4ce;
-  --color-muted: #5a626b;
-  --color-fog: #b8c0c8;
+  --color-primary: #6b4a33; /* marrón nogal */
+  --color-primary-deep: #3e2a1e; /* marrón profundo */
+  --color-accent: #c9a15a; /* dorado */
+  --color-accent-light: #e2c68f;
+  --color-accent-deep: #b08a45;
+  --color-accent-ink: #8a6a2e; /* dorado para texto sobre fondo claro (AA) */
+  --color-ink: #2a1f17; /* espresso: texto principal */
+  --color-navy: #33251b; /* cacao: bloques oscuros */
+  --color-surface: #fbf8f3; /* blanco cálido */
+  --color-section: #f2eadf; /* beige */
+  --color-sand: #e6d7c3; /* beige profundo */
+  --color-line: #e4d9ca;
+  --color-muted: #6f6052;
+  --color-fog: #d9cbb8; /* texto secundario sobre oscuro */
   --color-whatsapp: #17803f;
   --color-whatsapp-brand: #25d366;
 
-  --font-display: var(--font-archivo), "Arial Narrow", system-ui, sans-serif;
-  --font-sans: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-manrope), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: var(--font-manrope), system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --shadow-tinted: 0 1px 2px rgb(22 26 31 / 0.06), 0 12px 32px -12px rgb(29 58 80 / 0.28);
-  --shadow-lift: 0 2px 4px rgb(22 26 31 / 0.06), 0 24px 48px -16px rgb(29 58 80 / 0.38);
+  --shadow-tinted: 0 1px 2px rgb(42 31 23 / 0.05), 0 14px 34px -14px rgb(62 42 30 / 0.22);
+  --shadow-lift: 0 2px 4px rgb(42 31 23 / 0.06), 0 28px 56px -18px rgb(62 42 30 / 0.34);
 }
 
 @layer base {
@@ -48,13 +50,12 @@
     scroll-margin-top: 6rem;
   }
   :focus-visible {
-    outline: 3px solid var(--color-accent);
+    outline: 3px solid var(--color-accent-deep);
     outline-offset: 3px;
     border-radius: 0.5rem;
   }
-  .bg-ink :focus-visible,
-  .bg-navy :focus-visible {
-    outline-color: var(--color-accent);
+  .on-dark :focus-visible {
+    outline-color: var(--color-accent-light);
   }
   ::selection {
     background: var(--color-accent);
@@ -63,27 +64,35 @@
 }
 
 @layer utilities {
-  /* Archivo ensanchada: titulares con cuerpo de cartel de obra. */
-  .font-wide {
+  /* Titulares: Manrope muy pesada y apretada, moderna y limpia. */
+  .font-title {
     font-family: var(--font-display);
-    font-variation-settings: "wdth" 118;
+    letter-spacing: -0.03em;
   }
-  .font-wide-max {
+  .font-title-xl {
     font-family: var(--font-display);
-    font-variation-settings: "wdth" 125;
+    letter-spacing: -0.045em;
+  }
+
+  /* Texto dorado con brillo sutil (solo para cifras grandes sobre fondo oscuro). */
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #e2c68f 0%, #c9a15a 45%, #9c7a3c 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   /* Cuadrícula de plano. */
   .bg-plano {
     background-image:
-      linear-gradient(to right, rgb(29 58 80 / 0.07) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(29 58 80 / 0.07) 1px, transparent 1px);
+      linear-gradient(to right, rgb(107 74 51 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(107 74 51 / 0.06) 1px, transparent 1px);
     background-size: 32px 32px;
   }
   .bg-plano-dark {
     background-image:
-      linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+      linear-gradient(to right, rgb(226 198 143 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(226 198 143 / 0.06) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 

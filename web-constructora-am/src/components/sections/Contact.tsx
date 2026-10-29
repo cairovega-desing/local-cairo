@@ -83,7 +83,7 @@ export function Contact() {
 
         <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-2 lg:gap-16">
           <Reveal>
-            <h2 id="presupuesto-titulo" className="font-wide-max text-[2.4rem] leading-[0.98] font-black tracking-[-0.03em] text-balance sm:text-6xl">
+            <h2 id="presupuesto-titulo" className="font-title-xl text-[2.4rem] leading-[0.98] font-black tracking-[-0.03em] text-balance sm:text-6xl">
               {c.titulo}
             </h2>
             <p className="mt-5 max-w-md text-lg text-fog">{c.texto}</p>

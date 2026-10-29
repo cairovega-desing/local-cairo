@@ -42,7 +42,7 @@ export function Services() {
                   <span className="flex size-12 items-center justify-center rounded-2xl bg-ink text-accent transition-colors duration-300 group-hover:bg-primary-deep">
                     <Icon className="size-6" aria-hidden="true" />
                   </span>
-                  <span className="font-wide text-sm font-bold text-muted tabular-nums" aria-hidden="true">
+                  <span className="font-title text-sm font-bold text-muted tabular-nums" aria-hidden="true">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>

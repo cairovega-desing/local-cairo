@@ -1,21 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Plus_Jakarta_Sans } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { site } from "@/content/site";
 import { buildJsonLd } from "@/lib/schema";
 import "./globals.css";
 
-const archivo = Archivo({
+// Una sola familia (variable): titulares en 800 y texto en 400–500.
+// Con preload la web publicada pinta antes. Al abrir con file:// Chrome avisa en la consola
+// que no puede usar el preload, pero la fuente igual carga desde el CSS: no afecta lo visible.
+const manrope = Manrope({
   subsets: ["latin"],
-  axes: ["wdth"],
-  variable: "--font-archivo",
-  display: "swap",
-  // Con preload la web publicada pinta antes (mejor LCP). Al abrir con file:// Chrome avisa en la
-  // consola que no puede usar el preload, pero la fuente igual carga desde el CSS: no afecta lo visible.
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-manrope",
   display: "swap",
 });
 
@@ -47,14 +41,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#161a1f",
+  themeColor: "#3e2a1e",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es-UY" className={`${archivo.variable} ${jakarta.variable}`}>
+    <html lang="es-UY" className={manrope.variable}>
       <head>
         {/* Rutas relativas para que funcione al abrir index.html sin servidor. */}
         <link rel="icon" href="./favicon.svg" type="image/svg+xml" />

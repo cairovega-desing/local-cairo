@@ -42,7 +42,7 @@ export function Hero() {
 
           <h1
             id="hero-titulo"
-            className="mt-6 font-wide-max text-[clamp(2.6rem,11.5vw,4.4rem)] lg:text-[4.5rem] leading-[0.92] font-black tracking-[-0.035em] text-ink"
+            className="mt-6 font-title-xl text-[clamp(2.6rem,11.5vw,4.4rem)] lg:text-[4.5rem] leading-[0.92] font-black tracking-[-0.035em] text-ink"
           >
             {hero.titular.map((line) => (
               <span key={line} className="block overflow-hidden pb-[0.06em]">
@@ -128,7 +128,7 @@ export function Hero() {
                   ))}
                 </div>
                 <p className="text-sm leading-tight text-muted">
-                  <strong className="font-wide text-base text-ink">
+                  <strong className="font-title text-base text-ink">
                     {cifras.obras.prefijo}
                     {cifras.obras.valor}
                   </strong>{" "}

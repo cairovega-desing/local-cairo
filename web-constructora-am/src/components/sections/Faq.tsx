@@ -29,7 +29,7 @@ export function Faq() {
                     aria-expanded={isOpen}
                     aria-controls={panelId}
                     onClick={() => setOpen(isOpen ? null : i)}
-                    className="flex min-h-16 w-full items-center justify-between gap-4 rounded-[1.5rem] px-5 py-4 text-left font-wide text-lg font-bold text-ink sm:px-7"
+                    className="flex min-h-16 w-full items-center justify-between gap-4 rounded-[1.5rem] px-5 py-4 text-left font-title text-lg font-bold text-ink sm:px-7"
                   >
                     {item.pregunta}
                     <span

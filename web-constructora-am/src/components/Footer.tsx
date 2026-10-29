@@ -27,7 +27,7 @@ export function Footer() {
         </div>
 
         <nav aria-labelledby="footer-empresa">
-          <h2 id="footer-empresa" className="font-wide font-bold">
+          <h2 id="footer-empresa" className="font-title font-bold">
             {footer.columnas.empresa}
           </h2>
           <ul className="mt-4 grid gap-2.5">
@@ -42,7 +42,7 @@ export function Footer() {
         </nav>
 
         <div>
-          <h2 className="font-wide font-bold">{footer.columnas.servicios}</h2>
+          <h2 className="font-title font-bold">{footer.columnas.servicios}</h2>
           <ul className="mt-4 grid gap-2.5">
             {site.servicios.items.map((s) => (
               <li key={s.id}>
@@ -55,7 +55,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h2 className="font-wide font-bold">{footer.columnas.contacto}</h2>
+          <h2 className="font-title font-bold">{footer.columnas.contacto}</h2>
           <ul className="mt-4 grid gap-3">
             <li className="flex gap-2 text-fog">
               <MapPin className="mt-0.5 size-5 shrink-0" aria-hidden="true" />

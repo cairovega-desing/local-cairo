@@ -28,12 +28,12 @@ export function Experience() {
         <m.p
           aria-hidden="true"
           style={reduce ? undefined : { x: numberX }}
-          className="font-wide-max text-[clamp(7rem,34vw,20rem)] leading-[0.8] font-black tracking-[-0.06em] text-primary-deep/90"
+          className="font-title-xl text-[clamp(7rem,34vw,20rem)] leading-[0.8] font-black tracking-[-0.06em] text-primary-deep/90"
         >
           {anios.valor}
           <span className="text-accent">{anios.sufijo}</span>
         </m.p>
-        <h2 id="experiencia-titulo" className="mt-2 font-wide text-2xl font-extrabold text-ink sm:text-3xl">
+        <h2 id="experiencia-titulo" className="mt-2 font-title text-2xl font-extrabold text-ink sm:text-3xl">
           <span className="sr-only">
             {anios.valor}
             {anios.sufijo}{" "}

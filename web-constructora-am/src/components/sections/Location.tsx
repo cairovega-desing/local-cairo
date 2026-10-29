@@ -25,7 +25,7 @@ export function Location() {
     <section id="ubicacion" aria-labelledby="ubicacion-titulo" className="bg-surface py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
-          <h2 id="ubicacion-titulo" className="max-w-3xl font-wide text-[2rem] leading-[1.02] font-extrabold tracking-[-0.02em] text-balance text-ink sm:text-5xl">
+          <h2 id="ubicacion-titulo" className="max-w-3xl font-title text-[2rem] leading-[1.02] font-extrabold tracking-[-0.02em] text-balance text-ink sm:text-5xl">
             {ubicacion.titulo} {direccionTexto}
           </h2>
         </Reveal>
@@ -56,7 +56,7 @@ export function Location() {
                   <span className="sr-only">Teléfono</span>
                 </dt>
                 <dd>
-                  <a href={`tel:${contacto.telefonoInternacional}`} className="font-wide text-xl font-bold text-ink underline decoration-accent decoration-2 underline-offset-4 hover:decoration-ink">
+                  <a href={`tel:${contacto.telefonoInternacional}`} className="font-title text-xl font-bold text-ink underline decoration-accent decoration-2 underline-offset-4 hover:decoration-ink">
                     {contacto.telefono}
                   </a>
                 </dd>

@@ -13,7 +13,7 @@ export function FinalCta() {
           <Cota label={site.zona} className="mb-8 text-primary/70" />
           <h2
             id="cta-final-titulo"
-            className="font-wide-max text-[clamp(3rem,13vw,9rem)] leading-[0.88] font-black tracking-[-0.045em] text-ink"
+            className="font-title-xl text-[clamp(3rem,13vw,9rem)] leading-[0.88] font-black tracking-[-0.045em] text-ink"
           >
             {ctaFinal.lineas.map((l) => (
               <span key={l} className="block">

@@ -21,6 +21,8 @@ export type Servicio = {
   titulo: string;
   descripcion: string;
   incluye: [string, string, string];
+  /** Foto del servicio (public/images/servicios/…). */
+  imagen: string;
 };
 
 export type Resena = {
@@ -43,6 +45,7 @@ const lng = -54.1619254;
 const servicios: Servicio[] = [
   {
     id: "obra-nueva",
+    imagen: "images/servicios/servicio-01.jpg",
     icono: "casa",
     titulo: "Obra nueva llave en mano",
     descripcion: "Tu casa desde el terreno hasta la entrega de llaves.",
@@ -50,6 +53,7 @@ const servicios: Servicio[] = [
   },
   {
     id: "reformas",
+    imagen: "images/servicios/servicio-02.jpg",
     icono: "reforma",
     titulo: "Reformas integrales",
     descripcion: "Renovamos toda la vivienda con un solo responsable.",
@@ -57,6 +61,7 @@ const servicios: Servicio[] = [
   },
   {
     id: "ampliaciones",
+    imagen: "images/servicios/servicio-03.jpg",
     icono: "ampliacion",
     titulo: "Ampliaciones",
     descripcion: "Sumá metros a tu casa sin perder estilo ni calidad.",
@@ -64,6 +69,7 @@ const servicios: Servicio[] = [
   },
   {
     id: "banos-cocinas",
+    imagen: "images/servicios/servicio-04.jpg",
     icono: "bano",
     titulo: "Baños y cocinas",
     descripcion: "Los ambientes más usados, renovados a nuevo.",
@@ -71,6 +77,7 @@ const servicios: Servicio[] = [
   },
   {
     id: "techos",
+    imagen: "images/servicios/servicio-05.jpg",
     icono: "techo",
     titulo: "Impermeabilizaciones y techos",
     descripcion: "Chau humedades y filtraciones, también cerca del mar.",
@@ -78,6 +85,7 @@ const servicios: Servicio[] = [
   },
   {
     id: "steel-framing",
+    imagen: "images/servicios/servicio-06.jpg",
     icono: "steel",
     titulo: "Steel framing y construcción en seco",
     descripcion: "Obras más rápidas, livianas y bien aisladas.",
@@ -85,6 +93,7 @@ const servicios: Servicio[] = [
   },
   {
     id: "fachadas",
+    imagen: "images/servicios/servicio-07.jpg",
     icono: "fachada",
     titulo: "Fachadas y revestimientos",
     descripcion: "Una cara nueva para tu casa que resiste el clima.",
@@ -92,6 +101,7 @@ const servicios: Servicio[] = [
   },
   {
     id: "instalaciones",
+    imagen: "images/servicios/servicio-08.jpg",
     icono: "instalaciones",
     titulo: "Instalaciones sanitarias y eléctricas",
     descripcion: "Instalaciones seguras y en regla, a la vista o embutidas.",
@@ -203,6 +213,9 @@ export const site = {
 
   // ───────────────────────── Secciones ─────────────────────────
   hero: {
+    // Foto de fondo a pantalla completa (ideal: una obra terminada, horizontal, 1920×1200).
+    fondo: "images/portada.jpg",
+    fondoAlt: "Vivienda terminada por Constructora A&M",
     badge: `Constructora · ${zona}`,
     titular: ["Construimos", "tu", "proyecto."],
     bajada:
@@ -221,6 +234,10 @@ export const site = {
 
   empresa: {
     titulo: "Construcción integral en un solo lugar",
+    fotos: [
+      { src: "images/oficina.jpg", alt: "Oficina y showroom de Constructora A&M" },
+      { src: "images/obra-en-proceso.jpg", alt: "Obra en proceso a cargo del equipo de Constructora A&M" },
+    ],
     parrafos: [
       "Trabajamos con equipo propio y coordinamos a todos los gremios de la obra: albañilería, sanitaria, eléctrica, herrería y terminaciones. Sin subcontratos innecesarios, vos tenés un solo interlocutor y nosotros respondemos por todo.",
       "Usamos materiales de primera, cumplimos la normativa vigente y dejamos todo por escrito: qué se hace, con qué materiales, cuánto cuesta y cuándo se entrega.",
@@ -343,6 +360,7 @@ export const site = {
   },
 
   ctaFinal: {
+    fondo: "images/cierre.jpg",
     lineas: ["Construí con", "confianza."],
     boton: "Pedir presupuesto",
   },

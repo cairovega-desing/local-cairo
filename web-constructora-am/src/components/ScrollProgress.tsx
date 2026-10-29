@@ -10,7 +10,7 @@ export function ScrollProgress() {
   return (
     <m.div
       aria-hidden="true"
-      className="fixed inset-x-0 top-0 z-[60] h-1 origin-left bg-gradient-to-r from-primary via-primary to-accent"
+      className="fixed inset-x-0 top-0 z-[60] h-1 origin-left bg-gradient-to-r from-primary via-accent-deep to-accent-light"
       style={{ scaleX: reduce ? scrollYProgress : spring }}
     />
   );
