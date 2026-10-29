@@ -10,6 +10,7 @@ npm install
 npm run dev        # desarrollo en http://localhost:3000
 npm run build      # genera out/ (sitio estático con rutas relativas)
 npm run package    # build + arma Web_ConstructoraAM.zip
+npm run single     # arma Constructora-AM.html: toda la web en UN archivo (para mandar por WhatsApp)
 npm run brand      # regenera logo-icon.png y og.jpg desde el logo en vector (requiere Playwright)
 python3 scripts/importar_fotos.py "<carpeta con fotos de WhatsApp>"   # recorta y comprime las fotos reales
 ```
