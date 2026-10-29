@@ -1,0 +1,31 @@
+CONSTRUCTORA A&M — SITIO WEB
+============================
+
+CÓMO ABRIR LA PÁGINA (sin instalar nada)
+1. Descomprimí el archivo Web_ConstructoraAM.zip (clic derecho → «Extraer todo…»).
+2. Abrí la carpeta Web_ConstructoraAM que se creó.
+3. Hacé doble clic en «index.html». Se abre en tu navegador (Chrome, Edge, Firefox o Safari).
+
+IMPORTANTE
+- No separes «index.html» de las carpetas «_next» e «images».
+  Si movés la página, mové la carpeta entera.
+- No abras el archivo desde adentro del .zip: primero descomprimí.
+- El mapa de Google y los botones de WhatsApp necesitan conexión a internet.
+
+CAMBIAR LAS FOTOS
+Las fotos que dicen «Foto pendiente» son de relleno. Para poner las reales,
+reemplazá el archivo dentro de «images» por tu foto con el MISMO nombre:
+  images/obras/obra-01.jpg … obra-10.jpg   → fotos de obras (cuadradas)
+  images/responsable.jpg                    → foto principal (vertical, 4:5)
+  images/oficina.jpg, equipo.jpg, maquinaria.jpg, obra-en-proceso.jpg, fachada.jpg
+  images/logo-icon.png                      → ícono del logo
+Usá .jpg y fotos de menos de 300 KB para que la página cargue rápido.
+
+CAMBIAR TEXTOS Y DATOS
+Todos los textos y datos están en un solo archivo:
+  codigo-fuente/src/content/site.ts
+Después de cambiarlo hay que volver a generar el sitio (ver codigo-fuente/README.md).
+
+PUBLICAR EN INTERNET
+Subí el contenido de esta carpeta (sin «codigo-fuente») a cualquier hosting
+estático: Netlify, Vercel, Cloudflare Pages, GitHub Pages o el hosting de tu dominio.
