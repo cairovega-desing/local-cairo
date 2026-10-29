@@ -59,6 +59,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Rutas relativas para que funcione al abrir index.html sin servidor. */}
         <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="./images/logo-icon.png" />
+        {/* Sin JavaScript (por ejemplo, la vista previa de algunos celulares) todo queda visible. */}
+        <noscript>
+          <style>{"[data-reveal]{opacity:1!important;transform:none!important;filter:none!important}"}</style>
+        </noscript>
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger

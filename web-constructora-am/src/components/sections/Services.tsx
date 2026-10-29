@@ -32,6 +32,7 @@ export function Services() {
             return (
               <m.li
                 key={s.id}
+                data-reveal=""
                 initial={{ opacity: 0, y: 28, filter: "blur(6px)" }}
                 whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 viewport={{ once: true, amount: 0.15 }}

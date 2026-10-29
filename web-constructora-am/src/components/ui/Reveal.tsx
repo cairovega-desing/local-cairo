@@ -18,6 +18,7 @@ export function Reveal({ children, className, delay = 0, as = "div", y = 28 }: P
   const Comp = m[as];
   return (
     <Comp
+      data-reveal=""
       className={className}
       initial={{ opacity: 0, y, filter: "blur(8px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}

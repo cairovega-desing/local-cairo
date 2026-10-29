@@ -14,7 +14,13 @@ export function Counter({ cifra, className }: { cifra: Cifra; className?: string
   const reduce = useReducedMotion();
   const decimales = cifra.decimales ?? 0;
   const fmt = formatter(decimales);
-  const [value, setValue] = useState(0);
+  // El HTML trae la cifra final (se ve bien aunque el teléfono no ejecute JavaScript);
+  // al arrancar se pone en 0 y cuenta hacia arriba cuando aparece en pantalla.
+  const [value, setValue] = useState(cifra.valor);
+
+  useEffect(() => {
+    if (!reduce) setValue(0);
+  }, [reduce]);
 
   useEffect(() => {
     if (!inView) return;
