@@ -446,6 +446,24 @@ svg{flex:none}
 #fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:40}
 #fx i{position:absolute;top:-12px;width:8px;height:12px;border-radius:2px;animation:fall var(--d,1.6s) cubic-bezier(.2,.6,.4,1) forwards}
 @keyframes fall{to{transform:translate(var(--x,0),110vh) rotate(var(--r,540deg));opacity:.9}}
+/* caja simulada (modo visión) */
+.hbtns{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hbtn{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:12px;border:0;background:var(--hero-line);color:var(--hero-ink);font-weight:800;font-size:14.5px}
+.hbtn.solid{background:var(--coin);color:var(--on-coin)}
+.hbtn svg{width:17px;height:17px}
+.stakes.four{grid-template-columns:repeat(4,1fr)}
+.stakes.four .chip{font-size:17px}
+.mico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);flex:none}
+.mico svg{width:22px;height:22px}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none}
+.opt[aria-pressed="true"] .radio{border:6px solid var(--brand)}
+.limit{display:flex;flex-direction:column;gap:8px}
+.provider{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 14px;border-radius:16px;background:var(--surface-2);border:1.5px dashed var(--line);text-align:center;font-size:14px}
+.provider .lockbig{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.provider .lockbig svg{width:26px;height:26px}
+.wd{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.wd:last-child{border-bottom:0}
+.wd .r1{display:flex;align-items:center;justify-content:space-between;gap:10px}
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} #fx{display:none} }
 </style>
 
@@ -505,7 +523,7 @@ const TIERS = [['Bronce',0],['Plata',950],['Oro',1100],['Platino',1250],['Diaman
 const STATUS = { pendiente:'Pendiente', aceptado:'Aceptado', en_juego:'En juego', resultado_reportado:'Resultado reportado', finalizado:'Finalizado', en_disputa:'En disputa', cancelado:'Cancelado' };
 const STEP_LBL = { pendiente:'Reto', aceptado:'Aceptado', en_juego:'Jugando', resultado_reportado:'Reporte', finalizado:'Final' };
 const FLOW = ['pendiente','aceptado','en_juego','resultado_reportado','finalizado'];
-const MOV = { saldo_inicial:'Saldo inicial', bonus_diario:'Bonus diario', video:'Video con recompensa', bloqueo:'Retenido en desafío', pago:'Ganaste el pozo', devolucion:'Devolución', retencion_cola:'Retenido en matchmaking', devolucion_cola:'Saliste de la cola', recompensa:'Recompensa por cortar una racha', canje:'Canje en la tienda' };
+const MOV = { deposito:'Depósito (simulado)', retiro:'Retiro (simulado)', devolucion_retiro:'Retiro rechazado: devolución', saldo_inicial:'Saldo inicial', bonus_diario:'Bonus diario', video:'Video con recompensa', bloqueo:'Retenido en desafío', pago:'Ganaste el pozo', devolucion:'Devolución', retencion_cola:'Retenido en matchmaking', devolucion_cola:'Saliste de la cola', recompensa:'Recompensa por cortar una racha', canje:'Canje en la tienda' };
 const OUT = { gane:'Gané', perdi:'Perdí', empate:'Empate' };
 const ME = 'marto_10';
 const DAY = 86400000;
@@ -516,6 +534,17 @@ const STORE = [
   { id:'cine', name:'Entrada de cine 2x1', shop:'Cine aliado (ejemplo)', cost:600, ico:'🎬' },
   { id:'vale', name:'Vale de $500', shop:'Comercio aliado (ejemplo)', cost:1000, ico:'🎟️' },
 ];
+
+// Caja del modo visión: todo simulado, sin datos de tarjetas ni de cuentas
+const METHODS = {
+  tarjeta:   { name:'Tarjeta de débito o crédito', dep:'Se acredita al instante', ico:'card', canDep:true },
+  billetera: { name:'Billetera digital', dep:'Al instante', ret:'Al instante, después de la revisión', ico:'wallet', canDep:true, canRet:true },
+  banco:     { name:'Transferencia bancaria', dep:'Hasta 1 día hábil', ret:'Hasta 1 día hábil, después de la revisión', ico:'bank', canDep:true, canRet:true },
+};
+const DEP_AMOUNTS = [200, 500, 1000, 2000];
+const RET_AMOUNTS = [100, 250, 500, 1000];
+const LIMITS = [500, 1000, 2000, 5000];
+function newCash(){ return { kyc:false, limit:2000, pendingLimit:null, tab:'depositar', dep:{ amount:500, method:'tarjeta' }, ret:{ amount:100, method:'billetera' }, deposits:[], withdrawals:[] }; }
 
 function fakeElo(s){ let h = 7; for (const ch of s) h = (h*31 + ch.charCodeAt(0)) | 0; return 900 + Math.abs(h) % 560; }
 const newRatings = (u = '') => Object.fromEntries(GAME_IDS.map(g => [g, u ? fakeElo(u + g) : 1000]));
@@ -581,6 +610,7 @@ function seed(){
     rankGame: 'lichess',
     draft: { cat:'pc', game:'rocket', fmt:'1v1', stake:50, rival:null, hot:false, step:0 },
     pinFails: 0,
+    cash: newCash(),
   };
 }
 
@@ -589,6 +619,7 @@ let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch(e){ S = seed(); }
 if (S.mm && S.mm.status === 'buscando'){ S.mm.startedAt = Date.now(); }
 if (S.draft && S.draft.step == null) S.draft.step = 0;
+if (!S.cash) S.cash = newCash();
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
 
 /* ---------- utilidades ---------- */
@@ -711,6 +742,12 @@ const ICONS = {
   shield: I('<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>'),
   clock: I('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
   upload: I('<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>'),
+  in: I('<path d="M12 4v14M6 12l6 6 6-6M5 21h14"/>'),
+  out: I('<path d="M12 18V4M6 10l6-6 6 6M5 21h14"/>'),
+  card: I('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>'),
+  wallet: I('<path d="M17 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H4"/><path d="M16 13.5h.01"/>'),
+  bank: I('<path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>'),
+  id: I('<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/>'),
   swords: I('<path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5 14 2h3v3l-4.5 4.5M5 14l-2 2 2 2"/>'),
   flask: I('<path d="M9 3h6M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3M7 15h10"/>'),
   crown: '<svg viewBox="0 0 24 20" fill="currentColor" aria-hidden="true"><path d="M2 6l5 4 5-8 5 8 5-4-2 12H4z"/></svg>',
@@ -853,6 +890,7 @@ function vInicio(){
       <span class="hchip num">${ICONS.lock}<b>${fmt(lk)}</b> en juego</span>
       ${vis ? '' : `<span class="hchip num">${ICONS.star}<b>${fmt(S.points)}</b> puntos para canjear</span>`}
     </span>
+    ${vis ? `<div class="hbtns"><button class="hbtn solid" data-a="go-caja" data-t="depositar">${ICONS.in}Depositar</button><button class="hbtn" data-a="go-caja" data-t="retirar">${ICONS.out}Retirar</button></div>` : ''}
     <details><summary>${ICONS.info}Cómo funcionan</summary><p>${vis ? 'Concepto: las monedas ganadas en duelos se canjean en la tienda. Requiere licencia.' : 'Las monedas son para retar: no se compran, no se canjean y no se retiran. Los puntos se ganan entrando y viendo videos (nunca apostando) y se canjean por productos.'}</p></details>
   </section>
 
@@ -1154,6 +1192,68 @@ function vPerfil(){
   ${S.confirmReset ? `<div class="btn-row"><button class="btn danger" data-a="reset-yes">Sí, reiniciar</button><button class="btn" data-a="reset-no">No</button></div>` : `<button class="link" data-a="reset" style="align-self:center">Reiniciar la demo</button>`}`;
 }
 
+const pesos = n => '$ ' + fmt(n);
+const cashToday = () => S.cash.deposits.filter(x => x.day === today() && x.status === 'ok').reduce((a, x) => a + x.amount, 0);
+function vCaja(){
+  const K = S.cash;
+  if (S.mode !== 'vision') return `<div class="empty"><b>La caja solo existe en el modo visión</b><span>En la versión para lanzar, las monedas no se compran ni se retiran.</span><button class="btn primary sm" data-a="mode" data-m="vision">Pasar al modo visión</button></div>`;
+  const method = (key, sel, kind) => { const m = METHODS[key]; return `<button class="opt" data-a="${kind}-method" data-m="${key}" aria-pressed="${sel === key}"><span class="mico">${ICONS[m.ico]}</span><span class="opt-main"><b>${m.name}</b><span class="muted small">${kind === 'dep' ? m.dep : m.ret}</span></span><span class="radio"></span></button>`; };
+  const kyc = K.kyc ? '' : `<section class="next warn"><span class="eyebrow">Antes de empezar</span><span class="ttl">Verificá tu identidad</span>
+    <p>Con licencia, la ley pide confirmar quién sos antes de depositar o retirar: documento, selfie y ser mayor de 18 años.</p>
+    <button class="btn primary block" data-a="kyc">${ICONS.id}Simular verificación</button></section>`;
+  const seg = `<div class="seg" role="group" aria-label="Operación"><button data-a="cash-tab" data-t="depositar" aria-pressed="${K.tab === 'depositar'}">${ICONS.in.replace('<svg', '<svg width="16" height="16"')}Depositar</button><button data-a="cash-tab" data-t="retirar" aria-pressed="${K.tab === 'retirar'}">${ICONS.out.replace('<svg', '<svg width="16" height="16"')}Retirar</button></div>`;
+  let body;
+  if (K.tab === 'depositar'){
+    const used = cashToday(), left = Math.max(0, K.limit - used), d = K.dep, over = d.amount > left;
+    body = `
+    <div class="amount-pick"><span class="small" style="font-weight:700">Vas a depositar</span><span class="val num">${pesos(d.amount)}</span><span class="win-line num">Recibís ${fmt(d.amount)} monedas · comisión 0%</span></div>
+    <div class="stakes four">${DEP_AMOUNTS.map(v => `<button class="chip num" data-a="dep-amt" data-s="${v}" aria-pressed="${d.amount === v}">${fmt(v)}</button>`).join('')}</div>
+    <span class="muted small">Cambio de ejemplo: 1 moneda = $ 1.</span>
+    <section class="section"><div class="h"><h2>¿Cómo pagás?</h2></div><div class="list">${Object.keys(METHODS).filter(k => METHODS[k].canDep).map(k => method(k, d.method, 'dep')).join('')}</div></section>
+    ${over ? `<div class="err">Con este monto superás tu límite diario. Hoy te quedan ${pesos(left)}.</div>` : ''}
+    <button class="btn gold block xl" data-a="dep-go" ${!K.kyc || over ? 'disabled' : ''}>${K.kyc ? 'Continuar al pago' : 'Primero verificá tu identidad'}</button>
+    <div class="card limit"><div class="h"><b>Tu límite diario</b><span class="num small">${pesos(used)} de ${pesos(K.limit)}</span></div>
+      <div class="bar fill"><i style="right:${100 - Math.min(100, Math.round(used / K.limit * 100))}%"></i></div>
+      <div class="chips">${LIMITS.map(v => `<button class="chip num" data-a="cash-limit" data-s="${v}" aria-pressed="${K.limit === v}">${pesos(v)}</button>`).join('')}</div>
+      <span class="muted small">${K.pendingLimit ? `Pediste subirlo a ${pesos(K.pendingLimit)}: se aplica en 24 h. ` : ''}Bajarlo se aplica al instante. Subirlo tarda 24 h, para que no sea una decisión en caliente.</span>
+      ${K.pendingLimit ? `<div class="demo"><span class="demo-t">Solo demo</span><button class="btn" data-a="cash-limit-apply">Simular que pasaron 24 h</button></div>` : ''}
+    </div>`;
+  } else {
+    const bal = balance(), r = K.ret, over = r.amount > bal;
+    const pend = K.withdrawals.filter(w => w.status === 'revision');
+    body = `
+    <div class="amount-pick"><span class="small" style="font-weight:700">Vas a retirar</span><span class="val num">${pesos(r.amount)}</span><span class="win-line num">Se descuentan ${fmt(r.amount)} monedas</span></div>
+    <div class="stakes four">${RET_AMOUNTS.map(v => `<button class="chip num" data-a="ret-amt" data-s="${v}" aria-pressed="${r.amount === v}" ${v > bal ? 'disabled' : ''}>${fmt(v)}</button>`).join('')}</div>
+    <span class="muted small num">Podés retirar hasta ${fmt(bal)} monedas. Las que están en juego se liberan cuando termina el desafío.</span>
+    <section class="section"><div class="h"><h2>¿Adónde te lo mandamos?</h2></div><div class="list">${Object.keys(METHODS).filter(k => METHODS[k].canRet).map(k => method(k, r.method, 'ret')).join('')}</div></section>
+    ${over ? '<div class="err">No tenés tantas monedas disponibles.</div>' : ''}
+    <button class="btn gold block xl" data-a="ret-go" ${!K.kyc || over ? 'disabled' : ''}>${K.kyc ? 'Pedir retiro' : 'Primero verificá tu identidad'}</button>
+    <span class="muted small">Cada retiro se revisa antes de pagarse (hasta 48 h) para prevenir fraude y lavado de dinero.</span>
+    ${pend.length ? `<section class="section"><div class="h"><h2>En revisión</h2><span class="muted small">${pend.length}</span></div><div class="card" style="padding-block:2px">${pend.map(w => `<div class="wd"><div class="r1"><span><b class="num">${pesos(w.amount)}</b><br><span class="muted small">${METHODS[w.method].name} · ${ago(w.ts)}</span></span><span class="pill pendiente">En revisión</span></div>
+      <div class="demo"><span class="demo-t">Solo demo</span><div class="btn-row"><button class="btn" data-a="ret-ok" data-id="${w.id}">Simular pagado</button><button class="btn" data-a="ret-bad" data-id="${w.id}">Simular rechazado</button></div></div></div>`).join('')}</div></section>` : ''}`;
+  }
+  const hist = K.deposits.map(x => ({ ...x, kind:'dep' })).concat(K.withdrawals.map(x => ({ ...x, kind:'ret' }))).sort((a, b) => b.ts - a.ts).slice(0, 12);
+  const pill = x => x.kind === 'dep'
+    ? (x.status === 'ok' ? '<span class="pill finalizado">Acreditado</span>' : '<span class="pill en_disputa">Rechazado</span>')
+    : (x.status === 'ok' ? '<span class="pill finalizado">Pagado</span>' : x.status === 'revision' ? '<span class="pill pendiente">En revisión</span>' : '<span class="pill en_disputa">Rechazado · devuelto</span>');
+  const histHtml = hist.length ? hist.map(x => `<div class="mov"><span>${x.kind === 'dep' ? 'Depósito' : 'Retiro'} · ${METHODS[x.method].name}</span><span class="amt num ${x.kind === 'dep' ? 'pos' : 'neg'}">${x.kind === 'dep' ? '+' : '−'}${pesos(x.amount)}</span><span class="muted small" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${ago(x.ts)} ${pill(x)}</span></div>`).join('') : '<span class="muted small">Todavía no hiciste movimientos en la caja.</span>';
+  return `
+  <div class="alert warn"><b>Simulación de un producto con licencia</b><span>Así podrían ser los depósitos y retiros si Challenge tuviera licencia de juego. Acá no se cobra ni se paga nada, y no se piden datos de tarjetas ni de cuentas.</span></div>
+  ${kyc}${seg}${body}
+  ${fold('caja-hist', ICONS.clock, 'Movimientos de la caja', String(hist.length), histHtml)}`;
+}
+function openPay(){
+  const d = S.cash.dep, m = METHODS[d.method];
+  $('sheet').innerHTML = `<div class="sheet" data-a="sheet-bg"><div class="panel" role="dialog" aria-modal="true" aria-labelledby="pay-t">
+    <div class="grab"></div><h3 id="pay-t">Confirmar el pago</h3>
+    <div class="sigbox"><b class="num">${pesos(d.amount)} → ${fmt(d.amount)} monedas</b><span class="muted">${m.name}</span></div>
+    <div class="provider"><span class="lockbig">${ICONS.lock}</span><b>Acá se abriría la página segura del proveedor de pagos</b>
+      <span class="muted">El usuario entra con su cuenta ahí, no en Challenge. La app nunca ve su contraseña ni los datos de su tarjeta: el proveedor solo le avisa al servidor si el pago salió bien.</span></div>
+    <div class="demo"><span class="demo-t">Solo demo</span><div class="btn-row"><button class="btn" data-a="pay-ok">Simular pago aprobado</button><button class="btn" data-a="pay-bad">Simular pago rechazado</button></div></div>
+    <button class="btn block" data-a="sheet-close">Cancelar</button>
+  </div></div>`;
+}
+
 function vAdmin(){
   const ds = S.challenges.filter(c => c.status === 'en_disputa');
   return `
@@ -1210,6 +1310,7 @@ function vInversores(){
   ${block('Etapa 3', 'Modo visión (requiere licencia)', ['Monedas apostables y canjeables, o pozos con dinero real.', 'Licencia de juego en el mercado elegido, después de un análisis legal.', 'Empresa local, capital, verificación de identidad y prevención de lavado.', 'Acuerdos con editores para sumar sus juegos.'])}
   ${block('', 'Riesgos', ['Regulatorio: la etapa 3 depende de conseguir licencia.', 'Editores: varios prohíben apuestas sobre sus partidas.', 'Fraude: cuentas múltiples y partidas arregladas.', 'Datos personales: cumplir la Ley 18.331.'])}
   ${block('', 'Qué buscamos', ['Asesoría legal en juego y tecnología.', 'Socios técnicos (móvil y backend).', 'Inversión inicial para la etapa 1 y los primeros convenios.'])}
+  <button class="btn block" data-a="go-caja" data-t="depositar">${ICONS.in}Ver la caja simulada (modo visión)</button>
   <p class="muted small" style="margin:0">Demo con datos simulados. No hay dinero real ni convenios firmados con comercios.</p>`;
 }
 
@@ -1225,6 +1326,7 @@ function render(){
     else if (sub.type === 'tienda'){ title = 'Tienda de canje'; body = vTienda(); }
     else if (sub.type === 'temporada'){ title = 'Temporada'; body = vTemporada(); }
     else if (sub.type === 'inversores'){ title = 'Para inversores'; body = vInversores(); }
+    else if (sub.type === 'caja'){ title = 'Caja'; body = vCaja(); }
   } else {
     body = { inicio:vInicio, desafios:vDesafios, jugar:vJugar, ranking:vRanking, perfil:vPerfil }[tab]();
   }
@@ -1421,6 +1523,45 @@ function act(a, d, el){
 
     case 'd-hot': S.draft.hot = d.h === '1'; render(); break;
     case 'go-tienda': go({ type:'tienda' }); break;
+    case 'go-caja': if (d.t) S.cash.tab = d.t; go({ type:'caja' }); break;
+    case 'cash-tab': S.cash.tab = d.t; save(); render(); break;
+    case 'kyc': S.cash.kyc = true; save(); render(); toast('Identidad verificada (simulado)', 'good'); break;
+    case 'dep-amt': S.cash.dep.amount = +d.s; save(); render(); break;
+    case 'dep-method': S.cash.dep.method = d.m; save(); render(); break;
+    case 'ret-amt': S.cash.ret.amount = +d.s; save(); render(); break;
+    case 'ret-method': S.cash.ret.method = d.m; save(); render(); break;
+    case 'cash-limit': {
+      const v = +d.s, K = S.cash;
+      if (v <= K.limit){ K.limit = v; K.pendingLimit = null; toast(`Límite diario: ${pesos(v)}`); }
+      else { K.pendingLimit = v; toast(`Subir el límite a ${pesos(v)} se aplica en 24 h`); }
+      save(); render(); break;
+    }
+    case 'cash-limit-apply': S.cash.limit = S.cash.pendingLimit; S.cash.pendingLimit = null; save(); render(); toast(`Límite diario: ${pesos(S.cash.limit)}`); break;
+    case 'dep-go': {
+      const K = S.cash;
+      if (!K.kyc || K.dep.amount > Math.max(0, K.limit - cashToday())) return;
+      openPay(); break;
+    }
+    case 'pay-ok': {
+      const x = { id: uid('d'), amount: S.cash.dep.amount, method: S.cash.dep.method, day: today(), ts: Date.now(), status:'ok' };
+      post('deposito', x.amount); S.cash.deposits.unshift(x);
+      $('sheet').innerHTML = ''; save(); render(); toast(`Depositaste ${pesos(x.amount)}: +${fmt(x.amount)} monedas (simulado)`, 'good'); break;
+    }
+    case 'pay-bad':
+      S.cash.deposits.unshift({ id: uid('d'), amount: S.cash.dep.amount, method: S.cash.dep.method, day: today(), ts: Date.now(), status:'rechazado' });
+      $('sheet').innerHTML = ''; save(); render(); toast('El pago fue rechazado. No se movió plata.', 'bad'); break;
+    case 'ret-go': {
+      const r = { ...S.cash.ret };
+      if (!S.cash.kyc || r.amount > balance()) return;
+      sign('Pedir retiro', `${pesos(r.amount)} a ${METHODS[r.method].name} (simulado)`, () => {
+        post('retiro', -r.amount);
+        S.cash.withdrawals.unshift({ id: uid('w'), amount: r.amount, method: r.method, ts: Date.now(), status:'revision' });
+        toast('Retiro pedido: queda en revisión', 'good');
+      });
+      break;
+    }
+    case 'ret-ok': { const w = S.cash.withdrawals.find(x => x.id === d.id); if (!w) return; w.status = 'ok'; save(); render(); toast(`Se pagó el retiro de ${pesos(w.amount)} (simulado)`, 'good'); break; }
+    case 'ret-bad': { const w = S.cash.withdrawals.find(x => x.id === d.id); if (!w) return; w.status = 'rechazado'; post('devolucion_retiro', w.amount); save(); render(); toast('Retiro rechazado: las monedas volvieron a tu saldo'); break; }
     case 'go-season': go({ type:'temporada' }); break;
     case 'go-inversores': go({ type:'inversores' }); break;
     case 'mode':
