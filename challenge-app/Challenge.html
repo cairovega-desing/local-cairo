@@ -1,0 +1,1483 @@
+<title>Challenge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: un teléfono centrado en desktop que ocupa toda la pantalla en el celular. Tono de marcador deportivo:
+   tarjetas "VS" oscuras como un tablero, la moneda dorada como acento cálido y cada juego con su ícono y color. */
+:root{
+  --bg:#E4E9F1; --surface:#FFFFFF; --surface-2:#F2F5FA; --ink:#121A2B; --muted:#5A6579; --line:#D9DFE8;
+  --brand:#1D3766; --on-brand:#FFFFFF; --brand-soft:#E3EAF6;
+  --coin:#B97C0C; --coin-hi:#E9A92A; --on-coin:#FFFFFF; --coin-soft:#FBEFD3; --coin-ink:#6B4500;
+  --win:#1B7F52; --win-soft:#DCF1E6; --loss:#B93A33; --loss-soft:#F8E0DD; --warn:#9C5D00; --warn-soft:#FCEBCF;
+  --demo:#5E45B0; --demo-soft:#EEE9FB;
+  --hero-a:#182C55; --hero-b:#2A4C8C; --hero-ink:#FFFFFF; --hero-muted:rgba(255,255,255,.72); --hero-line:rgba(255,255,255,.16);
+  --g1:#2D63C8; --g2:#3D5577; --g3:#1E7A5A; --g4:#C2553A; --g5:#7A4FB5;
+  --av0:#2D63C8; --av1:#1E7A5A; --av2:#C2553A; --av3:#7A4FB5; --av4:#A86A06; --av5:#0E7480;
+  --shadow:0 18px 50px -20px rgba(18,26,43,.35); --lift:0 6px 18px -10px rgba(18,26,43,.35);
+  --font-display:'Barlow Condensed','Arial Narrow',sans-serif;
+  --font-body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#070C15; --surface:#131B2A; --surface-2:#0D1421; --ink:#E7ECF4; --muted:#95A1B6; --line:#243047;
+  --brand:#9DB9EC; --on-brand:#0B1220; --brand-soft:#1A2741;
+  --coin:#F1B640; --coin-hi:#F7CB6A; --on-coin:#2A1A00; --coin-soft:#33280F; --coin-ink:#F6CF7E;
+  --win:#52C48F; --win-soft:#11301F; --loss:#F07C72; --loss-soft:#3A1917; --warn:#F2A845; --warn-soft:#382811;
+  --demo:#BBA5F6; --demo-soft:#251E3F;
+  --hero-a:#14223F; --hero-b:#263F78;
+  --shadow:0 18px 50px -20px rgba(0,0,0,.7); --lift:0 6px 18px -10px rgba(0,0,0,.6); color-scheme:dark }
+}
+:root[data-theme="dark"]{
+  --bg:#070C15; --surface:#131B2A; --surface-2:#0D1421; --ink:#E7ECF4; --muted:#95A1B6; --line:#243047;
+  --brand:#9DB9EC; --on-brand:#0B1220; --brand-soft:#1A2741;
+  --coin:#F1B640; --coin-hi:#F7CB6A; --on-coin:#2A1A00; --coin-soft:#33280F; --coin-ink:#F6CF7E;
+  --win:#52C48F; --win-soft:#11301F; --loss:#F07C72; --loss-soft:#3A1917; --warn:#F2A845; --warn-soft:#382811;
+  --demo:#BBA5F6; --demo-soft:#251E3F;
+  --hero-a:#14223F; --hero-b:#263F78;
+  --shadow:0 18px 50px -20px rgba(0,0,0,.7); --lift:0 6px 18px -10px rgba(0,0,0,.6); color-scheme:dark }
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.45}
+*{box-sizing:border-box}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg{flex:none}
+
+.stage{height:100%;display:flex;justify-content:center;align-items:center;padding:20px}
+.phone{position:relative;width:100%;max-width:420px;height:100%;max-height:880px;background:var(--surface-2);border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+@media (max-width:520px){ .stage{padding:0} .phone{max-width:none;max-height:none;border-radius:0;border:0;box-shadow:none} }
+
+/* ---------- barra superior ---------- */
+.top{display:flex;align-items:center;gap:10px;padding:12px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:var(--surface);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--font-display);font-weight:800;font-size:28px;letter-spacing:.01em;line-height:1;color:var(--brand)}
+.logo span{color:var(--coin)}
+.top-title{font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:.02em;text-transform:uppercase;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spacer{flex:1}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;position:relative;flex:none}
+.icon-btn svg{width:20px;height:20px}
+.dot{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--loss);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.coin-chip{position:relative;display:flex;align-items:center;gap:6px;padding:6px 11px 6px 7px;border-radius:999px;background:var(--coin-soft);color:var(--coin-ink);font-weight:800}
+.coin-chip.bump{animation:bump .5s ease-out}
+.coin-chip .delta{position:absolute;right:6px;top:100%;font-size:12px;font-weight:800;animation:rise 1.3s ease-out forwards;pointer-events:none}
+.coin-chip .delta.neg{color:var(--loss)} .coin-chip .delta.pos{color:var(--win)}
+@keyframes bump{40%{transform:scale(1.12)}}
+@keyframes rise{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(14px)}}
+.coin{width:20px;height:20px;flex:none}
+
+/* ---------- contenido ---------- */
+.view{flex:1;overflow-y:auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 28px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:20px}
+.view>*{flex-shrink:0}
+.section{display:flex;flex-direction:column;gap:10px}
+.h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.h h2{margin:0;font-family:var(--font-display);font-weight:700;font-size:21px;letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.link{color:var(--brand);font-weight:700;font-size:14px;background:none;border:0;padding:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px}
+.empty{padding:22px 14px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+
+/* ---------- billetera ---------- */
+.wallet{position:relative;overflow:hidden;background:linear-gradient(150deg,var(--hero-a),var(--hero-b));color:var(--hero-ink);border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.wallet::after{content:"";position:absolute;right:-50px;top:-50px;width:190px;height:190px;border-radius:50%;border:26px solid color-mix(in srgb,var(--coin-hi) 22%,transparent);pointer-events:none}
+.wallet .label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--hero-muted);font-weight:700}
+.wallet .amount{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;font-size:58px;line-height:.9}
+.wallet .amount .coin{width:40px;height:40px}
+.wallet .meta{display:flex;flex-wrap:wrap;gap:8px}
+.hchip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--hero-line);font-size:13px;font-weight:600}
+.hchip svg{width:14px;height:14px}
+.hchip b{font-weight:800}
+.wallet details{font-size:12.5px;color:var(--hero-muted)}
+.wallet summary{cursor:pointer;font-weight:700;list-style:none;display:inline-flex;align-items:center;gap:6px}
+.wallet summary::-webkit-details-marker{display:none}
+.wallet summary svg{width:14px;height:14px}
+.wallet details p{margin:6px 0 0}
+
+/* acciones grandes */
+.big-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px;border-radius:18px;border:1px solid var(--line);background:var(--surface);text-align:left;font-weight:800;font-size:16px;line-height:1.15;box-shadow:var(--lift)}
+.big .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.big .ic svg{width:22px;height:22px}
+.big small{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-top:2px}
+.big.gold{background:var(--coin);border-color:var(--coin);color:var(--on-coin)}
+.big.gold .ic{background:color-mix(in srgb,var(--on-coin) 18%,transparent);color:var(--on-coin)}
+.big.gold small{color:var(--on-coin);opacity:.85}
+
+/* ganá monedas */
+.earn{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.earn-btn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+.earn-btn b{font-size:15px}
+.earn-btn .plus{display:flex;align-items:center;gap:5px;font-family:var(--font-display);font-weight:800;font-size:26px;line-height:1;color:var(--coin)}
+.earn-btn .plus .coin{width:18px;height:18px}
+.earn-btn[disabled]{cursor:default}
+.earn-btn[disabled] .plus{color:var(--muted)}
+.pips{display:flex;gap:4px;margin-top:4px}
+.pips i{width:14px;height:6px;border-radius:3px;background:var(--line)}
+.pips i.on{background:var(--coin)}
+.short{display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);text-align:left}
+.short .em{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--surface-2);flex:none}
+.short span{display:flex;flex-direction:column;min-width:0}
+.short b{font-size:14.5px}
+
+/* ---------- íconos de juego y avatares ---------- */
+.gt{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:23px;line-height:1;flex:none;color:#fff}
+.gt.online{background:linear-gradient(145deg,var(--g1),color-mix(in srgb,var(--g1) 60%,#000))}
+.gt.pc{background:linear-gradient(145deg,var(--g2),color-mix(in srgb,var(--g2) 55%,#000))}
+.gt.fisico{background:linear-gradient(145deg,var(--g3),color-mix(in srgb,var(--g3) 60%,#000))}
+.gt.movil{background:linear-gradient(145deg,var(--g4),color-mix(in srgb,var(--g4) 60%,#000))}
+.gt.sm{width:34px;height:34px;font-size:18px;border-radius:10px}
+.gt.lg{width:56px;height:56px;font-size:30px;border-radius:16px}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;flex:none;text-transform:uppercase;background:var(--av0);position:relative}
+.av0{background:var(--av0)} .av1{background:var(--av1)} .av2{background:var(--av2)} .av3{background:var(--av3)} .av4{background:var(--av4)} .av5{background:var(--av5)}
+.avatar.me{background:var(--coin)}
+.avatar.xs{width:22px;height:22px;font-size:9px}
+.avatar.lg{width:56px;height:56px;font-size:19px}
+.avatar.xl{width:72px;height:72px;font-size:24px}
+.flame{position:absolute;right:-6px;bottom:-4px;min-width:20px;height:20px;padding:0 4px;border-radius:10px;background:var(--loss);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;border:2px solid var(--surface)}
+
+/* ---------- listas de desafíos ---------- */
+.list{display:flex;flex-direction:column;gap:8px}
+.ch{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+.ch-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.ch-main b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-who{display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;color:var(--muted)}
+.ch-who span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}
+.stake{display:flex;align-items:center;gap:4px;font-weight:800;color:var(--coin-ink)}
+.stake .coin{width:16px;height:16px}
+.sub-h{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+.warn-tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--warn-soft);color:var(--warn);white-space:nowrap}
+.warn-tag.bad{background:var(--loss-soft);color:var(--loss)}
+
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--brand-soft);color:var(--brand)}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.pendiente{background:var(--warn-soft);color:var(--warn)}
+.pill.en_juego,.pill.aceptado{background:var(--brand-soft);color:var(--brand)}
+.pill.resultado_reportado{background:var(--coin-soft);color:var(--coin-ink)}
+.pill.finalizado{background:var(--win-soft);color:var(--win)}
+.pill.en_disputa{background:var(--loss-soft);color:var(--loss)}
+.pill.cancelado{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.pill.toca{background:var(--coin);color:var(--on-coin)}
+.pill.toca::before{animation:blink 1.2s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+
+/* tarjeta de reto entrante */
+.incoming{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:20px;background:var(--surface);border:2px solid var(--coin);box-shadow:var(--lift)}
+.incoming .top-row{display:flex;align-items:center;gap:12px}
+.incoming .txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.incoming .txt b{font-size:16px}
+
+/* ---------- botones ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:14px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:15px}
+.btn svg{width:18px;height:18px}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.btn.gold{background:var(--coin);border-color:var(--coin);color:var(--on-coin)}
+.btn.danger{color:var(--loss)}
+.btn.win{background:var(--win);border-color:var(--win);color:#fff}
+.btn.block{width:100%}
+.btn.sm{min-height:36px;padding:0 12px;font-size:14px;border-radius:11px}
+.btn.xl{min-height:56px;font-size:17px;border-radius:16px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .btn{flex:1 1 120px}
+
+.seg{display:flex;padding:4px;border-radius:14px;background:var(--surface);border:1px solid var(--line);gap:4px}
+.seg button{flex:1;border:0;background:none;padding:9px 6px;border-radius:10px;font-weight:700;color:var(--muted);font-size:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand)}
+.seg .count{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--surface-2);color:var(--muted);font-size:11px;display:grid;place-items:center}
+.seg button[aria-pressed="true"] .count{background:color-mix(in srgb,var(--on-brand) 22%,transparent);color:inherit}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding:2px 16px 6px;scrollbar-width:none}
+.chips.scroll::-webkit-scrollbar{display:none}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:14px;white-space:nowrap;flex:none}
+.chip[aria-pressed="true"]{border-color:var(--brand);background:var(--brand);color:var(--on-brand)}
+
+/* ---------- asistente de nuevo desafío ---------- */
+.wiz{display:flex;gap:6px}
+.wiz button{flex:1;display:flex;flex-direction:column;gap:6px;border:0;background:none;padding:0;text-align:left;font-size:11.5px;font-weight:700;color:var(--muted)}
+.wiz button i{display:block;height:5px;border-radius:3px;background:var(--line)}
+.wiz button.done i{background:var(--brand)} .wiz button.done{color:var(--ink)}
+.wiz button.now i{background:var(--coin)} .wiz button.now{color:var(--ink)}
+.wiz button[disabled]{cursor:default}
+.q{margin:0;font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.05;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+.foot{display:flex;gap:8px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:var(--surface);border-top:1px solid var(--line)}
+.foot .btn{flex:1}
+.foot .btn.back{flex:0 0 auto}
+.foot:empty{display:none}
+
+.games{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:12px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);text-align:left;min-width:0}
+.gcard b{font-size:14.5px;line-height:1.2}
+.gcard .small{line-height:1.25}
+.gcard[aria-pressed="true"],.fcard[aria-pressed="true"],.opt[aria-pressed="true"]{border-color:var(--brand);box-shadow:inset 0 0 0 1.5px var(--brand)}
+.check{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center}
+.check svg{width:13px;height:13px}
+.friends{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fcard{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px 12px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);text-align:center;min-width:0}
+.fcard b{font-size:13.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcard .check{top:6px;right:6px}
+
+.amount-pick{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 14px;border-radius:20px;background:var(--coin-soft);color:var(--coin-ink)}
+.amount-pick .val{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:800;font-size:56px;line-height:.95}
+.amount-pick .val .coin{width:36px;height:36px}
+.amount-pick .win-line{font-weight:700;font-size:14px}
+.stakes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.stakes .chip{justify-content:center;padding:10px 0;font-family:var(--font-display);font-size:19px;font-weight:800}
+.stakes .chip[disabled]{opacity:.35;cursor:not-allowed}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface)}
+.opt-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.opt-main .small{line-height:1.3}
+.opt.col{flex-direction:column;align-items:flex-start;gap:4px}
+.opt.col b{font-size:15px}
+
+.recap{display:flex;flex-direction:column}
+.recap .r{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line);font-size:14.5px}
+.recap .r:last-child{border-bottom:0}
+.recap .r span{color:var(--muted)}
+.recap .r b{display:flex;align-items:center;gap:8px;text-align:right}
+
+.summary{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--coin-soft);color:var(--coin-ink);font-weight:700}
+.summary b{display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-size:28px;font-weight:800;line-height:1}
+.summary b .coin{width:20px;height:20px}
+.err{color:var(--loss);font-size:13px;font-weight:700}
+
+/* ---------- tarjeta VS ---------- */
+.vs-card{position:relative;overflow:hidden;border-radius:24px;padding:16px 14px 18px;background:linear-gradient(160deg,var(--hero-a),var(--hero-b));color:var(--hero-ink);display:flex;flex-direction:column;gap:16px}
+.vs-card::before{content:"VS";position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);font-family:var(--font-display);font-weight:800;font-size:150px;line-height:1;color:var(--hero-line);pointer-events:none;letter-spacing:-.04em}
+.vs-top{position:relative;display:flex;align-items:center;gap:10px}
+.vs-top .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.vs-top .t b{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vs-top .t span{font-size:12.5px;color:var(--hero-muted)}
+.hot{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;background:var(--loss);color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.vs{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;text-align:center}
+.vs .who{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+.vs .who .avatar{border:3px solid var(--hero-line)}
+.vs .who b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.pot{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 12px;border-radius:16px;background:rgba(0,0,0,.22)}
+.pot .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--hero-muted);font-weight:700}
+.pot .big-n{display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:800;font-size:38px;color:var(--coin-hi);line-height:1}
+.pot .big-n .coin{width:24px;height:24px}
+.tier{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.tier.Bronce{background:#E9D3C0;color:#6E3E17} .tier.Plata{background:#DDE3EA;color:#3F4B5A} .tier.Oro{background:#F6E2A8;color:#6B4C00} .tier.Platino{background:#CDEDEA;color:#1E5C57} .tier.Diamante{background:#DCD6FA;color:#40309A}
+
+/* progreso del desafío */
+.track{display:grid;grid-template-columns:repeat(5,1fr);position:relative}
+.track::before{content:"";position:absolute;left:10%;right:10%;top:13px;height:3px;background:var(--line);border-radius:2px}
+.track .bar-fill{position:absolute;left:10%;top:13px;height:3px;background:var(--brand);border-radius:2px}
+.tk{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--muted);text-align:center}
+.tk i{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid var(--line);font-style:normal;font-size:12px}
+.tk i svg{width:14px;height:14px}
+.tk.done i{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.tk.done{color:var(--ink)}
+.tk.now i{background:var(--coin);border-color:var(--coin);color:var(--on-coin);box-shadow:0 0 0 5px color-mix(in srgb,var(--coin) 25%,transparent)}
+.tk.now{color:var(--ink)}
+.tk.bad i{background:var(--loss);border-color:var(--loss);color:#fff}
+
+/* tarjeta "próximo paso" */
+.next{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:20px;background:var(--surface);border:1px solid var(--line)}
+.next .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.next .ttl{font-family:var(--font-display);font-weight:800;font-size:27px;line-height:1.05;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.next p{margin:0;color:var(--muted);font-size:14px}
+.next.warn{background:var(--warn-soft);border-color:transparent} .next.warn .eyebrow{color:var(--warn)}
+.next.info .eyebrow{color:var(--brand)}
+.next.good{background:var(--win-soft);border-color:transparent} .next.good .eyebrow,.next.good .ttl{color:var(--win)}
+.next.bad{background:var(--loss-soft);border-color:transparent} .next.bad .eyebrow{color:var(--loss)}
+.picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
+.pick{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 6px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);font-weight:800;font-size:16px}
+.pick .e{font-size:26px;line-height:1}
+.pick.win{border-color:var(--win);background:var(--win);color:#fff}
+.checklist{display:flex;flex-direction:column;gap:6px}
+.checklist div{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface-2);font-size:14px;font-weight:600}
+.checklist .ok-ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);color:transparent;flex:none}
+.checklist .ok-ic svg{width:12px;height:12px}
+.checklist .yes .ok-ic{background:var(--win);border-color:var(--win);color:#fff}
+.checklist .state{margin-left:auto;font-size:12.5px;color:var(--muted)}
+.alert{padding:12px 14px;border-radius:14px;font-size:14px;display:flex;flex-direction:column;gap:4px}
+.alert.warn{background:var(--warn-soft);color:var(--warn)}
+.alert.bad{background:var(--loss-soft);color:var(--loss)}
+.alert.good{background:var(--win-soft);color:var(--win)}
+.alert.info{background:var(--brand-soft);color:var(--brand)}
+.drop{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:14px;border:1.5px dashed var(--line);background:var(--surface);font-weight:700;color:var(--brand);cursor:pointer}
+.drop svg{width:20px;height:20px}
+.file{display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 10px;border-radius:10px;background:var(--surface);border:1px solid var(--line)}
+
+/* plegables */
+.fold{border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 14px;font-weight:700}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary .chev{margin-left:auto;width:18px;height:18px;color:var(--muted);transition:transform .2s}
+.fold[open]>summary .chev{transform:rotate(180deg)}
+.fold>summary .ic{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);flex:none}
+.fold>summary .ic svg{width:17px;height:17px}
+.fold>summary .aside{font-weight:600;font-size:13px;color:var(--muted)}
+.fold .body{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:14px}
+
+.demo{border:1.5px dashed var(--demo);background:var(--demo-soft);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.demo-t{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--demo)}
+.demo .btn{min-height:40px;font-size:14px;background:var(--surface);border-color:color-mix(in srgb,var(--demo) 40%,var(--line));color:var(--ink)}
+.timeline{display:flex;flex-direction:column;padding-left:2px}
+.tl{display:grid;grid-template-columns:14px 1fr;gap:10px;padding-bottom:12px;position:relative}
+.tl::before{content:"";position:absolute;left:4px;top:12px;bottom:0;width:2px;background:var(--line)}
+.tl:last-child::before{display:none}
+.tl b{width:10px;height:10px;border-radius:50%;background:var(--brand);margin-top:5px}
+.tl:first-child b{background:var(--coin)}
+.tl .t{display:flex;flex-direction:column;font-size:14px}
+
+/* ---------- ranking ---------- */
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:end;gap:8px;padding-top:6px}
+.pod{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;text-align:center}
+.pod b{font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod .block{width:100%;border-radius:14px 14px 6px 6px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:8px;gap:0;color:#fff}
+.pod .block .n{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1}
+.pod .block .v{font-family:var(--font-display);font-weight:700;font-size:16px;opacity:.9}
+.pod.p1 .block{height:108px;background:linear-gradient(180deg,var(--coin-hi),var(--coin))}
+.pod.p2 .block{height:84px;background:linear-gradient(180deg,#9AA8BC,#6B7A90)}
+.pod.p3 .block{height:66px;background:linear-gradient(180deg,#C98A5A,#9A5F35)}
+.pod.me b{color:var(--coin-ink)}
+.crown{color:var(--coin);height:18px}
+.crown svg{width:22px;height:18px}
+.board{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row.me{background:var(--coin-soft);border-radius:12px;padding-inline:8px;border-bottom-color:transparent}
+.row .pos{font-family:var(--font-display);font-weight:800;font-size:20px;color:var(--muted);text-align:center}
+.row .who{display:flex;align-items:center;gap:10px;min-width:0}
+.row .who b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.elo{font-family:var(--font-display);font-weight:800;font-size:22px}
+.mypos{display:flex;align-items:center;gap:14px;padding:14px;border-radius:18px;background:var(--brand);color:var(--on-brand)}
+.mypos .n{font-family:var(--font-display);font-weight:800;font-size:44px;line-height:1}
+.mypos span{display:flex;flex-direction:column;font-size:13.5px}
+.mypos b{font-size:16px}
+
+/* ---------- matchmaking ---------- */
+.radar{position:relative;width:210px;height:210px;margin:4px auto 0;display:grid;place-items:center}
+.radar span{position:absolute;inset:0;border-radius:50%;border:2px solid var(--brand);opacity:0;animation:ping 2.4s ease-out infinite}
+.radar span:nth-child(2){animation-delay:.8s}.radar span:nth-child(3){animation-delay:1.6s}
+.radar .core{width:96px;height:96px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:30px;position:relative}
+@keyframes ping{0%{transform:scale(.45);opacity:.7}100%{transform:scale(1);opacity:0}}
+.window{display:flex;flex-direction:column;gap:6px}
+.bar{height:10px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.bar i{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--brand) 35%,transparent);border-inline:2px solid var(--brand);transition:left .5s,right .5s}
+.bar u{position:absolute;top:-2px;bottom:-2px;width:3px;left:50%;background:var(--coin);margin-left:-1px}
+.bar.fill i{left:0;border:0;background:var(--coin)}
+
+/* ---------- perfil ---------- */
+.me-head{display:flex;gap:14px;align-items:center}
+.ring{--p:100;width:92px;height:92px;border-radius:50%;background:conic-gradient(var(--ring-c,var(--win)) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;flex:none}
+.ring>span{width:72px;height:72px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.ring b{font-family:var(--font-display);font-size:28px;font-weight:800}
+.ring small{font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.trust-card{display:flex;align-items:center;gap:14px}
+.trust-card .txt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.stat .elo{font-size:30px;line-height:1}
+.stat span{font-size:12px;color:var(--muted);font-weight:600;line-height:1.25}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rk{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;border:1px solid var(--line);background:var(--surface);min-width:0}
+.rk>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rk .small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk .elo{font-size:22px;line-height:1}
+.mov{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.mov:last-child{border-bottom:0}
+.mov .amt{font-weight:800;text-align:right}
+.mov .amt.pos{color:var(--win)} .mov .amt.neg{color:var(--loss)}
+.mov .small{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--muted)}
+.input{height:48px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:0 12px;width:100%}
+
+/* ---------- tienda y temporada ---------- */
+.prod{display:flex;flex-direction:column;gap:10px}
+.prod .top-row{display:flex;align-items:center;gap:12px}
+.prod .em{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:var(--coin-soft);flex:none}
+.prod .ch-main b{white-space:normal}
+.voucher{border:1.5px dashed var(--coin);background:var(--coin-soft);color:var(--coin-ink);border-radius:14px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px}
+.voucher b{font-family:var(--font-display);font-size:22px;letter-spacing:.06em}
+.prize{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:22px;background:linear-gradient(150deg,var(--coin),color-mix(in srgb,var(--coin) 60%,#000));color:#fff}
+.prize .eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+.prize b{font-family:var(--font-display);font-size:28px;font-weight:800;line-height:1.05;text-transform:uppercase}
+.prize .trophy{position:absolute;right:-8px;bottom:-14px;opacity:.22}
+.prize .trophy svg{width:120px;height:120px}
+.stage-n{font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--coin)}
+.banner{padding:10px 12px;border-radius:12px;background:var(--demo-soft);color:var(--demo);border:1.5px dashed var(--demo);display:flex;flex-direction:column;gap:2px;font-size:13px}
+
+/* ---------- barra de pestañas ---------- */
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px max(6px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px))}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border:0;background:none;color:var(--muted);font-size:11px;font-weight:700;border-radius:12px}
+.tab svg{width:22px;height:22px}
+.tab[aria-current="page"]{color:var(--brand)}
+.tab .badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--coin);color:var(--on-coin);font-size:10px;font-weight:800;display:grid;place-items:center}
+.tab.play .disc{width:48px;height:48px;margin-top:-22px;border-radius:50%;background:var(--coin);color:var(--on-coin);display:grid;place-items:center;border:4px solid var(--surface);box-shadow:var(--lift)}
+.tab.play[aria-current="page"] .disc{background:var(--brand);color:var(--on-brand)}
+
+/* ---------- hoja inferior ---------- */
+.sheet{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(8,13,22,.5)}
+.panel{background:var(--surface);border-radius:24px 24px 0 0;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;max-height:88%;overflow-y:auto;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.5}to{transform:none;opacity:1}}
+.panel h3{margin:0;font-family:var(--font-display);font-weight:800;font-size:26px;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:-6px auto 0}
+.sigbox{padding:12px 14px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;font-size:14px}
+.finger{width:128px;height:128px;margin:4px auto;border-radius:50%;border:2px solid var(--line);background:var(--surface-2);display:grid;place-items:center;color:var(--brand)}
+.finger svg{width:64px;height:64px}
+.finger.scan{animation:scan .9s ease-in-out;border-color:var(--brand)}
+.finger.ok{color:var(--win);border-color:var(--win);background:var(--win-soft)}
+@keyframes scan{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--brand) 40%,transparent)}50%{box-shadow:0 0 0 14px color-mix(in srgb,var(--brand) 0%,transparent)}}
+.pin{letter-spacing:.6em;text-align:center;font-size:24px;font-weight:700}
+.ad{aspect-ratio:16/9;max-width:100%;border-radius:16px;background:linear-gradient(135deg,var(--g1),var(--g5));color:#fff;display:grid;place-items:center;text-align:center;padding:16px;font-family:var(--font-display);font-size:26px;font-weight:800}
+.notif{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;padding:10px 0;border:0;border-bottom:1px solid var(--line);background:none;font-size:14px}
+.notif:last-child{border-bottom:0}
+.notif .new{width:8px;height:8px;border-radius:50%;background:var(--coin);margin-top:15px;flex:none}
+.notif.read .new{background:transparent}
+
+.toast{position:absolute;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));top:74px;z-index:30;padding:12px 14px;border-radius:14px;background:var(--ink);color:var(--surface);font-weight:700;font-size:14px;box-shadow:var(--shadow);animation:up .2s ease-out}
+.toast.good{background:var(--win);color:#fff}
+.toast.bad{background:var(--loss);color:#fff}
+
+/* confeti */
+#fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:40}
+#fx i{position:absolute;top:-12px;width:8px;height:12px;border-radius:2px;animation:fall var(--d,1.6s) cubic-bezier(.2,.6,.4,1) forwards}
+@keyframes fall{to{transform:translate(var(--x,0),110vh) rotate(var(--r,540deg));opacity:.9}}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} #fx{display:none} }
+</style>
+
+<div class="stage">
+  <div class="phone" id="phone">
+    <header class="top" id="top"></header>
+    <main class="view" id="view"></main>
+    <div class="foot" id="foot"></div>
+    <nav class="tabs" id="tabs" aria-label="Secciones"></nav>
+    <div id="sheet"></div>
+    <div id="toast"></div>
+    <div id="fx" aria-hidden="true"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- datos fijos ---------- */
+// tos: 'no' = los términos del editor prohíben apostar sobre sus partidas; '?' = términos todavía sin revisar
+const CATS = { pc:'PC y consola', movil:'Celular', online:'Ajedrez online', fisico:'Presencial' };
+const CAT_ICO = { pc:'🎮', movil:'📱', online:'♟️', fisico:'🤝' };
+const G = (name, cat, short, modes, plat, extra = {}) => ({ name, cat, short, modes, plat, ...extra });
+const GAMES = {
+  valorant:  G('Valorant', 'pc', 'VAL', ['1v1','5v5'], 'PC', { tos:'no', pub:'Riot Games', ico:'🎯' }),
+  cs2:       G('Counter-Strike 2', 'pc', 'CS2', ['1v1','2v2','5v5'], 'PC', { tos:'no', pub:'Valve', ico:'💥' }),
+  lol:       G('League of Legends', 'pc', 'LoL', ['1v1','5v5'], 'PC', { tos:'no', pub:'Riot Games', ico:'🏰' }),
+  fortnite:  G('Fortnite', 'pc', 'FN', ['1v1','2v2','4v4'], 'PC · consola · celular', { tos:'no', pub:'Epic Games', ico:'🪂' }),
+  rocket:    G('Rocket League', 'pc', 'RL', ['1v1','2v2','3v3'], 'PC · consola', { tos:'?', pub:'Epic Games', ico:'🚗' }),
+  fc:        G('EA Sports FC', 'pc', 'FC', ['1v1','2v2'], 'Consola · PC', { tos:'?', pub:'EA', draw:true, ico:'⚽' }),
+  tekken:    G('Tekken 8', 'pc', 'T8', ['1v1'], 'Consola · PC', { tos:'?', pub:'Bandai Namco', ico:'🥊' }),
+  clash:     G('Clash Royale', 'movil', 'CR', ['1v1','2v2'], 'Celular', { tos:'no', pub:'Supercell', ico:'👑' }),
+  brawl:     G('Brawl Stars', 'movil', 'BS', ['1v1','3v3'], 'Celular', { tos:'no', pub:'Supercell', ico:'⭐' }),
+  freefire:  G('Free Fire', 'movil', 'FF', ['1v1','4v4'], 'Celular', { tos:'?', pub:'Garena', ico:'🔥' }),
+  codm:      G('Call of Duty: Mobile', 'movil', 'COD', ['1v1','5v5'], 'Celular', { tos:'?', pub:'Activision', ico:'🪖' }),
+  efootball: G('eFootball', 'movil', 'eF', ['1v1'], 'Celular · consola · PC', { tos:'?', pub:'Konami', draw:true, ico:'🥅' }),
+  pool8:     G('8 Ball Pool', 'movil', '8B', ['1v1'], 'Celular', { tos:'?', pub:'Miniclip', ico:'🎱' }),
+  trucoapp:  G('Truco online', 'movil', 'TR', ['1v1','2v2','3v3'], 'App de truco · celular o PC', { ico:'🃏' }),
+  lichess:   G('Ajedrez online', 'online', '♞', ['1v1'], 'Lichess · 5+3', { draw:true, auto:true, ico:'♟️' }),
+  truco:     G('Truco', 'fisico', 'TR', ['1v1','2v2','3v3'], 'Cartas españolas', { ico:'🃏' }),
+  ajedrez:   G('Ajedrez presencial', 'fisico', '♜', ['1v1'], 'Tablero', { draw:true, ico:'♟️' }),
+  pool:      G('Pool', 'fisico', 'PO', ['1v1','2v2'], 'Mesa de pool', { ico:'🎱' }),
+  pingpong:  G('Ping-pong', 'fisico', 'PP', ['1v1','2v2'], 'Mesa de ping-pong', { ico:'🏓' }),
+  metegol:   G('Metegol', 'fisico', 'MG', ['1v1','2v2'], 'Metegol', { ico:'⚽' }),
+  padel:     G('Pádel', 'fisico', 'PD', ['2v2'], 'Cancha de pádel', { ico:'🎾' }),
+};
+const GAME_IDS = Object.keys(GAMES);
+const gsub = g => `${GAMES[g].plat} · ${GAMES[g].auto ? 'se verifica solo' : 'reportan los dos'}`;
+const teamSize = f => parseInt(f || '1v1', 10);
+const potOf = c => c.stake * 2 * teamSize(c.fmt);
+const fmtTag = c => c.fmt && c.fmt !== '1v1' ? ' · ' + c.fmt : '';
+const tosTag = g => GAMES[g].tos === 'no' ? `<span class="warn-tag bad">${GAMES[g].pub} prohíbe apuestas</span>` : GAMES[g].tos === '?' ? '<span class="warn-tag">Términos sin revisar</span>' : '';
+const STAKES = [10, 25, 50, 100, 250];
+const K = 32;
+const TIERS = [['Bronce',0],['Plata',950],['Oro',1100],['Platino',1250],['Diamante',1400]];
+const STATUS = { pendiente:'Pendiente', aceptado:'Aceptado', en_juego:'En juego', resultado_reportado:'Resultado reportado', finalizado:'Finalizado', en_disputa:'En disputa', cancelado:'Cancelado' };
+const STEP_LBL = { pendiente:'Reto', aceptado:'Aceptado', en_juego:'Jugando', resultado_reportado:'Reporte', finalizado:'Final' };
+const FLOW = ['pendiente','aceptado','en_juego','resultado_reportado','finalizado'];
+const MOV = { saldo_inicial:'Saldo inicial', bonus_diario:'Bonus diario', video:'Video con recompensa', bloqueo:'Retenido en desafío', pago:'Ganaste el pozo', devolucion:'Devolución', retencion_cola:'Retenido en matchmaking', devolucion_cola:'Saliste de la cola', recompensa:'Recompensa por cortar una racha', canje:'Canje en la tienda' };
+const OUT = { gane:'Gané', perdi:'Perdí', empate:'Empate' };
+const ME = 'marto_10';
+const DAY = 86400000;
+const KEY = 'challenge-demo-v3';
+const STORE = [
+  { id:'cafe', name:'Café con medialuna', shop:'Cafetería aliada (ejemplo)', cost:150, ico:'☕' },
+  { id:'desc', name:'10% de descuento', shop:'Tienda de deportes aliada (ejemplo)', cost:300, ico:'🏷️' },
+  { id:'cine', name:'Entrada de cine 2x1', shop:'Cine aliado (ejemplo)', cost:600, ico:'🎬' },
+  { id:'vale', name:'Vale de $500', shop:'Comercio aliado (ejemplo)', cost:1000, ico:'🎟️' },
+];
+
+function fakeElo(s){ let h = 7; for (const ch of s) h = (h*31 + ch.charCodeAt(0)) | 0; return 900 + Math.abs(h) % 560; }
+const newRatings = (u = '') => Object.fromEntries(GAME_IDS.map(g => [g, u ? fakeElo(u + g) : 1000]));
+function basePlayers(){
+  const list = [['lu_pereyra','Lu Pereyra',true],['gonza_b','Gonza Benítez',true],['caro_mate','Caro Maté',true],['juancito','Juan Ibarra',true],['flor_rp','Flor Ríos',true],
+    ['tano_88','Tano',false],['mili.gg','Mili',false],['dami_k','Dami K.',false],['sofi_g','Sofi G.',false],['el_rulo','El Rulo',false],['nachito','Nacho',false],['vale_t','Vale T.',false],['pato_m','Pato M.',false]];
+  const streaks = { gonza_b:4, lu_pereyra:3, tano_88:5 };
+  return Object.fromEntries(list.map(([u, name, friend]) => [u, { name, friend, r: newRatings(u), streak: streaks[u] || 0, sxp: fakeElo(u + 'sx') % 380 }]));
+}
+
+function seed(){
+  const now = Date.now();
+  const ev = (ago, text) => ({ ts: now - ago, text });
+  return {
+    trust: 100,
+    dayOffset: 0,
+    lastBonusDay: new Date(now - DAY).toISOString().slice(0,10),
+    loginStreak: 2,
+    streak: 1,
+    sxp: 120,
+    mode: 'regulado',
+    points: 40,
+    pointsLog: [
+      { ts: now-DAY, amount:15, text:'Bonus diario · racha de 2 días' },
+      { ts: now-5*DAY+3600e3, amount:5, text:'Video con recompensa' },
+      { ts: now-6*DAY, amount:20, text:'Bonus de bienvenida' },
+    ],
+    vouchers: [],
+    season: { name:'Temporada 1', ends: now + 12*DAY, prize:'Vale de $2.000 + marco dorado de perfil', sponsor:'Sponsor de ejemplo' },
+    ads: { day:null, count:0 },
+    ratings: { ...newRatings(), lichess:1016, fc:1016 },
+    players: basePlayers(),
+    ledger: [
+      { id:'m1', type:'saldo_inicial', amount:1000, ts: now-6*DAY },
+      { id:'m2', type:'bonus_diario', amount:100, ts: now-5*DAY },
+      { id:'m3', type:'video', amount:20, ts: now-5*DAY+3600e3 },
+      { id:'m4', type:'bloqueo', amount:-50, ref:'c3', ts: now-3*DAY },
+      { id:'m5', type:'pago', amount:100, ref:'c3', ts: now-3*DAY+5400e3 },
+      { id:'m6', type:'bloqueo', amount:-100, ref:'c2', ts: now-40*60e3 },
+    ],
+    challenges: [
+      { id:'c1', game:'truco', fmt:'1v1', stake:50, rival:'caro_mate', mine:false, origin:'amigo', status:'pendiente', created: now-25*60e3, myLocked:false,
+        events:[ev(25*60e3,'@caro_mate creó el desafío y bloqueó 50 monedas')] },
+      { id:'c4', game:'rocket', fmt:'2v2', stake:25, rival:'juancito', mine:false, origin:'amigo', status:'pendiente', created: now-90*60e3, myLocked:false,
+        events:[ev(90*60e3,'@juancito armó un 2v2 y su equipo bloqueó 25 monedas por jugador')] },
+      { id:'c2', game:'lichess', stake:100, rival:'lu_pereyra', mine:true, origin:'amigo', status:'en_juego', created: now-40*60e3, myLocked:true, lichessId:'aB3xK9Qp',
+        events:[ev(40*60e3,'Creaste el desafío y bloqueaste 100 monedas'), ev(32*60e3,'@lu_pereyra aceptó y bloqueó 100 monedas'), ev(31*60e3,'Se creó la partida aB3xK9Qp en Lichess'), ev(28*60e3,'La partida empezó')] },
+      { id:'c3', game:'fc', fmt:'1v1', stake:50, rival:'gonza_b', mine:true, origin:'amigo', status:'finalizado', created: now-3*DAY, myLocked:false, myReport:'gane', rivalReport:'perdi', result:'gane', eloDelta:16,
+        events:[ev(3*DAY,'Creaste el desafío'), ev(3*DAY-600e3,'@gonza_b aceptó'), ev(3*DAY-5000e3,'Los dos reportaron: ganaste'), ev(3*DAY-5400e3,'Cobraste el pozo de 100 monedas · ELO +16')] },
+    ],
+    signatures: [
+      { ts: now-40*60e3, action:'Crear desafío', detail:'Ajedrez online · 100 vs @lu_pereyra', method:'Huella', device:'iPhone de Marto' },
+      { ts: now-3*DAY, action:'Reportar resultado', detail:'EA Sports FC · Gané', method:'PIN de la app', device:'Chrome en Windows' },
+    ],
+    notifs: [
+      { id:'n1', ts: now-25*60e3, text:'@caro_mate te retó a un Truco por 50 monedas', ref:'c1', read:false },
+      { id:'n0', ts: now-90*60e3, text:'@juancito te invitó a un 2v2 de Rocket League por 25 monedas', ref:'c4', read:false },
+      { id:'n2', ts: now-32*60e3, text:'@lu_pereyra aceptó tu desafío de Ajedrez online', ref:'c2', read:true },
+    ],
+    mm: { status:'idle', stake:50 },
+    nav: { tab:'inicio', sub:null },
+    filter: 'activos',
+    rankGame: 'lichess',
+    draft: { cat:'pc', game:'rocket', fmt:'1v1', stake:50, rival:null, hot:false, step:0 },
+    pinFails: 0,
+  };
+}
+
+/* ---------- estado ---------- */
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch(e){ S = seed(); }
+if (S.mm && S.mm.status === 'buscando'){ S.mm.startedAt = Date.now(); }
+if (S.draft && S.draft.step == null) S.draft.step = 0;
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+
+/* ---------- utilidades ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => n.toLocaleString('es-AR');
+const uid = p => p + Math.random().toString(36).slice(2,8);
+const now = () => Date.now() + S.dayOffset*DAY;
+const today = () => new Date(now()).toISOString().slice(0,10);
+function ago(ts){
+  const s = Math.max(0, (Date.now() - ts)/1000);
+  if (s < 60) return 'recién';
+  if (s < 3600) return 'hace ' + Math.floor(s/60) + ' min';
+  if (s < 86400) return 'hace ' + Math.floor(s/3600) + ' h';
+  const d = Math.floor(s/86400); return 'hace ' + d + (d === 1 ? ' día' : ' días');
+}
+const balance = () => S.ledger.reduce((a, m) => a + m.amount, 0);
+const locked = () => S.challenges.filter(c => c.myLocked).reduce((a, c) => a + c.stake, 0) + (S.mm.status === 'buscando' ? S.mm.stake : 0);
+const tierOf = e => TIERS.reduce((t, x) => e >= x[1] ? x[0] : t, 'Bronce');
+const ratingOf = (u, g) => u === ME ? S.ratings[g] : S.players[u].r[g];
+const initials = u => u.replace(/[^a-z]/gi,'').slice(0,2);
+const active = c => !['finalizado','cancelado'].includes(c.status);
+const find = id => S.challenges.find(c => c.id === id);
+const needsMe = c => (c.status === 'pendiente' && !c.mine) || c.status === 'aceptado' || c.status === 'en_juego';
+const coinSvg = '<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--coin)"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="var(--coin-soft)" stroke-width="1.6" opacity=".8"/><path d="M12 7.6v8.8M9.6 9.8h4.2a1.6 1.6 0 0 1 0 3.2h-3.6a1.6 1.6 0 0 0 0 3.2h4.2" fill="none" stroke="var(--coin-soft)" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const gt = (g, size = '') => `<span class="gt ${GAMES[g].cat} ${size}" aria-hidden="true">${GAMES[g].ico}</span>`;
+function avc(u){ let h = 5; for (const ch of u) h = (h*33 + ch.charCodeAt(0)) | 0; return 'av' + (Math.abs(h) % 6); }
+const avatar = (u, size = '') => `<span class="avatar ${u === ME ? 'me' : avc(u)} ${size}" aria-hidden="true">${initials(u)}</span>`;
+
+const avail = cat => GAME_IDS.filter(g => GAMES[g].cat === cat && (S.mode === 'vision' || GAMES[g].tos !== 'no'));
+const maxStake = () => S.trust >= 80 ? 250 : S.trust >= 50 ? 100 : 25;
+const needsCheckin = c => GAMES[c.game].cat === 'fisico';
+const bountyOf = n => n >= 3 ? 50*n : 0;
+function addPoints(n, text){ S.points += n; S.pointsLog.unshift({ ts: Date.now(), amount: n, text }); }
+function assurance(c){
+  const g = GAMES[c.game];
+  if (g.auto) return { lvl:'alta', pill:'finalizado', items:['Resultado verificado automáticamente con Lichess', 'Partida privada: solo pueden entrar los dos jugadores', 'El pozo se libera cuando Lichess confirma el resultado'] };
+  if (g.cat === 'fisico') return { lvl:'media', pill:'aceptado', items:['Check-in presencial: QR de la mesa + ubicación de los dos', 'Doble reporte firmado con huella o PIN', 'Foto o video del resultado y arbitraje si no coinciden'] };
+  return { lvl:'media', pill:'aceptado', items:['Doble reporte firmado con huella o PIN', 'Captura o video del resultado como evidencia', 'Arbitraje del equipo si los reportes no coinciden'] };
+}
+function post(type, amount, ref){
+  if (amount < 0 && balance() + amount < 0) throw new Error('saldo');
+  S.ledger.push({ id: uid('m'), type, amount, ref, ts: Date.now() });
+}
+function ev(c, text){ c.events.push({ ts: Date.now(), text }); }
+function notify(text, ref){ S.notifs.unshift({ id: uid('n'), ts: Date.now(), text, ref, read:false }); }
+
+let toastTimer;
+function toast(msg, kind=''){
+  const t = $('toast');
+  t.innerHTML = `<div class="toast ${kind}" role="status">${esc(msg)}</div>`;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.innerHTML = '', 2600);
+}
+function confetti(){
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const fx = $('fx'), cols = ['var(--coin)','var(--coin-hi)','var(--g1)','var(--g3)','var(--g4)','var(--g5)'];
+  let html = '';
+  for (let i = 0; i < 70; i++){
+    html += `<i style="left:${Math.random()*100}%;background:${cols[i % cols.length]};--x:${(Math.random()-.5)*160}px;--r:${360 + Math.random()*540}deg;--d:${1.2 + Math.random()*1.1}s;animation-delay:${Math.random()*.35}s;width:${6 + Math.random()*5}px"></i>`;
+  }
+  fx.innerHTML = html;
+  setTimeout(() => { fx.innerHTML = ''; }, 2900);
+}
+
+function eloUpdate(game, rival, score, k = K){
+  const ra = S.ratings[game], rb = S.players[rival].r[game];
+  const ea = 1/(1 + Math.pow(10, (rb - ra)/400));
+  const d = Math.round(k*(score - ea));
+  S.ratings[game] = ra + d; S.players[rival].r[game] = rb - d;
+  return d;
+}
+
+/* ---------- reglas del desafío ---------- */
+function finalize(c, my, via){ finalize0(c, my, via); if (c.status === 'finalizado') progress(c, my); if (my === 'gane') setTimeout(confetti, 60); }
+function progress(c, my){
+  const R = S.players[c.rival], rs = R.streak || 0;
+  if (my === 'gane'){
+    S.streak = (S.streak || 0) + 1; R.streak = 0; S.sxp += 30;
+    if (rs >= 3){ post('recompensa', bountyOf(rs), c.id); ev(c, `Cortaste la racha de ${rs} victorias de @${c.rival}: cobraste ${fmt(bountyOf(rs))} monedas de recompensa`); }
+    if (S.streak >= 3) ev(c, `Racha de ${S.streak} victorias: ahora hay ${fmt(bountyOf(S.streak))} monedas de recompensa para quien te gane`);
+  } else if (my === 'perdi'){ S.streak = 0; R.streak = rs + 1; S.sxp += 5; }
+  else { S.sxp += 10; }
+}
+function finalize0(c, my, via){
+  if (my === 'gane') post('pago', 2*c.stake, c.id);
+  else if (my === 'empate' || my === 'anulado') post('devolucion', c.stake, c.id);
+  c.myLocked = false;
+  c.result = my;
+  if (my === 'anulado'){ c.status = 'cancelado'; c.cancelReason = 'Partida anulada'; ev(c, 'Partida anulada: se devolvieron las monedas a los dos'); return; }
+  c.status = 'finalizado';
+  const d = eloUpdate(c.game, c.rival, my === 'gane' ? 1 : my === 'empate' ? .5 : 0, c.hot ? K*2 : K);
+  c.eloDelta = d;
+  const elo = 'ELO ' + (d >= 0 ? '+' : '') + d;
+  if (my === 'gane') ev(c, `${via}: ganaste. Cobraste ${fmt(2*c.stake)} monedas · ${elo}`);
+  else if (my === 'empate') ev(c, `${via}: empate. Se devolvieron ${fmt(c.stake)} monedas a cada uno · ${elo}`);
+  else ev(c, `${via}: ganó @${c.rival} · ${elo}`);
+  notify(my === 'gane' ? `Ganaste ${fmt(2*c.stake)} monedas contra @${c.rival}` : my === 'empate' ? `Empate con @${c.rival}: recuperaste tus monedas` : `@${c.rival} ganó el desafío de ${GAMES[c.game].name}`, c.id);
+}
+function refundCancel(c, reason, text){
+  if (c.myLocked) post('devolucion', c.stake, c.id);
+  c.myLocked = false; c.status = 'cancelado'; c.cancelReason = reason; c.cancelReq = null;
+  ev(c, text);
+}
+
+/* ---------- íconos ---------- */
+const I = (d, w = 2) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONS = {
+  inicio: I('<path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/>'),
+  desafios: I('<path d="M4 4l9 9M20 4l-9 9M4 20l4-4M20 20l-4-4M6 18l-2-2M18 18l2-2"/>'),
+  jugar: I('<circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/>', 2.2),
+  ranking: I('<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8"/>'),
+  perfil: I('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+  back: I('<path d="M15 5l-7 7 7 7"/>', 2.2),
+  bell: I('<path d="M6 10a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7M10 20a2 2 0 0 0 4 0"/>'),
+  check: I('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 3),
+  lock: I('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
+  star: I('<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>'),
+  info: I('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'),
+  chev: I('<path d="M6 9l6 6 6-6"/>', 2.2),
+  shield: I('<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>'),
+  clock: I('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+  upload: I('<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>'),
+  swords: I('<path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5 14 2h3v3l-4.5 4.5M5 14l-2 2 2 2"/>'),
+  flask: I('<path d="M9 3h6M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3M7 15h10"/>'),
+  crown: '<svg viewBox="0 0 24 20" fill="currentColor" aria-hidden="true"><path d="M2 6l5 4 5-8 5 8 5-4-2 12H4z"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3h12v6a6 6 0 0 1-12 0zM4 5h2v4a3 3 0 0 1-2-3zM18 5h2v1a3 3 0 0 1-2 3zM10.5 15h3v3h3v3h-9v-3h3z"/></svg>',
+};
+const TABS = [['inicio','Inicio'],['desafios','Desafíos'],['jugar','Jugar'],['ranking','Ranking'],['perfil','Perfil']];
+const TITLES = { desafios:'Desafíos', jugar:'Buscar rival', ranking:'Ranking', perfil:'Perfil' };
+
+/* plegables: recuerdan si están abiertos mientras dure la sesión */
+const OPEN = { historial:true };
+const fold = (id, icon, title, aside, body) => `<details class="fold" data-fold="${id}" ${OPEN[id] ? 'open' : ''}>
+  <summary><span class="ic">${icon}</span><span>${title}</span>${aside ? `<span class="aside">${aside}</span>` : ''}${ICONS.chev.replace('<svg', '<svg class="chev"')}</summary>
+  <div class="body">${body}</div></details>`;
+
+/* ---------- firma de decisiones ---------- */
+let signCtx = null;
+function sign(action, detail, onOk){
+  signCtx = { action, detail, onOk, method: S.signMethod || 'bio', state:'idle', err:'' };
+  renderSign();
+}
+function renderSign(){
+  const c = signCtx;
+  if (!c){ $('sheet').innerHTML = ''; return; }
+  const finger = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 20a12 12 0 0 1 24 0"/><path d="M8 27c.4-2 .4-4 .4-6A15.6 15.6 0 0 1 35 10"/><path d="M39.5 18c.4 1.6.5 3 .5 5"/><path d="M17 38c1.6-3.5 2-7.5 2-11a5 5 0 0 1 10 0c0 4-.6 8-2 11.5"/><path d="M24 26c0 5-1 10-3.4 14"/><path d="M33.5 26c0 4.5-.6 8.5-1.8 12"/><path d="M12.5 34c1-2.4 1.5-5 1.5-8"/></svg>';
+  const bio = `<button class="finger ${c.state === 'scan' ? 'scan' : c.state === 'ok' ? 'ok' : ''}" data-a="bio-scan" aria-label="Tocá para confirmar con tu huella o Face ID">${c.state === 'ok' ? ICONS.check : finger}</button>
+    <p style="text-align:center;margin:0;font-weight:700">${c.state === 'ok' ? 'Listo, firmado' : c.state === 'scan' ? 'Leyendo huella…' : 'Tocá el sensor para firmar'}</p>`;
+  const lockedPin = S.pinFails >= 5;
+  const pin = `<div class="field"><label for="pin-in">PIN de la app</label>
+      <input id="pin-in" class="input pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" ${lockedPin ? 'disabled' : ''}></div>
+      ${c.err ? `<div class="err">${esc(c.err)}</div>` : ''}
+      <p class="muted small" style="margin:0">PIN de prueba: <b>1234</b>. Después de 5 intentos fallidos se bloquea 15 minutos.</p>
+      <button class="btn primary block" data-a="pin-ok" ${lockedPin ? 'disabled' : ''}>Firmar</button>`;
+  $('sheet').innerHTML = `<div class="sheet" data-a="sheet-bg"><div class="panel" role="dialog" aria-modal="true" aria-labelledby="sig-t">
+    <div class="grab"></div>
+    <h3 id="sig-t">Firmá para confirmar</h3>
+    <div class="sigbox"><b>${esc(c.action)}</b><span class="muted">${esc(c.detail)}</span></div>
+    <div class="seg" role="group" aria-label="Método de firma">
+      <button data-a="sig-method" data-m="bio" aria-pressed="${c.method === 'bio'}">Huella / Face ID</button>
+      <button data-a="sig-method" data-m="pin" aria-pressed="${c.method === 'pin'}">PIN</button>
+    </div>
+    ${c.method === 'bio' ? bio : pin}
+    <p class="muted small" style="margin:0">Queda registrado quién firmó, cuándo, desde qué dispositivo y con qué método.</p>
+    <button class="btn block" data-a="sheet-close">Cancelar</button>
+  </div></div>`;
+  if (c.method === 'pin'){ const i = $('pin-in'); i && i.focus(); }
+}
+function signDone(method){
+  const c = signCtx;
+  S.signatures.unshift({ ts: Date.now(), action: c.action, detail: c.detail, method, device: method === 'Huella' ? 'iPhone de Marto' : 'Chrome en Windows' });
+  signCtx = null; $('sheet').innerHTML = '';
+  try { c.onOk(); } catch(e){ if (e.message === 'saldo') toast('No te alcanzan las monedas', 'bad'); else throw e; }
+  save(); render();
+}
+
+/* ---------- hojas: video y notificaciones ---------- */
+let adTimer;
+function openAd(){
+  let left = 5;
+  const draw = () => {
+    $('sheet').innerHTML = `<div class="sheet"><div class="panel" role="dialog" aria-modal="true" aria-labelledby="ad-t">
+      <div class="grab"></div><h3 id="ad-t">Video con recompensa</h3>
+      <div class="ad">${left > 0 ? 'Anuncio de prueba<br>' + left + ' s' : '¡Listo!'}</div>
+      <p class="muted small" style="margin:0">Proveedor simulado (RewardedAdProvider mock). En la versión real lo acredita el servidor cuando AdMob confirma que lo viste.</p>
+      <button class="btn gold block xl" data-a="ad-claim" ${left > 0 ? 'disabled' : ''}>${left > 0 ? 'Esperá a que termine' : 'Cobrar 20 monedas + 5 puntos'}</button>
+      <button class="btn block" data-a="ad-close">Cerrar</button></div></div>`;
+  };
+  draw();
+  clearInterval(adTimer);
+  adTimer = setInterval(() => { left--; draw(); if (left <= 0) clearInterval(adTimer); }, 1000);
+}
+function openNotifs(){
+  const items = S.notifs.slice(0, 15).map(n => {
+    const c = n.ref && find(n.ref);
+    const lead = c ? avatar(c.rival) : `<span class="avatar me">${initials(ME)}</span>`;
+    return `<button class="notif ${n.read ? 'read' : ''}" data-a="open-notif" data-id="${n.id}"><span class="new"></span>${lead}<span><span>${esc(n.text)}</span><br><span class="muted small">${ago(n.ts)}</span></span></button>`;
+  }).join('');
+  $('sheet').innerHTML = `<div class="sheet" data-a="sheet-bg"><div class="panel" role="dialog" aria-modal="true" aria-labelledby="nt-t">
+    <div class="grab"></div><h3 id="nt-t">Notificaciones</h3>
+    <div>${items || '<div class="empty">No tenés notificaciones.</div>'}</div>
+    <button class="btn block" data-a="sheet-close">Cerrar</button></div></div>`;
+}
+
+/* ---------- piezas comunes ---------- */
+function statusPill(c){
+  if (c.status === 'finalizado') return `<span class="pill ${c.result === 'gane' ? 'finalizado' : c.result === 'empate' ? 'aceptado' : 'en_disputa'}">${c.result === 'gane' ? 'Ganaste' : c.result === 'empate' ? 'Empate' : 'Perdiste'}</span>`;
+  if (needsMe(c)) return `<span class="pill toca">${c.status === 'pendiente' ? 'Responder' : c.status === 'aceptado' ? 'Te toca' : (c.game === 'lichess' ? 'Jugando' : 'Reportar')}</span>`;
+  return `<span class="pill ${c.status}">${c.status === 'pendiente' ? 'Esperando' : STATUS[c.status]}</span>`;
+}
+function chRow(c){
+  const g = GAMES[c.game];
+  const who = c.origin === 'matchmaking' ? 'Matchmaking vs' : (c.mine ? 'Retaste a' : 'Te retó');
+  return `<button class="ch" data-a="open" data-id="${c.id}">${gt(c.game)}
+    <span class="ch-main"><b>${g.name}${fmtTag(c)}</b><span class="ch-who">${avatar(c.rival, 'xs')}<span>${who} @${esc(c.rival)} · ${ago(c.created)}</span></span></span>
+    <span class="ch-side"><span class="stake num">${coinSvg}${fmt(c.stake)}</span>${statusPill(c)}</span></button>`;
+}
+function vsCard({ game, rival, stake, fmt: f, hot }, sub){
+  const me = ratingOf(ME, game), rv = ratingOf(rival, game), n = teamSize(f);
+  const pot = stake * 2 * n;
+  return `<div class="vs-card">
+    <div class="vs-top">${gt(game)}<span class="t"><b>${GAMES[game].name}${f && f !== '1v1' ? ' · ' + f : ''}</b><span>${sub}</span></span>${hot ? '<span class="hot">Duelo caliente</span>' : ''}</div>
+    <div class="vs">
+      <div class="who">${avatar(ME, 'lg')}<b>@${ME}</b><span class="tier ${tierOf(me)}">${tierOf(me)} ${me}</span></div>
+      <div class="pot"><span class="lbl">Pozo</span><span class="big-n num">${coinSvg}${fmt(pot)}</span><span class="lbl">${n > 1 ? fmt(stake) + ' c/u' : 'comisión 0%'}</span></div>
+      <div class="who">${avatar(rival, 'lg')}<b>@${esc(rival)}</b><span class="tier ${tierOf(rv)}">${tierOf(rv)} ${rv}</span></div>
+    </div></div>`;
+}
+function podium(rows, val){
+  const top = rows.slice(0, 3);
+  if (top.length < 3) return '';
+  const pod = (r, i) => `<div class="pod p${i+1} ${r.u === ME ? 'me' : ''}"><span class="crown">${i === 0 ? ICONS.crown : ''}</span>${avatar(r.u, i === 0 ? 'lg' : '')}<b>@${esc(r.u)}</b><div class="block"><span class="n">${i+1}</span><span class="v num">${val(r)}</span></div></div>`;
+  return `<div class="podium">${pod(top[1],1)}${pod(top[0],0)}${pod(top[2],2)}</div>`;
+}
+function modeBanner(){
+  return S.mode === 'vision'
+    ? '<div class="banner"><b>Modo visión · concepto para inversores</b><span>Acá las monedas se apuestan y además se canjean por productos. Eso requiere licencia de juego: hoy no se puede operar en Uruguay. Datos simulados.</span></div>'
+    : '';
+}
+
+/* ---------- vistas ---------- */
+function vInicio(){
+  const bal = balance(), lk = locked(), vis = S.mode === 'vision';
+  const claimed = S.lastBonusDay === today();
+  const prev = new Date(now() - DAY).toISOString().slice(0,10);
+  const nextStreak = claimed ? S.loginStreak : (S.lastBonusDay === prev ? (S.loginStreak || 0) + 1 : 1);
+  const nextPts = 10 + 2*Math.min(nextStreak, 7);
+  if (S.ads.day !== today()) S.ads = { day: today(), count: 0 };
+  const adsLeft = 5 - S.ads.count;
+  const act = S.challenges.filter(active).sort((a,b) => b.created - a.created);
+  const incoming = act.filter(c => !c.mine && c.status === 'pendiente');
+  const others = act.filter(c => !incoming.includes(c));
+  const hunted = Object.entries(S.players).filter(([,p]) => p.friend && (p.streak || 0) >= 3).sort((a,b) => b[1].streak - a[1].streak);
+  const daysLeft = Math.max(0, Math.ceil((S.season.ends - Date.now())/DAY));
+  const streakPips = Array.from({ length: 7 }, (_, i) => `<i class="${i < Math.min(claimed ? S.loginStreak : nextStreak - 1, 7) ? 'on' : ''}"></i>`).join('');
+  const adPips = Array.from({ length: 5 }, (_, i) => `<i class="${i < S.ads.count ? 'on' : ''}"></i>`).join('');
+  return `
+  <section class="wallet" aria-label="Tus monedas">
+    <span class="label">Tus monedas</span>
+    <span class="amount num">${coinSvg}${fmt(bal)}</span>
+    <span class="meta">
+      <span class="hchip num">${ICONS.lock}<b>${fmt(lk)}</b> en juego</span>
+      ${vis ? '' : `<span class="hchip num">${ICONS.star}<b>${fmt(S.points)}</b> puntos para canjear</span>`}
+    </span>
+    <details><summary>${ICONS.info}Cómo funcionan</summary><p>${vis ? 'Concepto: las monedas ganadas en duelos se canjean en la tienda. Requiere licencia.' : 'Las monedas son para retar: no se compran, no se canjean y no se retiran. Los puntos se ganan entrando y viendo videos (nunca apostando) y se canjean por productos.'}</p></details>
+  </section>
+
+  ${incoming.length ? `<section class="section"><div class="h"><h2>Te retaron</h2><span class="pill toca">${incoming.length}</span></div>
+    ${incoming.map(c => `<div class="incoming">
+      <div class="top-row">${avatar(c.rival, 'lg')}<span class="txt"><b>@${esc(c.rival)} te retó</b><span class="muted small">${GAMES[c.game].name}${fmtTag(c)} · ${ago(c.created)}</span></span>${gt(c.game)}</div>
+      <div class="summary"><span>Pozo en juego</span><b class="num">${coinSvg}${fmt(potOf(c))}</b></div>
+      <button class="btn gold block" data-a="open" data-id="${c.id}">Ver el reto y responder</button>
+    </div>`).join('')}
+  </section>` : ''}
+
+  <div class="big-actions">
+    <button class="big gold" data-a="new"><span class="ic">${ICONS.swords}</span><span>Retar a un amigo<small>Elegís juego, rival y monto</small></span></button>
+    <button class="big" data-a="tab" data-t="jugar"><span class="ic">${ICONS.jugar}</span><span>Buscar rival<small>Ajedrez online, nivel parecido</small></span></button>
+  </div>
+
+  <section class="section">
+    <div class="h"><h2>En curso</h2>${others.length ? '<button class="link" data-a="tab" data-t="desafios">Ver todos</button>' : ''}</div>
+    <div class="list">${others.length ? others.slice(0,4).map(chRow).join('') : '<div class="empty">No tenés desafíos en curso.</div>'}</div>
+  </section>
+
+  <section class="section">
+    <div class="h"><h2>Ganá monedas gratis</h2></div>
+    <div class="earn">
+      <button class="earn-btn" data-a="bonus" ${claimed ? 'disabled' : ''}><span class="plus num">${coinSvg}+100</span><b>${claimed ? 'Ya lo cobraste' : 'Bonus diario'}</b><span class="muted small">${claimed ? 'Volvé mañana' : `Día ${nextStreak} de racha${vis ? '' : ' · +' + nextPts + ' pts'}`}</span><span class="pips" aria-label="Racha de ${claimed ? S.loginStreak : nextStreak - 1} días">${streakPips}</span></button>
+      <button class="earn-btn" data-a="ad" ${adsLeft <= 0 ? 'disabled' : ''}><span class="plus num">${coinSvg}+20</span><b>Ver un video</b><span class="muted small num">${adsLeft > 0 ? `Quedan ${adsLeft} hoy${vis ? '' : ' · +5 pts'}` : 'Ya viste los 5 de hoy'}</span><span class="pips" aria-label="${S.ads.count} de 5 videos vistos">${adPips}</span></button>
+    </div>
+    ${claimed ? '<button class="link small" data-a="next-day" style="align-self:flex-start">Simular que pasó un día</button>' : ''}
+    <div class="earn">
+      <button class="short" data-a="go-tienda"><span class="em">🛍️</span><span><b>Tienda</b><span class="muted small">${vis ? 'Canjeá monedas' : 'Canjeá puntos'}</span></span></button>
+      <button class="short" data-a="go-season"><span class="em">🏆</span><span><b>${esc(S.season.name)}</b><span class="muted small num">Faltan ${daysLeft} días</span></span></button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="h"><h2>Cortá rachas</h2><span class="muted small">Ganale y cobrá extra</span></div>
+    ${S.streak >= 3 ? `<div class="alert warn"><b>Estás en racha: ${S.streak} victorias seguidas</b><span>Quien te gane se lleva ${fmt(bountyOf(S.streak))} monedas de recompensa.</span></div>` : ''}
+    <div class="list">${hunted.length ? hunted.map(([u,p]) => `<div class="opt"><span class="avatar ${avc(u)}">${initials(u)}<span class="flame">${p.streak}</span></span><span class="opt-main"><b>@${esc(u)}</b><span class="muted small num">${p.streak} victorias seguidas · recompensa ${fmt(bountyOf(p.streak))}</span></span><button class="btn gold sm" data-a="challenge-friend" data-u="${esc(u)}">Retar</button></div>`).join('') : '<div class="empty">Ningún amigo tiene 3 victorias seguidas.</div>'}</div>
+  </section>`;
+}
+
+function vDesafios(){
+  const act = S.challenges.filter(active).sort((a,b) => b.created - a.created);
+  const done = S.challenges.filter(c => !active(c)).sort((a,b) => b.created - a.created);
+  const seg = `<div class="seg" role="group" aria-label="Filtro">
+    <button data-a="filter" data-f="activos" aria-pressed="${S.filter === 'activos'}">Activos <span class="count num">${act.length}</span></button>
+    <button data-a="filter" data-f="terminados" aria-pressed="${S.filter === 'terminados'}">Terminados <span class="count num">${done.length}</span></button>
+  </div>`;
+  let body;
+  if (S.filter === 'activos'){
+    const mine = act.filter(needsMe), wait = act.filter(c => !needsMe(c));
+    body = act.length
+      ? (mine.length ? `<span class="sub-h">Te toca a vos</span><div class="list">${mine.map(chRow).join('')}</div>` : '')
+        + (wait.length ? `<span class="sub-h">Esperando a otros</span><div class="list">${wait.map(chRow).join('')}</div>` : '')
+      : '<div class="empty">No tenés desafíos activos.<button class="btn gold sm" data-a="new">Retar a un amigo</button></div>';
+  } else {
+    body = done.length ? `<div class="list">${done.map(chRow).join('')}</div>` : '<div class="empty">Todavía no terminaste ningún desafío.</div>';
+  }
+  return seg + body + (act.length || S.filter !== 'activos' ? `<button class="btn gold block xl" data-a="new">${ICONS.swords}Nuevo desafío</button>` : '');
+}
+
+/* asistente en 4 pasos */
+const WIZ = ['Juego', 'Rival', 'Monto', 'Confirmar'];
+function vNuevo(){
+  const d = S.draft, bal = balance(), vis = S.mode === 'vision';
+  const games = avail(d.cat);
+  if (!games.includes(d.game)){ d.game = games[0]; d.fmt = GAMES[d.game].modes[0]; }
+  if (d.stake > maxStake()) d.stake = maxStake();
+  if (d.step == null) d.step = 0;
+  const step = d.step, n = teamSize(d.fmt), modes = GAMES[d.game].modes;
+  const friends = Object.entries(S.players).filter(([,p]) => p.friend);
+  const reach = i => i === 0 || (i === 1) || (i >= 2 && d.rival);
+  const wiz = `<div class="wiz" role="list">${WIZ.map((l, i) => `<button role="listitem" class="${i < step ? 'done' : i === step ? 'now' : ''}" data-a="d-goto" data-s="${i}" ${i <= step || reach(i) ? '' : 'disabled'} ${i === step ? 'aria-current="step"' : ''}><i></i>${i+1}. ${l}</button>`).join('')}</div>`;
+  let body = '';
+  if (step === 0){
+    body = `<h2 class="q">¿A qué juegan?</h2>
+      <div class="chips scroll">${Object.entries(CATS).map(([k, l]) => `<button class="chip" data-a="d-cat" data-c="${k}" aria-pressed="${d.cat === k}"><span aria-hidden="true">${CAT_ICO[k]}</span>${l}</button>`).join('')}</div>
+      <div class="games">${games.map(g => `<button class="gcard" data-a="d-game" data-g="${g}" aria-pressed="${d.game === g}">${d.game === g ? `<span class="check">${ICONS.check}</span>` : ''}${gt(g)}<b>${GAMES[g].name}</b><span class="muted small">${GAMES[g].modes.join(' · ')}${GAMES[g].auto ? ' · se verifica solo' : ''}</span>${tosTag(g)}</button>`).join('')}</div>
+      ${vis ? '' : '<span class="muted small">Valorant, CS2, League of Legends, Fortnite, Clash Royale y Brawl Stars no aparecen porque sus editores prohíben apostar sobre sus partidas. Se ven en el modo visión.</span>'}`;
+  } else if (step === 1){
+    body = `<h2 class="q">${n > 1 ? '¿Quién es el capitán rival?' : '¿A quién retás?'}</h2>
+      <div class="friends">${friends.map(([u,p]) => `<button class="fcard" data-a="d-rival" data-u="${esc(u)}" aria-pressed="${d.rival === u}">${d.rival === u ? `<span class="check">${ICONS.check}</span>` : ''}<span class="avatar ${avc(u)} lg">${initials(u)}${(p.streak || 0) >= 3 ? `<span class="flame">${p.streak}</span>` : ''}</span><b>@${esc(u)}</b><span class="tier ${tierOf(p.r[d.game])}">${tierOf(p.r[d.game])}</span></button>`).join('')}</div>
+      ${friends.some(([,p]) => (p.streak || 0) >= 3) ? '<span class="muted small">El número rojo es su racha de victorias: si le ganás, cobrás una recompensa extra.</span>' : ''}`;
+  } else if (step === 2){
+    body = `<h2 class="q">¿Cuánto ponen?</h2>
+      <div class="amount-pick"><span class="small" style="font-weight:700">${n > 1 ? 'Cada jugador pone' : 'Vos ponés'}</span><span class="val num">${coinSvg}${fmt(d.stake)}</span><span class="win-line num">Si ganás te llevás ${fmt(d.stake*2)}</span></div>
+      <div class="stakes">${STAKES.map(s => `<button class="chip num" data-a="d-stake" data-s="${s}" aria-pressed="${d.stake === s}" ${s > maxStake() ? 'disabled' : ''}>${s}</button>`).join('')}</div>
+      <span class="muted small num">Tenés ${fmt(bal)} monedas disponibles.</span>
+      ${maxStake() < 250 ? `<div class="alert warn"><span>Tu confianza es ${S.trust}/100, así que el monto máximo es ${maxStake()}. Sube de nuevo con duelos sin disputas.</span></div>` : ''}
+      ${d.stake > bal ? '<div class="err">No te alcanzan las monedas para ese monto.</div>' : ''}
+      ${modes.length > 1 ? `<div class="section"><div class="h"><h2>Formato</h2></div><div class="chips">${modes.map(m => `<button class="chip" data-a="d-fmt" data-f="${m}" aria-pressed="${d.fmt === m}">${m}</button>`).join('')}</div></div>` : ''}
+      <div class="section"><div class="h"><h2>Intensidad</h2></div>
+        <div class="duo">
+          <button class="opt col" data-a="d-hot" data-h="0" aria-pressed="${!d.hot}"><b>Normal</b><span class="muted small">El ELO se mueve lo de siempre</span></button>
+          <button class="opt col" data-a="d-hot" data-h="1" aria-pressed="${!!d.hot}"><b>Duelo caliente</b><span class="muted small">Ganás o perdés el doble de ELO</span></button>
+        </div></div>`;
+  } else {
+    body = `<h2 class="q">Revisá y enviá</h2>
+      ${vsCard({ game:d.game, rival:d.rival, stake:d.stake, fmt:d.fmt, hot:d.hot }, 'Entre amigos · ' + gsub(d.game))}
+      <div class="card recap">
+        <div class="r"><span>Juego</span><b>${GAMES[d.game].name}${d.fmt !== '1v1' ? ' · ' + d.fmt : ''} <button class="link small" data-a="d-goto" data-s="0">Cambiar</button></b></div>
+        <div class="r"><span>Rival</span><b>@${esc(d.rival)} <button class="link small" data-a="d-goto" data-s="1">Cambiar</button></b></div>
+        <div class="r"><span>Ponés</span><b class="num">${fmt(d.stake)}${n > 1 ? ' c/u' : ''} · ${d.hot ? 'caliente' : 'normal'} <button class="link small" data-a="d-goto" data-s="2">Cambiar</button></b></div>
+      </div>
+      <div class="summary"><span>Si ganás te llevás</span><b class="num">${coinSvg}${fmt(d.stake*2)}</b></div>
+      ${GAMES[d.game].tos === 'no' ? `<div class="alert bad"><b>${GAMES[d.game].pub} prohíbe apostar sobre sus partidas</b><span>Solo visible en el modo visión. Para ofrecerlo de verdad haría falta un acuerdo con el editor.</span></div>` : ''}
+      <p class="muted small" style="margin:0">${n > 1 ? `Formato ${d.fmt}: cada uno de los ${n*2} jugadores pone ${fmt(d.stake)} (pozo de ${fmt(d.stake*2*n)}). Cada integrante del equipo ganador se lleva ${fmt(d.stake*2)}. Tus compañeros se suman con un link. ` : ''}Al enviar se bloquean tus ${fmt(d.stake)} monedas. Si no aceptan en 48 h, vuelven a tu saldo. Comisión: 0%.</p>
+      ${d.stake > bal ? '<div class="err">No te alcanzan las monedas para ese monto.</div>' : ''}`;
+  }
+  return wiz + body;
+}
+function nuevoFoot(){
+  const d = S.draft, step = d.step || 0, over = d.stake > balance();
+  const back = step > 0 ? `<button class="btn back" data-a="d-prev" aria-label="Paso anterior">${ICONS.back}</button>` : '';
+  if (step === 3) return back + `<button class="btn gold xl" data-a="create" ${!d.rival || over ? 'disabled' : ''}>Firmar y enviar reto</button>`;
+  const ok = step === 1 ? !!d.rival : step === 2 ? !over : true;
+  const label = step === 1 && !d.rival ? 'Elegí un rival' : 'Siguiente';
+  return back + `<button class="btn primary xl" data-a="d-next" ${ok ? '' : 'disabled'}>${label}</button>`;
+}
+
+function startBlock(c){
+  if (!needsCheckin(c)) return `<button class="btn primary block" data-a="start">Empezamos a jugar</button>`;
+  const k = c.checkin || {};
+  const row = (ok, who) => `<div class="${ok ? 'yes' : ''}"><span class="ok-ic">${ICONS.check}</span>${who}<span class="state">${ok ? 'Listo' : 'Pendiente'}</span></div>`;
+  return `<b>Check-in en la mesa</b><span class="muted small">Los dos escanean el QR de la mesa y confirman ubicación antes de empezar.</span>
+    <div class="checklist">${row(k.me, 'Vos')}${row(k.rival, '@' + esc(c.rival))}</div>`
+    + (k.me ? '' : `<button class="btn primary block" data-a="checkin">Escanear QR y confirmar ubicación</button>`)
+    + (k.me ? `<button class="btn primary block" data-a="start" ${k.me && k.rival ? '' : 'disabled'}>${k.rival ? 'Empezamos a jugar' : 'Esperando el check-in de @' + esc(c.rival)}</button>` : '');
+}
+function evidenceBlock(c){
+  const files = (c.evidence || []).map(f => `<div class="file"><span class="tag">Archivo</span><span>${esc(f)}</span></div>`).join('');
+  return `${files}<label class="drop" for="ev-in">${ICONS.upload}Subir foto o video del resultado</label>
+    <input id="ev-in" class="sr" type="file" accept="image/*,video/*" data-id="${c.id}">`;
+}
+
+function vDetalle(c){
+  const g = GAMES[c.game];
+  const idx = FLOW.indexOf(c.status);
+  const reached = c.status === 'en_disputa' ? 3 : c.status === 'cancelado' ? -1 : idx;
+  const steps = FLOW.map((s, i) => {
+    let cls = '', mark = i + 1;
+    if (c.status === 'en_disputa'){ cls = i < 3 ? 'done' : i === 3 ? 'bad' : ''; }
+    else if (c.status === 'finalizado'){ cls = 'done'; }
+    else cls = i < idx ? 'done' : i === idx ? 'now' : '';
+    if (cls === 'done') mark = ICONS.check;
+    if (cls === 'bad') mark = '!';
+    return `<div class="tk ${cls}"><i>${mark}</i>${STEP_LBL[s]}</div>`;
+  }).join('');
+  const fillPct = reached <= 0 ? 0 : (reached / 4) * 80;
+  const rival = '@' + esc(c.rival);
+  let st = { tone:'info', eye:'', title:'', text:'' }, acts = '', demo = '', extra = '';
+
+  if (c.status === 'pendiente' && !c.mine){
+    st = { tone:'warn', eye:'Te toca', title:`${rival} te retó`, text:`Si aceptás, se bloquean ${fmt(c.stake)} de tus monedas hasta que termine. Si ganás te llevás ${fmt(c.stake*2)}.` };
+    acts = `<div class="btn-row"><button class="btn gold xl" data-a="accept">Aceptar</button><button class="btn xl" data-a="reject">Rechazar</button></div>`;
+  } else if (c.status === 'pendiente'){
+    st = { tone:'warn', eye:'Esperando', title:`Esperando que ${rival} acepte`, text:`Tus ${fmt(c.stake)} monedas están bloqueadas. Si no responde en 48 h, vuelven a tu saldo.` };
+    acts = `<button class="btn danger block" data-a="withdraw">Retirar el reto</button>`;
+    demo = `<div class="btn-row"><button class="btn" data-a="sim-accept">${rival} acepta</button><button class="btn" data-a="sim-reject">${rival} rechaza</button></div>`;
+  } else if (c.status === 'aceptado' || c.status === 'en_juego'){
+    if (c.game === 'lichess'){
+      st = c.status === 'aceptado'
+        ? { tone:'info', eye:'Te toca', title:'La partida está lista', text:`Partida ${esc(c.lichessId)} en Lichess. Solo pueden entrar @${ME} y ${rival}. El resultado se verifica solo.` }
+        : { tone:'info', eye:'En juego', title:'Partida en curso', text:`Partida ${esc(c.lichessId)} en Lichess. Cuando termine, el resultado se toma de Lichess y se liquida solo.` };
+      acts = `<button class="btn primary block xl" data-a="lichess">Jugar en Lichess</button>`;
+      demo = `<span class="small muted">Lichess informa que la partida terminó:</span><div class="btn-row"><button class="btn" data-a="sim-lichess" data-r="gane">Ganaste</button><button class="btn" data-a="sim-lichess" data-r="perdi">Perdiste</button><button class="btn" data-a="sim-lichess" data-r="empate">Tablas</button><button class="btn" data-a="sim-lichess" data-r="anulado">Abortada</button></div>`;
+    } else {
+      st = c.status === 'aceptado'
+        ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text:`Los dos bloquearon ${fmt(c.stake)} monedas. Cuando terminen, cada uno reporta quién ganó.` }
+        : { tone:'info', eye:'En juego', title:'¿Cómo salió?', text:'Reportá el resultado. Si los dos coinciden, se liquida al instante.' };
+      acts = (c.status === 'aceptado' ? startBlock(c) : '') +
+        `<span class="small muted" style="font-weight:700">${c.status === 'aceptado' ? '¿Ya terminaron? Reportá el resultado:' : 'Tocá el resultado (se firma):'}</span><div class="picks">
+          <button class="pick win" data-a="report" data-r="gane"><span class="e" aria-hidden="true">🏆</span>Gané</button><button class="pick" data-a="report" data-r="perdi"><span class="e" aria-hidden="true">🫡</span>Perdí</button>${g.draw ? '<button class="pick" data-a="report" data-r="empate"><span class="e" aria-hidden="true">🤝</span>Empate</button>' : ''}</div>`;
+    }
+    if (needsCheckin(c) && c.status === 'aceptado' && !(c.checkin && c.checkin.rival)) demo += `<button class="btn" data-a="sim-checkin">${rival} hace el check-in</button>`;
+    if (c.cancelReq){
+      extra = `<div class="alert warn"><b>Pediste cancelar el desafío</b><span>Se cancela solo si ${rival} también lo confirma. Si no responde en 24 h, el pedido vence y el desafío sigue.</span></div>`;
+      demo += `<div class="btn-row"><button class="btn" data-a="sim-cancel-ok">${rival} confirma la cancelación</button><button class="btn" data-a="sim-cancel-expire">Pasan 24 h sin respuesta</button></div>`;
+    } else {
+      acts += `<button class="link" data-a="cancel-req" style="align-self:center">Pedir cancelación</button>`;
+    }
+  } else if (c.status === 'resultado_reportado'){
+    st = { tone:'info', eye:'Esperando', title:`Reportaste: ${OUT[c.myReport]}`, text:`Falta que ${rival} reporte. Si en 24 h no lo hace, tu reporte queda firme. Podés sumar una foto o video como prueba.` };
+    acts = evidenceBlock(c);
+    const opposite = { gane:'perdi', perdi:'gane', empate:'empate' }[c.myReport];
+    demo = `<div class="btn-row"><button class="btn" data-a="sim-report" data-r="${opposite}">${rival} reporta lo mismo</button><button class="btn" data-a="sim-report" data-r="${c.myReport === 'gane' ? 'gane' : 'perdi'}">${rival} reporta otra cosa</button></div><button class="btn" data-a="sim-timeout">Pasan 24 h sin respuesta</button>`;
+  } else if (c.status === 'en_disputa'){
+    st = { tone:'bad', eye:'En revisión', title:'Desafío en disputa', text:`Vos reportaste "${OUT[c.myReport]}" y ${rival} reportó "${OUT[c.rivalReport]}". Las ${fmt(potOf(c))} monedas del pozo quedan retenidas hasta que un administrador revise la evidencia.` };
+    acts = evidenceBlock(c);
+    demo = `<button class="btn" data-a="go-admin">Abrir el panel de administración</button>`;
+  } else if (c.status === 'finalizado'){
+    const d = c.eloDelta || 0, elo = `ELO ${d >= 0 ? '+' : ''}${d} en ${g.name}`;
+    st = c.result === 'gane' ? { tone:'good', eye:'Resultado', title:`¡Ganaste ${fmt(c.stake*2)} monedas!`, text:elo }
+      : c.result === 'empate' ? { tone:'info', eye:'Resultado', title:'Empate', text:`Recuperaste tus ${fmt(c.stake)} monedas · ${elo}` }
+      : { tone:'bad', eye:'Resultado', title:`Ganó ${rival}`, text:`${elo}. La próxima es tuya.` };
+    acts = `<button class="btn gold block xl" data-a="rematch">Pedir revancha</button>`;
+  } else if (c.status === 'cancelado'){
+    st = { tone:'info', eye:'Cancelado', title: esc(c.cancelReason || 'Cancelado'), text:'Las monedas bloqueadas volvieron a cada jugador.' };
+  }
+
+  const a = assurance(c);
+  const tosWarn = g.tos === 'no' ? `<div class="alert bad"><b>${g.pub} prohíbe apostar sobre sus partidas</b><span>En la app real, este juego quedaría sin monedas o deshabilitado hasta tener permiso del editor.</span></div>` : '';
+  return `
+  ${vsCard(c, `${c.origin === 'matchmaking' ? 'Matchmaking' : 'Entre amigos'} · ${gsub(c.game)}`)}
+  ${c.status !== 'cancelado' ? `<div class="track"><span class="bar-fill" style="width:${fillPct}%"></span>${steps}</div>` : ''}
+  ${tosWarn}
+  <section class="next ${st.tone}">
+    <span class="eyebrow">${st.eye}</span>
+    <span class="ttl">${st.title}</span>
+    <p>${st.text}</p>
+    ${acts}
+  </section>
+  ${extra}
+  ${demo ? `<div class="demo"><span class="demo-t">${ICONS.flask.replace('<svg', '<svg width="14" height="14"')}Simular al rival (solo demo)</span>${demo}</div>` : ''}
+  ${fold('garantia', ICONS.shield, 'Garantía del duelo', 'Confianza ' + a.lvl, `<ul class="plain">${a.items.map(i => `<li>${i}</li>`).join('')}</ul><span class="muted small">Challenge custodia el pozo: nadie puede retirar su parte hasta que el resultado quede confirmado.</span>`)}
+  ${fold('historial', ICONS.clock, 'Historial', String(c.events.length), `<div class="timeline">${c.events.slice().reverse().map(e => `<div class="tl"><b></b><span class="t"><span>${esc(e.text)}</span><span class="muted small">${ago(e.ts)}</span></span></div>`).join('')}</div>`)}`;
+}
+
+function vJugar(){
+  const mm = S.mm, e = S.ratings.lichess;
+  if (mm.status !== 'buscando' && mm.stake > maxStake()) mm.stake = maxStake();
+  if (mm.status === 'buscando'){
+    return `
+    <div class="radar" aria-hidden="true"><span></span><span></span><span></span><div class="core num" id="mm-time">0:00</div></div>
+    <div style="text-align:center"><h2 class="q">Buscando rival</h2><div class="muted small">Ajedrez online · ${fmt(mm.stake)} monedas · tu ELO ${e}</div></div>
+    <div class="card window"><div class="h"><b>Rango de ELO aceptado</b><span class="num" id="mm-range">±100</span></div>
+      <div class="bar"><i id="mm-bar" style="left:40%;right:40%"></i><u></u></div>
+      <span class="muted small num" id="mm-hint">${e-100} a ${e+100}. Se amplía mientras esperás.</span></div>
+    <div class="muted small" style="text-align:center"><span class="num" id="mm-queue">14</span> jugadores buscando en este momento</div>
+    <button class="btn block" data-a="mm-cancel">Salir de la cola</button>
+    <p class="muted small" style="margin:0;text-align:center">Tus ${fmt(mm.stake)} monedas quedan retenidas mientras buscás. Si salís, vuelven a tu saldo. (Tiempos acelerados para la demo.)</p>`;
+  }
+  return `
+  <div class="vs-card">
+    <div class="vs-top">${gt('lichess', 'lg')}<span class="t"><b>Ajedrez online</b><span>Lichess · 5+3 · se verifica solo</span></span></div>
+    <div class="vs">
+      <div class="who">${avatar(ME, 'lg')}<b>@${ME}</b><span class="tier ${tierOf(e)}">${tierOf(e)} ${e}</span></div>
+      <div class="pot"><span class="lbl">Pozo</span><span class="big-n num">${coinSvg}${fmt(mm.stake*2)}</span><span class="lbl">comisión 0%</span></div>
+      <div class="who"><span class="avatar lg" style="background:var(--hero-line)">?</span><b>Rival</b><span class="tier ${tierOf(e)}">Nivel parecido</span></div>
+    </div></div>
+  <p class="muted" style="margin:0">Te emparejamos con alguien de nivel parecido que pone lo mismo. Por ahora solo ajedrez online: los presenciales se juegan entre amigos.</p>
+  <section class="section"><div class="h"><h2>¿Cuánto ponés?</h2><span class="muted small num">Tenés ${fmt(balance())}</span></div>
+    <div class="stakes">${STAKES.map(s => `<button class="chip num" data-a="mm-stake" data-s="${s}" aria-pressed="${mm.stake === s}" ${s > maxStake() ? 'disabled' : ''}>${s}</button>`).join('')}</div>
+  </section>
+  <button class="btn gold block xl" data-a="mm-start" ${mm.stake > balance() ? 'disabled' : ''}>Buscar rival</button>
+  ${mm.stake > balance() ? '<div class="err">No te alcanzan las monedas para ese monto.</div>' : ''}`;
+}
+
+function vRanking(){
+  const g = S.rankGame, cat = GAMES[g].cat;
+  const rows = Object.entries(S.players).map(([u,p]) => ({ u, e:p.r[g] })).concat([{ u:ME, e:S.ratings[g] }]).sort((a,b) => b.e - a.e);
+  const pos = rows.findIndex(r => r.u === ME) + 1;
+  return `
+  <div class="chips scroll">${Object.entries(CATS).map(([k, l]) => `<button class="chip" data-a="rank-cat" data-c="${k}" aria-pressed="${cat === k}"><span aria-hidden="true">${CAT_ICO[k]}</span>${l}</button>`).join('')}</div>
+  ${GAME_IDS.filter(id => GAMES[id].cat === cat).length > 1 ? `<div class="chips scroll" style="margin-top:-12px">${GAME_IDS.filter(id => GAMES[id].cat === cat).map(id => `<button class="chip" data-a="rank-game" data-g="${id}" aria-pressed="${g === id}"><span aria-hidden="true">${GAMES[id].ico}</span>${GAMES[id].name}</button>`).join('')}</div>` : ''}
+  <div class="mypos"><span class="n num">#${pos}</span><span><b>Tu puesto en ${GAMES[g].name}</b><span class="num">ELO ${S.ratings[g]} · ${tierOf(S.ratings[g])}</span></span></div>
+  ${podium(rows, r => r.e)}
+  <div class="card board">${rows.slice(3).map((r,i) => `<div class="row ${r.u === ME ? 'me' : ''}"><span class="pos num">${i+4}</span><span class="who">${avatar(r.u)}<span style="min-width:0"><b>@${esc(r.u)}</b><span class="tier ${tierOf(r.e)}">${tierOf(r.e)}</span></span></span><span class="elo num">${r.e}</span></div>`).join('')}</div>
+  <p class="muted small" style="margin:0">Rangos: Bronce menos de 950 · Plata 950 · Oro 1100 · Platino 1250 · Diamante 1400. Todos arrancan en 1000.</p>`;
+}
+
+function vPerfil(){
+  const friends = Object.entries(S.players).filter(([,p]) => p.friend);
+  const pending = S.pendingFriends || [];
+  const disputes = S.challenges.filter(c => c.status === 'en_disputa').length;
+  const movs = S.ledger.slice().reverse().slice(0, 10);
+  const vis = S.mode === 'vision';
+  const ringC = S.trust >= 80 ? 'var(--win)' : S.trust >= 50 ? 'var(--warn)' : 'var(--loss)';
+  return `
+  <div class="me-head">${avatar(ME, 'xl')}<div><b style="font-size:22px">@${ME}</b><div class="muted small">Martín · se unió hace 6 días</div></div></div>
+  <div class="card trust-card"><div class="ring" style="--p:${S.trust};--ring-c:${ringC}"><span><b class="num">${S.trust}</b><small>Confianza</small></span></div>
+    <div class="txt"><b>${S.trust >= 80 ? 'Jugador confiable' : S.trust >= 50 ? 'Confianza media' : 'Confianza baja'}</b><span class="muted small">Podés poner hasta ${maxStake()} monedas por duelo. Baja si perdés disputas o reportás resultados falsos.</span></div></div>
+  <div class="stats">
+    <div class="stat"><span class="elo num">${S.streak}</span><span>Victorias seguidas</span></div>
+    <div class="stat"><span class="elo num">${S.loginStreak || 0}</span><span>Días seguidos entrando</span></div>
+    <div class="stat"><span class="elo num">${fmt(S.sxp)}</span><span>XP de temporada</span></div>
+  </div>
+  <section class="section"><div class="h"><h2>Rangos por juego</h2></div>
+    <div class="grid2">${[...new Set(['lichess', ...S.challenges.map(c => c.game)])].map(g => `<div class="rk">${gt(g, 'sm')}<span><span class="muted small">${GAMES[g].name}</span><span style="display:flex;align-items:center;gap:6px"><span class="elo num">${S.ratings[g]}</span><span class="tier ${tierOf(S.ratings[g])}">${tierOf(S.ratings[g])}</span></span></span></div>`).join('')}</div>
+  </section>
+  <section class="section"><div class="h"><h2>Amigos</h2><span class="muted small">${friends.length}</span></div>
+    <div class="list">${friends.map(([u,p]) => `<div class="opt">${avatar(u)}<span class="opt-main"><b>@${esc(u)}</b><span class="muted small">${esc(p.name)}</span></span><button class="btn gold sm" data-a="challenge-friend" data-u="${esc(u)}">Retar</button></div>`).join('')}
+    ${pending.map(u => `<div class="opt">${avatar(u)}<span class="opt-main"><b>@${esc(u)}</b><span class="muted small">Solicitud enviada</span></span><button class="btn sm" data-a="sim-friend" data-u="${esc(u)}">Simular: acepta</button></div>`).join('')}</div>
+    <form class="btn-row" data-form="friend"><label for="friend-in" class="sr">Nombre de usuario</label><input id="friend-in" class="input" placeholder="Nombre de usuario" autocomplete="off" style="flex:2 1 160px"><button class="btn" type="submit" style="flex:1 1 100px">Agregar</button></form>
+    <span class="muted small">Tu link para que te agreguen: challenge.app/u/${ME}</span>
+  </section>
+  <section class="section"><div class="h"><h2>Modo de la demo</h2></div>
+    <div class="seg" role="group" aria-label="Modo"><button data-a="mode" data-m="regulado" aria-pressed="${!vis}">Regulado</button><button data-a="mode" data-m="vision" aria-pressed="${vis}">Visión (concepto)</button></div>
+    <span class="muted small">${vis ? 'Visión: monedas apostables y canjeables, y todos los juegos. Es lo que el producto podría ser con licencia de juego; hoy no se puede operar en Uruguay.' : 'Regulado: las monedas se apuestan pero no valen nada; los puntos se canjean pero no se apuestan. Es la versión pensada para lanzar.'}</span>
+  </section>
+  ${fold('monedas', coinSvg, 'Movimientos de monedas', fmt(balance()), movs.map(m => `<div class="mov"><span>${MOV[m.type]}</span><span class="amt num ${m.amount > 0 ? 'pos' : 'neg'}">${m.amount > 0 ? '+' : ''}${fmt(m.amount)}</span><span class="muted small">${ago(m.ts)}${m.ref ? ' · desafío ' + esc(m.ref) : ''}</span></div>`).join(''))}
+  ${vis ? '' : fold('puntos', ICONS.star, 'Movimientos de puntos', fmt(S.points) + ' pts', S.pointsLog.slice(0, 8).map(m => `<div class="mov"><span>${esc(m.text)}</span><span class="amt num ${m.amount > 0 ? 'pos' : 'neg'}">${m.amount > 0 ? '+' : ''}${fmt(m.amount)}</span><span class="muted small">${ago(m.ts)}</span></div>`).join(''))}
+  ${fold('firmas', ICONS.shield, 'Decisiones firmadas', String(S.signatures.length), S.signatures.slice(0,6).map(s => `<div class="mov"><span><b>${esc(s.action)}</b></span><span class="tag">${esc(s.method)}</span><span class="muted small">${esc(s.detail)} · ${esc(s.device)} · ${ago(s.ts)}</span></div>`).join(''))}
+  ${fold('terminos', ICONS.info, 'Términos aceptados', 'v2', `<span class="small">${vis ? 'Modo visión: términos de ejemplo de un producto con licencia. No aplican a la versión de lanzamiento.' : 'Las monedas no tienen valor monetario y no se compran, retiran ni canjean. Los puntos se canjean por productos de comercios aliados y no se pueden apostar.'}</span>`)}
+  <div class="btn-row">
+    <button class="btn primary" data-a="go-inversores">Para inversores</button>
+    <button class="btn" data-a="go-admin">Administración${disputes ? ` (${disputes})` : ''}</button>
+  </div>
+  ${S.confirmReset ? `<div class="btn-row"><button class="btn danger" data-a="reset-yes">Sí, reiniciar</button><button class="btn" data-a="reset-no">No</button></div>` : `<button class="link" data-a="reset" style="align-self:center">Reiniciar la demo</button>`}`;
+}
+
+function vAdmin(){
+  const ds = S.challenges.filter(c => c.status === 'en_disputa');
+  return `
+  <div class="alert info"><b>Panel de administración</b><span>En la app real solo lo ven usuarios con rol admin. Cada resolución se firma y queda auditada.</span></div>
+  <section class="section"><div class="h"><h2>Disputas abiertas</h2><span class="muted small">${ds.length}</span></div>
+  ${ds.length ? ds.map(c => `<div class="card section">
+      <div style="display:flex;gap:12px;align-items:center">${gt(c.game)}<div style="min-width:0"><b>${GAMES[c.game].name}${fmtTag(c)} · ${fmt(potOf(c))} en el pozo</b><div class="muted small">@${ME} vs @${esc(c.rival)}</div></div></div>
+      <div class="mov"><span>@${ME} reportó</span><b>${OUT[c.myReport]}</b></div>
+      <div class="mov"><span>@${esc(c.rival)} reportó</span><b>${OUT[c.rivalReport]}</b></div>
+      <div class="muted small">Evidencia: ${(c.evidence || []).length ? (c.evidence).map(esc).join(', ') : 'ninguna'}</div>
+      <div class="btn-row"><button class="btn" data-a="resolve" data-id="${c.id}" data-r="gane">Gana @${ME}</button><button class="btn" data-a="resolve" data-id="${c.id}" data-r="perdi">Gana @${esc(c.rival)}</button></div>
+      <button class="btn block" data-a="resolve" data-id="${c.id}" data-r="anulado">Devolver a los dos</button>
+    </div>`).join('') : '<div class="empty">No hay disputas abiertas. Para generar una, reportá un resultado distinto al de tu rival en un desafío presencial.</div>'}
+  </section>`;
+}
+
+function vTienda(){
+  const vis = S.mode === 'vision', have = vis ? balance() : S.points, unit = vis ? 'monedas' : 'puntos';
+  return `
+  <div class="amount-pick"><span class="small" style="font-weight:700">Tenés para canjear</span><span class="val num">${vis ? coinSvg : ''}${fmt(have)}</span><span class="win-line">${unit}</span></div>
+  <span class="muted small">${vis ? 'Modo visión: las monedas que ganás en duelos se canjean acá.' : 'Los puntos se ganan entrando cada día y viendo videos. Ganar duelos nunca da puntos.'} Los comercios son ejemplos: todavía no hay convenios reales.</span>
+  <div class="list">${STORE.map(p => { const pct = Math.min(100, Math.round(have / p.cost * 100)); return `<div class="card prod">
+    <div class="top-row"><span class="em" aria-hidden="true">${p.ico}</span><span class="ch-main"><b>${p.name}</b><span class="muted small">${p.shop}</span></span>
+      <button class="btn ${have >= p.cost ? 'gold' : ''} sm" data-a="redeem" data-id="${p.id}" ${have < p.cost ? 'disabled' : ''}>Canjear</button></div>
+    <div class="bar fill"><i style="right:${100 - pct}%"></i></div>
+    <span class="muted small num">${have >= p.cost ? `Cuesta ${fmt(p.cost)} ${unit} · ¡ya te alcanza!` : `Cuesta ${fmt(p.cost)} ${unit} · te faltan ${fmt(p.cost - have)}`}</span>
+  </div>`; }).join('')}</div>
+  <section class="section"><div class="h"><h2>Tus códigos</h2></div>
+    ${S.vouchers.length ? S.vouchers.map(v => `<div class="voucher"><span><span>${esc(v.name)}</span><br><span class="small">${esc(v.shop)} · ${ago(v.ts)}</span></span><b>${esc(v.code)}</b></div>`).join('') : '<div class="empty">Todavía no canjeaste nada.</div>'}
+  </section>`;
+}
+
+function vTemporada(){
+  const rows = Object.entries(S.players).map(([u,p]) => ({ u, x: p.sxp || 0 })).concat([{ u:ME, x:S.sxp }]).sort((a,b) => b.x - a.x);
+  const pos = rows.findIndex(r => r.u === ME) + 1;
+  const daysLeft = Math.max(0, Math.ceil((S.season.ends - Date.now())/DAY));
+  return `
+  <div class="prize"><span class="trophy">${ICONS.trophy}</span><span class="eyebrow">${esc(S.season.name)} · faltan ${daysLeft} días</span><b>Premio al #1</b><span style="font-weight:700;font-size:16px">${esc(S.season.prize)}</span><span class="small" style="opacity:.9">Lo pone ${esc(S.season.sponsor)}. La entrada es gratis.</span></div>
+  <div class="mypos"><span class="n num">#${pos}</span><span><b>Tu puesto en la temporada</b><span class="num">${fmt(S.sxp)} XP</span></span></div>
+  ${podium(rows, r => fmt(r.x))}
+  <div class="card board">${rows.slice(3).map((r,i) => `<div class="row ${r.u === ME ? 'me' : ''}"><span class="pos num">${i+4}</span><span class="who">${avatar(r.u)}<b>@${esc(r.u)}</b></span><span class="elo num">${fmt(r.x)}</span></div>`).join('')}</div>
+  <p class="muted small" style="margin:0">XP de temporada: +30 por victoria, +10 por empate, +5 por derrota. Solo sirve para este ranking: no se canjea ni se apuesta.</p>`;
+}
+
+function vInversores(){
+  const block = (n, title, items) => `<div class="card section">${n ? `<span class="stage-n">${n}</span>` : ''}<b style="font-size:17px">${title}</b><ul class="plain">${items.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
+  return `
+  <div class="alert info"><b>Challenge en una frase</b><span>Duelos entre amigos con algo real en juego, y una app que hace de mediador para que lo acordado se cumpla.</span></div>
+  ${block('', 'Los dos pilares', ['<b>Adrenalina:</b> pozos, duelos calientes, rachas con recompensa, temporadas con premio y revanchas.', '<b>Mediador confiable:</b> el pozo queda custodiado, cada decisión se firma, el resultado se verifica y las disputas se arbitran.'])}
+  ${block('', 'Cómo se evitan las trampas', ['Verificación automática cuando el juego tiene API (hoy: ajedrez en Lichess).', 'Check-in con QR y ubicación en partidas presenciales.', 'Doble reporte firmado con huella o PIN, más evidencia en foto o video.', 'Puntaje de confianza: quien miente pierde confianza y puede apostar menos.'])}
+  ${block('', 'Cómo genera ingresos (hipótesis a validar)', ['Videos con recompensa.', 'Comercios aliados que pagan por aparecer en la tienda de canje.', 'Sponsors de temporadas y torneos.', 'Con licencia: comisión sobre cada pozo.'])}
+  ${block('Etapa 1', 'Lanzamiento sin valor real', ['Monedas para apostar que no se compran ni se canjean.', 'Puntos canjeables que solo se ganan por actividad.', 'Solo juegos sin editor que prohíba apuestas (truco, pool, ajedrez, ping-pong, pádel).', 'Objetivo: probar que la mecánica engancha.'])}
+  ${block('Etapa 2', 'Comercios y sponsors', ['Convenios reales con comercios para la tienda.', 'Temporadas con premios de sponsors.', 'Consulta formal al MEF y a la Dirección Nacional de Loterías y Quinielas.'])}
+  ${block('Etapa 3', 'Modo visión (requiere licencia)', ['Monedas apostables y canjeables, o pozos con dinero real.', 'Licencia de juego en el mercado elegido, después de un análisis legal.', 'Empresa local, capital, verificación de identidad y prevención de lavado.', 'Acuerdos con editores para sumar sus juegos.'])}
+  ${block('', 'Riesgos', ['Regulatorio: la etapa 3 depende de conseguir licencia.', 'Editores: varios prohíben apuestas sobre sus partidas.', 'Fraude: cuentas múltiples y partidas arregladas.', 'Datos personales: cumplir la Ley 18.331.'])}
+  ${block('', 'Qué buscamos', ['Asesoría legal en juego y tecnología.', 'Socios técnicos (móvil y backend).', 'Inversión inicial para la etapa 1 y los primeros convenios.'])}
+  <p class="muted small" style="margin:0">Demo con datos simulados. No hay dinero real ni convenios firmados con comercios.</p>`;
+}
+
+/* ---------- render ---------- */
+let lastBal = null;
+function render(){
+  const { tab, sub } = S.nav;
+  let title = '', body = '', foot = '';
+  if (sub){
+    if (sub.type === 'detalle'){ const c = find(sub.id); if (!c){ S.nav.sub = null; return render(); } title = 'Desafío'; body = vDetalle(c); }
+    else if (sub.type === 'nuevo'){ title = 'Nuevo desafío'; body = vNuevo(); foot = nuevoFoot(); }
+    else if (sub.type === 'admin'){ title = 'Administración'; body = vAdmin(); }
+    else if (sub.type === 'tienda'){ title = 'Tienda de canje'; body = vTienda(); }
+    else if (sub.type === 'temporada'){ title = 'Temporada'; body = vTemporada(); }
+    else if (sub.type === 'inversores'){ title = 'Para inversores'; body = vInversores(); }
+  } else {
+    body = { inicio:vInicio, desafios:vDesafios, jugar:vJugar, ranking:vRanking, perfil:vPerfil }[tab]();
+  }
+  const unread = S.notifs.filter(n => !n.read).length;
+  const bal = balance(), diff = lastBal === null ? 0 : bal - lastBal; lastBal = bal;
+  $('top').innerHTML = (sub
+      ? `<button class="icon-btn" data-a="back" aria-label="Volver">${ICONS.back}</button><span class="top-title">${title}</span>`
+      : (tab === 'inicio' ? `<span class="logo">Challenge<span>.</span></span><span class="spacer"></span>` : `<span class="top-title">${TITLES[tab]}</span>`))
+    + `<span class="coin-chip num ${diff ? 'bump' : ''}">${coinSvg}${fmt(bal)}${diff ? `<span class="delta ${diff > 0 ? 'pos' : 'neg'}">${diff > 0 ? '+' : ''}${fmt(diff)}</span>` : ''}</span>`
+    + `<button class="icon-btn" data-a="notifs" aria-label="Notificaciones">${ICONS.bell}${unread ? `<span class="dot">${unread}</span>` : ''}</button>`;
+  $('view').innerHTML = modeBanner() + body;
+  $('foot').innerHTML = foot;
+  const todo = S.challenges.filter(needsMe).length;
+  $('tabs').innerHTML = TABS.map(([id, label]) => id === 'jugar'
+    ? `<button class="tab play" data-a="tab" data-t="${id}" ${tab === id && !sub ? 'aria-current="page"' : ''}><span class="disc">${ICONS.jugar}</span>${label}</button>`
+    : `<button class="tab" data-a="tab" data-t="${id}" ${tab === id && !sub ? 'aria-current="page"' : ''}>${ICONS[id]}${label}${id === 'desafios' && todo ? `<span class="badge num">${todo}</span>` : ''}</button>`).join('');
+  if (tab === 'jugar' && !sub && S.mm.status === 'buscando') tickMM();
+}
+function go(sub){ S.nav.sub = sub; save(); render(); $('view').scrollTop = 0; }
+
+/* ---------- matchmaking ---------- */
+let mmTimer;
+function tickMM(){
+  const mm = S.mm; if (mm.status !== 'buscando') return;
+  const secs = Math.floor((Date.now() - mm.startedAt)/1000);
+  const w = Math.min(400, 100 + 50*Math.floor(secs/2));
+  const e = S.ratings.lichess;
+  const t = $('mm-time'); if (t) t.textContent = Math.floor(secs/60) + ':' + String(secs%60).padStart(2,'0');
+  const r = $('mm-range'); if (r) r.textContent = '±' + w;
+  const b = $('mm-bar'); if (b){ const p = 50 - (w/400)*45; b.style.left = p + '%'; b.style.right = p + '%'; }
+  const h = $('mm-hint'); if (h) h.textContent = `${e-w} a ${e+w}. ${w < 400 ? 'Se amplía mientras esperás.' : 'Llegó al máximo.'}`;
+  const q = $('mm-queue'); if (q) q.textContent = 12 + (secs % 5);
+  if (secs >= mm.matchAt){
+    const cands = Object.entries(S.players).filter(([,p]) => !p.friend && Math.abs(p.r.lichess - e) <= w);
+    const pick = (cands.length ? cands : Object.entries(S.players).filter(([,p]) => !p.friend))
+      .sort((a,b) => Math.abs(a[1].r.lichess - e) - Math.abs(b[1].r.lichess - e))[0][0];
+    clearInterval(mmTimer);
+    const c = { id: uid('c'), game:'lichess', stake: mm.stake, rival: pick, mine:true, origin:'matchmaking', status:'aceptado', created: Date.now(), myLocked:true, lichessId: Math.random().toString(36).slice(2,10), events:[] };
+    ev(c, `Matchmaking: te emparejamos con @${pick} (ELO ${S.players[pick].r.lichess}) en ${secs} s`);
+    ev(c, `Las ${fmt(mm.stake)} monedas retenidas pasaron al pozo. @${pick} bloqueó las suyas`);
+    ev(c, `Se creó la partida ${c.lichessId} en Lichess`);
+    // la retención de la cola pasa al escrow del desafío
+    S.ledger.push({ id: uid('m'), type:'devolucion_cola', amount: mm.stake, ts: Date.now() });
+    S.ledger.push({ id: uid('m'), type:'bloqueo', amount: -mm.stake, ref: c.id, ts: Date.now() });
+    S.challenges.push(c);
+    notify(`Encontramos rival: @${pick}. Tu partida en Lichess está lista`, c.id);
+    S.mm = { status:'idle', stake: mm.stake };
+    toast(`¡Rival encontrado: @${pick}!`, 'good');
+    S.nav = { tab:'desafios', sub:{ type:'detalle', id:c.id } };
+    save(); render();
+  }
+}
+function startMMTimer(){ clearInterval(mmTimer); mmTimer = setInterval(() => { if (S.nav.tab === 'jugar' && !S.nav.sub) tickMM(); else if (S.mm.status === 'buscando') tickMMBackground(); }, 500); }
+function tickMMBackground(){ const secs = Math.floor((Date.now() - S.mm.startedAt)/1000); if (secs >= S.mm.matchAt) tickMM(); }
+
+/* ---------- acciones ---------- */
+let wizTimer;
+function wizAdvance(to){ clearTimeout(wizTimer); wizTimer = setTimeout(() => { if (S.nav.sub && S.nav.sub.type === 'nuevo'){ S.draft.step = to; save(); render(); $('view').scrollTop = 0; } }, 220); }
+function act(a, d, el){
+  const cur = S.nav.sub && S.nav.sub.type === 'detalle' ? find(S.nav.sub.id) : null;
+  switch (a){
+    case 'tab': S.nav = { tab: d.t, sub:null }; S.confirmReset = false; save(); render(); $('view').scrollTop = 0; break;
+    case 'back': go(null); break;
+    case 'open': go({ type:'detalle', id:d.id }); break;
+    case 'new': S.draft.rival = S.draft.rival || null; S.draft.step = 0; go({ type:'nuevo' }); break;
+    case 'filter': S.filter = d.f; save(); render(); break;
+    case 'rank-game': S.rankGame = d.g; save(); render(); break;
+    case 'rank-cat': S.rankGame = GAME_IDS.find(id => GAMES[id].cat === d.c); save(); render(); break;
+    case 'notifs': openNotifs(); S.notifs.forEach(n => n.read = true); save(); break;
+    case 'open-notif': { const n = S.notifs.find(x => x.id === d.id); $('sheet').innerHTML = ''; render(); if (n && n.ref && find(n.ref)) go({ type:'detalle', id:n.ref }); break; }
+    case 'sheet-close': signCtx = null; clearInterval(adTimer); $('sheet').innerHTML = ''; render(); break;
+    case 'sheet-bg': signCtx = null; $('sheet').innerHTML = ''; render(); break;
+
+    case 'bonus':
+      if (S.lastBonusDay === today()) return;
+      { const prev = new Date(now() - DAY).toISOString().slice(0,10);
+        S.loginStreak = S.lastBonusDay === prev ? (S.loginStreak || 0) + 1 : 1;
+        const pts = 10 + 2*Math.min(S.loginStreak, 7);
+        post('bonus_diario', 100); addPoints(pts, `Bonus diario · racha de ${S.loginStreak} ${S.loginStreak === 1 ? 'día' : 'días'}`);
+        S.lastBonusDay = today(); save(); render(); toast(`+100 monedas y +${pts} puntos · racha de ${S.loginStreak}`, 'good'); }
+      break;
+    case 'next-day': S.dayOffset++; save(); render(); toast('Pasó un día: el bonus está disponible otra vez'); break;
+    case 'ad': openAd(); break;
+    case 'ad-claim': clearInterval(adTimer); post('video', 20); addPoints(5, 'Video con recompensa'); S.ads.count++; $('sheet').innerHTML = ''; save(); render(); toast('+20 monedas y +5 puntos por ver el video', 'good'); break;
+    case 'ad-close': clearInterval(adTimer); $('sheet').innerHTML = ''; break;
+
+    case 'sig-method': signCtx.method = d.m; S.signMethod = d.m; signCtx.err = ''; renderSign(); break;
+    case 'bio-scan':
+      if (signCtx.state !== 'idle') return;
+      signCtx.state = 'scan'; renderSign();
+      setTimeout(() => { if (!signCtx) return; signCtx.state = 'ok'; renderSign(); setTimeout(() => signCtx && signDone('Huella'), 450); }, 900);
+      break;
+    case 'pin-ok': {
+      const v = $('pin-in').value;
+      if (v === '1234'){ S.pinFails = 0; signDone('PIN de la app'); }
+      else { S.pinFails++; signCtx.err = S.pinFails >= 5 ? 'PIN bloqueado por 15 minutos.' : `PIN incorrecto. Te quedan ${5 - S.pinFails} intentos.`; save(); renderSign(); }
+      break;
+    }
+
+    case 'd-cat': { S.draft.cat = d.c; const first = avail(d.c)[0]; S.draft.game = first; S.draft.fmt = GAMES[first].modes[0]; render(); break; }
+    case 'd-game': S.draft.game = d.g; S.draft.fmt = GAMES[d.g].modes[0]; render(); wizAdvance(1); break;
+    case 'd-fmt': S.draft.fmt = d.f; render(); break;
+    case 'd-stake': S.draft.stake = +d.s; render(); break;
+    case 'd-rival': S.draft.rival = d.u; render(); wizAdvance(2); break;
+    case 'd-next': S.draft.step = Math.min(3, (S.draft.step || 0) + 1); save(); render(); $('view').scrollTop = 0; break;
+    case 'd-prev': clearTimeout(wizTimer); S.draft.step = Math.max(0, (S.draft.step || 0) - 1); save(); render(); $('view').scrollTop = 0; break;
+    case 'd-goto': clearTimeout(wizTimer); S.draft.step = +d.s; save(); render(); $('view').scrollTop = 0; break;
+    case 'challenge-friend': S.draft.rival = d.u; S.draft.step = 0; go({ type:'nuevo' }); break;
+    case 'create': {
+      const dr = { ...S.draft };
+      sign('Crear desafío', `${GAMES[dr.game].name}${dr.fmt !== '1v1' ? ' ' + dr.fmt : ''} · ${fmt(dr.stake)} monedas vs @${dr.rival}`, () => {
+        const c = { id: uid('c'), game: dr.game, fmt: dr.fmt, stake: dr.stake, rival: dr.rival, hot: !!dr.hot, mine:true, origin:'amigo', status:'pendiente', created: Date.now(), myLocked:true, events:[] };
+        post('bloqueo', -dr.stake, c.id);
+        ev(c, `Creaste el desafío y bloqueaste ${fmt(dr.stake)} monedas`);
+        S.challenges.push(c); S.draft.rival = null; S.draft.step = 0;
+        S.nav = { tab:'desafios', sub:{ type:'detalle', id:c.id } };
+        toast(`Reto enviado a @${dr.rival}`, 'good');
+      });
+      break;
+    }
+    case 'rematch': S.draft = { cat: GAMES[cur.game].cat, game: cur.game, fmt: cur.fmt || '1v1', stake: Math.min(cur.stake, balance()) || 10, rival: S.players[cur.rival].friend ? cur.rival : null, hot: !!cur.hot }; S.draft.step = S.draft.rival ? 3 : 1; go({ type:'nuevo' }); break;
+
+    case 'accept':
+      if (balance() < cur.stake){ toast('No te alcanzan las monedas para aceptar', 'bad'); return; }
+      sign('Aceptar desafío', `${GAMES[cur.game].name} · ${fmt(cur.stake)} monedas vs @${cur.rival}`, () => {
+        post('bloqueo', -cur.stake, cur.id); cur.myLocked = true; cur.status = 'aceptado';
+        ev(cur, `Aceptaste y bloqueaste ${fmt(cur.stake)} monedas`);
+        if (cur.game === 'lichess'){ cur.lichessId = Math.random().toString(36).slice(2,10); ev(cur, `Se creó la partida ${cur.lichessId} en Lichess`); }
+        toast('Desafío aceptado', 'good');
+      });
+      break;
+    case 'reject': cur.status = 'cancelado'; cur.cancelReason = 'Rechazaste el reto'; ev(cur, 'Rechazaste el reto. @' + cur.rival + ' recuperó sus monedas'); save(); render(); break;
+    case 'withdraw':
+      sign('Retirar desafío', `${GAMES[cur.game].name} · ${fmt(cur.stake)} monedas vs @${cur.rival}`, () => refundCancel(cur, 'Retiraste el reto', `Retiraste el reto y recuperaste ${fmt(cur.stake)} monedas`));
+      break;
+    case 'sim-accept':
+      cur.status = 'aceptado'; ev(cur, `@${cur.rival} aceptó y bloqueó ${fmt(cur.stake)} monedas`);
+      if (cur.game === 'lichess'){ cur.lichessId = Math.random().toString(36).slice(2,10); ev(cur, `Se creó la partida ${cur.lichessId} en Lichess`); }
+      notify(`@${cur.rival} aceptó tu desafío de ${GAMES[cur.game].name}`, cur.id); save(); render(); break;
+    case 'sim-reject': refundCancel(cur, `@${cur.rival} rechazó el reto`, `@${cur.rival} rechazó el reto. Recuperaste ${fmt(cur.stake)} monedas`); notify(`@${cur.rival} rechazó tu reto`, cur.id); save(); render(); break;
+    case 'start': cur.status = 'en_juego'; ev(cur, 'Empezaron a jugar'); save(); render(); break;
+    case 'lichess': toast('En la app real esto abre la partida en lichess.org'); break;
+    case 'sim-lichess':
+      if (cur.status === 'aceptado'){ cur.status = 'en_juego'; ev(cur, 'Lichess: la partida empezó'); }
+      finalize(cur, d.r, 'Verificado con Lichess'); save(); render(); toast(d.r === 'gane' ? `¡Ganaste ${fmt(cur.stake*2)} monedas!` : d.r === 'perdi' ? 'Perdiste esta vez' : 'Se devolvieron las monedas', d.r === 'gane' ? 'good' : ''); break;
+    case 'report':
+      sign('Reportar resultado', `${GAMES[cur.game].name} vs @${cur.rival} · ${OUT[d.r]}`, () => {
+        cur.myReport = d.r; cur.status = 'resultado_reportado'; ev(cur, `Reportaste: ${OUT[d.r]}`);
+      });
+      break;
+    case 'sim-report': {
+      cur.rivalReport = d.r;
+      const agree = ({ gane:'perdi', perdi:'gane', empate:'empate' })[cur.myReport] === d.r;
+      ev(cur, `@${cur.rival} reportó: ${OUT[d.r]}`);
+      if (agree){ finalize(cur, cur.myReport, 'Los dos reportes coinciden'); toast('Los reportes coinciden: desafío liquidado', 'good'); }
+      else { cur.status = 'en_disputa'; ev(cur, 'Los reportes no coinciden: pasó a disputa'); notify(`Tu desafío con @${cur.rival} pasó a disputa`, cur.id); toast('Los reportes no coinciden: desafío en disputa', 'bad'); }
+      save(); render(); break;
+    }
+    case 'sim-timeout': ev(cur, `@${cur.rival} no reportó en 24 h. Su confianza baja 5 puntos`); finalize(cur, cur.myReport, 'Tu reporte quedó firme'); save(); render(); break;
+    case 'cancel-req':
+      sign('Pedir cancelación', `${GAMES[cur.game].name} vs @${cur.rival}`, () => { cur.cancelReq = { by:ME, at:Date.now() }; ev(cur, 'Pediste cancelar el desafío'); });
+      break;
+    case 'sim-cancel-ok': refundCancel(cur, 'Cancelado por los dos', `@${cur.rival} confirmó la cancelación. Recuperaste ${fmt(cur.stake)} monedas`); notify(`Se canceló tu desafío con @${cur.rival}`, cur.id); save(); render(); break;
+    case 'sim-cancel-expire': cur.cancelReq = null; ev(cur, 'El pedido de cancelación venció sin respuesta. El desafío sigue'); save(); render(); toast('El pedido venció: el desafío sigue'); break;
+
+    case 'go-admin': go({ type:'admin' }); break;
+    case 'resolve': {
+      const c = find(d.id);
+      const label = d.r === 'gane' ? `Gana @${ME}` : d.r === 'perdi' ? `Gana @${c.rival}` : 'Devolver a los dos';
+      sign('Resolver disputa', `${GAMES[c.game].name} · ${label}`, () => {
+        if (d.r === 'anulado'){ ev(c, 'Un admin resolvió devolver las monedas a los dos'); finalize(c, 'anulado'); }
+        else {
+          finalize(c, d.r, 'Resuelto por un admin');
+          if (c.myReport !== d.r){ S.trust = Math.max(0, S.trust - 15); ev(c, 'Perdiste la disputa: tu confianza bajó 15 puntos'); }
+          else ev(c, `@${c.rival} perdió la disputa: su confianza bajó 15 puntos`);
+        }
+        notify(`Se resolvió la disputa con @${c.rival}`, c.id);
+        toast('Disputa resuelta', 'good');
+      });
+      break;
+    }
+
+    case 'mm-stake': S.mm.stake = +d.s; save(); render(); break;
+    case 'mm-start': {
+      const st = S.mm.stake;
+      sign('Entrar al matchmaking', `Ajedrez online · ${fmt(st)} monedas`, () => {
+        post('retencion_cola', -st);
+        S.mm = { status:'buscando', stake: st, startedAt: Date.now(), matchAt: 4 + Math.floor(Math.random()*5) };
+        startMMTimer();
+      });
+      break;
+    }
+    case 'mm-cancel': clearInterval(mmTimer); post('devolucion_cola', S.mm.stake); S.mm = { status:'idle', stake:S.mm.stake }; save(); render(); toast('Saliste de la cola. Recuperaste tus monedas'); break;
+
+    case 'd-hot': S.draft.hot = d.h === '1'; render(); break;
+    case 'go-tienda': go({ type:'tienda' }); break;
+    case 'go-season': go({ type:'temporada' }); break;
+    case 'go-inversores': go({ type:'inversores' }); break;
+    case 'mode':
+      S.mode = d.m; save(); render();
+      toast(d.m === 'vision' ? 'Modo visión: concepto que requiere licencia' : 'Modo regulado: la versión para lanzar');
+      break;
+    case 'checkin':
+      sign('Check-in presencial', `${GAMES[cur.game].name} vs @${cur.rival} · QR de la mesa + ubicación`, () => {
+        cur.checkin = { ...(cur.checkin || {}), me:true }; ev(cur, 'Hiciste el check-in: QR escaneado y ubicación confirmada');
+      });
+      break;
+    case 'sim-checkin': cur.checkin = { ...(cur.checkin || {}), rival:true }; ev(cur, `@${cur.rival} hizo el check-in en el mismo lugar`); save(); render(); break;
+    case 'redeem': {
+      const p = STORE.find(x => x.id === d.id), vis = S.mode === 'vision';
+      if ((vis ? balance() : S.points) < p.cost){ toast('No te alcanza para este canje', 'bad'); return; }
+      sign('Canjear premio', `${p.name} · ${fmt(p.cost)} ${vis ? 'monedas' : 'puntos'}`, () => {
+        if (vis) post('canje', -p.cost);
+        else { S.points -= p.cost; S.pointsLog.unshift({ ts: Date.now(), amount: -p.cost, text: 'Canje: ' + p.name }); }
+        S.vouchers.unshift({ code: 'CH-' + Math.random().toString(36).slice(2,8).toUpperCase(), name: p.name, shop: p.shop, ts: Date.now() });
+        toast('Canje listo: tu código está abajo', 'good');
+        setTimeout(confetti, 60);
+      });
+      break;
+    }
+    case 'sim-friend': {
+      S.pendingFriends = (S.pendingFriends || []).filter(u => u !== d.u);
+      S.players[d.u] = S.players[d.u] || { name: d.u, friend:true, r: newRatings(d.u), streak:0, sxp:0 };
+      S.players[d.u].friend = true; save(); render(); toast(`@${d.u} aceptó tu solicitud`, 'good'); break;
+    }
+    case 'reset': S.confirmReset = true; render(); break;
+    case 'reset-no': S.confirmReset = false; render(); break;
+    case 'reset-yes': clearInterval(mmTimer); S = seed(); lastBal = null; save(); render(); toast('Demo reiniciada'); break;
+  }
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el) return;
+  if (el.dataset.a === 'sheet-bg' && e.target !== el) return;
+  act(el.dataset.a, el.dataset, el);
+});
+document.addEventListener('toggle', e => { const f = e.target.closest && e.target.closest('[data-fold]'); if (f) OPEN[f.dataset.fold] = f.open; }, true);
+document.addEventListener('submit', e => {
+  const f = e.target.closest('[data-form="friend"]'); if (!f) return;
+  e.preventDefault();
+  const v = $('friend-in').value.trim().toLowerCase().replace(/^@/, '');
+  if (!/^[a-z0-9_.]{3,20}$/.test(v)){ toast('Usá entre 3 y 20 letras, números, punto o guion bajo', 'bad'); return; }
+  if (v === ME || (S.players[v] && S.players[v].friend) || (S.pendingFriends || []).includes(v)){ toast('Ya está en tu lista'); return; }
+  S.pendingFriends = (S.pendingFriends || []).concat(v); save(); render(); toast(`Solicitud enviada a @${v}`);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'pin-in'){ e.preventDefault(); act('pin-ok', {}); } });
+document.addEventListener('change', e => {
+  if (e.target.id !== 'ev-in' || !e.target.files.length) return;
+  const c = find(e.target.dataset.id); const f = e.target.files[0];
+  c.evidence = (c.evidence || []).concat(f.name); ev(c, `Adjuntaste evidencia: ${f.name}`); save(); render(); toast('Evidencia adjuntada', 'good');
+});
+
+if (S.mm.status === 'buscando') startMMTimer();
+render();
+})();
+</script>
