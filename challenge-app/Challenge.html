@@ -475,7 +475,9 @@ svg{flex:none}
 .wd .r1{display:flex;align-items:center;justify-content:space-between;gap:10px}
 /* ---------- juegos dentro de la app ---------- */
 #game:empty{display:none}
-.game{position:absolute;inset:0;z-index:15;display:flex;flex-direction:column;background-color:var(--surface-2);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px;animation:up .2s ease-out}
+.game{position:absolute;inset:0;z-index:15;display:flex;flex-direction:column;background-color:var(--surface-2);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+.game.enter{animation:up .2s ease-out}
+.g-body{overflow-anchor:none}
 .g-top{display:flex;align-items:center;gap:10px;padding:12px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:var(--surface-2);border-bottom:1.5px solid var(--line)}
 .g-body{flex:1;overflow-y:auto;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px}
 .g-body>*{flex-shrink:0}
@@ -490,8 +492,8 @@ svg{flex:none}
 .g-player.me .clock.on{background:var(--brand);color:var(--on-brand)}
 .g-player.ai .clock.on{background:var(--rival);color:#fff}
 .clock.low{color:var(--loss)} .clock.on.low{background:var(--loss);color:#fff}
-.board{container-type:inline-size;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);width:100%;aspect-ratio:1;max-width:100%;border:3px solid var(--surface-3);box-shadow:0 0 34px -12px var(--brand)}
-.sq{position:relative;border:0;padding:0;display:grid;place-items:center;font-size:34px;font-size:10.5cqi;line-height:1;background:var(--sq-l);min-width:0;min-height:0;aspect-ratio:1;overflow:hidden}
+.board{container-type:inline-size;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);width:min(100%,calc(100svh - 370px));min-width:240px;align-self:center;aspect-ratio:1;max-width:100%;border:3px solid var(--surface-3);box-shadow:0 0 34px -12px var(--brand)}
+.sq{position:relative;border:0;padding:0;display:grid;place-items:center;font-size:34px;font-size:10.5cqi;line-height:1;background:var(--sq-l);min-width:0;min-height:0;aspect-ratio:1;touch-action:manipulation}
 .sq.d{background:var(--sq-d)}
 .sq.last{background:color-mix(in srgb,var(--coin) 50%,var(--sq-l))} .sq.d.last{background:color-mix(in srgb,var(--coin) 50%,var(--sq-d))}
 .sq.chk{background:radial-gradient(circle,var(--loss) 0 38%,transparent 78%),var(--sq-l)}
@@ -506,7 +508,7 @@ svg{flex:none}
 .pc.b{color:#120E2A;text-shadow:0 0 1px rgba(255,255,255,.55)}
 .g-status{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.05em;text-transform:uppercase;text-align:center;color:var(--brand);min-height:20px}
 .g-status.ai{color:var(--rival)} .g-status.alert{color:var(--coin)}
-.moves{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:13px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums;min-height:18px}
+.moves{display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:2px 12px;font-size:13px;line-height:1.3;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums;height:36px;overflow:hidden}
 .moves span:last-child{color:var(--ink);font-weight:600}
 
 .tanteador{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:6px}
@@ -542,6 +544,23 @@ button.naipe[disabled]{cursor:default;filter:brightness(.72)}
 .tlog{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:38px;font-size:13px;color:var(--muted);text-align:center}
 .tlog span:last-child{color:var(--ink);font-weight:600}
 .backs{display:flex;gap:4px;margin-left:auto}
+.naipe .n{position:absolute;top:4px;left:5px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:var(--font-display);font-weight:700;font-size:19px;line-height:1}
+.naipe .n b{font-weight:700}
+.naipe .n svg{width:13px;height:13px}
+.naipe .s{width:42px;height:42px;display:grid;place-items:center;margin-top:-6px}
+.naipe .s svg{width:42px;height:42px}
+.naipe .pl{position:absolute;left:0;right:0;bottom:5px;text-align:center;font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;line-height:1}
+.naipe.sm .n{top:3px;left:4px;font-size:14px} .naipe.sm .n svg{width:10px;height:10px}
+.naipe.sm .s,.naipe.sm .s svg{width:28px;height:28px} .naipe.sm .s{margin-top:-4px}
+.naipe.sm .pl{font-size:7.5px;bottom:4px;letter-spacing:.04em}
+.naipe.pz{border-color:var(--coin);box-shadow:0 0 0 2px var(--coin),0 8px 18px -6px var(--coin)}
+.hand.mine button.naipe.pz{box-shadow:0 0 0 3px var(--coin),0 10px 24px -6px var(--coin)}
+.naipe.pz .pl{color:#8A5A00}
+.naipe.drop{animation:drop .3s cubic-bezier(.2,.8,.3,1.2)}
+@keyframes drop{from{transform:translateY(36px) scale(.8);opacity:0}to{transform:none;opacity:1}}
+.muestra{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:6px;background:var(--coin-soft);border:1.5px solid color-mix(in srgb,var(--coin) 40%,transparent)}
+.muestra>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.muestra b{font-family:var(--font-display);text-transform:uppercase;letter-spacing:.1em;color:var(--coin)}
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} #fx{display:none} }
 </style>
 
@@ -581,7 +600,8 @@ const GAMES = {
   codm:      G('Call of Duty: Mobile', 'movil', 'COD', ['1v1','5v5'], 'Celular', { tos:'?', pub:'Activision', ico:'🪖' }),
   efootball: G('eFootball', 'movil', 'eF', ['1v1'], 'Celular · consola · PC', { tos:'?', pub:'Konami', draw:true, ico:'🥅' }),
   pool8:     G('8 Ball Pool', 'movil', '8B', ['1v1'], 'Celular', { tos:'?', pub:'Miniclip', ico:'🎱' }),
-  trucoapp:  G('Truco online', 'movil', 'TR', ['1v1'], 'En la app · a 15 puntos', { auto:true, inapp:'truco', ico:'🃏' }),
+  trucoapp:  G('Truco argentino', 'movil', 'TR', ['1v1'], 'En la app · sin muestra · a 15', { auto:true, inapp:'truco', variant:'ar', ico:'🃏' }),
+  trucouy:   G('Truco uruguayo', 'movil', 'TU', ['1v1'], 'En la app · con muestra y flor · a 15', { auto:true, inapp:'truco', variant:'uy', ico:'🧉' }),
   lichess:   G('Ajedrez online', 'online', '♞', ['1v1'], 'En la app · 5+3', { draw:true, auto:true, inapp:'chess', ico:'♟️' }),
   truco:     G('Truco', 'fisico', 'TR', ['1v1','2v2','3v3'], 'Cartas españolas', { ico:'🃏' }),
   ajedrez:   G('Ajedrez presencial', 'fisico', '♜', ['1v1'], 'Tablero', { draw:true, ico:'♟️' }),
@@ -667,6 +687,8 @@ function seed(){
     challenges: [
       { id:'c1', game:'trucoapp', fmt:'1v1', stake:50, rival:'caro_mate', mine:false, origin:'amigo', status:'pendiente', created: now-25*60e3, myLocked:false,
         events:[ev(25*60e3,'@caro_mate creó el desafío y bloqueó 50 monedas')] },
+      { id:'c5', game:'trucouy', fmt:'1v1', stake:25, rival:'flor_rp', mine:false, origin:'amigo', status:'pendiente', created: now-10*60e3, myLocked:false,
+        events:[ev(10*60e3,'@flor_rp te retó a un Truco uruguayo y bloqueó 25 monedas')] },
       { id:'c4', game:'rocket', fmt:'2v2', stake:25, rival:'juancito', mine:false, origin:'amigo', status:'pendiente', created: now-90*60e3, myLocked:false,
         events:[ev(90*60e3,'@juancito armó un 2v2 y su equipo bloqueó 25 monedas por jugador')] },
       { id:'c2', game:'lichess', stake:100, rival:'lu_pereyra', mine:true, origin:'amigo', status:'en_juego', created: now-40*60e3, myLocked:true, lichessId:'aB3xK9Qp',
@@ -679,7 +701,8 @@ function seed(){
       { ts: now-3*DAY, action:'Reportar resultado', detail:'EA Sports FC · Gané', method:'PIN de la app', device:'Chrome en Windows' },
     ],
     notifs: [
-      { id:'n1', ts: now-25*60e3, text:'@caro_mate te retó a un Truco online por 50 monedas', ref:'c1', read:false },
+      { id:'n1', ts: now-25*60e3, text:'@caro_mate te retó a un Truco argentino por 50 monedas', ref:'c1', read:false },
+      { id:'n5', ts: now-10*60e3, text:'@flor_rp te retó a un Truco uruguayo por 25 monedas', ref:'c5', read:false },
       { id:'n0', ts: now-90*60e3, text:'@juancito te invitó a un 2v2 de Rocket League por 25 monedas', ref:'c4', read:false },
       { id:'n2', ts: now-32*60e3, text:'@lu_pereyra aceptó tu desafío de Ajedrez online', ref:'c2', read:true },
     ],
@@ -700,6 +723,16 @@ if (S.mm && S.mm.status === 'buscando'){ S.mm.startedAt = Date.now(); }
 if (S.draft && S.draft.step == null) S.draft.step = 0;
 // v4: el truco del ejemplo pasa a jugarse en la app
 if (!S.v4){ const c1 = S.challenges.find(c => c.id === 'c1' && c.game === 'truco' && c.status === 'pendiente'); if (c1) c1.game = 'trucoapp'; S.v4 = true; }
+// v5: llega el truco uruguayo; también completa los ELO de juegos nuevos
+if (!S.v5){
+  if (!S.challenges.some(c => c.game === 'trucouy')){
+    const t0 = Date.now() - 10*60e3;
+    S.challenges.push({ id:'c5', game:'trucouy', fmt:'1v1', stake:25, rival:'flor_rp', mine:false, origin:'amigo', status:'pendiente', created:t0, myLocked:false, events:[{ ts:t0, text:'@flor_rp te retó a un Truco uruguayo y bloqueó 25 monedas' }] });
+    S.notifs.unshift({ id:'n5', ts:t0, text:'@flor_rp te retó a un Truco uruguayo por 25 monedas', ref:'c5', read:false });
+  }
+  S.v5 = true;
+}
+for (const g of GAME_IDS){ if (S.ratings[g] == null) S.ratings[g] = 1000; for (const u in S.players) if (S.players[u].r[g] == null) S.players[u].r[g] = fakeElo(u + g); }
 if (!S.cash) S.cash = newCash();
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
 
@@ -1135,7 +1168,7 @@ function vDetalle(c){
     if (inApp(c)){
       const chess = GAMES[c.game].inapp === 'chess', started = !!c.play;
       st = c.status === 'aceptado'
-        ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text: chess ? 'Se juega acá, dentro de la app: vos con blancas, 5 minutos por lado y 3 segundos extra por jugada. El resultado queda registrado solo.' : 'Se juega acá, dentro de la app: truco 1 contra 1 a 15 puntos, con envido y truco. El resultado queda registrado solo.' }
+        ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text: chess ? 'Se juega acá, dentro de la app: vos con blancas, 5 minutos por lado y 3 segundos extra por jugada. El resultado queda registrado solo.' : (GAMES[c.game].variant === 'uy' ? 'Se juega acá, dentro de la app: truco uruguayo 1 contra 1 a 15 puntos, con muestra, piezas y flor.' : 'Se juega acá, dentro de la app: truco argentino 1 contra 1 a 15 puntos, con envido y truco.') + ' El resultado queda registrado solo.' }
         : { tone:'info', eye:'En juego', title: started ? 'Partida en pausa' : 'Partida lista', text: chess ? 'Volvé al tablero cuando quieras: el reloj se frena mientras no estás.' : 'Volvé a la mesa cuando quieras: la partida te espera.' };
       acts = `<button class="btn gold block xl" data-a="play">${started ? 'Volver a la partida' : 'Jugar ahora'}</button><span class="small muted" style="text-align:center">En la demo, a ${rival} lo maneja la computadora.</span>`;
       demo = `<span class="small muted">Saltear la partida y simular el resultado:</span><div class="btn-row"><button class="btn" data-a="sim-lichess" data-r="gane">Ganaste</button><button class="btn" data-a="sim-lichess" data-r="perdi">Perdiste</button>${g.draw ? '<button class="btn" data-a="sim-lichess" data-r="empate">Tablas</button>' : ''}<button class="btn" data-a="sim-lichess" data-r="anulado">Abortada</button></div>`;
@@ -1385,7 +1418,7 @@ function vInversores(){
   return `
   <div class="alert info"><b>Challenge en una frase</b><span>Duelos entre amigos con algo real en juego, y una app que hace de mediador para que lo acordado se cumpla.</span></div>
   ${block('', 'Los dos pilares', ['<b>Adrenalina:</b> pozos, duelos calientes, rachas con recompensa, temporadas con premio y revanchas.', '<b>Mediador confiable:</b> el pozo queda custodiado, cada decisión se firma, el resultado se verifica y las disputas se arbitran.'])}
-  ${block('', 'Cómo se evitan las trampas', ['Partidas dentro de la app con resultado automático (hoy: ajedrez y truco online).', 'Check-in con QR y ubicación en partidas presenciales.', 'Doble reporte firmado con huella o PIN, más evidencia en foto o video.', 'Puntaje de confianza: quien miente pierde confianza y puede apostar menos.'])}
+  ${block('', 'Cómo se evitan las trampas', ['Partidas dentro de la app con resultado automático (hoy: ajedrez y truco argentino o uruguayo).', 'Check-in con QR y ubicación en partidas presenciales.', 'Doble reporte firmado con huella o PIN, más evidencia en foto o video.', 'Puntaje de confianza: quien miente pierde confianza y puede apostar menos.'])}
   ${block('', 'Cómo genera ingresos (hipótesis a validar)', ['Videos con recompensa.', 'Comercios aliados que pagan por aparecer en la tienda de canje.', 'Sponsors de temporadas y torneos.', 'Con licencia: comisión sobre cada pozo.'])}
   ${block('Etapa 1', 'Lanzamiento sin valor real', ['Monedas para apostar que no se compran ni se canjean.', 'Puntos canjeables que solo se ganan por actividad.', 'Solo juegos sin editor que prohíba apuestas (truco, pool, ajedrez, ping-pong, pádel).', 'Objetivo: probar que la mecánica engancha.'])}
   ${block('Etapa 2', 'Comercios y sponsors', ['Convenios reales con comercios para la tienda.', 'Temporadas con premios de sponsors.', 'Consulta formal al MEF y a la Dirección Nacional de Loterías y Quinielas.'])}
@@ -1561,26 +1594,62 @@ const CH = (() => {
   return { init, legal, play, best, inCheck, kingSq, color, evalFor, insufficient, sqName };
 })();
 
-/* ---------- motor de truco (1 contra 1, a 15 puntos) ---------- */
+/* ---------- motor de truco (1 contra 1, a 15 puntos; argentino, o uruguayo con muestra) ---------- */
 const TR = (() => {
-  const SUIT = { e:{ name:'espada', ico:'🗡️' }, b:{ name:'basto', ico:'🪵' }, o:{ name:'oro', ico:'🪙' }, c:{ name:'copa', ico:'🏆' } };
+  // Palos dibujados a mano (no dependen de emojis que algunos celulares no tienen)
+  const SVG = {
+    e: '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2.5l4 6.5v18.5h-8V9z" fill="#D6E3F8" stroke="#1F4FB8" stroke-width="2" stroke-linejoin="round"/><path d="M20 9v17" stroke="#1F4FB8" stroke-width="1.4"/><rect x="10" y="27" width="20" height="4" rx="1.5" fill="#1F5BD8"/><rect x="18" y="31" width="4" height="5" fill="#1F5BD8"/><circle cx="20" cy="37.5" r="2" fill="#1F5BD8"/></svg>',
+    b: '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M16.5 37.5l2.2-21.5c-3.6-.6-5.8-3.6-5-7 .8-3.2 4.6-5.2 7.8-3.6 3-2 7.2-.2 7.6 3.4.6 3.8-2.2 7.2-6 7.4L21 37.5z" fill="#3A9A5B" stroke="#1A5530" stroke-width="2" stroke-linejoin="round"/><circle cx="17.5" cy="10" r="1.6" fill="#1A5530"/><circle cx="24" cy="9.5" r="1.6" fill="#1A5530"/><circle cx="21" cy="14.5" r="1.4" fill="#1A5530"/><path d="M18.6 24l3 .4M18.2 30l3 .4" stroke="#1A5530" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    o: '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15.5" fill="#F2B705" stroke="#8A5A00" stroke-width="2.5"/><circle cx="20" cy="20" r="9" fill="none" stroke="#8A5A00" stroke-width="2"/><path d="M20 13.5v13M13.5 20h13" stroke="#8A5A00" stroke-width="1.6"/></svg>',
+    c: '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8.5 5h23c0 9.5-4.4 15.6-9.5 16.6V29h6.5v6h-17v-6H18v-7.4C12.9 20.6 8.5 14.5 8.5 5z" fill="#E0365F" stroke="#7A0F2A" stroke-width="2" stroke-linejoin="round"/><path d="M12.5 8.5c.4 4.6 2.4 8.4 5.5 10" fill="none" stroke="#FFD1DC" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  };
+  const SUIT = { e:{ name:'espada', svg:SVG.e }, b:{ name:'basto', svg:SVG.b }, o:{ name:'oro', svg:SVG.o }, c:{ name:'copa', svg:SVG.c } };
   const LBL = { 1:'truco', 2:'retruco', 3:'vale cuatro' };
+  // Uruguayo: piezas del palo de la muestra [orden para ganar, valor para envido y flor]
+  const PIEZA = { 2:[19,30], 4:[18,29], 5:[17,28], 11:[16,27], 10:[15,27] };
+  const BASE = { 3:10, 2:9, 1:8, 12:7, 11:6, 10:5, 7:4, 6:3, 5:2, 4:1 };
   const other = w => w === 'me' ? 'ai' : 'me';
   const who = w => w === 'me' ? 'Vos' : '{R}';
-  function rank(c){
+  function pieza(t, c){
+    if (!t || t.mode !== 'uy' || !t.h || !t.h.muestra) return null;
+    const m = t.h.muestra; if (c.s !== m.s) return null;
+    if (PIEZA[c.n]) return PIEZA[c.n];
+    if (c.n === 12 && PIEZA[m.n]) return PIEZA[m.n];   // el 12 reemplaza a la pieza que salió de muestra
+    return null;
+  }
+  function rank(t, c){
+    const p = pieza(t, c); if (p) return p[0];
     if (c.n === 1 && c.s === 'e') return 14; if (c.n === 1 && c.s === 'b') return 13;
     if (c.n === 7 && c.s === 'e') return 12; if (c.n === 7 && c.s === 'o') return 11;
-    return { 3:10, 2:9, 1:8, 12:7, 11:6, 10:5, 7:4, 6:3, 5:2, 4:1 }[c.n];
+    return BASE[c.n];
   }
-  function name(c){
-    if (c.n === 1 && (c.s === 'e' || c.s === 'b')) return 'el ancho de ' + SUIT[c.s].name;
-    return `el ${c.n} de ${SUIT[c.s].name}`;
+  const maxRank = t => t.mode === 'uy' ? 19 : 14;
+  function name(c, t){
+    const base = (c.n === 1 && (c.s === 'e' || c.s === 'b')) ? 'el ancho de ' + SUIT[c.s].name : `el ${c.n} de ${SUIT[c.s].name}`;
+    return pieza(t, c) ? base + ' (pieza)' : base;
   }
   const ev = c => c.n >= 10 ? 0 : c.n;
-  function envido(cards){
+  const unit = (t, c) => { const p = pieza(t, c); return p ? p[1] % 10 : ev(c); };
+  const topPieza = (t, cards) => cards.filter(c => pieza(t, c)).reduce((a, c) => !a || pieza(t, c)[1] > pieza(t, a)[1] ? c : a, null);
+  function envidoAR(cards){
     let best = Math.max(...cards.map(ev));
     for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) if (cards[i].s === cards[j].s) best = Math.max(best, 20 + ev(cards[i]) + ev(cards[j]));
     return best;
+  }
+  function tanto(t, cards){
+    const top = t.mode === 'uy' ? topPieza(t, cards) : null;
+    if (top) return pieza(t, top)[1] + Math.max(0, ...cards.filter(c => c !== top).map(c => unit(t, c)));
+    return envidoAR(cards);
+  }
+  // Flor (solo uruguayo): tres del mismo palo, una pieza y dos del mismo palo, o dos piezas o más
+  function flor(t, cards){
+    if (t.mode !== 'uy') return null;
+    const pz = cards.filter(c => pieza(t, c)), rest = cards.filter(c => !pieza(t, c));
+    const has = pz.length >= 2 || (pz.length === 1 && rest[0].s === rest[1].s) || (pz.length === 0 && cards.every(c => c.s === cards[0].s));
+    if (!has) return null;
+    const top = topPieza(t, cards);
+    if (!top) return 20 + cards.reduce((a, c) => a + ev(c), 0);
+    return pieza(t, top)[1] + cards.filter(c => c !== top).reduce((a, c) => a + unit(t, c), 0);
   }
   function deck(){
     const d = [];
@@ -1588,13 +1657,27 @@ const TR = (() => {
     for (let i = d.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i + 1)); [d[i], d[j]] = [d[j], d[i]]; }
     return d;
   }
+  function addPts(t, w, n){ t.pts[w] = Math.min(t.target, t.pts[w] + n); if (t.pts[w] >= t.target) t.result = w; }
   function newHand(t){
     const d = deck();
-    t.h = { me:d.slice(0,3), ai:d.slice(3,6), orig:{ me:d.slice(0,3), ai:d.slice(3,6) }, table:{ me:[], ai:[] }, rounds:[], turn:t.mano, lvl:0, raiser:null, pend:null, env:false, over:false };
+    t.hand = (t.hand || 0) + 1;
+    t.h = { me:d.slice(0,3), ai:d.slice(3,6), orig:{ me:d.slice(0,3), ai:d.slice(3,6) }, muestra: t.mode === 'uy' ? d[6] : null, table:{ me:[], ai:[] }, rounds:[], turn:t.mano, lvl:0, raiser:null, pend:null, env:false, over:false, flor:null, lp:null };
     t.bubble = null;
-    t.log.push(`Nueva mano. ${t.mano === 'me' ? 'Sos mano' : '{R} es mano'}.`);
+    t.log.push(`Nueva mano. ${t.mano === 'me' ? 'Sos mano' : '{R} es mano'}.${t.h.muestra ? ` Muestra: ${name(t.h.muestra)}.` : ''}`);
+    if (t.mode === 'uy'){
+      const fm = flor(t, t.h.orig.me), fa = flor(t, t.h.orig.ai);
+      if (fm !== null || fa !== null){
+        t.h.env = true;   // con flor no se canta envido
+        const win = fm !== null && fa !== null ? (fm > fa ? 'me' : fa > fm ? 'ai' : t.mano) : fm !== null ? 'me' : 'ai';
+        if (fm !== null && fa !== null) t.log.push(`Flor contra flor: vos ${fm}, {R} ${fa}.`);
+        t.h.flor = { me:fm, ai:fa, win };
+        t.bubble = { who:win, text:'¡Flor!' };
+        addPts(t, win, 3);
+        t.log.push(`${win === 'me' ? 'Cantaste flor' : '{R} cantó flor'}: +3.`);
+      }
+    }
   }
-  function init(){ const t = { kind:'truco', target:15, pts:{ me:0, ai:0 }, mano:'me', log:[], result:null }; newHand(t); return t; }
+  function init(mode = 'ar'){ const t = { kind:'truco', mode, target:15, pts:{ me:0, ai:0 }, mano:'me', log:[], result:null, hand:0 }; newHand(t); return t; }
   const value = lvl => lvl + 1;
   const needs = t => (t.result || t.h.over) ? null : t.h.pend ? other(t.h.pend.by) : t.h.turn;
   const canEnvido = (t, w) => !t.h.env && !t.h.pend && t.h.rounds.length === 0 && t.h.table[w].length === 0 && t.h.lvl === 0;
@@ -1612,7 +1695,6 @@ const TR = (() => {
     }
     return null;
   }
-  function addPts(t, w, n){ t.pts[w] = Math.min(t.target, t.pts[w] + n); if (t.pts[w] >= t.target) t.result = w; }
   function endHand(t, w, n, why){
     t.h.over = true; addPts(t, w, n);
     t.log.push(`${why} ${w === 'me' ? 'Sumás' : '{R} suma'} ${n} ${n === 1 ? 'punto' : 'puntos'}.`);
@@ -1633,7 +1715,7 @@ const TR = (() => {
     const pts = p.type === 'real' ? 3 : 2;
     h.env = true; h.pend = null;
     if (ans === 'quiero'){
-      const em = envido(h.orig.me), ea = envido(h.orig.ai);
+      const em = tanto(t, h.orig.me), ea = tanto(t, h.orig.ai);
       const win = em > ea ? 'me' : ea > em ? 'ai' : t.mano;
       t.bubble = { who:w, text:'¡Quiero!' };
       t.log.push(`Tantos: vos ${em}, {R} ${ea}${em === ea ? ' (gana el mano)' : ''}.`);
@@ -1647,10 +1729,10 @@ const TR = (() => {
   }
   function playCard(t, w, i){
     const h = t.h, c = h[w].splice(i, 1)[0];
-    h.table[w].push(c);
-    t.log.push(`${who(w)} ${w === 'me' ? 'tiraste' : 'tiró'} ${name(c)}.`);
+    h.table[w].push(c); h.lp = w + (h.table[w].length - 1);
+    t.log.push(`${who(w)} ${w === 'me' ? 'tiraste' : 'tiró'} ${name(c, t)}.`);
     if (h.table.me.length === h.table.ai.length){
-      const k = h.table.me.length - 1, a = rank(h.table.me[k]), b = rank(h.table.ai[k]);
+      const k = h.table.me.length - 1, a = rank(t, h.table.me[k]), b = rank(t, h.table.ai[k]);
       const rw = a > b ? 'me' : b > a ? 'ai' : 'parda';
       h.rounds.push(rw);
       const hw = handWinner(h.rounds, t.mano);
@@ -1661,23 +1743,23 @@ const TR = (() => {
   function mazo(t, w){ t.bubble = { who:w, text:'Me voy al mazo' }; endHand(t, other(w), value(t.h.lvl), `${who(w)} ${w === 'me' ? 'te fuiste' : 'se fue'} al mazo.`); }
   function nextHand(t){ t.mano = other(t.mano); newHand(t); }
 
-  // Computadora: juega con reglas simples y a veces se tira un farol
+  // Computadora: reglas simples y a veces se tira un farol
   function power(t){
-    const h = t.h, cards = h.ai;
+    const h = t.h, cards = h.ai, mx = maxRank(t);
     if (!cards.length) return h.rounds.includes('ai') ? .6 : .2;
-    const best = Math.max(...cards.map(rank));
-    let s = .5*(cards.reduce((a, c) => a + rank(c), 0) / (cards.length*14)) + .5*(best/14);
+    const best = Math.max(...cards.map(c => rank(t, c)));
+    let s = .5*(cards.reduce((a, c) => a + rank(t, c), 0) / (cards.length*mx)) + .5*(best/mx);
     if (h.rounds.includes('ai')) s += .25;
     if (h.rounds.includes('me')) s -= .25;
-    const k = h.table.ai.length, opp = h.table.me[k];
-    if (opp && rank(opp) >= best) s -= .3;
+    const opp = h.table.me[h.table.ai.length];
+    if (opp && rank(t, opp) >= best) s -= .3;
     return Math.max(0, Math.min(1, s));
   }
   function pick(t){
-    const h = t.h, k = h.table.ai.length, opp = h.table.me[k];
-    const order = h.ai.map((c, i) => ({ i, r:rank(c) })).sort((a, b) => a.r - b.r);
+    const h = t.h, opp = h.table.me[h.table.ai.length];
+    const order = h.ai.map((c, i) => ({ i, r:rank(t, c) })).sort((a, b) => a.r - b.r);
     if (opp){
-      const or = rank(opp), beat = order.find(x => x.r > or);
+      const or = rank(t, opp), beat = order.find(x => x.r > or);
       if (beat) return beat.i;
       const tie = order.find(x => x.r === or);
       if (tie && h.rounds[0] === 'ai') return tie.i;
@@ -1690,7 +1772,7 @@ const TR = (() => {
     const h = t.h, w = 'ai';
     if (h.pend){
       if (h.pend.type !== 'truco'){
-        const e = envido(h.orig.ai), need = h.pend.type === 'real' ? 28 : 25;
+        const e = tanto(t, h.orig.ai), need = h.pend.type === 'real' ? 28 : 25;
         return respond(t, w, e >= need || (e >= need - 3 && Math.random() < .3) ? 'quiero' : 'no');
       }
       const s = power(t);
@@ -1698,28 +1780,27 @@ const TR = (() => {
       return respond(t, w, s > .45 || Math.random() < .15 ? 'quiero' : 'no');
     }
     if (canEnvido(t, w)){
-      const e = envido(h.orig.ai);
+      const e = tanto(t, h.orig.ai);
       if (e >= 30 && Math.random() < .6) return call(t, w, 'real');
       if (e >= 27 || (e >= 23 && Math.random() < .12)) return call(t, w, 'envido');
     }
     if (canTruco(t, w)){ const s = power(t); if ((s > .72 && Math.random() < .5) || Math.random() < .05) return call(t, w, 'truco'); }
     playCard(t, w, pick(t));
   }
-  return { SUIT, LBL, init, needs, canEnvido, canTruco, call, respond, playCard, mazo, nextHand, aiStep, name, rank, envido, value, handWinner };
+  return { SUIT, LBL, PIEZA, init, needs, canEnvido, canTruco, call, respond, playCard, mazo, nextHand, aiStep, name, rank, tanto, flor, pieza, value, handWinner };
 })();
-
 /* ---------- partidas dentro de la app ---------- */
 const inApp = c => !!GAMES[c.game].inapp && teamSize(c.fmt) === 1;
-let GAME = null, gameTimer = null, clockIv = null, clockTs = 0, chSel = null, resignAsk = false;
+let GAME = null, gameTimer = null, clockIv = null, clockTs = 0, chSel = null, resignAsk = false, gameEnter = false, animLen = -1, lastDrop = null;
 const GLYPH = { k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' };
 const PIECE_ES = { k:'rey', q:'dama', r:'torre', b:'alfil', n:'caballo', p:'peón' };
 const glyph = p => GLYPH[p.toLowerCase()] + '︎';
 const fmtClock = ms => ms < 10000 ? (ms / 1000).toFixed(1) : Math.floor(ms / 60000) + ':' + String(Math.floor(ms / 1000) % 60).padStart(2, '0');
-const newPlay = c => GAMES[c.game].inapp === 'chess' ? { kind:'chess', st: CH.init() } : TR.init();
+const newPlay = c => GAMES[c.game].inapp === 'chess' ? { kind:'chess', st: CH.init() } : TR.init(GAMES[c.game].variant || 'ar');
 
 function openGame(c){
   if (!c.play) c.play = newPlay(c);
-  GAME = c.id; chSel = null; resignAsk = false; clockTs = Date.now();
+  GAME = c.id; chSel = null; resignAsk = false; clockTs = Date.now(); gameEnter = true; animLen = -1;
   clearInterval(clockIv);
   if (c.play.kind === 'chess' && !c.play.done) clockIv = setInterval(tickClock, 250);
   save(); renderGame(); pump(c);
@@ -1765,11 +1846,27 @@ function trucoPump(c){
   if (TR.needs(t) === 'ai') gameTimer = setTimeout(() => { if (GAME !== c.id || t.done) return; TR.aiStep(t); save(); renderGame(); trucoPump(c); }, 950);
 }
 
+// Se redibuja sin animación de entrada y sin mover el scroll; la pieza movida se desliza
 function renderGame(){
   const el = $('game');
   const c = GAME && find(GAME);
   if (!c || !c.play){ GAME = null; el.innerHTML = ''; return; }
+  const old = el.querySelector('.g-body'), sc = old ? old.scrollTop : 0;
   el.innerHTML = c.play.kind === 'chess' ? vChess(c) : vTruco(c);
+  if (gameEnter){ el.firstElementChild.classList.add('enter'); gameEnter = false; }
+  const body = el.querySelector('.g-body'); if (body) body.scrollTop = sc;
+  if (c.play.kind === 'chess'){
+    const st = c.play.st, first = animLen < 0;
+    if (st.hist.length !== animLen){ animLen = st.hist.length; if (!first && st.last) slidePiece(st.last); }
+  }
+}
+function slidePiece([from, to]){
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const board = document.querySelector('.board'), pc = board && board.querySelector(`[data-i="${to}"] .pc`);
+  if (!pc || !pc.animate) return;
+  const s = board.clientWidth / 8, dx = ((from & 7) - (to & 7)) * s, dy = ((from >> 3) - (to >> 3)) * s;
+  pc.style.zIndex = 5;
+  pc.animate([{ transform:`translate(${dx}px, ${dy}px)` }, { transform:'none' }], { duration:220, easing:'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => { pc.style.zIndex = ''; };
 }
 const gameTop = (c, title) => `<header class="g-top"><button class="icon-btn" data-a="g-close" aria-label="Salir de la partida">${ICONS.back}</button><span class="top-title">${title}</span><span class="coin-chip num">${coinSvg}${fmt(potOf(c))}</span></header>`;
 function gameEnd(c){
@@ -1810,7 +1907,10 @@ function vChess(c){
   </div></div>`;
 }
 
-const naipe = (cd, size = '', attrs = '', tag = 'span') => `<${tag} class="naipe ${size} s-${cd.s}" ${attrs} aria-label="${TR.name(cd)}"><span class="n">${cd.n}</span><span class="s" aria-hidden="true">${TR.SUIT[cd.s].ico}</span><span class="n n2" aria-hidden="true">${cd.n}</span></${tag}>`;
+const naipe = (cd, size = '', attrs = '', tag = 'span', t = null) => {
+  const pz = TR.pieza(t, cd), su = TR.SUIT[cd.s];
+  return `<${tag} class="naipe ${size} s-${cd.s} ${pz ? 'pz' : ''}" ${attrs} aria-label="${TR.name(cd, t)}"><span class="n" aria-hidden="true"><b>${cd.n}</b>${su.svg}</span><span class="s">${su.svg}</span><span class="pl" aria-hidden="true">${pz ? 'pieza' : su.name}</span></${tag}>`;
+};
 function tally(n){
   let out = '';
   for (let g = 0; g < Math.ceil(n / 5); g++){
@@ -1822,12 +1922,15 @@ function tally(n){
 function vTruco(c){
   const t = c.play, h = t.h, R = '@' + esc(c.rival), need = TR.needs(t);
   const txt = s => esc(s).replace(/\{R\}/g, R);
+  const dk = h.lp ? t.hand + ':' + h.lp : null, drop = dk && dk !== lastDrop ? h.lp : null; lastDrop = dk;
+  const uy = t.mode === 'uy', myFlor = uy ? TR.flor(t, h.orig.me) : null;
+  const m = h.muestra, muestra = m ? `<div class="muestra">${naipe(m, 'sm')}<span><b>Muestra</b><span class="small">Piezas: 2, 4, 5, 11 y 10 de ${TR.SUIT[m.s].name}${TR.PIEZA[m.n] ? ` (el 12 reemplaza al ${m.n})` : ''}. Le ganan a todas.</span></span></div>` : '';
   const bubble = w => t.bubble && t.bubble.who === w && !h.over ? `<span class="bubble ${w}">${esc(t.bubble.text)}</span>` : '';
   const cap = s => s[0].toUpperCase() + s.slice(1);
   const valTxt = h.lvl === 0 ? 'La mano vale 1' : `${cap(TR.LBL[h.lvl])}: vale ${TR.value(h.lvl)}`;
   const rounds = [0, 1, 2].map(k => {
     const rw = h.rounds[k];
-    return `<div class="ronda ${rw ? 'r-' + rw : ''}"><span class="slot">${h.table.ai[k] ? naipe(h.table.ai[k], 'sm') : ''}</span><span class="rl">${k + 1}ª${rw === 'me' ? ' · vos' : rw === 'ai' ? ' · ' + esc(c.rival) : rw === 'parda' ? ' · parda' : ''}</span><span class="slot">${h.table.me[k] ? naipe(h.table.me[k], 'sm') : ''}</span></div>`;
+    return `<div class="ronda ${rw ? 'r-' + rw : ''}"><span class="slot">${h.table.ai[k] ? naipe(h.table.ai[k], 'sm' + (drop === 'ai' + k ? ' drop' : ''), '', 'span', t) : ''}</span><span class="rl">${k + 1}ª${rw === 'me' ? ' · vos' : rw === 'ai' ? ' · ' + esc(c.rival) : rw === 'parda' ? ' · parda' : ''}</span><span class="slot">${h.table.me[k] ? naipe(h.table.me[k], 'sm' + (drop === 'me' + k ? ' drop' : ''), '', 'span', t) : ''}</span></div>`;
   }).join('');
   const canPlay = !t.done && need === 'me' && !h.pend;
   let acts;
@@ -1842,15 +1945,16 @@ function vTruco(c){
       <div class="btn-row">${TR.canEnvido(t, 'me') ? '<button class="btn" data-a="tr-call" data-k="envido">Envido</button><button class="btn" data-a="tr-call" data-k="real">Real envido</button>' : ''}${TR.canTruco(t, 'me') ? `<button class="btn primary" data-a="tr-call" data-k="truco">${cap(TR.LBL[h.lvl + 1])}</button>` : ''}<button class="btn danger" data-a="tr-mazo">Al mazo</button></div>`;
   } else acts = `<div class="g-status ai">${R} está pensando…</div>`;
   if (!t.done) acts += `<div class="btn-row">${resignBtns('abandono')}</div>`;
-  return `<div class="game" role="dialog" aria-label="Partida de truco">${gameTop(c, 'Truco · a ' + t.target)}<div class="g-body">
+  return `<div class="game" role="dialog" aria-label="Partida de truco">${gameTop(c, (uy ? 'Truco uruguayo' : 'Truco') + ' · a ' + t.target)}<div class="g-body">
     <div class="g-player ai ${need === 'ai' ? 'on' : ''}">${bubble('ai')}${avatar(c.rival)}<span class="nm"><b>${R}</b><span class="small muted">${t.mano === 'ai' ? 'Es mano' : 'Es pie'}</span></span><span class="backs">${h.ai.map(() => '<span class="naipe back xs"></span>').join('')}</span></div>
     <div class="tanteador"><div class="side me"><b>Vos</b><span class="pts num">${t.pts.me}</span><span class="tally">${tally(t.pts.me)}</span></div>
       <div class="mid"><span>a ${t.target}</span><span class="pill ${h.lvl ? 'toca' : ''}">${valTxt}</span></div>
       <div class="side ai"><b>${R}</b><span class="pts num">${t.pts.ai}</span><span class="tally">${tally(t.pts.ai)}</span></div></div>
+    ${muestra}
     <div class="mesa">${rounds}</div>
     <div class="tlog">${t.log.slice(-2).map(l => `<span>${txt(l)}</span>`).join('')}</div>
-    <div class="g-player me ${need === 'me' ? 'on' : ''}">${bubble('me')}${avatar(ME)}<span class="nm"><b>Vos</b><span class="small muted">${t.mano === 'me' ? 'Sos mano' : 'Sos pie'} · tu tanto: ${TR.envido(h.orig.me)}</span></span></div>
-    <div class="hand ${canPlay ? 'mine' : ''}">${h.me.map((cd, i) => naipe(cd, '', canPlay ? `data-a="tr-play" data-i="${i}"` : 'disabled', 'button')).join('')}</div>
+    <div class="g-player me ${need === 'me' ? 'on' : ''}">${bubble('me')}${avatar(ME)}<span class="nm"><b>Vos</b><span class="small muted">${t.mano === 'me' ? 'Sos mano' : 'Sos pie'} · ${myFlor !== null ? `tenés flor (${myFlor})` : `tu tanto: ${TR.tanto(t, h.orig.me)}`}</span></span></div>
+    <div class="hand ${canPlay ? 'mine' : ''}">${h.me.map((cd, i) => naipe(cd, '', canPlay ? `data-a="tr-play" data-i="${i}"` : 'disabled', 'button', t)).join('')}</div>
     ${acts}
   </div></div>`;
 }
