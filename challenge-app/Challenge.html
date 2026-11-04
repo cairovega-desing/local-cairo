@@ -18,6 +18,7 @@
   --warn:#FFA41C; --warn-soft:#301D06;
   --demo:#BD95FF; --demo-soft:#1C1438;
   --hero-a:#1B1548; --hero-b:#0D0A22; --hero-ink:#FFFFFF; --hero-muted:#C0BDE2; --hero-line:rgba(255,255,255,.13);
+  --sq-l:#DCD7F7; --sq-d:#7B6CDB; --felt-a:#1E5E40; --felt-b:#0F3322; --felt-edge:#4A3420; --paper:#FFFDF6; --paper-2:#EEE5CE; --paper-edge:#D6CBB1;
   --g1:#2F6BFF; --g2:#7B3FF2; --g3:#00A862; --g4:#FF5A1F; --g5:#C026FF;
   --av0:#0A8FB0; --av1:#D81B63; --av2:#6A2FE0; --av3:#D95F00; --av4:#00995A; --av5:#2B5CE6;
   --glow-brand:0 0 0 1.5px var(--brand),0 0 22px -6px var(--brand);
@@ -472,6 +473,75 @@ svg{flex:none}
 .wd{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-bottom:1.5px solid var(--line)}
 .wd:last-child{border-bottom:0}
 .wd .r1{display:flex;align-items:center;justify-content:space-between;gap:10px}
+/* ---------- juegos dentro de la app ---------- */
+#game:empty{display:none}
+.game{position:absolute;inset:0;z-index:15;display:flex;flex-direction:column;background-color:var(--surface-2);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px;animation:up .2s ease-out}
+.g-top{display:flex;align-items:center;gap:10px;padding:12px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:var(--surface-2);border-bottom:1.5px solid var(--line)}
+.g-body{flex:1;overflow-y:auto;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px}
+.g-body>*{flex-shrink:0}
+.g-player{position:relative;display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1.5px solid var(--line);border-radius:6px;min-width:0}
+.g-player .nm{display:flex;flex-direction:column;min-width:0;flex:1}
+.g-player .nm b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-player.me.on{border-color:var(--brand);box-shadow:var(--glow-brand)}
+.g-player.ai.on{border-color:var(--rival);box-shadow:0 0 0 1.5px var(--rival),0 0 22px -6px var(--rival)}
+.capt{font-family:'Segoe UI Symbol','DejaVu Sans','Noto Sans Symbols 2','Apple Symbols',serif;font-size:16px;line-height:1.1;color:var(--muted);min-height:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.capt .small{font-family:var(--font-body)}
+.clock{font-family:var(--font-score);font-weight:600;font-size:34px;line-height:.8;padding:8px 10px 2px;clip-path:var(--cut-sm);background:var(--surface-3);color:var(--ink);min-width:82px;text-align:center}
+.g-player.me .clock.on{background:var(--brand);color:var(--on-brand)}
+.g-player.ai .clock.on{background:var(--rival);color:#fff}
+.clock.low{color:var(--loss)} .clock.on.low{background:var(--loss);color:#fff}
+.board{container-type:inline-size;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);width:100%;aspect-ratio:1;max-width:100%;border:3px solid var(--surface-3);box-shadow:0 0 34px -12px var(--brand)}
+.sq{position:relative;border:0;padding:0;display:grid;place-items:center;font-size:34px;font-size:10.5cqi;line-height:1;background:var(--sq-l);min-width:0;min-height:0;aspect-ratio:1;overflow:hidden}
+.sq.d{background:var(--sq-d)}
+.sq.last{background:color-mix(in srgb,var(--coin) 50%,var(--sq-l))} .sq.d.last{background:color-mix(in srgb,var(--coin) 50%,var(--sq-d))}
+.sq.chk{background:radial-gradient(circle,var(--loss) 0 38%,transparent 78%),var(--sq-l)}
+.sq.d.chk{background:radial-gradient(circle,var(--loss) 0 38%,transparent 78%),var(--sq-d)}
+.sq.sel{box-shadow:inset 0 0 0 3px var(--brand)}
+.sq.hint::before{content:"";position:absolute;width:30%;height:30%;border-radius:50%;background:rgba(10,8,30,.38)}
+.sq.hint.cap::before{width:84%;height:84%;background:none;border:4px solid rgba(10,8,30,.38);box-sizing:border-box}
+.sq .co{position:absolute;font-family:var(--font-display);font-size:9px;font-weight:700;color:rgba(10,8,30,.6);line-height:1}
+.sq .co.rn{top:2px;left:3px} .sq .co.fl{bottom:2px;right:3px}
+.pc{font-family:'Segoe UI Symbol','DejaVu Sans','Noto Sans Symbols 2','Apple Symbols',serif;position:relative;z-index:1;pointer-events:none}
+.pc.w{color:#FFFFFF;text-shadow:0 0 1px #0E0A26,1px 1px 0 #0E0A26,-1px -1px 0 #0E0A26,1px -1px 0 #0E0A26,-1px 1px 0 #0E0A26}
+.pc.b{color:#120E2A;text-shadow:0 0 1px rgba(255,255,255,.55)}
+.g-status{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.05em;text-transform:uppercase;text-align:center;color:var(--brand);min-height:20px}
+.g-status.ai{color:var(--rival)} .g-status.alert{color:var(--coin)}
+.moves{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:13px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums;min-height:18px}
+.moves span:last-child{color:var(--ink);font-weight:600}
+
+.tanteador{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:6px}
+.tanteador .side{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.tanteador .side b{font-family:var(--font-display);font-size:12px;letter-spacing:.08em;text-transform:uppercase;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tanteador .me{color:var(--brand)} .tanteador .ai{color:var(--rival)}
+.tanteador .pts{font-family:var(--font-score);font-size:40px;line-height:.75;padding-top:5px;color:var(--ink)}
+.tally{display:flex;gap:3px;min-height:22px;flex-wrap:wrap;justify-content:center}
+.tally svg{width:22px;height:22px}
+.tanteador .mid{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.mesa{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 6px;border-radius:8px;background:radial-gradient(ellipse at center,var(--felt-a) 0%,var(--felt-b) 85%);border:3px solid var(--felt-edge)}
+.ronda{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ronda .slot{width:56px;height:82px;border-radius:6px;border:1.5px dashed rgba(255,255,255,.2);display:grid;place-items:center}
+.ronda .rl{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.75);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ronda.r-me .rl{color:var(--brand)} .ronda.r-ai .rl{color:#FF8DB8} .ronda.r-parda .rl{color:var(--coin)}
+.naipe{position:relative;width:74px;height:110px;border-radius:8px;border:2px solid var(--paper-edge);background:linear-gradient(160deg,var(--paper),var(--paper-2));color:var(--suit);display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 8px 16px -8px rgba(0,0,0,.9);flex:none}
+.naipe .n{position:absolute;top:5px;left:7px;font-family:var(--font-display);font-weight:700;font-size:20px;line-height:1}
+.naipe .n2{top:auto;left:auto;bottom:5px;right:7px;transform:rotate(180deg)}
+.naipe .s{font-size:34px;line-height:1}
+.naipe.sm{width:56px;height:82px;border-radius:6px}
+.naipe.sm .n{font-size:15px;top:4px;left:5px} .naipe.sm .n2{top:auto;left:auto;bottom:4px;right:5px} .naipe.sm .s{font-size:24px}
+.naipe.xs{width:22px;height:32px;border-radius:3px;box-shadow:none}
+.naipe.back{background:repeating-linear-gradient(45deg,var(--rival) 0 4px,var(--rival-soft) 4px 8px);border-color:var(--rival)}
+.s-e{--suit:#1F5BD8} .s-b{--suit:#1E7A43} .s-o{--suit:#A66F00} .s-c{--suit:#C81E47}
+.hand{display:flex;justify-content:center;gap:10px;min-height:110px;padding-top:6px}
+button.naipe{cursor:pointer;transition:transform .12s}
+button.naipe:not([disabled]):hover,button.naipe:not([disabled]):focus-visible{transform:translateY(-8px)}
+button.naipe[disabled]{cursor:default;filter:brightness(.72)}
+.hand.mine button.naipe{box-shadow:0 0 0 2px var(--brand),0 10px 22px -8px var(--brand)}
+.bubble{position:absolute;top:-15px;left:54px;padding:5px 14px;clip-path:var(--para);background:var(--rival);color:#fff;font-family:var(--font-display);font-weight:700;font-style:italic;text-transform:uppercase;font-size:14px;z-index:2;animation:pop .25s ease-out;white-space:nowrap}
+.bubble.me{background:var(--brand);color:var(--on-brand)}
+@keyframes pop{from{transform:scale(.6)}to{transform:none}}
+.tlog{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:38px;font-size:13px;color:var(--muted);text-align:center}
+.tlog span:last-child{color:var(--ink);font-weight:600}
+.backs{display:flex;gap:4px;margin-left:auto}
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} #fx{display:none} }
 </style>
 
@@ -481,6 +551,7 @@ svg{flex:none}
     <main class="view" id="view"></main>
     <div class="foot" id="foot"></div>
     <nav class="tabs" id="tabs" aria-label="Secciones"></nav>
+    <div id="game"></div>
     <div id="sheet"></div>
     <div id="toast"></div>
     <div id="fx" aria-hidden="true"></div>
@@ -510,8 +581,8 @@ const GAMES = {
   codm:      G('Call of Duty: Mobile', 'movil', 'COD', ['1v1','5v5'], 'Celular', { tos:'?', pub:'Activision', ico:'🪖' }),
   efootball: G('eFootball', 'movil', 'eF', ['1v1'], 'Celular · consola · PC', { tos:'?', pub:'Konami', draw:true, ico:'🥅' }),
   pool8:     G('8 Ball Pool', 'movil', '8B', ['1v1'], 'Celular', { tos:'?', pub:'Miniclip', ico:'🎱' }),
-  trucoapp:  G('Truco online', 'movil', 'TR', ['1v1','2v2','3v3'], 'App de truco · celular o PC', { ico:'🃏' }),
-  lichess:   G('Ajedrez online', 'online', '♞', ['1v1'], 'Lichess · 5+3', { draw:true, auto:true, ico:'♟️' }),
+  trucoapp:  G('Truco online', 'movil', 'TR', ['1v1'], 'En la app · a 15 puntos', { auto:true, inapp:'truco', ico:'🃏' }),
+  lichess:   G('Ajedrez online', 'online', '♞', ['1v1'], 'En la app · 5+3', { draw:true, auto:true, inapp:'chess', ico:'♟️' }),
   truco:     G('Truco', 'fisico', 'TR', ['1v1','2v2','3v3'], 'Cartas españolas', { ico:'🃏' }),
   ajedrez:   G('Ajedrez presencial', 'fisico', '♜', ['1v1'], 'Tablero', { draw:true, ico:'♟️' }),
   pool:      G('Pool', 'fisico', 'PO', ['1v1','2v2'], 'Mesa de pool', { ico:'🎱' }),
@@ -520,7 +591,7 @@ const GAMES = {
   padel:     G('Pádel', 'fisico', 'PD', ['2v2'], 'Cancha de pádel', { ico:'🎾' }),
 };
 const GAME_IDS = Object.keys(GAMES);
-const gsub = g => `${GAMES[g].plat} · ${GAMES[g].auto ? 'se verifica solo' : 'reportan los dos'}`;
+const gsub = g => `${GAMES[g].plat} · ${GAMES[g].inapp ? 'resultado automático' : 'reportan los dos'}`;
 const teamSize = f => parseInt(f || '1v1', 10);
 const potOf = c => c.stake * 2 * teamSize(c.fmt);
 const fmtTag = c => c.fmt && c.fmt !== '1v1' ? ' · ' + c.fmt : '';
@@ -594,12 +665,12 @@ function seed(){
       { id:'m6', type:'bloqueo', amount:-100, ref:'c2', ts: now-40*60e3 },
     ],
     challenges: [
-      { id:'c1', game:'truco', fmt:'1v1', stake:50, rival:'caro_mate', mine:false, origin:'amigo', status:'pendiente', created: now-25*60e3, myLocked:false,
+      { id:'c1', game:'trucoapp', fmt:'1v1', stake:50, rival:'caro_mate', mine:false, origin:'amigo', status:'pendiente', created: now-25*60e3, myLocked:false,
         events:[ev(25*60e3,'@caro_mate creó el desafío y bloqueó 50 monedas')] },
       { id:'c4', game:'rocket', fmt:'2v2', stake:25, rival:'juancito', mine:false, origin:'amigo', status:'pendiente', created: now-90*60e3, myLocked:false,
         events:[ev(90*60e3,'@juancito armó un 2v2 y su equipo bloqueó 25 monedas por jugador')] },
       { id:'c2', game:'lichess', stake:100, rival:'lu_pereyra', mine:true, origin:'amigo', status:'en_juego', created: now-40*60e3, myLocked:true, lichessId:'aB3xK9Qp',
-        events:[ev(40*60e3,'Creaste el desafío y bloqueaste 100 monedas'), ev(32*60e3,'@lu_pereyra aceptó y bloqueó 100 monedas'), ev(31*60e3,'Se creó la partida aB3xK9Qp en Lichess'), ev(28*60e3,'La partida empezó')] },
+        events:[ev(40*60e3,'Creaste el desafío y bloqueaste 100 monedas'), ev(32*60e3,'@lu_pereyra aceptó y bloqueó 100 monedas'), ev(31*60e3,'Se creó la partida aB3xK9Qp en la app'), ev(28*60e3,'La partida empezó')] },
       { id:'c3', game:'fc', fmt:'1v1', stake:50, rival:'gonza_b', mine:true, origin:'amigo', status:'finalizado', created: now-3*DAY, myLocked:false, myReport:'gane', rivalReport:'perdi', result:'gane', eloDelta:16,
         events:[ev(3*DAY,'Creaste el desafío'), ev(3*DAY-600e3,'@gonza_b aceptó'), ev(3*DAY-5000e3,'Los dos reportaron: ganaste'), ev(3*DAY-5400e3,'Cobraste el pozo de 100 monedas · ELO +16')] },
     ],
@@ -608,7 +679,7 @@ function seed(){
       { ts: now-3*DAY, action:'Reportar resultado', detail:'EA Sports FC · Gané', method:'PIN de la app', device:'Chrome en Windows' },
     ],
     notifs: [
-      { id:'n1', ts: now-25*60e3, text:'@caro_mate te retó a un Truco por 50 monedas', ref:'c1', read:false },
+      { id:'n1', ts: now-25*60e3, text:'@caro_mate te retó a un Truco online por 50 monedas', ref:'c1', read:false },
       { id:'n0', ts: now-90*60e3, text:'@juancito te invitó a un 2v2 de Rocket League por 25 monedas', ref:'c4', read:false },
       { id:'n2', ts: now-32*60e3, text:'@lu_pereyra aceptó tu desafío de Ajedrez online', ref:'c2', read:true },
     ],
@@ -627,6 +698,8 @@ let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch(e){ S = seed(); }
 if (S.mm && S.mm.status === 'buscando'){ S.mm.startedAt = Date.now(); }
 if (S.draft && S.draft.step == null) S.draft.step = 0;
+// v4: el truco del ejemplo pasa a jugarse en la app
+if (!S.v4){ const c1 = S.challenges.find(c => c.id === 'c1' && c.game === 'truco' && c.status === 'pendiente'); if (c1) c1.game = 'trucoapp'; S.v4 = true; }
 if (!S.cash) S.cash = newCash();
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
 
@@ -664,7 +737,7 @@ const bountyOf = n => n >= 3 ? 50*n : 0;
 function addPoints(n, text){ S.points += n; S.pointsLog.unshift({ ts: Date.now(), amount: n, text }); }
 function assurance(c){
   const g = GAMES[c.game];
-  if (g.auto) return { lvl:'alta', pill:'finalizado', items:['Resultado verificado automáticamente con Lichess', 'Partida privada: solo pueden entrar los dos jugadores', 'El pozo se libera cuando Lichess confirma el resultado'] };
+  if (g.auto) return { lvl:'alta', pill:'finalizado', items:['Se juega dentro de Challenge: la app registra cada jugada', 'Partida privada: solo juegan ustedes dos', 'El pozo se libera solo, apenas termina la partida'] };
   if (g.cat === 'fisico') return { lvl:'media', pill:'aceptado', items:['Check-in presencial: QR de la mesa + ubicación de los dos', 'Doble reporte firmado con huella o PIN', 'Foto o video del resultado y arbitraje si no coinciden'] };
   return { lvl:'media', pill:'aceptado', items:['Doble reporte firmado con huella o PIN', 'Captura o video del resultado como evidencia', 'Arbitraje del equipo si los reportes no coinciden'] };
 }
@@ -841,7 +914,7 @@ function openNotifs(){
 /* ---------- piezas comunes ---------- */
 function statusPill(c){
   if (c.status === 'finalizado') return `<span class="pill ${c.result === 'gane' ? 'finalizado' : c.result === 'empate' ? 'aceptado' : 'en_disputa'}">${c.result === 'gane' ? 'Ganaste' : c.result === 'empate' ? 'Empate' : 'Perdiste'}</span>`;
-  if (needsMe(c)) return `<span class="pill toca">${c.status === 'pendiente' ? 'Responder' : c.status === 'aceptado' ? 'Te toca' : (c.game === 'lichess' ? 'Jugando' : 'Reportar')}</span>`;
+  if (needsMe(c)) return `<span class="pill toca">${c.status === 'pendiente' ? 'Responder' : c.status === 'aceptado' ? 'Te toca' : (inApp(c) ? 'Jugar' : 'Reportar')}</span>`;
   return `<span class="pill ${c.status}">${c.status === 'pendiente' ? 'Esperando' : STATUS[c.status]}</span>`;
 }
 function chRow(c){
@@ -976,7 +1049,7 @@ function vNuevo(){
   if (step === 0){
     body = `<h2 class="q">¿A qué juegan?</h2>
       <div class="chips scroll">${Object.entries(CATS).map(([k, l]) => `<button class="chip" data-a="d-cat" data-c="${k}" aria-pressed="${d.cat === k}"><span aria-hidden="true">${CAT_ICO[k]}</span>${l}</button>`).join('')}</div>
-      <div class="games">${games.map(g => `<button class="gcard" data-a="d-game" data-g="${g}" aria-pressed="${d.game === g}">${d.game === g ? `<span class="check">${ICONS.check}</span>` : ''}${gt(g)}<b>${GAMES[g].name}</b><span class="muted small">${GAMES[g].modes.join(' · ')}${GAMES[g].auto ? ' · se verifica solo' : ''}</span>${tosTag(g)}</button>`).join('')}</div>
+      <div class="games">${games.map(g => `<button class="gcard" data-a="d-game" data-g="${g}" aria-pressed="${d.game === g}">${d.game === g ? `<span class="check">${ICONS.check}</span>` : ''}${gt(g)}<b>${GAMES[g].name}</b><span class="muted small">${GAMES[g].modes.join(' · ')}${GAMES[g].inapp ? ' · se juega en la app' : ''}</span>${tosTag(g)}</button>`).join('')}</div>
       ${vis ? '' : '<span class="muted small">Valorant, CS2, League of Legends, Fortnite, Clash Royale y Brawl Stars no aparecen porque sus editores prohíben apostar sobre sus partidas. Se ven en el modo visión.</span>'}`;
   } else if (step === 1){
     body = `<h2 class="q">${n > 1 ? '¿Quién es el capitán rival?' : '¿A quién retás?'}</h2>
@@ -1059,12 +1132,13 @@ function vDetalle(c){
     acts = `<button class="btn danger block" data-a="withdraw">Retirar el reto</button>`;
     demo = `<div class="btn-row"><button class="btn" data-a="sim-accept">${rival} acepta</button><button class="btn" data-a="sim-reject">${rival} rechaza</button></div>`;
   } else if (c.status === 'aceptado' || c.status === 'en_juego'){
-    if (c.game === 'lichess'){
+    if (inApp(c)){
+      const chess = GAMES[c.game].inapp === 'chess', started = !!c.play;
       st = c.status === 'aceptado'
-        ? { tone:'info', eye:'Te toca', title:'La partida está lista', text:`Partida ${esc(c.lichessId)} en Lichess. Solo pueden entrar @${ME} y ${rival}. El resultado se verifica solo.` }
-        : { tone:'info', eye:'En juego', title:'Partida en curso', text:`Partida ${esc(c.lichessId)} en Lichess. Cuando termine, el resultado se toma de Lichess y se liquida solo.` };
-      acts = `<button class="btn primary block xl" data-a="lichess">Jugar en Lichess</button>`;
-      demo = `<span class="small muted">Lichess informa que la partida terminó:</span><div class="btn-row"><button class="btn" data-a="sim-lichess" data-r="gane">Ganaste</button><button class="btn" data-a="sim-lichess" data-r="perdi">Perdiste</button><button class="btn" data-a="sim-lichess" data-r="empate">Tablas</button><button class="btn" data-a="sim-lichess" data-r="anulado">Abortada</button></div>`;
+        ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text: chess ? 'Se juega acá, dentro de la app: vos con blancas, 5 minutos por lado y 3 segundos extra por jugada. El resultado queda registrado solo.' : 'Se juega acá, dentro de la app: truco 1 contra 1 a 15 puntos, con envido y truco. El resultado queda registrado solo.' }
+        : { tone:'info', eye:'En juego', title: started ? 'Partida en pausa' : 'Partida lista', text: chess ? 'Volvé al tablero cuando quieras: el reloj se frena mientras no estás.' : 'Volvé a la mesa cuando quieras: la partida te espera.' };
+      acts = `<button class="btn gold block xl" data-a="play">${started ? 'Volver a la partida' : 'Jugar ahora'}</button><span class="small muted" style="text-align:center">En la demo, a ${rival} lo maneja la computadora.</span>`;
+      demo = `<span class="small muted">Saltear la partida y simular el resultado:</span><div class="btn-row"><button class="btn" data-a="sim-lichess" data-r="gane">Ganaste</button><button class="btn" data-a="sim-lichess" data-r="perdi">Perdiste</button>${g.draw ? '<button class="btn" data-a="sim-lichess" data-r="empate">Tablas</button>' : ''}<button class="btn" data-a="sim-lichess" data-r="anulado">Abortada</button></div>`;
     } else {
       st = c.status === 'aceptado'
         ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text:`Los dos bloquearon ${fmt(c.stake)} monedas. Cuando terminen, cada uno reporta quién ganó.` }
@@ -1133,7 +1207,7 @@ function vJugar(){
   }
   return `
   <div class="vs-card">
-    <div class="vs-top">${gt('lichess', 'lg')}<span class="t"><b>Ajedrez online</b><span>Lichess · 5+3 · se verifica solo</span></span></div>
+    <div class="vs-top">${gt('lichess', 'lg')}<span class="t"><b>Ajedrez online</b><span>En la app · 5+3 · resultado automático</span></span></div>
     <div class="vs">
       <div class="who">${avatar(ME, 'lg')}<b>@${ME}</b><span class="tier ${tierOf(e)}">${tierOf(e)} ${e}</span></div>
       <div class="pot"><span class="lbl">Pozo</span><span class="big-n num">${coinSvg}${fmt(mm.stake*2)}</span><span class="lbl">comisión 0%</span></div>
@@ -1311,7 +1385,7 @@ function vInversores(){
   return `
   <div class="alert info"><b>Challenge en una frase</b><span>Duelos entre amigos con algo real en juego, y una app que hace de mediador para que lo acordado se cumpla.</span></div>
   ${block('', 'Los dos pilares', ['<b>Adrenalina:</b> pozos, duelos calientes, rachas con recompensa, temporadas con premio y revanchas.', '<b>Mediador confiable:</b> el pozo queda custodiado, cada decisión se firma, el resultado se verifica y las disputas se arbitran.'])}
-  ${block('', 'Cómo se evitan las trampas', ['Verificación automática cuando el juego tiene API (hoy: ajedrez en Lichess).', 'Check-in con QR y ubicación en partidas presenciales.', 'Doble reporte firmado con huella o PIN, más evidencia en foto o video.', 'Puntaje de confianza: quien miente pierde confianza y puede apostar menos.'])}
+  ${block('', 'Cómo se evitan las trampas', ['Partidas dentro de la app con resultado automático (hoy: ajedrez y truco online).', 'Check-in con QR y ubicación en partidas presenciales.', 'Doble reporte firmado con huella o PIN, más evidencia en foto o video.', 'Puntaje de confianza: quien miente pierde confianza y puede apostar menos.'])}
   ${block('', 'Cómo genera ingresos (hipótesis a validar)', ['Videos con recompensa.', 'Comercios aliados que pagan por aparecer en la tienda de canje.', 'Sponsors de temporadas y torneos.', 'Con licencia: comisión sobre cada pozo.'])}
   ${block('Etapa 1', 'Lanzamiento sin valor real', ['Monedas para apostar que no se compran ni se canjean.', 'Puntos canjeables que solo se ganan por actividad.', 'Solo juegos sin editor que prohíba apuestas (truco, pool, ajedrez, ping-pong, pádel).', 'Objetivo: probar que la mecánica engancha.'])}
   ${block('Etapa 2', 'Comercios y sponsors', ['Convenios reales con comercios para la tienda.', 'Temporadas con premios de sponsors.', 'Consulta formal al MEF y a la Dirección Nacional de Loterías y Quinielas.'])}
@@ -1320,6 +1394,465 @@ function vInversores(){
   ${block('', 'Qué buscamos', ['Asesoría legal en juego y tecnología.', 'Socios técnicos (móvil y backend).', 'Inversión inicial para la etapa 1 y los primeros convenios.'])}
   <button class="btn block" data-a="go-caja" data-t="depositar">${ICONS.in}Ver la caja simulada (modo visión)</button>
   <p class="muted small" style="margin:0">Demo con datos simulados. No hay dinero real ni convenios firmados con comercios.</p>`;
+}
+
+/* ---------- motor de ajedrez (vos con blancas, la computadora con negras) ---------- */
+const CH = (() => {
+  const N_OFF = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+  const K_OFF = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+  const B_DIR = [[-1,-1],[-1,1],[1,-1],[1,1]], R_DIR = [[-1,0],[1,0],[0,-1],[0,1]], Q_DIR = B_DIR.concat(R_DIR);
+  const VAL = { p:100, n:320, b:330, r:500, q:900, k:0 };
+  const PST_P = [0,0,0,0,0,0,0,0, 50,50,50,50,50,50,50,50, 10,10,20,30,30,20,10,10, 5,5,10,25,25,10,5,5, 0,0,0,20,20,0,0,0, 5,-5,-10,0,0,-10,-5,5, 5,10,10,-20,-20,10,10,5, 0,0,0,0,0,0,0,0];
+  const PST_N = [-50,-40,-30,-30,-30,-30,-40,-50, -40,-20,0,0,0,0,-20,-40, -30,0,10,15,15,10,0,-30, -30,5,15,20,20,15,5,-30, -30,0,15,20,20,15,0,-30, -30,5,10,15,15,10,5,-30, -40,-20,0,5,5,0,-20,-40, -50,-40,-30,-30,-30,-30,-40,-50];
+  const K_HOME = [20,30,10,0,0,10,30,20];
+  const ES = { k:'R', q:'D', r:'T', b:'A', n:'C', p:'' };
+  const FILES = 'abcdefgh';
+  const color = p => !p ? null : (p === p.toUpperCase() ? 'w' : 'b');
+  const on = (r, f) => r >= 0 && r < 8 && f >= 0 && f < 8;
+  const sqName = i => FILES[i & 7] + (8 - (i >> 3));
+  const kingSq = (b, c) => b.indexOf(c === 'w' ? 'K' : 'k');
+  const keyOf = st => st.b.join(',') + st.turn + st.cr + st.ep;
+
+  function init(){
+    const b = 'rnbqkbnr'.split('').concat(Array(8).fill('p'), Array(32).fill(''), Array(8).fill('P'), 'RNBQKBNR'.split(''));
+    const st = { b, turn:'w', cr:'KQkq', ep:-1, half:0, full:1, last:null, hist:[], cap:{ w:[], b:[] }, rep:{}, clock:{ w:300000, b:300000 }, result:null, reason:'' };
+    st.rep[keyOf(st)] = 1;
+    return st;
+  }
+  function attacked(b, sq, by){
+    const r = sq >> 3, f = sq & 7, W = by === 'w';
+    const pr = W ? r + 1 : r - 1, pp = W ? 'P' : 'p';
+    for (const df of [-1, 1]) if (on(pr, f + df) && b[pr*8 + f + df] === pp) return true;
+    const nn = W ? 'N' : 'n', kk = W ? 'K' : 'k';
+    for (const [dr, df] of N_OFF) if (on(r + dr, f + df) && b[(r + dr)*8 + f + df] === nn) return true;
+    for (const [dr, df] of K_OFF) if (on(r + dr, f + df) && b[(r + dr)*8 + f + df] === kk) return true;
+    const slide = (dirs, a, c) => { for (const [dr, df] of dirs){ let rr = r + dr, ff = f + df; while (on(rr, ff)){ const p = b[rr*8 + ff]; if (p){ if (p === a || p === c) return true; break; } rr += dr; ff += df; } } return false; };
+    return slide(B_DIR, W ? 'B' : 'b', W ? 'Q' : 'q') || slide(R_DIR, W ? 'R' : 'r', W ? 'Q' : 'q');
+  }
+  function pseudo(st){
+    const b = st.b, me = st.turn, opp = me === 'w' ? 'b' : 'w', out = [];
+    for (let i = 0; i < 64; i++){
+      const p = b[i]; if (!p || color(p) !== me) continue;
+      const r = i >> 3, f = i & 7, t = p.toLowerCase();
+      if (t === 'p'){
+        const dir = me === 'w' ? -1 : 1, start = me === 'w' ? 6 : 1, last = me === 'w' ? 0 : 7, r1 = r + dir;
+        if (on(r1, f) && !b[r1*8 + f]){
+          out.push({ f:i, t:r1*8 + f, promo: r1 === last });
+          if (r === start && !b[(r + 2*dir)*8 + f]) out.push({ f:i, t:(r + 2*dir)*8 + f, dbl:true });
+        }
+        for (const df of [-1, 1]){
+          if (!on(r1, f + df)) continue;
+          const tt = r1*8 + f + df;
+          if (b[tt] && color(b[tt]) === opp) out.push({ f:i, t:tt, cap:b[tt], promo: r1 === last });
+          else if (tt === st.ep) out.push({ f:i, t:tt, ep:true, cap: me === 'w' ? 'p' : 'P' });
+        }
+      } else if (t === 'n' || t === 'k'){
+        for (const [dr, df] of (t === 'n' ? N_OFF : K_OFF)){
+          if (!on(r + dr, f + df)) continue;
+          const tt = (r + dr)*8 + f + df;
+          if (!b[tt]) out.push({ f:i, t:tt }); else if (color(b[tt]) === opp) out.push({ f:i, t:tt, cap:b[tt] });
+        }
+        const home = me === 'w' ? 60 : 4;
+        if (t === 'k' && i === home && !attacked(b, home, opp)){
+          const R = me === 'w' ? 'R' : 'r';
+          if (st.cr.includes(me === 'w' ? 'K' : 'k') && !b[home+1] && !b[home+2] && b[home+3] === R && !attacked(b, home+1, opp) && !attacked(b, home+2, opp)) out.push({ f:i, t:home+2, castle:'k' });
+          if (st.cr.includes(me === 'w' ? 'Q' : 'q') && !b[home-1] && !b[home-2] && !b[home-3] && b[home-4] === R && !attacked(b, home-1, opp) && !attacked(b, home-2, opp)) out.push({ f:i, t:home-2, castle:'q' });
+        }
+      } else {
+        for (const [dr, df] of (t === 'b' ? B_DIR : t === 'r' ? R_DIR : Q_DIR)){
+          let rr = r + dr, ff = f + df;
+          while (on(rr, ff)){
+            const tt = rr*8 + ff, q = b[tt];
+            if (!q) out.push({ f:i, t:tt });
+            else { if (color(q) === opp) out.push({ f:i, t:tt, cap:q }); break; }
+            rr += dr; ff += df;
+          }
+        }
+      }
+    }
+    return out;
+  }
+  function make(st, m){
+    const b = st.b.slice(), p = b[m.f], me = st.turn;
+    b[m.t] = m.promo ? (me === 'w' ? 'Q' : 'q') : p; b[m.f] = '';
+    if (m.ep) b[m.t + (me === 'w' ? 8 : -8)] = '';
+    if (m.castle){ const home = me === 'w' ? 60 : 4; if (m.castle === 'k'){ b[home+1] = b[home+3]; b[home+3] = ''; } else { b[home-1] = b[home-4]; b[home-4] = ''; } }
+    let cr = st.cr;
+    const strip = s => { for (const ch of s) cr = cr.replace(ch, ''); };
+    if (p === 'K') strip('KQ'); if (p === 'k') strip('kq');
+    for (const sq of [m.f, m.t]){ if (sq === 63) strip('K'); if (sq === 56) strip('Q'); if (sq === 7) strip('k'); if (sq === 0) strip('q'); }
+    return { b, turn: me === 'w' ? 'b' : 'w', cr, ep: m.dbl ? (m.f + m.t) / 2 : -1, half: (p.toLowerCase() === 'p' || m.cap) ? 0 : st.half + 1, full: st.full + (me === 'b' ? 1 : 0) };
+  }
+  const inCheck = st => attacked(st.b, kingSq(st.b, st.turn), st.turn === 'w' ? 'b' : 'w');
+  const legal = st => pseudo(st).filter(m => { const n = make(st, m); return !attacked(n.b, kingSq(n.b, st.turn), n.turn); });
+  function evalW(b){
+    let s = 0;
+    for (let i = 0; i < 64; i++){
+      const p = b[i]; if (!p) continue;
+      const w = p === p.toUpperCase(), t = p.toLowerCase(), r = i >> 3, f = i & 7, ri = w ? i : (7 - r)*8 + f;
+      let v = VAL[t];
+      if (t === 'p') v += PST_P[ri];
+      else if (t === 'n') v += PST_N[ri];
+      else if (t === 'b' || t === 'q') v += 10 - 3*(Math.abs(3.5 - r) + Math.abs(3.5 - f));
+      else if (t === 'k') v += (w ? r === 7 : r === 0) ? K_HOME[f] : -20;
+      s += w ? v : -v;
+    }
+    return s;
+  }
+  const capOrder = (a, b) => (b.cap ? VAL[b.cap.toLowerCase()] : 0) - (a.cap ? VAL[a.cap.toLowerCase()] : 0);
+  function quiesce(st, alpha, beta, qd){
+    const stand = (st.turn === 'w' ? 1 : -1) * evalW(st.b);
+    if (qd === 0 || stand >= beta) return stand;
+    if (stand > alpha) alpha = stand;
+    for (const m of pseudo(st).filter(x => x.cap).sort(capOrder)){
+      const n = make(st, m);
+      if (attacked(n.b, kingSq(n.b, st.turn), n.turn)) continue;
+      const v = -quiesce(n, -beta, -alpha, qd - 1);
+      if (v >= beta) return v;
+      if (v > alpha) alpha = v;
+    }
+    return alpha;
+  }
+  function negamax(st, depth, alpha, beta, ply){
+    if (depth === 0) return quiesce(st, alpha, beta, 4);
+    const moves = legal(st);
+    if (!moves.length) return inCheck(st) ? -100000 + ply : 0;
+    moves.sort(capOrder);
+    let best = -Infinity;
+    for (const m of moves){
+      const v = -negamax(make(st, m), depth - 1, -beta, -alpha, ply + 1);
+      if (v > best) best = v;
+      if (v > alpha) alpha = v;
+      if (alpha >= beta) break;
+    }
+    return best;
+  }
+  // Más ELO del rival = piensa más y se equivoca menos
+  function best(st, elo){
+    const depth = elo >= 1250 ? 3 : 2, noise = elo < 1000 ? 70 : elo < 1150 ? 35 : 12;
+    const moves = legal(st).sort(capOrder);
+    let top = moves[0], tv = -Infinity;
+    for (const m of moves){
+      const v = -negamax(make(st, m), depth - 1, -Infinity, -(tv - noise), 1) + Math.random()*noise;
+      if (v > tv){ tv = v; top = m; }
+    }
+    return top;
+  }
+  const evalFor = (st, c) => (c === 'w' ? 1 : -1) * evalW(st.b);
+  function insufficient(b){
+    const ps = b.filter(Boolean).map(p => p.toLowerCase()).filter(p => p !== 'k');
+    return !ps.length || (ps.length === 1 && (ps[0] === 'n' || ps[0] === 'b'));
+  }
+  function play(st, m){
+    const piece = st.b[m.f].toLowerCase(), n = make(st, m);
+    const nl = legal(n), chk = inCheck(n);
+    let s = m.castle ? (m.castle === 'k' ? 'O-O' : 'O-O-O') : ES[piece] + (m.cap ? (piece === 'p' ? FILES[m.f & 7] : '') + 'x' : '') + sqName(m.t) + (m.promo ? '=D' : '');
+    if (chk) s += nl.length ? '+' : '#';
+    n.hist = st.hist.concat(s); n.last = [m.f, m.t];
+    n.cap = { w: st.cap.w.slice(), b: st.cap.b.slice() }; if (m.cap) n.cap[st.turn].push(m.cap);
+    const k = keyOf(n); n.rep = Object.assign({}, st.rep, { [k]: (st.rep[k] || 0) + 1 });
+    n.clock = Object.assign({}, st.clock); n.result = null; n.reason = '';
+    if (!nl.length){ n.result = chk ? st.turn : 'draw'; n.reason = chk ? 'Jaque mate' : 'Ahogado'; }
+    else if (n.half >= 100){ n.result = 'draw'; n.reason = 'Regla de los 50 movimientos'; }
+    else if (insufficient(n.b)){ n.result = 'draw'; n.reason = 'Material insuficiente'; }
+    else if (n.rep[k] >= 3){ n.result = 'draw'; n.reason = 'Triple repetición'; }
+    return n;
+  }
+  return { init, legal, play, best, inCheck, kingSq, color, evalFor, insufficient, sqName };
+})();
+
+/* ---------- motor de truco (1 contra 1, a 15 puntos) ---------- */
+const TR = (() => {
+  const SUIT = { e:{ name:'espada', ico:'🗡️' }, b:{ name:'basto', ico:'🪵' }, o:{ name:'oro', ico:'🪙' }, c:{ name:'copa', ico:'🏆' } };
+  const LBL = { 1:'truco', 2:'retruco', 3:'vale cuatro' };
+  const other = w => w === 'me' ? 'ai' : 'me';
+  const who = w => w === 'me' ? 'Vos' : '{R}';
+  function rank(c){
+    if (c.n === 1 && c.s === 'e') return 14; if (c.n === 1 && c.s === 'b') return 13;
+    if (c.n === 7 && c.s === 'e') return 12; if (c.n === 7 && c.s === 'o') return 11;
+    return { 3:10, 2:9, 1:8, 12:7, 11:6, 10:5, 7:4, 6:3, 5:2, 4:1 }[c.n];
+  }
+  function name(c){
+    if (c.n === 1 && (c.s === 'e' || c.s === 'b')) return 'el ancho de ' + SUIT[c.s].name;
+    return `el ${c.n} de ${SUIT[c.s].name}`;
+  }
+  const ev = c => c.n >= 10 ? 0 : c.n;
+  function envido(cards){
+    let best = Math.max(...cards.map(ev));
+    for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) if (cards[i].s === cards[j].s) best = Math.max(best, 20 + ev(cards[i]) + ev(cards[j]));
+    return best;
+  }
+  function deck(){
+    const d = [];
+    for (const s of 'eboc') for (const n of [1,2,3,4,5,6,7,10,11,12]) d.push({ n, s });
+    for (let i = d.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i + 1)); [d[i], d[j]] = [d[j], d[i]]; }
+    return d;
+  }
+  function newHand(t){
+    const d = deck();
+    t.h = { me:d.slice(0,3), ai:d.slice(3,6), orig:{ me:d.slice(0,3), ai:d.slice(3,6) }, table:{ me:[], ai:[] }, rounds:[], turn:t.mano, lvl:0, raiser:null, pend:null, env:false, over:false };
+    t.bubble = null;
+    t.log.push(`Nueva mano. ${t.mano === 'me' ? 'Sos mano' : '{R} es mano'}.`);
+  }
+  function init(){ const t = { kind:'truco', target:15, pts:{ me:0, ai:0 }, mano:'me', log:[], result:null }; newHand(t); return t; }
+  const value = lvl => lvl + 1;
+  const needs = t => (t.result || t.h.over) ? null : t.h.pend ? other(t.h.pend.by) : t.h.turn;
+  const canEnvido = (t, w) => !t.h.env && !t.h.pend && t.h.rounds.length === 0 && t.h.table[w].length === 0 && t.h.lvl === 0;
+  const canTruco = (t, w) => !t.h.pend && t.h.lvl < 3 && (t.h.raiser === null || t.h.raiser === w);
+  function handWinner(r, mano){
+    const won = x => x !== 'parda';
+    if (r.length >= 2){
+      if (won(r[0]) && r[0] === r[1]) return r[0];
+      if (!won(r[0]) && won(r[1])) return r[1];
+      if (won(r[0]) && !won(r[1])) return r[0];
+    }
+    if (r.length === 3){
+      if (won(r[2])) return r[2];
+      return won(r[0]) ? r[0] : mano;
+    }
+    return null;
+  }
+  function addPts(t, w, n){ t.pts[w] = Math.min(t.target, t.pts[w] + n); if (t.pts[w] >= t.target) t.result = w; }
+  function endHand(t, w, n, why){
+    t.h.over = true; addPts(t, w, n);
+    t.log.push(`${why} ${w === 'me' ? 'Sumás' : '{R} suma'} ${n} ${n === 1 ? 'punto' : 'puntos'}.`);
+  }
+  function call(t, w, kind){
+    const h = t.h;
+    if (kind === 'truco'){ h.pend = { type:'truco', by:w, lvl:h.lvl + 1 }; t.bubble = { who:w, text:`¡${LBL[h.lvl + 1]}!` }; t.log.push(`${who(w)} ${w === 'me' ? 'cantaste' : 'cantó'} ${LBL[h.lvl + 1]}.`); }
+    else { h.pend = { type:kind, by:w }; const l = kind === 'real' ? 'real envido' : 'envido'; t.bubble = { who:w, text:`¡${l}!` }; t.log.push(`${who(w)} ${w === 'me' ? 'cantaste' : 'cantó'} ${l}.`); }
+  }
+  function respond(t, w, ans){
+    const h = t.h, p = h.pend; if (!p) return;
+    if (p.type === 'truco'){
+      if (ans === 'quiero'){ h.lvl = p.lvl; h.raiser = w; h.pend = null; t.bubble = { who:w, text:'¡Quiero!' }; t.log.push(`${who(w)} ${w === 'me' ? 'quisiste' : 'quiso'}: la mano vale ${value(h.lvl)}.`); }
+      else if (ans === 'raise' && p.lvl < 3){ h.lvl = p.lvl; h.pend = { type:'truco', by:w, lvl:p.lvl + 1 }; t.bubble = { who:w, text:`¡Quiero ${LBL[p.lvl + 1]}!` }; t.log.push(`${who(w)} ${w === 'me' ? 'subiste' : 'subió'} a ${LBL[p.lvl + 1]}.`); }
+      else { h.pend = null; t.bubble = { who:w, text:'No quiero' }; endHand(t, p.by, p.lvl, `${who(w)} no ${w === 'me' ? 'quisiste' : 'quiso'}.`); }
+      return;
+    }
+    const pts = p.type === 'real' ? 3 : 2;
+    h.env = true; h.pend = null;
+    if (ans === 'quiero'){
+      const em = envido(h.orig.me), ea = envido(h.orig.ai);
+      const win = em > ea ? 'me' : ea > em ? 'ai' : t.mano;
+      t.bubble = { who:w, text:'¡Quiero!' };
+      t.log.push(`Tantos: vos ${em}, {R} ${ea}${em === ea ? ' (gana el mano)' : ''}.`);
+      addPts(t, win, pts);
+      t.log.push(`${win === 'me' ? 'Ganaste' : '{R} ganó'} el envido: +${pts}.`);
+    } else {
+      t.bubble = { who:w, text:'No quiero' };
+      addPts(t, p.by, 1);
+      t.log.push(`${who(w)} no ${w === 'me' ? 'quisiste' : 'quiso'} el envido: +1 para ${p.by === 'me' ? 'vos' : '{R}'}.`);
+    }
+  }
+  function playCard(t, w, i){
+    const h = t.h, c = h[w].splice(i, 1)[0];
+    h.table[w].push(c);
+    t.log.push(`${who(w)} ${w === 'me' ? 'tiraste' : 'tiró'} ${name(c)}.`);
+    if (h.table.me.length === h.table.ai.length){
+      const k = h.table.me.length - 1, a = rank(h.table.me[k]), b = rank(h.table.ai[k]);
+      const rw = a > b ? 'me' : b > a ? 'ai' : 'parda';
+      h.rounds.push(rw);
+      const hw = handWinner(h.rounds, t.mano);
+      if (hw) endHand(t, hw, value(h.lvl), `${hw === 'me' ? 'Ganaste' : '{R} ganó'} la mano.`);
+      else h.turn = rw === 'parda' ? t.mano : rw;
+    } else h.turn = other(w);
+  }
+  function mazo(t, w){ t.bubble = { who:w, text:'Me voy al mazo' }; endHand(t, other(w), value(t.h.lvl), `${who(w)} ${w === 'me' ? 'te fuiste' : 'se fue'} al mazo.`); }
+  function nextHand(t){ t.mano = other(t.mano); newHand(t); }
+
+  // Computadora: juega con reglas simples y a veces se tira un farol
+  function power(t){
+    const h = t.h, cards = h.ai;
+    if (!cards.length) return h.rounds.includes('ai') ? .6 : .2;
+    const best = Math.max(...cards.map(rank));
+    let s = .5*(cards.reduce((a, c) => a + rank(c), 0) / (cards.length*14)) + .5*(best/14);
+    if (h.rounds.includes('ai')) s += .25;
+    if (h.rounds.includes('me')) s -= .25;
+    const k = h.table.ai.length, opp = h.table.me[k];
+    if (opp && rank(opp) >= best) s -= .3;
+    return Math.max(0, Math.min(1, s));
+  }
+  function pick(t){
+    const h = t.h, k = h.table.ai.length, opp = h.table.me[k];
+    const order = h.ai.map((c, i) => ({ i, r:rank(c) })).sort((a, b) => a.r - b.r);
+    if (opp){
+      const or = rank(opp), beat = order.find(x => x.r > or);
+      if (beat) return beat.i;
+      const tie = order.find(x => x.r === or);
+      if (tie && h.rounds[0] === 'ai') return tie.i;
+      return order[0].i;
+    }
+    if (h.rounds.length === 0) return order[Math.floor(order.length / 2)].i;
+    return order[order.length - 1].i;
+  }
+  function aiStep(t){
+    const h = t.h, w = 'ai';
+    if (h.pend){
+      if (h.pend.type !== 'truco'){
+        const e = envido(h.orig.ai), need = h.pend.type === 'real' ? 28 : 25;
+        return respond(t, w, e >= need || (e >= need - 3 && Math.random() < .3) ? 'quiero' : 'no');
+      }
+      const s = power(t);
+      if (h.pend.lvl < 3 && s > .8 && Math.random() < .6) return respond(t, w, 'raise');
+      return respond(t, w, s > .45 || Math.random() < .15 ? 'quiero' : 'no');
+    }
+    if (canEnvido(t, w)){
+      const e = envido(h.orig.ai);
+      if (e >= 30 && Math.random() < .6) return call(t, w, 'real');
+      if (e >= 27 || (e >= 23 && Math.random() < .12)) return call(t, w, 'envido');
+    }
+    if (canTruco(t, w)){ const s = power(t); if ((s > .72 && Math.random() < .5) || Math.random() < .05) return call(t, w, 'truco'); }
+    playCard(t, w, pick(t));
+  }
+  return { SUIT, LBL, init, needs, canEnvido, canTruco, call, respond, playCard, mazo, nextHand, aiStep, name, rank, envido, value, handWinner };
+})();
+
+/* ---------- partidas dentro de la app ---------- */
+const inApp = c => !!GAMES[c.game].inapp && teamSize(c.fmt) === 1;
+let GAME = null, gameTimer = null, clockIv = null, clockTs = 0, chSel = null, resignAsk = false;
+const GLYPH = { k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' };
+const PIECE_ES = { k:'rey', q:'dama', r:'torre', b:'alfil', n:'caballo', p:'peón' };
+const glyph = p => GLYPH[p.toLowerCase()] + '︎';
+const fmtClock = ms => ms < 10000 ? (ms / 1000).toFixed(1) : Math.floor(ms / 60000) + ':' + String(Math.floor(ms / 1000) % 60).padStart(2, '0');
+const newPlay = c => GAMES[c.game].inapp === 'chess' ? { kind:'chess', st: CH.init() } : TR.init();
+
+function openGame(c){
+  if (!c.play) c.play = newPlay(c);
+  GAME = c.id; chSel = null; resignAsk = false; clockTs = Date.now();
+  clearInterval(clockIv);
+  if (c.play.kind === 'chess' && !c.play.done) clockIv = setInterval(tickClock, 250);
+  save(); renderGame(); pump(c);
+}
+function closeGame(){ tickClock(); clearInterval(clockIv); clearTimeout(gameTimer); GAME = null; $('game').innerHTML = ''; save(); render(); }
+const pump = c => c.play.kind === 'chess' ? chessAfter(c) : trucoPump(c);
+function finishGame(c, res, why){
+  const P = c.play; if (P.done) return;
+  P.done = true; P.final = { res, why }; resignAsk = false;
+  clearInterval(clockIv); clearTimeout(gameTimer);
+  if (c.status === 'aceptado') c.status = 'en_juego';
+  ev(c, `Partida en la app: ${why}`);
+  finalize(c, res, 'Resultado registrado por la app');
+  save(); render(); renderGame();
+}
+function tickClock(){
+  if (!GAME) return;
+  const c = find(GAME); if (!c || !c.play || c.play.kind !== 'chess' || c.play.done) return;
+  const st = c.play.st, t = Date.now();
+  st.clock[st.turn] = Math.max(0, st.clock[st.turn] - (t - clockTs)); clockTs = t;
+  for (const s of ['w', 'b']){ const el = $('clk-' + s); if (el){ el.textContent = fmtClock(st.clock[s]); el.classList.toggle('low', st.clock[s] < 30000); } }
+  if (st.clock[st.turn] === 0) finishGame(c, st.turn === 'w' ? 'perdi' : 'gane', st.turn === 'w' ? 'Se te terminó el tiempo' : `A @${c.rival} se le terminó el tiempo`);
+}
+function chessAfter(c){
+  const P = c.play; clearTimeout(gameTimer);
+  if (P.done) return;
+  if (P.st.result){ const r = P.st.result; finishGame(c, r === 'w' ? 'gane' : r === 'b' ? 'perdi' : 'empate', P.st.reason); return; }
+  if (P.st.turn !== 'b' || GAME !== c.id) return;
+  gameTimer = setTimeout(() => {
+    if (GAME !== c.id || P.done) return;
+    const m = CH.best(P.st, ratingOf(c.rival, c.game));
+    tickClock(); if (P.done) return;
+    const n = CH.play(P.st, m); n.clock.b += 3000; P.st = n;
+    save(); renderGame(); chessAfter(c);
+  }, 500);
+}
+function trucoPump(c){
+  const t = c.play; clearTimeout(gameTimer);
+  if (t.done) return;
+  if (t.result){ finishGame(c, t.result === 'me' ? 'gane' : 'perdi', `Truco ${t.pts.me} a ${t.pts.ai}`); return; }
+  if (GAME !== c.id) return;
+  if (t.h.over){ gameTimer = setTimeout(() => { if (GAME !== c.id || t.done) return; TR.nextHand(t); save(); renderGame(); trucoPump(c); }, 2000); return; }
+  if (TR.needs(t) === 'ai') gameTimer = setTimeout(() => { if (GAME !== c.id || t.done) return; TR.aiStep(t); save(); renderGame(); trucoPump(c); }, 950);
+}
+
+function renderGame(){
+  const el = $('game');
+  const c = GAME && find(GAME);
+  if (!c || !c.play){ GAME = null; el.innerHTML = ''; return; }
+  el.innerHTML = c.play.kind === 'chess' ? vChess(c) : vTruco(c);
+}
+const gameTop = (c, title) => `<header class="g-top"><button class="icon-btn" data-a="g-close" aria-label="Salir de la partida">${ICONS.back}</button><span class="top-title">${title}</span><span class="coin-chip num">${coinSvg}${fmt(potOf(c))}</span></header>`;
+function gameEnd(c){
+  const f = c.play.final, win = f.res === 'gane', draw = f.res === 'empate';
+  return `<section class="next ${win ? 'good' : draw ? 'info' : 'bad'}"><span class="eyebrow">Fin de la partida</span><span class="ttl">${win ? '¡Victoria!' : draw ? 'Tablas' : 'Derrota'}</span>
+    <p>${esc(f.why)}. ${win ? `Cobraste ${fmt(c.stake*2)} monedas.` : draw ? `Recuperaste tus ${fmt(c.stake)} monedas.` : `@${esc(c.rival)} se lleva el pozo.`}</p>
+    <button class="btn gold block xl" data-a="g-close">Volver al desafío</button></section>`;
+}
+const resignBtns = word => resignAsk
+  ? `<button class="btn danger" data-a="g-resign-yes">Sí, ${word}</button><button class="btn" data-a="g-resign-no">Seguir jugando</button>`
+  : `<button class="btn danger" data-a="g-resign">${word === 'me rindo' ? 'Rendirse' : 'Abandonar'}</button>`;
+
+function vChess(c){
+  const P = c.play, st = P.st, myTurn = !P.done && st.turn === 'w';
+  const tg = chSel !== null && myTurn ? CH.legal(st).filter(m => m.f === chSel) : [];
+  const chk = !P.done && CH.inCheck(st) ? CH.kingSq(st.b, st.turn) : -1;
+  let sq = '';
+  for (let i = 0; i < 64; i++){
+    const r = i >> 3, f = i & 7, p = st.b[i], t = tg.find(m => m.t === i);
+    const cls = ['sq', (r + f) % 2 ? 'd' : 'l', st.last && st.last.includes(i) ? 'last' : '', i === chSel ? 'sel' : '', t ? 'hint' : '', t && t.cap ? 'cap' : '', i === chk ? 'chk' : ''].filter(Boolean).join(' ');
+    const lbl = CH.sqName(i) + (p ? ', ' + PIECE_ES[p.toLowerCase()] + (CH.color(p) === 'w' ? ' blanco' : ' negro') : '');
+    sq += `<button class="${cls}" data-a="ch-sq" data-i="${i}" aria-label="${lbl}">${f === 0 ? `<span class="co rn">${8 - r}</span>` : ''}${r === 7 ? `<span class="co fl">${'abcdefgh'[f]}</span>` : ''}${p ? `<span class="pc ${CH.color(p)}">${glyph(p)}</span>` : ''}</button>`;
+  }
+  const bar = (side, u, label) => {
+    const on = !P.done && st.turn === side;
+    return `<div class="g-player ${side === 'w' ? 'me' : 'ai'} ${on ? 'on' : ''}">${avatar(u)}<span class="nm"><b>${side === 'w' ? 'Vos' : '@' + esc(u)}</b><span class="capt">${st.cap[side].length ? st.cap[side].map(glyph).join('') : `<span class="small">${label}</span>`}</span></span><span class="clock num ${on ? 'on' : ''} ${st.clock[side] < 30000 ? 'low' : ''}" id="clk-${side}">${fmtClock(st.clock[side])}</span></div>`;
+  };
+  const h = st.hist; let from = Math.max(0, h.length - 6); if (from % 2) from--;
+  let moveTxt = ''; for (let i = from; i < h.length; i += 2) moveTxt += `<span>${i / 2 + 1}. ${h[i]} ${h[i + 1] || ''}</span>`;
+  const status = myTurn ? (chk >= 0 ? '¡Jaque! Salvá a tu rey' : 'Tu turno') : `@${esc(c.rival)} está pensando…`;
+  return `<div class="game" role="dialog" aria-label="Partida de ajedrez">${gameTop(c, 'Ajedrez · 5+3')}<div class="g-body">
+    ${bar('b', c.rival, 'Juega con negras')}
+    <div class="board">${sq}</div>
+    ${bar('w', ME, 'Jugás con blancas')}
+    ${P.done ? gameEnd(c) : `<div class="g-status ${myTurn ? (chk >= 0 ? 'alert' : '') : 'ai'}">${status}</div>
+      <div class="moves">${moveTxt || 'Tocá una pieza y después la casilla adonde la querés mover.'}</div>
+      <div class="btn-row">${resignAsk ? '' : '<button class="btn" data-a="ch-draw">Ofrecer tablas</button>'}${resignBtns('me rindo')}</div>`}
+  </div></div>`;
+}
+
+const naipe = (cd, size = '', attrs = '', tag = 'span') => `<${tag} class="naipe ${size} s-${cd.s}" ${attrs} aria-label="${TR.name(cd)}"><span class="n">${cd.n}</span><span class="s" aria-hidden="true">${TR.SUIT[cd.s].ico}</span><span class="n n2" aria-hidden="true">${cd.n}</span></${tag}>`;
+function tally(n){
+  let out = '';
+  for (let g = 0; g < Math.ceil(n / 5); g++){
+    const k = Math.min(5, n - g*5);
+    out += `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">${['M4 4H20','M20 4V20','M20 20H4','M4 20V4','M4 4L20 20'].slice(0, k).map(d => `<path d="${d}"/>`).join('')}</svg>`;
+  }
+  return out;
+}
+function vTruco(c){
+  const t = c.play, h = t.h, R = '@' + esc(c.rival), need = TR.needs(t);
+  const txt = s => esc(s).replace(/\{R\}/g, R);
+  const bubble = w => t.bubble && t.bubble.who === w && !h.over ? `<span class="bubble ${w}">${esc(t.bubble.text)}</span>` : '';
+  const cap = s => s[0].toUpperCase() + s.slice(1);
+  const valTxt = h.lvl === 0 ? 'La mano vale 1' : `${cap(TR.LBL[h.lvl])}: vale ${TR.value(h.lvl)}`;
+  const rounds = [0, 1, 2].map(k => {
+    const rw = h.rounds[k];
+    return `<div class="ronda ${rw ? 'r-' + rw : ''}"><span class="slot">${h.table.ai[k] ? naipe(h.table.ai[k], 'sm') : ''}</span><span class="rl">${k + 1}ª${rw === 'me' ? ' · vos' : rw === 'ai' ? ' · ' + esc(c.rival) : rw === 'parda' ? ' · parda' : ''}</span><span class="slot">${h.table.me[k] ? naipe(h.table.me[k], 'sm') : ''}</span></div>`;
+  }).join('');
+  const canPlay = !t.done && need === 'me' && !h.pend;
+  let acts;
+  if (t.done) acts = gameEnd(c);
+  else if (h.over) acts = '<div class="g-status">Mezclando y repartiendo…</div>';
+  else if (need === 'me' && h.pend){
+    const isT = h.pend.type === 'truco';
+    acts = `<div class="g-status alert">${R} cantó ${isT ? TR.LBL[h.pend.lvl] : h.pend.type === 'real' ? 'real envido' : 'envido'}. ¿Querés?</div>
+      <div class="btn-row"><button class="btn gold" data-a="tr-resp" data-r="quiero">Quiero</button><button class="btn" data-a="tr-resp" data-r="no">No quiero</button>${isT && h.pend.lvl < 3 ? `<button class="btn primary" data-a="tr-resp" data-r="raise">Quiero ${TR.LBL[h.pend.lvl + 1]}</button>` : ''}</div>`;
+  } else if (need === 'me'){
+    acts = `<div class="g-status">Tu turno · tirá una carta o cantá</div>
+      <div class="btn-row">${TR.canEnvido(t, 'me') ? '<button class="btn" data-a="tr-call" data-k="envido">Envido</button><button class="btn" data-a="tr-call" data-k="real">Real envido</button>' : ''}${TR.canTruco(t, 'me') ? `<button class="btn primary" data-a="tr-call" data-k="truco">${cap(TR.LBL[h.lvl + 1])}</button>` : ''}<button class="btn danger" data-a="tr-mazo">Al mazo</button></div>`;
+  } else acts = `<div class="g-status ai">${R} está pensando…</div>`;
+  if (!t.done) acts += `<div class="btn-row">${resignBtns('abandono')}</div>`;
+  return `<div class="game" role="dialog" aria-label="Partida de truco">${gameTop(c, 'Truco · a ' + t.target)}<div class="g-body">
+    <div class="g-player ai ${need === 'ai' ? 'on' : ''}">${bubble('ai')}${avatar(c.rival)}<span class="nm"><b>${R}</b><span class="small muted">${t.mano === 'ai' ? 'Es mano' : 'Es pie'}</span></span><span class="backs">${h.ai.map(() => '<span class="naipe back xs"></span>').join('')}</span></div>
+    <div class="tanteador"><div class="side me"><b>Vos</b><span class="pts num">${t.pts.me}</span><span class="tally">${tally(t.pts.me)}</span></div>
+      <div class="mid"><span>a ${t.target}</span><span class="pill ${h.lvl ? 'toca' : ''}">${valTxt}</span></div>
+      <div class="side ai"><b>${R}</b><span class="pts num">${t.pts.ai}</span><span class="tally">${tally(t.pts.ai)}</span></div></div>
+    <div class="mesa">${rounds}</div>
+    <div class="tlog">${t.log.slice(-2).map(l => `<span>${txt(l)}</span>`).join('')}</div>
+    <div class="g-player me ${need === 'me' ? 'on' : ''}">${bubble('me')}${avatar(ME)}<span class="nm"><b>Vos</b><span class="small muted">${t.mano === 'me' ? 'Sos mano' : 'Sos pie'} · tu tanto: ${TR.envido(h.orig.me)}</span></span></div>
+    <div class="hand ${canPlay ? 'mine' : ''}">${h.me.map((cd, i) => naipe(cd, '', canPlay ? `data-a="tr-play" data-i="${i}"` : 'disabled', 'button')).join('')}</div>
+    ${acts}
+  </div></div>`;
 }
 
 /* ---------- render ---------- */
@@ -1375,12 +1908,12 @@ function tickMM(){
     const c = { id: uid('c'), game:'lichess', stake: mm.stake, rival: pick, mine:true, origin:'matchmaking', status:'aceptado', created: Date.now(), myLocked:true, lichessId: Math.random().toString(36).slice(2,10), events:[] };
     ev(c, `Matchmaking: te emparejamos con @${pick} (ELO ${S.players[pick].r.lichess}) en ${secs} s`);
     ev(c, `Las ${fmt(mm.stake)} monedas retenidas pasaron al pozo. @${pick} bloqueó las suyas`);
-    ev(c, `Se creó la partida ${c.lichessId} en Lichess`);
+    ev(c, `Se creó la partida ${c.lichessId} en la app`);
     // la retención de la cola pasa al escrow del desafío
     S.ledger.push({ id: uid('m'), type:'devolucion_cola', amount: mm.stake, ts: Date.now() });
     S.ledger.push({ id: uid('m'), type:'bloqueo', amount: -mm.stake, ref: c.id, ts: Date.now() });
     S.challenges.push(c);
-    notify(`Encontramos rival: @${pick}. Tu partida en Lichess está lista`, c.id);
+    notify(`Encontramos rival: @${pick}. Tu partida en la app está lista`, c.id);
     S.mm = { status:'idle', stake: mm.stake };
     toast(`¡Rival encontrado: @${pick}!`, 'good');
     S.nav = { tab:'desafios', sub:{ type:'detalle', id:c.id } };
@@ -1462,7 +1995,7 @@ function act(a, d, el){
       sign('Aceptar desafío', `${GAMES[cur.game].name} · ${fmt(cur.stake)} monedas vs @${cur.rival}`, () => {
         post('bloqueo', -cur.stake, cur.id); cur.myLocked = true; cur.status = 'aceptado';
         ev(cur, `Aceptaste y bloqueaste ${fmt(cur.stake)} monedas`);
-        if (cur.game === 'lichess'){ cur.lichessId = Math.random().toString(36).slice(2,10); ev(cur, `Se creó la partida ${cur.lichessId} en Lichess`); }
+        if (GAMES[cur.game].inapp){ cur.lichessId = Math.random().toString(36).slice(2,10); ev(cur, `Se creó la partida ${cur.lichessId} en la app`); }
         toast('Desafío aceptado', 'good');
       });
       break;
@@ -1472,14 +2005,14 @@ function act(a, d, el){
       break;
     case 'sim-accept':
       cur.status = 'aceptado'; ev(cur, `@${cur.rival} aceptó y bloqueó ${fmt(cur.stake)} monedas`);
-      if (cur.game === 'lichess'){ cur.lichessId = Math.random().toString(36).slice(2,10); ev(cur, `Se creó la partida ${cur.lichessId} en Lichess`); }
+      if (GAMES[cur.game].inapp){ cur.lichessId = Math.random().toString(36).slice(2,10); ev(cur, `Se creó la partida ${cur.lichessId} en la app`); }
       notify(`@${cur.rival} aceptó tu desafío de ${GAMES[cur.game].name}`, cur.id); save(); render(); break;
     case 'sim-reject': refundCancel(cur, `@${cur.rival} rechazó el reto`, `@${cur.rival} rechazó el reto. Recuperaste ${fmt(cur.stake)} monedas`); notify(`@${cur.rival} rechazó tu reto`, cur.id); save(); render(); break;
     case 'start': cur.status = 'en_juego'; ev(cur, 'Empezaron a jugar'); save(); render(); break;
-    case 'lichess': toast('En la app real esto abre la partida en lichess.org'); break;
     case 'sim-lichess':
-      if (cur.status === 'aceptado'){ cur.status = 'en_juego'; ev(cur, 'Lichess: la partida empezó'); }
-      finalize(cur, d.r, 'Verificado con Lichess'); save(); render(); toast(d.r === 'gane' ? `¡Ganaste ${fmt(cur.stake*2)} monedas!` : d.r === 'perdi' ? 'Perdiste esta vez' : 'Se devolvieron las monedas', d.r === 'gane' ? 'good' : ''); break;
+      if (cur.status === 'aceptado'){ cur.status = 'en_juego'; ev(cur, 'La partida empezó en la app'); }
+      if (cur.play && !cur.play.done){ cur.play.done = true; cur.play.final = { res: d.r, why: 'Resultado simulado' }; }
+      finalize(cur, d.r, 'Resultado registrado por la app'); save(); render(); toast(d.r === 'gane' ? `¡Ganaste ${fmt(cur.stake*2)} monedas!` : d.r === 'perdi' ? 'Perdiste esta vez' : 'Se devolvieron las monedas', d.r === 'gane' ? 'good' : ''); break;
     case 'report':
       sign('Reportar resultado', `${GAMES[cur.game].name} vs @${cur.rival} · ${OUT[d.r]}`, () => {
         cur.myReport = d.r; cur.status = 'resultado_reportado'; ev(cur, `Reportaste: ${OUT[d.r]}`);
@@ -1501,6 +2034,42 @@ function act(a, d, el){
     case 'sim-cancel-expire': cur.cancelReq = null; ev(cur, 'El pedido de cancelación venció sin respuesta. El desafío sigue'); save(); render(); toast('El pedido venció: el desafío sigue'); break;
 
     case 'go-admin': go({ type:'admin' }); break;
+
+    case 'play':
+      if (!cur || !inApp(cur) || !['aceptado','en_juego'].includes(cur.status)) return;
+      if (cur.status === 'aceptado'){ cur.status = 'en_juego'; ev(cur, 'La partida empezó en la app'); }
+      render(); openGame(cur); break;
+    case 'g-close': closeGame(); break;
+    case 'g-resign': resignAsk = true; renderGame(); break;
+    case 'g-resign-no': resignAsk = false; renderGame(); break;
+    case 'g-resign-yes': { const c = find(GAME); if (!c || c.play.done) return; finishGame(c, 'perdi', c.play.kind === 'chess' ? 'Te rendiste' : 'Abandonaste la partida'); break; }
+    case 'ch-sq': {
+      const c = find(GAME); if (!c) return;
+      const P = c.play, st = P.st; if (P.done || st.turn !== 'w') return;
+      const i = +d.i, moves = CH.legal(st);
+      if (chSel !== null){
+        const m = moves.find(x => x.f === chSel && x.t === i);
+        if (m){ tickClock(); if (P.done) return; const n = CH.play(P.st, m); n.clock.w += 3000; P.st = n; chSel = null; save(); renderGame(); chessAfter(c); return; }
+      }
+      chSel = st.b[i] && CH.color(st.b[i]) === 'w' && moves.some(x => x.f === i) && chSel !== i ? i : null;
+      renderGame(); break;
+    }
+    case 'ch-draw': {
+      const c = find(GAME); if (!c) return;
+      const st = c.play.st; if (c.play.done || st.turn !== 'w') return;
+      const e = CH.evalFor(st, 'b');
+      if (e < -60 || (Math.abs(e) < 40 && st.full >= 25)){ toast(`@${c.rival} aceptó las tablas`); finishGame(c, 'empate', 'Tablas de común acuerdo'); }
+      else toast(`@${c.rival} no acepta las tablas`, 'bad');
+      break;
+    }
+    case 'tr-play': { const c = find(GAME); if (!c) return; const t = c.play; if (t.done || TR.needs(t) !== 'me' || t.h.pend) return; TR.playCard(t, 'me', +d.i); save(); renderGame(); trucoPump(c); break; }
+    case 'tr-call': {
+      const c = find(GAME); if (!c) return; const t = c.play;
+      if (t.done || TR.needs(t) !== 'me' || (d.k === 'truco' ? !TR.canTruco(t, 'me') : !TR.canEnvido(t, 'me'))) return;
+      TR.call(t, 'me', d.k); save(); renderGame(); trucoPump(c); break;
+    }
+    case 'tr-resp': { const c = find(GAME); if (!c) return; const t = c.play; if (t.done || !t.h.pend || t.h.pend.by !== 'ai') return; TR.respond(t, 'me', d.r); save(); renderGame(); trucoPump(c); break; }
+    case 'tr-mazo': { const c = find(GAME); if (!c) return; const t = c.play; if (t.done || TR.needs(t) !== 'me' || t.h.pend) return; TR.mazo(t, 'me'); save(); renderGame(); trucoPump(c); break; }
     case 'resolve': {
       const c = find(d.id);
       const label = d.r === 'gane' ? `Gana @${ME}` : d.r === 'perdi' ? `Gana @${c.rival}` : 'Devolver a los dos';
