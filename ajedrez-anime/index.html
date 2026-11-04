@@ -1,0 +1,1065 @@
+<title>Ajedrez Anime</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Noto+Sans+Symbols+2&display=swap">
+<style>
+/* Layout: el tablero manda a la izquierda; el panel de mando (Ki, habilidades, registro) a la derecha. En celular se apilan. */
+:root{
+  --bg:#eceef6; --panel:#ffffff; --panel-2:#f4f5fb; --ink:#1a1b2e; --muted:#5b5f7e; --line:#d5d8e8;
+  --accent:#e2336b; --accent-ink:#ffffff; --ki:#0e9bbd; --gold:#b47c0b; --danger:#cf3329; --ok:#1d9a60;
+  --sq-l:#e3e5f2; --sq-d:#8a92c4; --sq-hl:rgba(226,51,107,.30); --sq-sel:rgba(14,155,189,.38);
+  --w-fill:#fffdf6; --w-edge:#23203a; --b-fill:#25213b; --b-edge:#f3f0ff; --dark-glow:#8b4fe2;
+  --font-display:'Dela Gothic One','Arial Black',system-ui,sans-serif;
+  --font-body:'Zen Kaku Gothic New',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-piece:'Noto Sans Symbols 2','Segoe UI Symbol','Apple Symbols','DejaVu Sans',serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11121c; --panel:#1a1b2b; --panel-2:#222338; --ink:#ecebf6; --muted:#9d9fbb; --line:#2f3149;
+  --accent:#ff5b8e; --accent-ink:#1b0711; --ki:#38c9ea; --gold:#e5ae3b; --danger:#ff6a5f; --ok:#46c98b;
+  --sq-l:#3b4066; --sq-d:#262a47; --sq-hl:rgba(255,91,142,.34); --sq-sel:rgba(56,201,234,.36); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#11121c; --panel:#1a1b2b; --panel-2:#222338; --ink:#ecebf6; --muted:#9d9fbb; --line:#2f3149;
+  --accent:#ff5b8e; --accent-ink:#1b0711; --ki:#38c9ea; --gold:#e5ae3b; --danger:#ff6a5f; --ok:#46c98b;
+  --sq-l:#3b4066; --sq-d:#262a47; --sq-hl:rgba(255,91,142,.34); --sq-sel:rgba(56,201,234,.36); color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ki);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+#app{max-width:1080px;margin:0 auto}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0}
+.btn{border:2px solid var(--ink);background:var(--panel);border-radius:10px;padding:10px 16px;font-weight:700}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.small{padding:6px 10px;font-size:13px;border-width:1.5px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.muted{color:var(--muted)}
+.tagk{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:1px 7px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.k-activa{color:var(--ki)} .k-reaccion{color:var(--accent)} .k-pasiva{color:var(--muted)} .k-definitiva{color:var(--gold)} .k-especial{color:var(--muted)}
+.kicost{font-weight:700;font-variant-numeric:tabular-nums;color:var(--ki);white-space:nowrap}
+
+/* Inicio */
+.start{display:grid;gap:28px;padding-top:12px}
+.start h1{font-family:var(--font-display);font-size:clamp(40px,9vw,76px);line-height:1;letter-spacing:-.01em}
+.start h1 span{color:var(--accent)}
+.lede{font-size:17px;max-width:62ch;margin:10px 0 0}
+.toggle{display:flex;gap:10px;align-items:flex-start;max-width:60ch;font-size:14px}
+.toggle input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent)}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.rule{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
+.rule h3{font-size:15px;margin-bottom:6px}
+.rule ul{margin:0;padding-left:18px}
+.rule li{margin:3px 0}
+
+/* Elección */
+.draft{display:grid;gap:22px}
+.draft h1{font-family:var(--font-display);font-size:clamp(26px,5vw,40px);line-height:1.1}
+.draft h2{font-size:18px;margin-bottom:10px}
+.sect{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.nobles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.ncard{text-align:left;border:2px solid var(--line);background:var(--panel-2);border-radius:12px;padding:12px}
+.ncard.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--sq-hl)}
+.ncard b{font-family:var(--font-display);font-weight:400;font-size:20px;display:block}
+.mini{display:grid;grid-template-columns:repeat(8,1fr);max-width:420px;border:2px solid var(--ink);border-radius:6px;overflow:hidden;container-type:inline-size}
+.mini button{aspect-ratio:1;border:0;position:relative;display:grid;place-items:center;padding:0}
+.ptype{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.ptype:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.ptype-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:8px}
+.ptype-h h3{font-size:16px}
+.count{font-variant-numeric:tabular-nums;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line)}
+.count.full{background:var(--ok);border-color:var(--ok);color:#fff}
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.acard{text-align:left;border:2px solid var(--line);background:var(--panel-2);border-radius:10px;padding:10px 12px;display:grid;gap:4px;min-width:0}
+.acard.on{border-color:var(--accent);background:var(--panel);box-shadow:0 0 0 3px var(--sq-hl)}
+.acard.off{opacity:.5}
+.acard .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.acard .top b{flex:1 1 auto}
+.acard p{margin:0;font-size:13px;color:var(--muted)}
+.dfoot{position:sticky;bottom:0;background:var(--bg);border-top:2px solid var(--ink);padding:12px 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;z-index:5}
+
+/* Revelación */
+.reveal{display:grid;gap:18px}
+.reveal h1{font-family:var(--font-display);font-size:clamp(26px,5vw,40px)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.army h2{font-family:var(--font-display);font-weight:400;font-size:22px;margin-bottom:6px}
+.army dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.army dt{font-weight:700}
+.army dd{margin:0;color:var(--muted)}
+
+/* Partida */
+.bar{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:14px}
+.sidebox{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:8px 12px;min-width:0}
+.sidebox.now{border-color:var(--accent)}
+.sidebox.b{text-align:right}
+.sidebox .nm{font-weight:700;font-size:14px}
+.pips{display:flex;gap:3px;margin-top:4px;align-items:center}
+.sidebox.b .pips{justify-content:flex-end}
+.pips i{width:9px;height:14px;border-radius:2px;background:var(--line);display:block}
+.pips i.on{background:var(--ki)}
+.pips span{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ki);margin:0 4px;font-size:13px}
+.turnchip{font-family:var(--font-display);font-size:14px;text-align:center;line-height:1.2}
+.turnchip small{display:block;font-family:var(--font-body);font-size:12px;color:var(--muted)}
+.main{display:grid;grid-template-columns:minmax(0,600px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:880px){.main{grid-template-columns:minmax(0,1fr)}}
+.boardwrap{min-width:0}
+.board{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;width:100%;max-width:600px;border:3px solid var(--ink);border-radius:6px;overflow:hidden;container-type:inline-size;touch-action:manipulation}
+.sq{position:relative;border:0;padding:0;display:grid;place-items:center;aspect-ratio:1;overflow:hidden}
+.sq.l,.mini .l{background:var(--sq-l)} .sq.d,.mini .d{background:var(--sq-d)}
+.sq.last{background-image:linear-gradient(var(--sq-hl),var(--sq-hl))}
+.sq.sel{background-image:linear-gradient(var(--sq-sel),var(--sq-sel))}
+.sq.picked{background-image:linear-gradient(var(--sq-sel),var(--sq-sel));box-shadow:inset 0 0 0 3px var(--ki)}
+.sq.check{background-image:radial-gradient(circle,var(--danger) 0,transparent 72%)}
+.sq.prot{box-shadow:inset 0 0 0 3px var(--ki)}
+.sq.sac::before{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 3px var(--gold);background:radial-gradient(circle,rgba(229,174,59,.32),transparent 70%)}
+.sq.trap::before{content:"";position:absolute;inset:7%;border:2px dashed var(--accent);border-radius:4px}
+.sq.wall{background:repeating-linear-gradient(0deg,#7a7468 0 22%,#5d584f 22% 25%),#7a7468}
+.sq.wall::after{content:"MURO";position:absolute;font:700 2cqw/1 var(--font-body);color:#fff;letter-spacing:.06em}
+.sq.mv::after{content:"";position:absolute;width:26%;height:26%;border-radius:50%;background:var(--accent);opacity:.8}
+.sq.cp::after{content:"";position:absolute;inset:5%;border-radius:50%;border:3px solid var(--accent)}
+.sq.ab::after{content:"";position:absolute;inset:8%;border-radius:8px;border:3px solid var(--ki);background:rgba(56,201,234,.16)}
+.coord{position:absolute;font:700 1.7cqw/1 var(--font-body);color:var(--ink);opacity:.55;pointer-events:none}
+.coord.f{right:3px;bottom:2px} .coord.r{left:3px;top:2px}
+.pc{font-family:var(--font-piece);font-size:9.6cqw;line-height:1;pointer-events:none;position:relative;z-index:1}
+.pw{color:var(--w-fill);text-shadow:1px 0 0 var(--w-edge),-1px 0 0 var(--w-edge),0 1px 0 var(--w-edge),0 -1px 0 var(--w-edge),1px 1px 0 var(--w-edge),-1px -1px 0 var(--w-edge),1px -1px 0 var(--w-edge),-1px 1px 0 var(--w-edge)}
+.pb{color:var(--b-fill);text-shadow:1px 0 0 var(--b-edge),-1px 0 0 var(--b-edge),0 1px 0 var(--b-edge),0 -1px 0 var(--b-edge),1px 1px 0 var(--b-edge),-1px -1px 0 var(--b-edge),1px -1px 0 var(--b-edge),-1px 1px 0 var(--b-edge)}
+.pc.dark{filter:drop-shadow(0 0 .6cqw var(--dark-glow)) drop-shadow(0 0 .3cqw var(--dark-glow))}
+.pc.ilu{opacity:.55}
+.pc.jk{font-family:var(--font-display);font-size:6.4cqw}
+.tag{position:absolute;right:1px;bottom:1px;font:700 1.75cqw/1 var(--font-body);padding:.3cqw .5cqw;border-radius:.6cqw;background:var(--ink);color:var(--bg);z-index:2;pointer-events:none;letter-spacing:.02em}
+.tag.tn{background:var(--accent);color:var(--accent-ink)}
+.tag.tj{background:#7d3fd6;color:#fff}
+.tag.tk{background:var(--gold);color:#1b1400}
+.tag.tf{background:var(--danger);color:#fff}
+.tag.to{background:var(--dark-glow);color:#fff}
+.sts{position:absolute;left:1px;top:1px;display:flex;gap:1px;z-index:2;pointer-events:none}
+.sts i{font:700 1.75cqw/1 var(--font-body);font-style:normal;padding:.3cqw .45cqw;border-radius:.5cqw;color:#fff}
+.s-a{background:#d38a07} .s-m{background:#555a72} .s-e{background:#e2336b} .s-d{background:#b3261e} .s-c{background:#0e9bbd}
+.captured{display:flex;flex-wrap:wrap;gap:2px 6px;margin-top:10px;font-size:13px;align-items:center}
+.captured .pc{font-size:20px}
+.panel{display:grid;gap:12px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.card h3{font-size:16px;margin-bottom:6px}
+.card.alert{border:2px solid var(--accent)}
+.card.choice{border:2px solid var(--ki)}
+.abl{display:grid;gap:8px;margin-top:10px}
+.ab{display:grid;gap:4px;border:1.5px solid var(--line);background:var(--panel-2);border-radius:10px;padding:10px 12px;text-align:left;width:100%}
+.ab .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ab .top b{flex:1 1 auto}
+.ab p{margin:0;font-size:13px;color:var(--muted)}
+.ab.go{border-color:var(--ki)}
+.ab.go:hover{background:var(--panel)}
+.ab .why{font-size:12px;font-weight:700;color:var(--muted)}
+.ab .ok{font-size:12px;font-weight:700;color:var(--ki)}
+.log{max-height:280px;overflow:auto;margin:0;padding:0;list-style:none;font-size:13px;display:grid;gap:4px}
+.log li{border-left:3px solid var(--line);padding-left:8px}
+.log li.alerta{border-left-color:var(--accent);font-weight:500}
+.log .pl{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:4px}
+.choices{display:grid;gap:8px;margin-top:8px}
+
+/* Telón entre turnos */
+.curtain{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;
+  padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow:auto}
+.curtain .in{max-width:520px;width:100%;display:grid;gap:16px;text-align:center}
+.curtain h2{font-family:var(--font-display);font-size:clamp(30px,7vw,48px);line-height:1.05}
+.curtain ul{text-align:left;margin:0;padding:12px 14px 12px 30px;background:var(--panel);border:1px solid var(--line);border-radius:12px;font-size:14px}
+.curtain .btn{justify-self:center;font-size:17px;padding:14px 22px}
+.stamp{justify-self:center;width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-family:var(--font-piece);font-size:56px;border:3px solid var(--ink)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:60;font-weight:700;max-width:90vw}
+@media (prefers-reduced-motion:no-preference){.sq{transition:background-color .12s}}
+</style>
+
+<div id="app"></div>
+
+<script id="engine">
+'use strict';
+/* =====================================================================
+   AJEDREZ ANIME — motor de reglas (sin interfaz)
+   ===================================================================== */
+const FILES='abcdefgh';
+const rk=sq=>sq>>3, fl=sq=>sq&7;
+function sqAt(r,f){return (r<0||r>7||f<0||f>7)?-1:r*8+f;}
+function step(sq,dr,df){return sq<0?-1:sqAt(rk(sq)+dr,fl(sq)+df);}
+function sqName(sq){return sq<0?'—':FILES[fl(sq)]+(rk(sq)+1);}
+const opp=x=>x==='w'?'b':'w';
+const fwd=x=>x==='w'?1:-1;
+const rel=(side,sq)=>side==='w'?rk(sq):7-rk(sq);
+const cheb=(a,b)=>Math.max(Math.abs(rk(a)-rk(b)),Math.abs(fl(a)-fl(b)));
+const ORTH=[[1,0],[-1,0],[0,1],[0,-1]],DIAG=[[1,1],[1,-1],[-1,1],[-1,-1]],ALL8=ORTH.concat(DIAG);
+const KN=[[1,2],[2,1],[2,-1],[1,-2],[-1,-2],[-2,-1],[-2,1],[-1,2]];
+const SIDE_NAME={w:'Blancas',b:'Negras'};
+const TYPE_NAME={K:'Rey',P:'Peón',D:'Peón Oscuro',N:'Caballo',B:'Alfil',R:'Torre',J:'Joker',PRS:'Princesa',PRN:'Príncipe',REN:'Renegado'};
+const VALUE={P:1,D:2,N:3,B:3,J:4,R:5,PRS:8,PRN:8,REN:8,K:99};
+const NOBLES=['PRS','PRN','REN'];
+const NOBLE_INFO={
+  PRS:{mov:'Como la reina, pero máximo 4 casillas',estilo:'Control y soporte mágico'},
+  PRN:{mov:'Como torre o como caballo',estilo:'Guerrero y líder'},
+  REN:{mov:'Como alfil o como caballo',estilo:'Lobo solitario, traición'}};
+const KIND_NAME={activa:'Activa',reaccion:'Reacción',pasiva:'Pasiva',definitiva:'Definitiva',especial:'Especial'};
+const PIECE_ABILS={
+  P:['ultimo','falange','carga','golpe','instinto','despertar'],
+  N:['doble','embestida','relincho','fantasma','cargacab','salto'],
+  B:['barrera','sombra','ojo','purificar','suelo','resurreccion'],
+  R:['muralla','canon','fortaleza','refugio','enroquedist','terremoto'],
+  K:['llamado','transmig','aura','tesoro','mirada','proclama','furia'],
+  PRS:['orden','encanto','escudo','plegaria','teleport','renacer'],
+  PRN:['tajo','duelo','avance','inspirar','contra','ascension'],
+  REN:['botin','sinbandera','golpebajo','sacrificio','esquiva','traicion'],
+  J:['disfraz','trampa','trile','imitacion','risa','comodin'],
+  D:['rastrera','drenaje','corrupcion','sombradoble','maldicion','coronacion']};
+const RECOMENDADAS={P:['ultimo','carga','despertar'],N:['doble','embestida','salto'],B:['barrera','ojo','resurreccion'],
+  R:['muralla','canon','fortaleza'],K:['llamado','aura','tesoro'],PRS:['encanto','escudo','teleport'],
+  PRN:['tajo','avance','contra'],REN:['botin','golpebajo','esquiva'],J:['disfraz','trampa','risa'],D:['rastrera','corrupcion','maldicion']};
+const ILLEGAL={illegal:true};
+const A={};
+function def(id,o){A[id]=Object.assign({id},o);}
+
+/* ---------- utilidades de tablero ---------- */
+const pieceAt=(s,sq)=>{if(sq<0)return null;const id=s.board[sq];return id==null?null:s.pieces[id];};
+const isWall=(s,sq)=>s.walls.some(w=>w.sq===sq);
+const freeSq=(s,sq)=>sq>=0&&s.board[sq]==null&&!isWall(s,sq);
+function onBoard(s,side){const o=[];for(const id in s.pieces){const p=s.pieces[id];if(!p.dead&&p.sq>=0&&(!side||p.side===side))o.push(p);}return o;}
+function adj(sq,dirs){const o=[];for(const [dr,df] of dirs){const t=step(sq,dr,df);if(t>=0)o.push({sq:t,dr,df});}return o;}
+function lineFirst(s,sq,dirs,maxr=8){const o=[];for(const [dr,df] of dirs){let t=sq;for(let i=0;i<maxr;i++){t=step(t,dr,df);if(t<0||isWall(s,t))break;const q=pieceAt(s,t);if(q){o.push(q);break;}}}return o;}
+function putAt(s,p,to){if(p.sq>=0&&s.board[p.sq]===p.id)s.board[p.sq]=null;p.sq=to;s.board[to]=p.id;}
+function swapPieces(s,a,b){const sa=a.sq,sb=b.sq;s.board[sa]=b.id;s.board[sb]=a.id;a.sq=sb;b.sq=sa;}
+function removePiece(s,p){if(p.sq>=0&&s.board[p.sq]===p.id)s.board[p.sq]=null;delete s.pieces[p.id];}
+function trueKing(s,side){for(const id in s.pieces){const p=s.pieces[id];if(p.type==='K'&&p.side===side&&!p.dead)return p;}return null;}
+function apparentType(p){
+  if(p.illusion)return 'D';
+  if(p.type==='J'&&!p.revealed)return p.disguise;
+  if(p.type==='K'&&p.mimic)return p.mimic;
+  if(p.fakeKing)return 'K';
+  return p.type;}
+function apparentKing(s,side){return onBoard(s,side).find(p=>apparentType(p)==='K')||null;}
+const isPawnLike=p=>['P','D'].includes(apparentType(p));
+function realName(p){
+  if(p.illusion)return 'Ilusión';
+  if(p.type==='J'&&!p.revealed)return `Joker (como ${TYPE_NAME[p.disguise]})`;
+  if(p.type==='K'&&p.mimic)return `Rey (como ${TYPE_NAME[p.mimic]})`;
+  if(p.fakeKing)return `${TYPE_NAME[p.type]} (rey falso)`;
+  return TYPE_NAME[p.type];}
+function nm(s,p,v){return ((v==='all'||v===p.side)?realName(p):TYPE_NAME[apparentType(p)])+' '+sqName(p.sq);}
+function L(ctx,fn,kind){if(ctx.sim)return;ctx.logs.push({w:fn('w'),b:fn('b'),kind:kind||''});}
+function ownerTurnPly(s,side,n){return (s.turn===side?s.ply+2:s.ply+1)+2*(n-1);}
+
+/* ---------- estados ---------- */
+function stun(s,p,n){p.stunUntil=Math.max(p.stunUntil,ownerTurnPly(s,p.side,n));}
+function hasControl(s,p){return p.stunUntil>=s.ply||p.silenceUntil>=s.ply||!!(p.charm&&p.charm.until>=s.ply)||!!(p.duel&&p.duel.until>=s.ply);}
+function clearControl(p){p.stunUntil=-1;p.silenceUntil=-1;p.charm=null;p.duel=null;}
+function statusFree(s,p){return !hasControl(s,p)&&!(p.protectUntil>=s.ply)&&!p.cargo&&!p.silencedForever;}
+
+/* ---------- habilidades de cada pieza ---------- */
+function abilList(s,p){if(p.illusion||p.fakeKing)return [];if(p.abil)return p.abil;return s.loadout[p.side][p.type]||RECOMENDADAS[p.type]||[];}
+function usable(s,p){
+  const o=abilList(s,p).map(id=>({id,borrowed:false}));
+  if(p.type==='J'&&!p.revealed&&o.some(x=>x.id==='disfraz')){
+    for(const id of (s.loadout[p.side][p.disguise]||[]))
+      if(A[id].kind!=='definitiva'&&!o.some(x=>x.id===id))o.push({id,borrowed:true});}
+  return o;}
+const hasAbil=(s,p,id)=>usable(s,p).some(x=>x.id===id);
+function onEnemySacred(s,p){
+  if(!s.sacred.some(x=>x.sq===p.sq&&x.side!==p.side))return false;
+  return !hasAbil(s,p,'fantasma');}
+function canUseAbil(s,p){
+  if(p.illusion||p.silencedForever||p.silenceUntil>=s.ply)return false;
+  return !onEnemySacred(s,p);}
+const hasPassive=(s,p,id)=>hasAbil(s,p,id)&&canUseAbil(s,p);
+const immuneStun=(s,p)=>p.type==='REN'&&hasPassive(s,p,'sinbandera');
+function falangeOn(s,p){
+  if(!hasPassive(s,p,'falange'))return false;
+  return [-1,1].some(df=>{const q=pieceAt(s,step(p.sq,0,df));return q&&q.side===p.side&&isPawnLike(q);});}
+function auraNear(s,p){
+  const k=trueKing(s,p.side);
+  if(!k||k.sq<0||k.id===p.id||s.camo[p.side])return false;
+  return hasPassive(s,k,'aura')&&cheb(k.sq,p.sq)===1;}
+function costOf(s,p,id){let c=A[id].ki;if(c>0&&auraNear(s,p))c=Math.max(1,c-1);return c;}
+
+/* ---------- movimiento ---------- */
+function moveKind(s,p){
+  let t,range=8;
+  if(p.illusion)t='P';
+  else if(p.type==='K')t=p.mimic||'K';
+  else if(p.fakeKing)t='K';
+  else if(p.type==='J'){
+    if(!p.revealed)t=p.disguise;
+    else{let lm=s.lastMoved[opp(p.side)];if(!lm||lm==='J')lm=p.disguise||'N';t=lm;if(lm==='K'||NOBLES.includes(lm))range=3;}
+  }else t=p.type;
+  return {t,range};}
+function genMoves(s,p,attacksOnly){
+  const o=[],from=p.sq,{t,range}=moveKind(s,p);
+  const slide=(dirs,maxr)=>{for(const [dr,df] of dirs){let sq=from;for(let i=0;i<maxr;i++){sq=step(sq,dr,df);if(sq<0||isWall(s,sq))break;const q=pieceAt(s,sq);if(q){if(q.side!==p.side)o.push({to:sq,cap:q.id});break;}if(!attacksOnly)o.push({to:sq,cap:null});}}};
+  const jumps=()=>{const ghost=hasPassive(s,p,'fantasma');for(const [dr,df] of KN){const sq=step(from,dr,df);if(sq<0)continue;if(isWall(s,sq)&&!ghost)continue;const q=pieceAt(s,sq);if(q){if(q.side!==p.side)o.push({to:sq,cap:q.id});}else if(!attacksOnly)o.push({to:sq,cap:null});}};
+  switch(t){
+    case 'K':slide(ALL8,1);break;
+    case 'N':jumps();break;
+    case 'B':slide(DIAG,range);break;
+    case 'R':slide(ORTH,range);break;
+    case 'PRS':slide(ALL8,Math.min(4,range));break;
+    case 'PRN':slide(ORTH,range);jumps();if(p.ascended)slide(DIAG,range);break;
+    case 'REN':slide(DIAG,range);jumps();break;
+    case 'P':case 'D':{
+      const d=fwd(p.side);
+      if(!p.illusion)for(const df of [-1,1]){const sq=step(from,d,df);if(sq<0||isWall(s,sq))continue;const q=pieceAt(s,sq);
+        if(q){if(q.side!==p.side)o.push({to:sq,cap:q.id});}
+        else if(!attacksOnly&&s.ep&&s.ep.ply===s.ply-1&&s.ep.sq===sq){const v=s.pieces[s.ep.pid];if(v&&!v.dead&&v.side!==p.side)o.push({to:sq,cap:v.id,ep:true});}}
+      if(!attacksOnly){
+        const a=step(from,d,0);
+        if(a>=0&&freeSq(s,a)){o.push({to:a,cap:null});const b=step(a,d,0);if(rel(p.side,from)===1&&b>=0&&freeSq(s,b))o.push({to:b,cap:null,dbl:a});}
+        if(p.type==='D'&&hasPassive(s,p,'rastrera')){const c=step(from,-d,0);if(c>=0&&freeSq(s,c)&&rel(p.side,c)!==0)o.push({to:c,cap:null});}}
+      break;}
+  }
+  return o;}
+function captureAllowed(s,att,tgt){
+  if(tgt.type==='K')return false;
+  if(tgt.protectUntil>=s.ply)return false;
+  if(att.charm&&att.charm.until>=s.ply&&att.charm.by===tgt.id)return false;
+  return true;}
+function attackedBy(s,sq,side,atPly){
+  if(atPly==null)atPly=s.turn===side?s.ply+2:s.ply+1;
+  for(const p of onBoard(s,side)){
+    if(p.illusion||p.stunUntil>=atPly)continue;
+    if(p.duel&&p.duel.until>=atPly)continue;
+    for(const m of genMoves(s,p,true))if(m.to===sq)return true;}
+  return false;}
+function inCheck(s,side){const k=trueKing(s,side);return !!k&&k.sq>=0&&attackedBy(s,k.sq,opp(side));}
+function promoOptions(s,p,to){
+  const {t}=moveKind(s,p);
+  if(!(t==='P'||t==='D')||rel(p.side,to)!==7)return null;
+  if(p.illusion||p.type==='K')return null;
+  if(p.type==='J')return p.revealed?null:['N','B','R'];
+  if(p.type==='D'&&hasAbil(s,p,'coronacion')&&canUseAbil(s,p)&&!p.usedUlt)return ['N','B','R','PRS','PRN','REN'];
+  return ['N','B','R',s.noble[p.side]];}
+function promote(s,p,t){if(p.type==='J'){p.disguise=t;return;}p.type=t;p.usedUlt=true;p.abil=null;}
+function castles(s,k){
+  if(k.moved||s.camo[k.side]||k.mimic)return [];
+  const r=k.side==='w'?0:7;if(k.sq!==sqAt(r,4))return [];
+  if(inCheck(s,k.side))return [];
+  const o=[];
+  for(const [rf,kt,rt,between] of [[7,6,5,[5,6]],[0,2,3,[1,2,3]]]){
+    const rook=pieceAt(s,sqAt(r,rf));
+    if(!rook||rook.side!==k.side||rook.moved||rook.illusion||rook.fakeKing||apparentType(rook)!=='R'||rook.stunUntil>=s.ply)continue;
+    if(!between.every(f=>freeSq(s,sqAt(r,f))))continue;
+    const w=structuredClone(s);putAt(w,w.pieces[k.id],sqAt(r,rt));if(inCheck(w,k.side))continue;
+    o.push({kind:'move',pid:k.id,from:k.sq,to:sqAt(r,kt),cap:null,castle:{rid:rook.id,to:sqAt(r,rt)}});}
+  return o;}
+
+/* ---------- camuflaje y revelaciones ---------- */
+function endCamo(s,side){const c=s.camo[side];if(!c)return;const k=s.pieces[c.king];if(k)k.mimic=null;const f=s.pieces[c.fake];if(f)f.fakeKing=false;s.camo[side]=null;}
+function reveal(s,p){if(!p)return;if(p.type==='J')p.revealed=true;if((p.type==='K'&&p.mimic)||p.fakeKing)endCamo(s,p.side);}
+function revealJ(s,p,ctx){if(p.type==='J'&&!p.revealed){p.revealed=true;L(ctx,v=>v===p.side?'Tu Joker se revela.':`¡Era el Joker! (${sqName(p.sq)})`,'alerta');}}
+function enemyOK(s,c,t,o={}){
+  if(!t||t.side===c.side)return false;
+  const at=apparentType(t);
+  if(at==='K'&&!o.allowKing)return false;
+  if(o.maxVal!=null&&VALUE[at]>o.maxVal)return false;
+  if(falangeOn(s,t))return false;
+  if(o.control&&t.type==='REN'&&hasPassive(s,t,'sinbandera'))return false;
+  if(o.capture&&(t.protectUntil>=s.ply||(c.charm&&c.charm.until>=s.ply&&c.charm.by===t.id)))return false;
+  return true;}
+function resolveT(s,c,t,o,ctx){
+  if(t.illusion){removePiece(s,t);L(ctx,v=>v===t.side?'Tocaron tu ilusión y se desvaneció.':'¡Era una ilusión! Se desvaneció.','alerta');return false;}
+  if(ctx.sim)return true;
+  const badKing=t.type==='K',badVal=o.maxVal!=null&&VALUE[t.type]>o.maxVal;
+  if(badKing||badVal){
+    const id=t.id,side=t.side,isKing=badKing;
+    throw {cancel:true,log:{
+      [c.side]:isKing?'¡La habilidad rebotó! Esa pieza era el rey verdadero (ahora se ve). Hacé otra jugada.':'¡No funcionó! Esa pieza no era lo que parecía: era el Joker. Hacé otra jugada.',
+      [side]:isKing?'Tu rey camuflado fue descubierto: la habilidad rival rebotó.':'Tu Joker fue descubierto: la habilidad rival no funcionó.',kind:'alerta'},
+      apply(st){reveal(st,st.pieces[id]);}};}
+  return true;}
+
+/* ---------- capturas y reacciones ---------- */
+function reactReady(s,p,id){return hasAbil(s,p,id)&&canUseAbil(s,p)&&s.reactOn[p.side][id]!==false&&s.ki[p.side]>=costOf(s,p,id);}
+function kill(s,t,by,ctx){
+  const ultimo=by&&by.side!==t.side&&hasPassive(s,t,'ultimo');
+  const wasFake=t.fakeKing;
+  if(t.sq>=0&&s.board[t.sq]===t.id)s.board[t.sq]=null;
+  t.sq=-1;t.dead=true;
+  if(t.cargo){const c=s.pieces[t.cargo];if(c){c.dead=true;c.inCargo=null;}t.cargo=null;L(ctx,()=>'La pieza guardada en el Refugio también cae.');}
+  if(t.type==='J')t.revealed=true;
+  if(wasFake){const c=s.camo[t.side];const k=c&&s.pieces[c.king];endCamo(s,t.side);
+    L(ctx,v=>v===t.side?'Capturaron a tu rey falso. Tu rey verdadero quedó a la vista.':`¡Era un rey falso! El rey verdadero está en ${k?sqName(k.sq):'—'}.`,'alerta');}
+  if(by){
+    by.captures=(by.captures||0)+1;
+    if(by.side!==t.side){
+      if(ultimo&&by.type!=='K'&&!immuneStun(s,by)&&!falangeOn(s,by)){stun(s,by,1);L(ctx,v=>`Último Aliento: ${nm(s,by,v)} queda aturdido.`);}
+      if(hasPassive(s,by,'botin')){const st=Math.min(2,s.ki[t.side]);s.ki[t.side]-=st;s.ki[by.side]=Math.min(10,s.ki[by.side]+st);if(st)L(ctx,()=>`Botín: ${SIDE_NAME[by.side]} roba ${st} Ki.`);}
+      if(hasPassive(s,by,'drenaje')){s.ki[by.side]=Math.min(10,s.ki[by.side]+2);L(ctx,()=>`Drenaje: ${SIDE_NAME[by.side]} gana 2 Ki.`);}
+    }}}
+function pickReaction(s,att,tgt){
+  const D=tgt.side;
+  const cancel=(id,piece,extra,msg)=>{const c=costOf(s,piece,id);
+    throw {cancel:true,log:{w:msg('w'),b:msg('b'),kind:'alerta'},apply(st){st.ki[D]-=c;st.reactionUsed[D]=true;if(extra)extra(st);}};};
+  const again=v=>v===att.side?' Hacé otra jugada.':'';
+  if(reactReady(s,tgt,'contra')&&VALUE[att.type]<=5)return ctx=>{
+    s.ki[D]-=costOf(s,tgt,'contra');s.reactionUsed[D]=true;
+    L(ctx,v=>`¡Contraataque! ${nm(s,tgt,v)} captura a ${nm(s,att,v)}.`,'alerta');
+    kill(s,att,tgt,ctx);return false;};
+  if(reactReady(s,tgt,'fortaleza'))return ()=>cancel('fortaleza',tgt,null,v=>`¡Fortaleza! ${nm(s,tgt,v)} cancela el ataque.${again(v)}`);
+  if(!(tgt.type==='REN'&&hasPassive(s,tgt,'sinbandera')))
+    for(const pr of onBoard(s,D))if(pr.id!==tgt.id&&cheb(pr.sq,tgt.sq)<=2&&reactReady(s,pr,'escudo'))
+      return ()=>cancel('escudo',pr,null,v=>`¡Escudo de Cristal! ${nm(s,pr,v)} protege a ${nm(s,tgt,v)}.${again(v)}`);
+  if(reactReady(s,tgt,'esquiva')&&KN.some(([a,b])=>freeSq(s,step(tgt.sq,a,b))))
+    return ()=>cancel('esquiva',tgt,st=>{const t2=st.pieces[tgt.id];const opts=KN.map(([a,b])=>step(t2.sq,a,b)).filter(q=>freeSq(st,q));
+      let best=opts[0];for(const q of opts){const w=structuredClone(st);putAt(w,w.pieces[t2.id],q);if(!attackedBy(w,q,opp(D),w.ply)){best=q;break;}}
+      if(best!=null&&best>=0)putAt(st,t2,best);},v=>`¡Esquiva Renegada! ${nm(s,tgt,v)} salta lejos.${again(v)}`);
+  if(reactReady(s,tgt,'instinto')&&freeSq(s,step(tgt.sq,-fwd(D),0)))
+    return ()=>cancel('instinto',tgt,st=>{const t2=st.pieces[tgt.id];const q=step(t2.sq,-fwd(D),0);if(freeSq(st,q))putAt(st,t2,q);},v=>`¡Instinto! ${nm(s,tgt,v)} retrocede una casilla.${again(v)}`);
+  if(reactReady(s,tgt,'maldicion')&&att.type!=='K')return ctx=>{
+    s.ki[D]-=costOf(s,tgt,'maldicion');s.reactionUsed[D]=true;
+    kill(s,tgt,att,ctx);
+    if(VALUE[att.type]<=5)att.silencedForever=true;
+    else if(NOBLES.includes(att.type))att.silenceUntil=Math.max(att.silenceUntil,ownerTurnPly(s,att.side,3));
+    L(ctx,v=>`¡Maldición! ${nm(s,att,v)} pierde sus habilidades${NOBLES.includes(att.type)?' por 3 turnos':' para siempre'}.`,'alerta');
+    return true;};
+  return null;}
+function capture(s,att,tgt,ctx){
+  if(tgt.illusion){removePiece(s,tgt);L(ctx,v=>v===tgt.side?'Capturaron tu ilusión.':'¡Era una ilusión! Se desvaneció.','alerta');return true;}
+  if(!ctx.sim&&!s.reactionUsed[tgt.side]){const r=pickReaction(s,att,tgt);if(r)return r(ctx);}
+  kill(s,tgt,att,ctx);return true;}
+function arrive(s,p,ctx){
+  if(!p||p.dead||p.sq<0)return;
+  const i=s.traps.findIndex(t=>t.sq===p.sq&&t.side!==p.side);
+  if(i<0||p.type==='K'||apparentType(p)==='K')return;
+  if(moveKind(s,p).t==='N'&&hasPassive(s,p,'fantasma'))return;
+  s.traps.splice(i,1);
+  if(p.illusion){removePiece(s,p);L(ctx,()=>'¡Carta Trampa! Una ilusión cayó y se desvaneció.','alerta');return;}
+  if(immuneStun(s,p)||falangeOn(s,p)){L(ctx,v=>`¡Carta Trampa! No afecta a ${nm(s,p,v)}.`,'alerta');return;}
+  stun(s,p,2);L(ctx,v=>`¡Carta Trampa! ${nm(s,p,v)} queda aturdido 2 turnos.`,'alerta');}
+function moveActor(s,p,to,ctx){putAt(s,p,to);p.moved=true;arrive(s,p,ctx);}
+function deadTypes(s,side,f){const set=new Set();for(const id in s.pieces){const p=s.pieces[id];if(p.dead&&p.side===side&&!p.illusion&&p.type!=='K'&&f(p.type))set.add(p.type);}return [...set];}
+function revive(s,side,type,sq,ctx){
+  const p=Object.values(s.pieces).find(x=>x.dead&&x.side===side&&x.type===type);if(!p)return;
+  p.dead=false;clearControl(p);p.silencedForever=false;p.protectUntil=-1;p.cargo=null;p.inCargo=null;p.fakeKing=false;p.mimic=null;
+  putAt(s,p,sq);p.moved=true;L(ctx,()=>`¡${TYPE_NAME[type]} revive en ${sqName(sq)}!`,'alerta');}
+function capAbil(dirs){return{
+  gen(s,p){return adj(p.sq,dirs).map(x=>pieceAt(s,x.sq)).filter(t=>enemyOK(s,p,t,{capture:true})).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const q=a.path[0],t=pieceAt(s,q);if(!resolveT(s,p,t,{},ctx))return;if(!capture(s,p,t,ctx))return;moveActor(s,p,q,ctx);}};}
+
+/* =====================================================================
+   LAS HABILIDADES (texto del reglamento)
+   ===================================================================== */
+// ---- Peón ----
+def('ultimo',{piece:'P',name:'Último Aliento',kind:'pasiva',ki:0,desc:'Si lo capturan, la pieza que lo capturó queda aturdida. El rey es inmune.'});
+def('falange',{piece:'P',name:'Falange',kind:'pasiva',ki:0,desc:'Si tiene un peón aliado al lado (misma fila), no lo afectan habilidades enemigas. Sí puede ser capturado normalmente.'});
+def('carga',{piece:'P',name:'Carga del Recluta',kind:'activa',ki:2,desc:'Avanza 2 casillas desde cualquier fila, sin capturar. No puede llegar a la última fila con esto.',
+  gen(s,p){const d=fwd(p.side),a=step(p.sq,d,0),b=step(a,d,0);return (b>=0&&freeSq(s,a)&&freeSq(s,b)&&rel(p.side,b)!==7)?[{path:[b]}]:[];},
+  run(s,p,a,ctx){moveActor(s,p,a.path[0],ctx);}});
+def('golpe',Object.assign({piece:'P',name:'Golpe Lateral',kind:'activa',ki:2,desc:'Captura una pieza enemiga que esté justo al costado (misma fila).'},capAbil([[0,1],[0,-1]])));
+def('instinto',{piece:'P',name:'Instinto',kind:'reaccion',ki:2,desc:'Cuando va a ser capturado, retrocede 1 casilla si está vacía. El rival debe hacer otro movimiento.'});
+def('despertar',{piece:'P',name:'Despertar',kind:'definitiva',ki:5,desc:'Si está en la 6.ª fila o más adelante, corona en el acto como caballo o alfil.',
+  gen(s,p){if(p.type!=='P'||rel(p.side,p.sq)<5)return [];return [{path:[p.sq],choice:{id:'N',label:'Coronar como Caballo'}},{path:[p.sq],choice:{id:'B',label:'Coronar como Alfil'}}];},
+  run(s,p,a,ctx){promote(s,p,a.choice.id);L(ctx,()=>`¡Despertar! Ahora es ${TYPE_NAME[a.choice.id]}.`,'alerta');}});
+// ---- Caballo ----
+def('doble',{piece:'N',name:'Doble Salto',kind:'activa',ki:4,desc:'Hace dos saltos en L seguidos. Solo el segundo puede capturar.',
+  gen(s,p){const ghost=hasPassive(s,p,'fantasma'),o=[];
+    for(const [a1,b1] of KN){const m=step(p.sq,a1,b1);if(m<0||s.board[m]!=null||(isWall(s,m)&&!ghost))continue;
+      for(const [a2,b2] of KN){const t=step(m,a2,b2);if(t<0||t===p.sq||(isWall(s,t)&&!ghost))continue;const q=pieceAt(s,t);
+        if(!q||enemyOK(s,p,q,{capture:true}))o.push({path:[m,t]});}}
+    return o;},
+  run(s,p,a,ctx){putAt(s,p,a.path[0]);const q=pieceAt(s,a.path[1]);if(q){if(!resolveT(s,p,q,{},ctx))return;if(!capture(s,p,q,ctx))return;}moveActor(s,p,a.path[1],ctx);}});
+def('embestida',Object.assign({piece:'N',name:'Embestida',kind:'activa',ki:3,desc:'En lugar de saltar, captura una pieza enemiga adyacente (8 direcciones).'},capAbil(ALL8)));
+def('relincho',{piece:'N',name:'Relincho',kind:'activa',ki:2,desc:'Empuja 1 casilla hacia afuera a todas las piezas enemigas adyacentes, si la casilla está libre. El rey es inmune.',
+  gen(s,p){return adj(p.sq,ALL8).some(x=>{const t=pieceAt(s,x.sq);return enemyOK(s,p,t,{})&&freeSq(s,step(x.sq,x.dr,x.df));})?[{path:[p.sq]}]:[];},
+  run(s,p,a,ctx){for(const x of adj(p.sq,ALL8)){const t=pieceAt(s,x.sq);if(!enemyOK(s,p,t,{}))continue;
+    if(t.illusion){resolveT(s,p,t,{},ctx);continue;}if(t.type==='K')continue;
+    const d=step(x.sq,x.dr,x.df);if(freeSq(s,d)){putAt(s,t,d);arrive(s,t,ctx);}}}});
+def('fantasma',{piece:'N',name:'Paso Fantasma',kind:'pasiva',ki:0,desc:'Ignora muros y casillas bloqueadas por habilidades.'});
+def('cargacab',{piece:'N',name:'Carga de Caballería',kind:'activa',ki:4,desc:'Se mueve en L y aturde a todos los peones enemigos adyacentes a la casilla donde cae.',
+  gen(s,p){const ghost=hasPassive(s,p,'fantasma'),o=[];
+    for(const [a1,b1] of KN){const t=step(p.sq,a1,b1);if(t<0||(isWall(s,t)&&!ghost))continue;const q=pieceAt(s,t);if(!q||enemyOK(s,p,q,{capture:true}))o.push({path:[t]});}
+    return o;},
+  run(s,p,a,ctx){const t=a.path[0],q=pieceAt(s,t);if(q){if(!resolveT(s,p,q,{},ctx))return;if(!capture(s,p,q,ctx))return;}
+    moveActor(s,p,t,ctx);if(p.dead)return;let n=0;
+    for(const x of adj(p.sq,ALL8)){const e=pieceAt(s,x.sq);if(!e||e.side===p.side||!isPawnLike(e)||e.type==='K')continue;
+      if(falangeOn(s,e)||immuneStun(s,e))continue;if(e.illusion){removePiece(s,e);continue;}stun(s,e,1);n++;}
+    if(n)L(ctx,()=>`Carga de Caballería: ${n} peón(es) aturdido(s).`);}});
+def('salto',{piece:'N',name:'Salto al Cielo',kind:'definitiva',ki:6,desc:'Salta a cualquier casilla vacía del tablero, sin capturar ni dar jaque con ese movimiento.',
+  gen(s,p){const ghost=hasPassive(s,p,'fantasma'),o=[];for(let q=0;q<64;q++){if(q===p.sq||s.board[q]!=null)continue;if(isWall(s,q)&&!ghost)continue;o.push({path:[q]});}return o;},
+  run(s,p,a,ctx){moveActor(s,p,a.path[0],ctx);const k=apparentKing(s,opp(p.side));if(k&&attackedBy(s,k.sq,p.side))throw ILLEGAL;}});
+// ---- Alfil ----
+def('barrera',{piece:'B',name:'Barrera Sagrada',kind:'activa',ki:3,desc:'Una pieza aliada en su diagonal no puede ser capturada durante el próximo turno rival.',
+  gen(s,p){return lineFirst(s,p.sq,DIAG).filter(t=>t.side===p.side&&!t.illusion&&!(t.protectUntil>=s.ply)&&!(t.type==='REN'&&hasPassive(s,t,'sinbandera'))).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);t.protectUntil=s.ply+1;L(ctx,v=>`${nm(s,t,v)} queda protegido durante el próximo turno rival.`);}});
+def('sombra',{piece:'B',name:'Paso de Sombra',kind:'activa',ki:2,desc:'Se mueve 1 casilla en recta y cambia de color de casillas.',
+  gen(s,p){return adj(p.sq,ORTH).filter(x=>freeSq(s,x.sq)).map(x=>({path:[x.sq]}));},run(s,p,a,ctx){moveActor(s,p,a.path[0],ctx);}});
+def('ojo',{piece:'B',name:'Ojo Divino',kind:'activa',ki:1,desc:'Revela la identidad real de una pieza enemiga en su diagonal. Desenmascara al Joker o al rey camuflado.',
+  gen(s,p){return lineFirst(s,p.sq,DIAG).filter(t=>t.side!==p.side&&!falangeOn(s,t)).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);
+    if(t.illusion){resolveT(s,p,t,{},ctx);return;}
+    if(t.type==='J'&&!t.revealed){t.revealed=true;L(ctx,()=>`¡Ojo Divino! La pieza de ${sqName(t.sq)} era el Joker.`,'alerta');}
+    else if((t.type==='K'&&t.mimic)||t.fakeKing){const c=s.camo[t.side];const k=c&&s.pieces[c.king];endCamo(s,t.side);
+      L(ctx,()=>`¡Ojo Divino descubre la Transmigración! El rey verdadero está en ${k?sqName(k.sq):'—'}.`,'alerta');}
+    else L(ctx,v=>`Ojo Divino: ${nm(s,t,v)} no esconde nada.`);}});
+def('purificar',{piece:'B',name:'Purificar',kind:'activa',ki:1,desc:'Quita aturdimiento o control a una pieza aliada en su diagonal, o anula una protección enemiga.',
+  gen(s,p){const o=[];for(const t of lineFirst(s,p.sq,DIAG)){if(t.side===p.side){if(!t.illusion&&hasControl(s,t))o.push({path:[t.sq]});}else if(t.protectUntil>=s.ply&&!falangeOn(s,t))o.push({path:[t.sq]});}return o;},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);if(t.side===p.side){clearControl(t);L(ctx,v=>`${nm(s,t,v)} queda libre.`);}else{t.protectUntil=-1;L(ctx,v=>`${nm(s,t,v)} pierde su protección.`);}}});
+def('suelo',{piece:'B',name:'Suelo Sagrado',kind:'activa',ki:3,desc:'Marca una casilla de su diagonal durante 2 turnos rivales. Una pieza enemiga parada ahí no puede usar habilidades.',
+  gen(s,p){const o=[];for(const [dr,df] of DIAG){let q=p.sq;for(;;){q=step(q,dr,df);if(q<0||isWall(s,q))break;const t=pieceAt(s,q);if(t){if(t.side!==p.side)o.push({path:[q]});break;}o.push({path:[q]});}}
+    return o.filter(x=>!s.sacred.some(y=>y.sq===x.path[0]&&y.side===p.side));},
+  run(s,p,a){s.sacred.push({sq:a.path[0],side:p.side,until:s.ply+3});}});
+def('resurreccion',{piece:'B',name:'Resurrección',kind:'definitiva',ki:7,desc:'Revive una pieza aliada capturada de valor 3 o menos en una casilla vacía adyacente al alfil.',
+  gen(s,p){const types=deadTypes(s,p.side,t=>VALUE[t]<=3),o=[];
+    for(const x of adj(p.sq,ALL8)){if(!freeSq(s,x.sq))continue;for(const t of types){if((t==='P'||t==='D')&&[0,7].includes(rel(p.side,x.sq)))continue;o.push({path:[x.sq],choice:{id:t,label:`Revivir ${TYPE_NAME[t]}`}});}}
+    return o;},
+  run(s,p,a,ctx){revive(s,p.side,a.choice.id,a.path[0],ctx);}});
+// ---- Torre ----
+def('muralla',{piece:'R',name:'Muralla de Piedra',kind:'activa',ki:3,desc:'Levanta un muro en una casilla vacía adyacente que dura 2 turnos rivales.',
+  gen(s,p){return adj(p.sq,ALL8).filter(x=>freeSq(s,x.sq)).map(x=>({path:[x.sq]}));},run(s,p,a){s.walls.push({sq:a.path[0],until:s.ply+3});}});
+def('canon',{piece:'R',name:'Cañón',kind:'activa',ki:4,desc:'Sin moverse, captura la primera pieza enemiga en su fila o columna a 3 casillas o menos.',
+  gen(s,p){const o=[];for(const [dr,df] of ORTH){let q=p.sq;for(let i=0;i<3;i++){q=step(q,dr,df);if(q<0||isWall(s,q))break;const t=pieceAt(s,q);if(t){if(enemyOK(s,p,t,{capture:true}))o.push({path:[q]});break;}}}return o;},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);if(!resolveT(s,p,t,{},ctx))return;capture(s,p,t,ctx);}});
+def('fortaleza',{piece:'R',name:'Fortaleza',kind:'reaccion',ki:3,desc:'Cuando va a ser capturada, el ataque se cancela y el rival debe hacer otro movimiento.'});
+def('refugio',{piece:'R',name:'Refugio',kind:'activa',ki:2,desc:'Guarda dentro un peón o pieza menor aliada adyacente. Viaja con la torre y sale después a una casilla adyacente usando un turno. Si capturan la torre, caen las dos.',
+  gen(s,p){if(p.cargo)return [];return adj(p.sq,ALL8).map(x=>pieceAt(s,x.sq)).filter(t=>t&&t.side===p.side&&!t.illusion&&!t.fakeKing&&['P','D','N','B','J'].includes(t.type)).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);s.board[t.sq]=null;t.sq=-1;t.inCargo=p.id;p.cargo=t.id;L(ctx,v=>v===p.side?`${realName(t)} entra al Refugio.`:'Una pieza entra al Refugio.');}});
+def('salir',{piece:'R',name:'Sacar del Refugio',kind:'especial',ki:0,desc:'La pieza guardada sale a una casilla adyacente. Usa el turno.',
+  gen(s,p){if(!p.cargo)return [];const c=s.pieces[p.cargo];return adj(p.sq,ALL8).filter(x=>freeSq(s,x.sq)&&!(isPawnLike(c)&&[0,7].includes(rel(c.side,x.sq)))).map(x=>({path:[x.sq]}));},
+  run(s,p,a,ctx){const c=s.pieces[p.cargo];p.cargo=null;c.inCargo=null;putAt(s,c,a.path[0]);c.moved=true;arrive(s,c,ctx);}});
+def('enroquedist',{piece:'R',name:'Enroque a Distancia',kind:'activa',ki:3,desc:'Intercambia lugar con el rey si están en la misma fila o columna sin piezas entre medio, aunque ya se hayan movido. No se puede usar en jaque.',
+  gen(s,p){const k=trueKing(s,p.side);if(!k||k.sq<0||s.camo[p.side]||inCheck(s,p.side))return [];
+    const dr=Math.sign(rk(k.sq)-rk(p.sq)),df=Math.sign(fl(k.sq)-fl(p.sq));if(dr!==0&&df!==0)return [];
+    let q=p.sq;for(;;){q=step(q,dr,df);if(q===k.sq)break;if(q<0||!freeSq(s,q))return [];}return [{path:[k.sq]}];},
+  run(s,p){swapPieces(s,p,trueKing(s,p.side));}});
+def('terremoto',{piece:'R',name:'Terremoto',kind:'definitiva',ki:7,desc:'Aturde a todas las piezas enemigas a 2 casillas o menos. El rey es inmune.',
+  gen(s,p){return [{path:[p.sq]}];},
+  run(s,p,a,ctx){let n=0;for(const e of onBoard(s,opp(p.side))){if(cheb(e.sq,p.sq)>2||e.type==='K'||apparentType(e)==='K')continue;
+    if(falangeOn(s,e)||immuneStun(s,e))continue;if(e.illusion){removePiece(s,e);continue;}stun(s,e,1);n++;}
+    L(ctx,()=>`¡Terremoto! ${n} pieza(s) enemiga(s) aturdida(s).`,'alerta');}});
+// ---- Rey ----
+def('llamado',{piece:'K',name:'Llamado Real',kind:'definitiva',ki:0,desc:'Intercambia lugar con cualquier pieza aliada. Se puede usar en jaque si el rey no cae en una casilla atacada.',
+  gen(s,p){return onBoard(s,p.side).filter(t=>t.id!==p.id&&!t.illusion).map(t=>({path:[t.sq]}));},run(s,p,a){swapPieces(s,p,pieceAt(s,a.path[0]));}});
+def('transmig',{piece:'K',name:'Transmigración',kind:'definitiva',ki:6,secret:true,desc:'El rey cambia de alma con una pieza aliada (no el Joker). La otra queda en la casilla del rey como rey falso y el rey verdadero queda disfrazado de esa pieza. El rival ve el mismo tablero.',
+  gen(s,p){if(s.camo[p.side]||p.mimic||!statusFree(s,p))return [];
+    return onBoard(s,p.side).filter(t=>t.id!==p.id&&!t.illusion&&t.type!=='J'&&statusFree(s,t)).map(t=>({path:[t.sq]}));},
+  secretText(s,p,a){const t=pieceAt(s,a.path[0]);return `Transmigración: tu rey verdadero pasa a ${sqName(a.path[0])} disfrazado de ${TYPE_NAME[apparentType(t)]}; ${TYPE_NAME[t.type]} queda en ${sqName(p.sq)} como rey falso.`;},
+  run(s,p,a){const t=pieceAt(s,a.path[0]);const look=apparentType(t);swapPieces(s,p,t);p.mimic=look;t.fakeKing=true;p.moved=true;t.moved=true;s.camo[p.side]={king:p.id,fake:t.id};}});
+def('aura',{piece:'K',name:'Aura de Mando',kind:'pasiva',ki:0,desc:'Las habilidades de piezas aliadas adyacentes al rey cuestan 1 Ki menos (mínimo 1).'});
+def('tesoro',{piece:'K',name:'Tesoro Real',kind:'activa',ki:0,desc:'No mueve nada este turno y gana 3 Ki extra.',
+  gen(s,p){return [{path:[p.sq]}];},run(s,p){s.ki[p.side]=Math.min(10,s.ki[p.side]+3);}});
+def('mirada',{piece:'K',name:'Mirada Real',kind:'activa',ki:2,desc:'Una pieza enemiga adyacente retrocede 1 casilla hacia su lado, si está libre.',
+  gen(s,p){return adj(p.sq,ALL8).map(x=>pieceAt(s,x.sq)).filter(t=>{if(!enemyOK(s,p,t,{}))return false;const d=step(t.sq,-fwd(t.side),0);return freeSq(s,d)&&!(isPawnLike(t)&&rel(t.side,d)===0);}).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);if(!resolveT(s,p,t,{},ctx))return;const d=step(t.sq,-fwd(t.side),0);putAt(s,t,d);arrive(s,t,ctx);}});
+def('proclama',{piece:'K',name:'Proclama',kind:'activa',ki:3,desc:'Quita aturdimiento y control a todas las piezas aliadas a 2 casillas o menos.',
+  gen(s,p){return onBoard(s,p.side).some(t=>t.id!==p.id&&cheb(t.sq,p.sq)<=2&&hasControl(s,t))?[{path:[p.sq]}]:[];},
+  run(s,p){for(const t of onBoard(s,p.side))if(t.id!==p.id&&cheb(t.sq,p.sq)<=2)clearControl(t);}});
+def('furia',{piece:'K',name:'Furia del Rey',kind:'definitiva',ki:5,desc:'Este turno el rey se mueve como reina hasta 3 casillas y puede capturar. No puede terminar en casilla atacada.',
+  gen(s,p){const o=[];for(const [dr,df] of ALL8){let q=p.sq;for(let i=0;i<3;i++){q=step(q,dr,df);if(q<0||isWall(s,q))break;const t=pieceAt(s,q);if(t){if(enemyOK(s,p,t,{capture:true}))o.push({path:[q]});break;}o.push({path:[q]});}}return o;},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);if(t){if(!resolveT(s,p,t,{},ctx))return;if(!capture(s,p,t,ctx))return;}moveActor(s,p,a.path[0],ctx);}});
+// ---- Princesa ----
+def('orden',{piece:'PRS',name:'Orden Absoluta',kind:'activa',ki:6,desc:'Obliga a una pieza enemiga en su línea de visión (no rey) a hacer un movimiento legal propio hacia una casilla vacía que vos elegís. Máximo 2 usos por partida.',
+  gen(s,p){if((p.ordenUses||0)>=2)return [];const o=[];
+    for(const t of lineFirst(s,p.sq,ALL8)){if(!enemyOK(s,p,t,{control:true}))continue;
+      for(const m of genMoves(s,t,false)){if(m.cap!=null)continue;if(isPawnLike(t)&&rel(t.side,m.to)===7)continue;o.push({path:[t.sq,m.to]});}}
+    return o;},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);p.ordenUses=(p.ordenUses||0)+1;if(!resolveT(s,p,t,{},ctx))return;putAt(s,t,a.path[1]);t.moved=true;arrive(s,t,ctx);}});
+def('encanto',{piece:'PRS',name:'Encanto',kind:'activa',ki:4,desc:'Una pieza enemiga en su línea de visión queda aturdida y no puede capturar a la Princesa durante 2 turnos rivales.',
+  gen(s,p){return lineFirst(s,p.sq,ALL8).filter(t=>enemyOK(s,p,t,{control:true})).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);if(!resolveT(s,p,t,{},ctx))return;stun(s,t,1);t.charm={by:p.id,until:s.ply+3};}});
+def('escudo',{piece:'PRS',name:'Escudo de Cristal',kind:'reaccion',ki:4,desc:'Cuando una pieza aliada a 2 casillas o menos va a ser capturada, el ataque se cancela y el rival debe hacer otro movimiento.'});
+def('plegaria',{piece:'PRS',name:'Plegaria',kind:'activa',ki:3,desc:'Libera a una pieza aliada aturdida o controlada y te da 1 Ki.',
+  gen(s,p){return onBoard(s,p.side).filter(t=>!t.illusion&&hasControl(s,t)).map(t=>({path:[t.sq]}));},
+  run(s,p,a){clearControl(pieceAt(s,a.path[0]));s.ki[p.side]=Math.min(10,s.ki[p.side]+1);}});
+def('teleport',{piece:'PRS',name:'Teletransporte Real',kind:'activa',ki:3,desc:'Se mueve a cualquier casilla vacía adyacente a una pieza aliada de valor 3 o más.',
+  gen(s,p){const set=new Set();for(const t of onBoard(s,p.side)){if(t.id===p.id||t.illusion||VALUE[t.type]<3)continue;for(const x of adj(t.sq,ALL8))if(freeSq(s,x.sq))set.add(x.sq);}return [...set].map(q=>({path:[q]}));},
+  run(s,p,a,ctx){moveActor(s,p,a.path[0],ctx);}});
+def('renacer',{piece:'PRS',name:'Renacer',kind:'definitiva',ki:8,desc:'Revive una pieza aliada capturada (no noble) en una casilla vacía de tu primera fila.',
+  gen(s,p){const types=deadTypes(s,p.side,t=>!NOBLES.includes(t)),o=[];
+    for(let f=0;f<8;f++){const q=sqAt(p.side==='w'?0:7,f);if(!freeSq(s,q))continue;for(const t of types)o.push({path:[q],choice:{id:t,label:`Revivir ${TYPE_NAME[t]}`}});}return o;},
+  run(s,p,a,ctx){revive(s,p.side,a.choice.id,a.path[0],ctx);}});
+// ---- Príncipe ----
+def('tajo',Object.assign({piece:'PRN',name:'Tajo Real',kind:'activa',ki:3,desc:'Captura una pieza enemiga en diagonal adyacente.'},capAbil(DIAG)));
+def('duelo',{piece:'PRN',name:'Duelo de Honor',kind:'activa',ki:4,desc:'Elige una pieza enemiga a 3 casillas o menos. Durante 2 turnos rivales esa pieza solo puede moverse para capturar al Príncipe.',
+  gen(s,p){return onBoard(s,opp(p.side)).filter(t=>cheb(t.sq,p.sq)<=3&&enemyOK(s,p,t,{control:true})).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);if(!resolveT(s,p,t,{},ctx))return;t.duel={by:p.id,until:s.ply+3};}});
+def('avance',{piece:'PRN',name:'Avance Heroico',kind:'activa',ki:4,desc:'Se mueve como torre atravesando cualquier pieza sin capturarla y cae en una casilla vacía.',
+  gen(s,p){const o=[];for(const [dr,df] of ORTH){let q=p.sq;for(;;){q=step(q,dr,df);if(q<0||isWall(s,q))break;if(s.board[q]==null)o.push({path:[q]});}}return o;},
+  run(s,p,a,ctx){moveActor(s,p,a.path[0],ctx);}});
+function inspTargets(s,p){return adj(p.sq,ALL8).map(x=>pieceAt(s,x.sq)).filter(t=>t&&t.side===p.side&&isPawnLike(t));}
+def('inspirar',{piece:'PRN',name:'Inspirar',kind:'activa',ki:2,desc:'Todos los peones aliados adyacentes avanzan 1 casilla, sin capturar ni coronar.',
+  gen(s,p){return inspTargets(s,p).some(t=>{const d=step(t.sq,fwd(t.side),0);return freeSq(s,d)&&rel(t.side,d)!==7;})?[{path:[p.sq]}]:[];},
+  run(s,p,a,ctx){const ts=inspTargets(s,p).sort((x,y)=>rel(p.side,y.sq)-rel(p.side,x.sq));
+    for(const t of ts){const d=step(t.sq,fwd(t.side),0);if(freeSq(s,d)&&rel(t.side,d)!==7){putAt(s,t,d);t.moved=true;arrive(s,t,ctx);}}}});
+def('contra',{piece:'PRN',name:'Contraataque',kind:'reaccion',ki:5,desc:'Si una pieza de valor 5 o menos va a capturarlo, la pieza atacante es capturada en su lugar.'});
+def('ascension',{piece:'PRN',name:'Ascensión',kind:'definitiva',ki:8,desc:'Solo si ya capturó 3 piezas. Desde ahora también se mueve como alfil.',
+  gen(s,p){return ((p.captures||0)>=3&&!p.ascended)?[{path:[p.sq]}]:[];},run(s,p,a,ctx){p.ascended=true;L(ctx,()=>'¡Ascensión! Ahora también se mueve como alfil.','alerta');}});
+// ---- Renegado ----
+def('botin',{piece:'REN',name:'Botín',kind:'pasiva',ki:0,desc:'Cada vez que captura, le roba 2 Ki al rival.'});
+def('sinbandera',{piece:'REN',name:'Sin Bandera',kind:'pasiva',ki:0,desc:'Inmune a control y aturdimiento enemigo. Tampoco puede recibir protecciones aliadas.'});
+def('golpebajo',Object.assign({piece:'REN',name:'Golpe Bajo',kind:'activa',ki:3,desc:'Captura una pieza enemiga adyacente en recta.'},capAbil(ORTH)));
+def('sacrificio',{piece:'REN',name:'Sacrificio Oscuro',kind:'activa',ki:0,desc:'Captura una pieza propia adyacente (no rey) y gana Ki igual al doble de su valor.',
+  gen(s,p){return adj(p.sq,ALL8).map(x=>pieceAt(s,x.sq)).filter(t=>t&&t.side===p.side&&t.type!=='K'&&!t.fakeKing&&!t.illusion).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);const v=VALUE[t.type];kill(s,t,null,ctx);s.ki[p.side]=Math.min(10,s.ki[p.side]+2*v);moveActor(s,p,a.path[0],ctx);L(ctx,()=>`${SIDE_NAME[p.side]} gana ${2*v} Ki.`);}});
+def('esquiva',{piece:'REN',name:'Esquiva Renegada',kind:'reaccion',ki:3,desc:'Cuando va a ser capturado, salta como caballo a una casilla vacía. El rival debe hacer otro movimiento.'});
+def('traicion',{piece:'REN',name:'Traición',kind:'definitiva',ki:7,desc:'Una pieza enemiga adyacente de valor 3 o menos se pasa a tu bando para siempre.',
+  gen(s,p){return adj(p.sq,ALL8).map(x=>pieceAt(s,x.sq)).filter(t=>enemyOK(s,p,t,{maxVal:3})).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);if(!resolveT(s,p,t,{maxVal:3},ctx))return;t.side=p.side;clearControl(t);t.protectUntil=-1;t.abil=null;t.moved=true;
+    L(ctx,()=>`¡Traición! La pieza de ${sqName(t.sq)} se pasa a ${SIDE_NAME[p.side]}.`,'alerta');}});
+// ---- Joker ----
+def('disfraz',{piece:'J',name:'Disfraz',kind:'pasiva',ki:0,desc:'Mientras está oculto puede usar las habilidades de su disfraz, salvo la definitiva, sin revelarse.'});
+def('trampa',{piece:'J',name:'Carta Trampa',kind:'activa',ki:2,secret:true,noImitar:true,desc:'Marca en secreto una casilla vacía. La primera pieza enemiga (no rey) que entre queda aturdida 2 turnos. No revela.',
+  gen(s,p){const o=[];for(let q=0;q<64;q++)if(freeSq(s,q)&&!s.traps.some(t=>t.sq===q&&t.side===p.side))o.push({path:[q]});return o;},
+  secretText:(s,p,a)=>`Carta Trampa escondida en ${sqName(a.path[0])}.`,
+  run(s,p,a){s.traps.push({sq:a.path[0],side:p.side});}});
+def('trile',{piece:'J',name:'Trile',kind:'activa',ki:3,customLog:true,noImitar:true,desc:'Mezcla en secreto su posición con una pieza aliada que se vea igual. El rival ve el intercambio pero no sabe cuál es cuál. No revela.',
+  gen(s,p){if(p.type!=='J'||p.revealed||!statusFree(s,p))return [];const look=apparentType(p),o=[];
+    for(const t of onBoard(s,p.side)){if(t.id===p.id||t.illusion||t.fakeKing||apparentType(t)!==look||!statusFree(s,t))continue;
+      o.push({path:[t.sq],choice:{id:'swap',label:'Cambiar de lugar de verdad'}},{path:[t.sq],choice:{id:'stay',label:'No cambiar (solo fingir)'}});}
+    return o;},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);const sa=p.sq,sb=t.sq;if(a.choice.id==='swap')swapPieces(s,p,t);
+    L(ctx,v=>v===p.side?`Trile: ${a.choice.id==='swap'?'cambiaste de verdad':'fingiste cambiar'} ${sqName(sa)} y ${sqName(sb)} (−${A.trile.ki} Ki).`:`${SIDE_NAME[p.side]} mezcló las piezas de ${sqName(sa)} y ${sqName(sb)} (Trile). Una de las dos es el Joker.`,'alerta');}});
+def('imitacion',{piece:'J',name:'Imitación',kind:'activa',ki:3,desc:'Copia y usa una habilidad no definitiva que el rival usó en su último turno. Revela.',
+  gen(s,p){const id=s.lastAbility[opp(p.side)];if(!id||!A[id]||A[id].kind!=='activa'||A[id].noImitar||id==='imitacion')return [];return A[id].gen(s,p).map(g=>Object.assign({},g,{inner:id}));},
+  run(s,p,a,ctx){revealJ(s,p,ctx);A[a.inner].run(s,p,a,ctx);}});
+def('risa',{piece:'J',name:'Risa del Caos',kind:'activa',ki:3,desc:'Intercambia de lugar dos piezas enemigas (no rey) a 3 casillas o menos del Joker. Revela.',
+  gen(s,p){const es=onBoard(s,opp(p.side)).filter(t=>cheb(t.sq,p.sq)<=3&&enemyOK(s,p,t,{})),o=[];
+    for(const x of es)for(const y of es){if(x===y)continue;if(isPawnLike(x)&&[0,7].includes(rel(x.side,y.sq)))continue;if(isPawnLike(y)&&[0,7].includes(rel(y.side,x.sq)))continue;o.push({path:[x.sq,y.sq]});}
+    return o;},
+  run(s,p,a,ctx){revealJ(s,p,ctx);const x=pieceAt(s,a.path[0]),y=pieceAt(s,a.path[1]);if(!resolveT(s,p,x,{},ctx))return;if(!resolveT(s,p,y,{},ctx))return;swapPieces(s,x,y);arrive(s,x,ctx);arrive(s,y,ctx);}});
+def('comodin',{piece:'J',name:'Comodín',kind:'definitiva',ki:6,desc:'Se transforma para siempre en cualquier pieza capturada de cualquier bando (no rey), con su movimiento y sus habilidades. Revela.',
+  gen(s,p){const seen=new Set(),o=[];for(const id in s.pieces){const d=s.pieces[id];if(!d.dead||d.illusion||d.type==='K'||d.type==='J')continue;const k=d.type+'|'+d.side;if(seen.has(k))continue;seen.add(k);
+      o.push({path:[p.sq],choice:{id:k,label:`${TYPE_NAME[d.type]} (de ${SIDE_NAME[d.side]})`}});}return o;},
+  run(s,p,a,ctx){revealJ(s,p,ctx);const [t,sd]=a.choice.id.split('|');p.abil=(s.loadout[sd][t]||RECOMENDADAS[t]).slice();p.type=t;p.revealed=true;
+    L(ctx,()=>`¡Comodín! El Joker se transforma en ${TYPE_NAME[t]}.`,'alerta');}});
+// ---- Peón Oscuro ----
+def('rastrera',{piece:'D',name:'Sombra Rastrera',kind:'pasiva',ki:0,desc:'También puede moverse 1 casilla hacia atrás, sin capturar.'});
+def('drenaje',{piece:'D',name:'Drenaje',kind:'pasiva',ki:0,desc:'Cada captura que hace le da 2 Ki.'});
+def('corrupcion',{piece:'D',name:'Corrupción',kind:'activa',ki:3,desc:'Una pieza enemiga adyacente de valor 3 o menos queda aturdida y sin habilidades durante 2 turnos rivales.',
+  gen(s,p){return adj(p.sq,ALL8).map(x=>pieceAt(s,x.sq)).filter(t=>enemyOK(s,p,t,{maxVal:3,control:true})).map(t=>({path:[t.sq]}));},
+  run(s,p,a,ctx){const t=pieceAt(s,a.path[0]);if(!resolveT(s,p,t,{maxVal:3},ctx))return;const u=ownerTurnPly(s,t.side,2);t.stunUntil=Math.max(t.stunUntil,u);t.silenceUntil=Math.max(t.silenceUntil,u);}});
+def('sombradoble',{piece:'D',name:'Sombra Doble',kind:'activa',ki:4,customLog:true,noImitar:true,desc:'Crea un peón ilusorio en una casilla vacía adyacente. El rival no sabe cuál es el real. La ilusión desaparece si la tocan o a los 3 turnos.',
+  gen(s,p){if(p.type!=='D')return [];const o=[];for(const x of adj(p.sq,ALL8)){if(!freeSq(s,x.sq))continue;const r=rel(p.side,x.sq);if(r===0||r===7)continue;
+      o.push({path:[x.sq],choice:{id:'stay',label:'El real se queda donde está'}},{path:[x.sq],choice:{id:'move',label:'El real pasa a la casilla nueva'}});}return o;},
+  run(s,p,a,ctx){const orig=p.sq,nsq=a.path[0],id=p.side+'i'+(s.nextId++);const il=makePiece(id,p.side,'D',-1);il.illusion=true;il.illusionUntil=s.ply+6;il.moved=true;s.pieces[id]=il;
+    if(a.choice.id==='move'){putAt(s,p,nsq);putAt(s,il,orig);}else putAt(s,il,nsq);
+    L(ctx,v=>v===p.side?`Sombra Doble: el real ${a.choice.id==='move'?'pasó a '+sqName(nsq):'se quedó en '+sqName(orig)} (−${A.sombradoble.ki} Ki).`:`Sombra Doble: ahora hay dos Peones Oscuros (${sqName(orig)} y ${sqName(nsq)}). Uno es falso.`,'alerta');}});
+def('maldicion',{piece:'D',name:'Maldición',kind:'reaccion',ki:3,desc:'Si lo capturan, la pieza que lo capturó pierde sus habilidades: para siempre si vale 5 o menos, durante 3 turnos si es un noble.'});
+def('coronacion',{piece:'D',name:'Coronación Oscura',kind:'definitiva',ki:0,auto:true,desc:'Al llegar a la última fila puede coronar en cualquier pieza, incluido un noble que no tengas en juego.'});
+
+/* =====================================================================
+   TURNOS Y ACCIONES
+   ===================================================================== */
+function makePiece(id,side,type,sq){return {id,side,type,sq,moved:false,usedUlt:false,dead:false,stunUntil:-1,silenceUntil:-1,silencedForever:false,protectUntil:-1,charm:null,duel:null,captures:0,cargo:null,inCargo:null,illusion:false,illusionUntil:-1,ordenUses:0,ascended:false,abil:null,disguise:null,revealed:true,mimic:null,fakeKing:false};}
+function newGame(drafts){
+  const s={board:Array(64).fill(null),pieces:{},ply:0,turn:'b',ki:{w:2,b:2},loadout:{w:{},b:{}},noble:{},walls:[],sacred:[],traps:[],
+    lastMoved:{w:null,b:null},lastAbility:{w:null,b:null},reactionUsed:{w:false,b:false},forbidden:[],ep:null,camo:{w:null,b:null},
+    reactOn:{w:{},b:{}},result:null,nextId:1,lastMove:null};
+  const back=['R','N','B','NOBLE','K','B','N','R'];
+  for(const side of ['w','b']){
+    const d=drafts[side];s.noble[side]=d.noble;
+    for(const k of ['P','N','B','R','K','J','D'])s.loadout[side][k]=d.load[k].slice();
+    s.loadout[side][d.noble]=d.load[d.noble].slice();
+    const br=side==='w'?0:7,pr=side==='w'?1:6;
+    const add=(sq,t)=>{const id=side+(s.nextId++);const p=makePiece(id,side,t,sq);
+      if(sq===d.joker){p.disguise=t;p.type='J';p.revealed=false;}else if(sq===d.dark)p.type='D';
+      s.pieces[id]=p;s.board[sq]=id;};
+    for(let f=0;f<8;f++){add(sqAt(br,f),back[f]==='NOBLE'?d.noble:back[f]);add(sqAt(pr,f),'P');}
+  }
+  beginTurn(s);
+  return s;}
+function beginTurn(s){
+  s.turn=opp(s.turn);s.ply++;
+  const side=s.turn;
+  s.ki[side]=Math.min(10,s.ki[side]+1);
+  s.walls=s.walls.filter(w=>w.until>=s.ply);
+  s.sacred=s.sacred.filter(w=>w.until>=s.ply);
+  for(const p of Object.values(s.pieces))if(p.illusion&&p.illusionUntil<s.ply)removePiece(s,p);
+  s.reactionUsed[opp(side)]=false;
+  s.forbidden=[];
+  s.lastAbility[side]=null;}
+function akey(a){return JSON.stringify([a.kind,a.pid,a.id||'',a.to??'',a.path||[],a.choice?a.choice.id:'',a.inner||'',!!a.borrowed]);}
+function legalActions(s,side){
+  const raw=[];
+  for(const p of onBoard(s,side)){
+    if(p.stunUntil>=s.ply)continue;
+    const dueled=!!(p.duel&&p.duel.until>=s.ply);
+    for(const m of genMoves(s,p,false)){
+      if(m.cap!=null&&!captureAllowed(s,p,s.pieces[m.cap]))continue;
+      if(dueled&&m.cap!==p.duel.by)continue;
+      const base={kind:'move',pid:p.id,from:p.sq,to:m.to,cap:m.cap,ep:!!m.ep,dbl:m.dbl};
+      const pr=promoOptions(s,p,m.to);
+      if(pr)for(const t of pr)raw.push(Object.assign({},base,{choice:{id:t,label:`Coronar como ${TYPE_NAME[t]}`}}));else raw.push(base);}
+    if(dueled)continue;
+    if(p.type==='K'&&!p.mimic)raw.push(...castles(s,p));
+    if(p.cargo)for(const g of A.salir.gen(s,p))raw.push({kind:'abil',id:'salir',pid:p.id,path:g.path});
+    if(p.illusion||!canUseAbil(s,p))continue;
+    for(const u of usable(s,p)){
+      const d=A[u.id];if(!d.gen||(d.kind!=='activa'&&d.kind!=='definitiva'))continue;
+      if(d.kind==='definitiva'&&p.usedUlt)continue;
+      if(costOf(s,p,u.id)>s.ki[side])continue;
+      for(const g of d.gen(s,p))raw.push({kind:'abil',id:u.id,pid:p.id,path:g.path,choice:g.choice,inner:g.inner,borrowed:u.borrowed});}
+  }
+  return raw.filter(a=>!s.forbidden.includes(akey(a))&&simOK(s,a,side));}
+function simOK(s,a,side){
+  const w=structuredClone(s);const ctx={sim:true,logs:[]};
+  try{applyAction(w,a,ctx);}catch(e){if(e!==ILLEGAL&&!(e&&e.cancel))console.warn('Ajedrez Anime: error simulando',a,e);return false;}
+  return !inCheck(w,side);}
+function applyMove(s,a,ctx){
+  const p=s.pieces[a.pid];const t=a.cap!=null?s.pieces[a.cap]:null;
+  L(ctx,v=>{let x=a.castle?`${SIDE_NAME[p.side]} enroca`:`${nm(s,p,v)} → ${sqName(a.to)}`;if(t)x+=` y captura ${nm(s,t,v)}`;if(a.choice)x+=` (corona como ${TYPE_NAME[a.choice.id]})`;return x+'.';});
+  if(t){if(!capture(s,p,t,ctx)){s.ep=null;return;}}
+  if(a.castle){const r=s.pieces[a.castle.rid];putAt(s,r,a.castle.to);r.moved=true;}
+  putAt(s,p,a.to);p.moved=true;
+  s.ep=a.dbl!=null?{sq:a.dbl,pid:p.id,ply:s.ply}:null;
+  if(a.choice)promote(s,p,a.choice.id);
+  arrive(s,p,ctx);}
+function applyAbility(s,a,ctx){
+  const p=s.pieces[a.pid],d=A[a.id],side=p.side;
+  const cost=costOf(s,p,a.id);
+  const before={w:nm(s,p,'w'),b:nm(s,p,'b')};
+  const shown=a.inner?`Imitación → ${A[a.inner].name}`:d.name;
+  s.ki[side]-=cost;
+  if(d.kind==='definitiva')p.usedUlt=true;
+  if(d.secret){const own=d.secretText?d.secretText(s,p,a):d.name;L(ctx,v=>v===side?`${own} (−${cost} Ki)`:`${SIDE_NAME[side]} usó una habilidad secreta (−${cost} Ki).`);}
+  else if(!d.customLog)L(ctx,v=>`${before[v]} usó ${shown}${cost?` (−${cost} Ki)`:''}.`);
+  if(p.type==='K'&&s.camo[side]&&a.id!=='transmig'){endCamo(s,side);L(ctx,v=>v===side?'Tu rey se descubre al usar una habilidad de rey.':`¡${before[v]} era el rey verdadero!`,'alerta');}
+  d.run(s,p,a,ctx);
+  if(d.kind==='activa'&&!d.secret)s.lastAbility[side]=a.inner||a.id;}
+function applyAction(s,a,ctx){
+  const p=s.pieces[a.pid];const from=p.sq,side=p.side;
+  if(a.kind==='move')applyMove(s,a,ctx);else applyAbility(s,a,ctx);
+  const secret=a.kind==='abil'&&A[a.id].secret;
+  if(!p.dead&&p.sq>=0&&p.sq!==from&&!secret&&a.id!=='trile')s.lastMoved[side]=apparentType(p);
+  s.lastMove={side,secret:!!secret,sqs:[from].concat(a.kind==='move'?[a.to]:(a.path||[]))};}
+/* Ejecuta una acción de verdad. Si una reacción o un rebote la cancela, el turno sigue. */
+function performAction(s,a){
+  const work=structuredClone(s);const ctx={sim:false,logs:[]};
+  try{applyAction(work,a,ctx);}
+  catch(e){if(e&&e.cancel){e.apply(s);s.forbidden.push(akey(a));return {state:s,logs:[e.log],cancelled:true};}throw e;}
+  return {state:work,logs:ctx.logs,cancelled:false};}
+function evaluateTurn(s){
+  const side=s.turn;
+  const ok=trueKing(s,opp(side));
+  if(ok&&ok.sq>=0&&attackedBy(s,ok.sq,side,s.ply)){s.result={winner:side,reason:'El rey rival quedó expuesto'};return [];}
+  const legal=legalActions(s,side);
+  if(!legal.length){if(inCheck(s,side))s.result={winner:opp(side),reason:'Jaque mate'};else s.result={winner:null,reason:'Ahogado: empate'};}
+  return legal;}
+</script>
+
+<script id="ui">
+'use strict';
+/* =====================================================================
+   INTERFAZ
+   ===================================================================== */
+const app=document.getElementById('app');
+const GLYPH={K:'♚',P:'♟',D:'♟',N:'♞',B:'♝',R:'♜',PRS:'♛',PRN:'♛',REN:'♛'};
+const NOBLE_TAG={PRS:'Pa',PRN:'Pe',REN:'Re'};
+const STORE='ajedrez-anime-v1';
+let G=null,toastTimer=null;
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function freshG(){return {screen:'inicio',hide:true,drafts:{w:null,b:null},draftSide:'w',draftMode:'J',s:null,legal:[],sel:null,mode:null,choice:null,log:[],curtain:null,notice:null,showRival:false,overClosed:false};}
+function newDraft(side){const r=side==='w'?0:7,p=side==='w'?1:6;
+  return {noble:'PRS',joker:sqAt(r,6),dark:sqAt(p,4),load:{P:[],N:[],B:[],R:[],K:[],J:[],D:[],PRS:[],PRN:[],REN:[]}};}
+const draftTypes=d=>['P','N','B','R','K',d.noble,'J','D'];
+const draftMissing=d=>draftTypes(d).reduce((n,t)=>n+(3-d.load[t].length),0);
+function randomDraft(side){const d=newDraft(side);d.noble=pick(NOBLES);
+  const br=side==='w'?0:7,pr=side==='w'?1:6;
+  d.joker=pick([0,1,2,5,6,7].map(f=>sqAt(br,f)).concat([0,1,2,3,4,5,6,7].map(f=>sqAt(pr,f))));
+  d.dark=pick([0,1,2,3,4,5,6,7].map(f=>sqAt(pr,f)).filter(q=>q!==d.joker));
+  for(const t of Object.keys(PIECE_ABILS))d.load[t]=shuffle(PIECE_ABILS[t].slice()).slice(0,3);
+  return d;}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(G));}catch(e){}}
+function loadSaved(){try{const x=localStorage.getItem(STORE);return x?JSON.parse(x):null;}catch(e){return null;}}
+function toast(t){const old=document.querySelector('.toast');if(old)old.remove();const el=document.createElement('div');el.className='toast';el.textContent=t;document.body.appendChild(el);clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.remove(),2600);}
+const V=()=>G.s&&G.s.result?'all':G.s.turn;
+
+/* ---------- piezas ---------- */
+function look(p,v){
+  const own=v==='all'||v===p.side;
+  const cls=['pc',p.side==='w'?'pw':'pb'];let g,tag='',tc='';
+  const basic=t=>{if(t==='J'){g='J';cls.push('jk');tag='JOKER';tc='tj';return;}g=GLYPH[t];if(t==='D'){cls.push('dark');tag='OSC';tc='to';}if(NOBLES.includes(t)){tag=NOBLE_TAG[t];tc='tn';}};
+  if(own){
+    if(p.illusion){g=GLYPH.D;cls.push('dark','ilu');tag='ILUSIÓN';tc='to';}
+    else if(p.type==='J'&&!p.revealed){g=GLYPH[p.disguise];tag='JOKER';tc='tj';}
+    else if(p.type==='K'&&p.mimic){g=GLYPH[p.mimic];tag='REY';tc='tk';if(p.mimic==='D')cls.push('dark');}
+    else if(p.fakeKing){g=GLYPH.K;tag='FALSO';tc='tf';}
+    else basic(p.type);
+  }else basic(apparentType(p));
+  return {g,tag,tc,cls:cls.join(' ')};}
+function pieceHTML(s,p,v){
+  const L=look(p,v);
+  const st=[];
+  if(p.stunUntil>=s.ply)st.push('<i class="s-a">AT</i>');
+  if(p.silencedForever||p.silenceUntil>=s.ply)st.push('<i class="s-m">MU</i>');
+  if(p.charm&&p.charm.until>=s.ply)st.push('<i class="s-e">EN</i>');
+  if(p.duel&&p.duel.until>=s.ply)st.push('<i class="s-d">DU</i>');
+  if(p.cargo)st.push('<i class="s-c">+1</i>');
+  return `<span class="${L.cls}">${L.g}</span>${L.tag?`<span class="tag ${L.tc}">${L.tag}</span>`:''}${st.length?`<span class="sts">${st.join('')}</span>`:''}`;}
+function statusText(s,p){
+  const o=[];
+  if(p.stunUntil>=s.ply)o.push('Aturdida (no puede moverse ni usar habilidades en su próximo turno)');
+  if(p.silencedForever)o.push('Sin habilidades para siempre (Maldición)');else if(p.silenceUntil>=s.ply)o.push('Sin habilidades por ahora');
+  if(p.charm&&p.charm.until>=s.ply)o.push('Encantada: no puede capturar a la Princesa');
+  if(p.duel&&p.duel.until>=s.ply)o.push('En duelo: solo puede moverse para capturar al Príncipe');
+  if(p.protectUntil>=s.ply)o.push('Protegida: no puede ser capturada');
+  if(p.cargo)o.push('Lleva una pieza en el Refugio');
+  if(s.sacred.some(x=>x.sq===p.sq&&x.side!==p.side))o.push('Parada en Suelo Sagrado enemigo');
+  if(p.ascended)o.push('Ascendido: también se mueve como alfil');
+  return o;}
+
+/* ---------- pantallas ---------- */
+function viewStart(){
+  const saved=loadSaved();const canCont=saved&&saved.screen==='game'&&saved.s&&!saved.s.result;
+  return `<main class="start">
+  <div style="display:grid;gap:16px">
+    <p class="eyebrow">Ajedrez con poderes · 2 jugadores en el mismo dispositivo</p>
+    <h1>Ajedrez <span>Anime</span></h1>
+    <p class="lede">La base es el ajedrez de siempre, pero cada pieza tiene poderes que se pagan con <b>Ki</b>. Antes de empezar, cada bando elige en secreto su Noble, dónde esconde al Joker y al Peón Oscuro, y <b>3 de las 6 habilidades de cada pieza</b>.</p>
+    <div class="row">
+      <button class="btn primary" data-act="new">Nueva partida</button>
+      <button class="btn" data-act="quick">Partida rápida (todo al azar)</button>
+      ${canCont?'<button class="btn" data-act="continue">Continuar la partida guardada</button>':''}
+    </div>
+    <label class="toggle"><input type="checkbox" id="opt-hide" ${G.hide?'checked':''}> <span><b>Pantalla de pase entre turnos.</b> Tapa el tablero entre turnos para que el rival no vea tu Joker, tus trampas ni la Transmigración. Desactivala si juegan sin secretos.</span></label>
+  </div>
+  <section class="rules">
+    <div class="rule"><h3>Ki: la energía del ejército</h3><ul><li>Empezás con 2 Ki y ganás 1 al inicio de cada turno tuyo. Máximo 10.</li><li>Todas las habilidades se pagan con ese Ki compartido.</li></ul></div>
+    <div class="rule"><h3>Tipos de habilidad</h3><ul><li><b>Activa:</b> ocupa tu turno entero. Una por turno.</li><li><b>Reacción:</b> salta sola en el turno rival. Una por turno rival.</li><li><b>Pasiva:</b> siempre funciona, gratis.</li><li><b>Definitiva:</b> una vez por partida por pieza.</li></ul></div>
+    <div class="rule"><h3>Reglas de oro</h3><ul><li>Ninguna habilidad captura al rey ni deja a tu rey en jaque.</li><li>Jaque y jaque mate como siempre.</li><li>Una sola protección a la vez y los aturdimientos no se suman.</li><li>Un peón que corona recibe las habilidades de su pieza nueva, sin la definitiva.</li></ul></div>
+    <div class="rule"><h3>Piezas nuevas</h3><ul><li><b>Noble</b> (en d1/d8, reemplaza a la reina): Princesa, Príncipe o Renegado.</li><li><b>Joker:</b> reemplaza en secreto a un peón, caballo, alfil o torre y se ve como esa pieza.</li><li><b>Peón Oscuro:</b> reemplaza a un peón.</li><li>Valor: peón 1, peón oscuro 2, caballo y alfil 3, joker 4, torre 5, noble 8.</li></ul></div>
+  </section></main>`;}
+function viewDraft(){
+  const side=G.draftSide,d=G.drafts[side],miss=draftMissing(d);
+  const br=side==='w'?0:7,pr=side==='w'?1:6;
+  const rows=side==='w'?[pr,br]:[pr,br];const files=side==='w'?[0,1,2,3,4,5,6,7]:[7,6,5,4,3,2,1,0];
+  const back=['R','N','B',d.noble,'K','B','N','R'];
+  let mini='';
+  for(const r of rows)for(const f of files){const sq=sqAt(r,f);const t=r===br?back[f]:'P';const light=(r+f)%2===1;
+    let tag='',tc='',cls='pc '+(side==='w'?'pw':'pb'),g=GLYPH[t];
+    if(sq===d.joker){tag='JOKER';tc='tj';}else if(sq===d.dark){tag='OSC';tc='to';cls+=' dark';}else if(NOBLES.includes(t)){tag=NOBLE_TAG[t];tc='tn';}
+    mini+=`<button class="${light?'l':'d'}" data-act="dsq" data-arg="${sq}" aria-label="${sqName(sq)}"><span class="${cls}" style="font-size:9.6cqw">${g}</span>${tag?`<span class="tag ${tc}">${tag}</span>`:''}</button>`;}
+  const nobles=NOBLES.map(n=>`<button class="ncard ${d.noble===n?'on':''}" data-act="noble" data-arg="${n}"><b>${TYPE_NAME[n]}</b><span class="muted">${NOBLE_INFO[n].mov}.</span><br>${NOBLE_INFO[n].estilo}.</button>`).join('');
+  const types=draftTypes(d).map(t=>{
+    const chosen=d.load[t];
+    const cards=PIECE_ABILS[t].map(id=>{const a=A[id];const on=chosen.includes(id);const off=!on&&chosen.length>=3;
+      return `<button class="acard ${on?'on':''} ${off?'off':''}" data-act="dab" data-arg="${t}|${id}" aria-pressed="${on}"><span class="top"><b>${on?'✓ ':''}${a.name}</b><span class="tagk k-${a.kind}">${KIND_NAME[a.kind]}</span><span class="kicost">${a.ki} Ki</span></span><p>${a.desc}</p></button>`;}).join('');
+    return `<div class="ptype"><div class="ptype-h"><h3>${TYPE_NAME[t]}${NOBLES.includes(t)?' (tu Noble)':''}</h3><span class="count ${chosen.length===3?'full':''}">${chosen.length}/3</span><button class="btn small" data-act="drnd" data-arg="${t}">Al azar</button><button class="btn small" data-act="drec" data-arg="${t}">Recomendadas</button></div><div class="agrid">${cards}</div></div>`;}).join('');
+  return `<main class="draft">
+    <div><p class="eyebrow">Elección secreta · ${SIDE_NAME[side]}</p><h1>${SIDE_NAME[side]}: armá tu ejército</h1><p class="muted">${G.hide?`Que ${SIDE_NAME[opp(side)]} no mire la pantalla.`:''} Todas las piezas del mismo tipo comparten las 3 habilidades que elijas.</p></div>
+    <section class="sect"><h2>1. Elegí tu Noble (va en la casilla de la reina)</h2><div class="nobles">${nobles}</div></section>
+    <section class="sect"><h2>2. Escondé al Joker y al Peón Oscuro</h2>
+      <div class="row" style="margin-bottom:10px"><button class="btn small ${G.draftMode==='J'?'primary':''}" data-act="dmode" data-arg="J">Poner Joker</button><button class="btn small ${G.draftMode==='D'?'primary':''}" data-act="dmode" data-arg="D">Poner Peón Oscuro</button></div>
+      <p class="muted" style="margin:0 0 10px">${G.draftMode==='J'?'Tocá un peón, caballo, alfil o torre. El rival lo verá como esa pieza.':'Tocá un peón. El Peón Oscuro sí lo ve el rival.'}</p>
+      <div class="mini">${mini}</div></section>
+    <section class="sect"><h2>3. Habilidades: elegí 3 de cada pieza</h2>${types}</section>
+    <div class="dfoot"><div class="row"><button class="btn small" data-act="dall">Todo al azar</button><button class="btn small" data-act="dallrec">Todo recomendado</button></div>
+      <div class="row"><span class="muted">${miss?`Faltan ${miss} habilidades`:'¡Listo para jugar!'}</span><button class="btn primary" data-act="ddone" ${miss?'disabled':''}>${side==='w'?'Listo: turno de Negras':'Listo: revelar ejércitos'}</button></div></div>
+  </main>`;}
+function armyHTML(s,side,full){
+  const d=G.drafts[side]||null;const lo=s?s.loadout[side]:d.load;const noble=s?s.noble[side]:d.noble;
+  const rows=['P','N','B','R','K',noble,'J','D'].map(t=>`<dt>${TYPE_NAME[t]}</dt><dd>${(lo[t]||[]).map(id=>A[id].name).join(' · ')}</dd>`).join('');
+  return `<div class="army sect"><h2>${SIDE_NAME[side]}: ${TYPE_NAME[noble]}</h2><p class="muted" style="margin:0 0 8px">${NOBLE_INFO[noble].mov}. ${NOBLE_INFO[noble].estilo}.</p><dl>${rows}</dl>${full?'':''}</div>`;}
+function viewReveal(){
+  return `<main class="reveal"><div><p class="eyebrow">Se revelan juntos</p><h1>Nobles y habilidades</h1><p class="muted">El Joker y el Peón Oscuro siguen donde los pusieron. El Joker no se ve: el rival lo ve como la pieza que reemplazó.</p></div>
+    <div class="two">${armyHTML(null,'w')}${armyHTML(null,'b')}</div>
+    <div class="row"><button class="btn primary" data-act="startgame">¡A jugar! Empiezan Blancas</button></div></main>`;}
+function pips(n){let h='';for(let i=0;i<10;i++)h+=`<i class="${i<n?'on':''}"></i>`;return h;}
+function viewGame(){
+  const s=G.s,v=V(),flip=v==='b';
+  const sel=G.sel?s.pieces[G.sel]:null;
+  const mv=new Set(),cp=new Set(),ab=new Set(),picked=new Set(G.mode?G.mode.prefix:[]);
+  if(G.mode)modeNext().forEach(q=>ab.add(q));
+  else if(G.choice)G.choice.acts.forEach(a=>{if(a.kind==='move')ab.add(a.to);});
+  else if(sel&&sel.side===s.turn&&!s.result)for(const a of G.legal)if(a.kind==='move'&&a.pid===sel.id)(a.cap!=null?cp:mv).add(a.to);
+  let checkSq=-1;
+  if(v!=='all'){const k=trueKing(s,v);if(k&&inCheck(s,v))checkSq=k.sq;}
+  const last=s.lastMove&&(!s.lastMove.secret||v==='all'||v===s.lastMove.side)?new Set(s.lastMove.sqs.filter(q=>q>=0)):new Set();
+  let cells='';
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++){
+    const r=flip?i:7-i,f=flip?7-j:j,sq=sqAt(r,f);
+    const p=pieceAt(s,sq);const cl=['sq',(r+f)%2===1?'l':'d'];
+    if(s.walls.some(w=>w.sq===sq))cl.push('wall');
+    if(s.sacred.some(x=>x.sq===sq))cl.push('sac');
+    if(s.traps.some(t=>t.sq===sq&&(v==='all'||t.side===v)))cl.push('trap');
+    if(last.has(sq))cl.push('last');
+    if(sel&&sel.sq===sq)cl.push('sel');
+    if(picked.has(sq))cl.push('picked');
+    if(p&&p.protectUntil>=s.ply)cl.push('prot');
+    if(sq===checkSq)cl.push('check');
+    if(mv.has(sq))cl.push(p?'cp':'mv');if(cp.has(sq))cl.push('cp');if(ab.has(sq))cl.push('ab');
+    const coord=(j===0?`<span class="coord r">${r+1}</span>`:'')+(i===7?`<span class="coord f">${FILES[f]}</span>`:'');
+    cells+=`<button class="${cl.join(' ')}" data-act="sq" data-arg="${sq}" aria-label="${sqName(sq)}${p?' '+(v==='all'||v===p.side?realName(p):TYPE_NAME[apparentType(p)]):''}">${coord}${p?pieceHTML(s,p,v):''}</button>`;}
+  const dead=side=>Object.values(s.pieces).filter(p=>p.dead&&p.side===side).map(p=>`<span class="pc ${side==='w'?'pw':'pb'}${p.type==='D'?' dark':''}" title="${TYPE_NAME[p.type]}">${p.type==='J'?'J':GLYPH[p.type]}</span>`).join('');
+  const sideBox=side=>`<div class="sidebox ${side} ${s.turn===side&&!s.result?'now':''}"><div class="nm">${SIDE_NAME[side]} · ${TYPE_NAME[s.noble[side]]}</div><div class="pips">${side==='b'?`<span>${s.ki[side]} Ki</span>`:''}${pips(s.ki[side])}${side==='w'?`<span>${s.ki[side]} Ki</span>`:''}</div></div>`;
+  return `<main>
+    <div class="bar">${sideBox('w')}<div class="turnchip">${s.result?'Fin':'Turno de '+SIDE_NAME[s.turn]}<small>jugada ${Math.ceil(s.ply/2)}</small></div>${sideBox('b')}</div>
+    <div class="main">
+      <div class="boardwrap"><div class="board">${cells}</div>
+        <div class="captured"><span class="muted">Capturadas:</span> ${dead('w')} ${dead('b')}</div></div>
+      <aside class="panel">${viewPanel()}</aside>
+    </div></main>`;}
+function abilityRow(s,p,u,isTurn){
+  const d=A[u.id];const cost=u.id==='salir'?0:costOf(s,p,u.id);
+  const head=`<span class="top"><b>${d.name}${u.borrowed?' <span class="muted">(del disfraz)</span>':''}</b><span class="tagk k-${d.kind}">${KIND_NAME[d.kind]}</span>${d.kind==='pasiva'?'':`<span class="kicost">${cost} Ki</span>`}</span><p>${d.desc}</p>`;
+  if(d.kind==='pasiva')return `<div class="ab">${head}<span class="why">${canUseAbil(s,p)?'Siempre activa':'Bloqueada por ahora'}</span></div>`;
+  if(d.kind==='reaccion'){const on=s.reactOn[p.side][u.id]!==false;
+    return `<div class="ab">${head}<span class="row"><span class="why">Se activa sola si tenés Ki.</span><button class="btn small" data-act="react" data-arg="${u.id}">Automática: ${on?'Sí':'No'}</button></span></div>`;}
+  if(d.auto)return `<div class="ab">${head}<span class="why">${p.usedUlt?'Ya se usó':'Aparece sola al coronar'}</span></div>`;
+  const n=G.legal.filter(a=>a.kind==='abil'&&a.pid===p.id&&a.id===u.id&&!!a.borrowed===!!u.borrowed).length;
+  if(isTurn&&n)return `<button class="ab go" data-act="useab" data-arg="${u.id}|${u.borrowed?1:0}">${head}<span class="ok">Usar →</span></button>`;
+  let why='Sin objetivos ahora';
+  if(!isTurn)why='Esperá tu turno';
+  else if(p.stunUntil>=s.ply)why='Aturdida este turno';
+  else if(p.duel&&p.duel.until>=s.ply)why='En duelo';
+  else if(!canUseAbil(s,p))why='Sin habilidades por ahora';
+  else if(d.kind==='definitiva'&&p.usedUlt)why='Ya la usó';
+  else if(cost>s.ki[p.side])why=`Te falta Ki (necesitás ${cost})`;
+  else if(u.id==='orden'&&p.ordenUses>=2)why='Ya la usó 2 veces';
+  return `<div class="ab">${head}<span class="why">${why}</span></div>`;}
+function viewPanel(){
+  const s=G.s,v=V();const parts=[];
+  if(s.result){
+    parts.push(`<div class="card alert"><h3>${s.result.winner?`¡Ganan ${SIDE_NAME[s.result.winner]}!`:'Empate'}</h3><p style="margin:0 0 10px">${s.result.reason}. Ahora se ve todo: Jokers, trampas y reyes camuflados.</p><div class="row"><button class="btn primary" data-act="menu">Nueva partida</button></div></div>`);}
+  if(G.notice&&!s.result)parts.push(`<div class="card alert"><p style="margin:0">${G.notice}</p></div>`);
+  if(G.choice){
+    const btns=G.choice.acts.map((a,i)=>`<button class="btn ${i===0&&G.choice.acts.length===1?'primary':''}" data-act="choose" data-arg="${i}">${a.choice?a.choice.label:`Usar ${A[a.inner||a.id].name}`}</button>`).join('');
+    parts.push(`<div class="card choice"><h3>${G.choice.title}</h3><div class="choices">${btns}<button class="btn small" data-act="cancel">Cancelar</button></div></div>`);}
+  else if(G.mode){
+    const d=A[G.mode.id];const inner=G.mode.acts[0]&&G.mode.acts[0].inner;
+    const hint=modeHint(G.mode.id,G.mode.prefix.length,inner);
+    parts.push(`<div class="card choice"><h3>${d.name}${inner?' → '+A[inner].name:''}</h3><p style="margin:0 0 8px">${hint} Las casillas posibles tienen borde celeste.</p><button class="btn small" data-act="cancel">Cancelar</button></div>`);}
+  const sel=G.sel?s.pieces[G.sel]:null;
+  if(sel&&!sel.dead){
+    const own=v==='all'||v===sel.side;const isTurn=!s.result&&sel.side===s.turn;
+    if(own&&v!=='all'){
+      const st=statusText(s,sel);
+      const list=sel.illusion?[]:usable(s,sel);
+      const rows=list.map(u=>abilityRow(s,sel,u,isTurn));
+      if(sel.cargo)rows.push(abilityRow(s,sel,{id:'salir'},isTurn));
+      let extra='';
+      if(sel.type==='J'&&!sel.revealed&&isTurn)extra=`<button class="btn small" data-act="showjoker">Mostrar el Joker al rival (no gasta el turno)</button>`;
+      if(sel.illusion)extra='<p class="muted" style="margin:0">Es tu ilusión: se mueve como un peón pero no captura ni tiene habilidades. Desaparece si la tocan o a los 3 turnos.</p>';
+      if(sel.fakeKing)extra='<p class="muted" style="margin:0">Rey falso: se mueve como rey y no tiene habilidades. Si lo capturan, solo perdés esta pieza.</p>';
+      if(sel.type==='K'&&sel.mimic)extra='<p class="muted" style="margin:0">Rey verdadero camuflado: se mueve y captura como la pieza que imita. Si usás una habilidad de rey, se descubre.</p>';
+      parts.push(`<div class="card"><h3>${realName(sel)} · ${sqName(sel.sq)}</h3>${st.length?`<p class="muted" style="margin:0">${st.join(' · ')}</p>`:''}${extra?`<div style="margin-top:8px">${extra}</div>`:''}<div class="abl">${rows.join('')||'<p class="muted" style="margin:0">Sin habilidades.</p>'}</div></div>`);
+    }else{
+      const at=v==='all'?sel.type:apparentType(sel);const st=statusText(s,sel);
+      const lo=(s.loadout[sel.side][at]||RECOMENDADAS[at]||[]);
+      parts.push(`<div class="card"><h3>${v==='all'?realName(sel):TYPE_NAME[at]} de ${SIDE_NAME[sel.side]} · ${sqName(sel.sq)}</h3>${st.length?`<p class="muted" style="margin:0">${st.join(' · ')}</p>`:''}<div class="abl">${lo.map(id=>`<div class="ab"><span class="top"><b>${A[id].name}</b><span class="tagk k-${A[id].kind}">${KIND_NAME[A[id].kind]}</span>${A[id].kind==='pasiva'?'':`<span class="kicost">${A[id].ki} Ki</span>`}</span><p>${A[id].desc}</p></div>`).join('')}</div></div>`);}
+  }else if(!s.result&&!G.mode&&!G.choice){
+    parts.push(`<div class="card"><h3>Tu turno, ${SIDE_NAME[s.turn]}</h3><p class="muted" style="margin:0">Tocá una pieza tuya para ver adónde se mueve y sus habilidades. Tocá una pieza rival para ver qué puede hacer. Puntos rosas: movimientos. Bordes celestes: objetivos de habilidad.</p></div>`);}
+  const logs=G.log.slice(-40).reverse().map(l=>`<li class="${l.kind||''}"><span class="pl">${Math.ceil(l.ply/2)}${l.side==='w'?'.':'…'}</span>${v==='all'?l[l.side]:l[v]}</li>`).join('');
+  parts.push(`<div class="card"><h3>Registro</h3><ul class="log">${logs||'<li class="muted">Todavía no pasó nada.</li>'}</ul></div>`);
+  parts.push(`<div class="row"><button class="btn small" data-act="rival">${G.showRival?'Ocultar ejércitos':'Ver habilidades de los dos ejércitos'}</button>${s.result?'':'<button class="btn small" data-act="resign">Rendirse</button>'}<button class="btn small" data-act="menu">Menú</button></div>`);
+  if(G.showRival)parts.push(`<div class="two">${armyHTML(s,'w')}${armyHTML(s,'b')}</div>`);
+  return parts.join('');}
+function modeHint(id,step,inner){
+  const k=inner||id;
+  const two={doble:['Elegí dónde cae el primer salto.','Elegí dónde cae el segundo salto (puede capturar).'],
+    orden:['Elegí la pieza enemiga que vas a mover.','Elegí adónde la mandás.'],
+    risa:['Elegí la primera pieza enemiga.','Elegí la segunda pieza para intercambiarlas.']};
+  if(two[k])return two[k][Math.min(step,1)];
+  return 'Elegí la casilla.';}
+function modeNext(){const m=G.mode;return [...new Set(m.acts.filter(a=>m.prefix.every((q,i)=>a.path[i]===q)).map(a=>a.path[m.prefix.length]).filter(x=>x!=null))];}
+function viewCurtain(){
+  const c=G.curtain;
+  return `<div class="curtain" role="dialog" aria-modal="true"><div class="in">
+    ${c.side?`<div class="stamp ${c.side==='w'?'pw':'pb'}" style="background:${c.side==='w'?'var(--b-fill)':'var(--w-fill)'}"><span class="pc ${c.side==='w'?'pw':'pb'}" style="font-size:56px">${GLYPH.K}</span></div>`:''}
+    <h2>${c.title}</h2><p style="margin:0">${c.text}</p>
+    ${c.items&&c.items.length?`<ul>${c.items.map(t=>`<li>${t}</li>`).join('')}</ul>`:''}
+    <button class="btn primary" data-act="curtain">${c.btn}</button></div></div>`;}
+function render(){
+  if(G.screen==='inicio')app.innerHTML=viewStart();
+  else if(G.screen==='draft')app.innerHTML=viewDraft();
+  else if(G.screen==='revelar')app.innerHTML=viewReveal();
+  else app.innerHTML=viewGame();
+  if(G.curtain)app.insertAdjacentHTML('beforeend',viewCurtain());
+  save();}
+
+/* ---------- flujo de la partida ---------- */
+function addLogs(logs,ply,side){for(const l of logs)G.log.push(Object.assign({ply,side},l));}
+function turnNotice(s){
+  const side=s.turn;const out=[];
+  if(inCheck(s,side))out.push(s.camo[side]?'⚠ Tu rey verdadero está en jaque. El rival no lo sabe, pero tenés que salvarlo.':'⚠ ¡Estás en jaque! Tenés que salir del jaque.');
+  if(s.camo[side]){const c=s.camo[side];const f=s.pieces[c.fake];if(f&&f.sq>=0&&attackedBy(s,f.sq,opp(side)))out.push('Atacan a tu rey falso. No hace falta salvarlo: si lo capturan, solo perdés esa pieza.');}
+  return out.join(' ')||null;}
+function startTurnUI(){
+  const s=G.s;
+  G.legal=evaluateTurn(s);G.sel=null;G.mode=null;G.choice=null;
+  if(s.result){addLogs([{w:`Fin: ${s.result.reason}.`,b:`Fin: ${s.result.reason}.`,kind:'alerta'}],s.ply,s.turn);G.curtain=null;G.notice=null;return;}
+  G.notice=turnNotice(s);
+  if(G.hide){const v=s.turn;const items=G.log.filter(l=>l.ply===s.ply-1).map(l=>l[v]);
+    G.curtain={side:v,title:`Turno de ${SIDE_NAME[v]}`,text:`Pasale el dispositivo a quien juega con ${SIDE_NAME[v]}.`,items:items.length?['Lo que pasó en la jugada rival:'].concat(items).slice(0,8):[],btn:`Soy ${SIDE_NAME[v]}: mostrar el tablero`};}}
+function commit(a){
+  const s=G.s,side=s.turn,ply=s.ply;
+  const r=performAction(s,a);
+  addLogs(r.logs,ply,side);
+  G.sel=null;G.mode=null;G.choice=null;
+  if(r.cancelled){
+    G.s=r.state;G.legal=legalActions(G.s,side);G.notice=r.logs[0][side];
+    if(!G.legal.length){addLogs([{w:`${SIDE_NAME[side]} no tiene otra jugada y pasa.`,b:`${SIDE_NAME[side]} no tiene otra jugada y pasa.`}],ply,side);beginTurn(G.s);startTurnUI();}
+    render();return;}
+  G.s=r.state;const ns=G.s;
+  const ak=apparentKing(ns,opp(side));
+  if(ak&&attackedBy(ns,ak.sq,side))addLogs([{w:'¡Jaque!',b:'¡Jaque!',kind:'alerta'}],ply,side);
+  beginTurn(ns);startTurnUI();render();}
+function startGame(drafts){
+  G.drafts=drafts;G.s=newGame(drafts);G.log=[];G.screen='game';G.showRival=false;
+  startTurnUI();
+  if(G.hide&&G.curtain){G.curtain.items=[];G.curtain.text='La partida empieza. Pasale el dispositivo a quien juega con Blancas.';}}
+
+/* ---------- clics ---------- */
+const H={
+  new(){G.drafts={w:newDraft('w'),b:newDraft('b')};G.draftSide='w';G.draftMode='J';G.screen='draft';G.curtain=null;window.scrollTo(0,0);},
+  quick(){startGame({w:randomDraft('w'),b:randomDraft('b')});},
+  continue(){const x=loadSaved();if(!x)return;G=x;G.hide=x.hide;if(G.s&&!G.s.result){G.legal=legalActions(G.s,G.s.turn);if(G.hide){const v=G.s.turn;G.curtain={side:v,title:`Turno de ${SIDE_NAME[v]}`,text:`Pasale el dispositivo a quien juega con ${SIDE_NAME[v]}.`,items:[],btn:`Soy ${SIDE_NAME[v]}: mostrar el tablero`};}}},
+  noble(n){G.drafts[G.draftSide].noble=n;},
+  dmode(m){G.draftMode=m;},
+  dsq(arg){const sq=+arg,d=G.drafts[G.draftSide];const br=G.draftSide==='w'?0:7;const f=fl(sq);const isBack=rk(sq)===br;
+    if(G.draftMode==='J'){if(isBack&&(f===3||f===4)){toast('El Joker solo reemplaza a un peón, caballo, alfil o torre.');return;}d.joker=sq;if(d.dark===sq)d.dark=null;}
+    else{if(isBack){toast('El Peón Oscuro solo reemplaza a un peón.');return;}if(d.joker===sq){toast('Ahí está el Joker. Elegí otro peón.');return;}d.dark=sq;}},
+  dab(arg){const [t,id]=arg.split('|');const L=G.drafts[G.draftSide].load[t];const i=L.indexOf(id);
+    if(i>=0)L.splice(i,1);else if(L.length>=3){toast('Ya elegiste 3. Tocá una elegida para sacarla.');return;}else L.push(id);},
+  drnd(t){G.drafts[G.draftSide].load[t]=shuffle(PIECE_ABILS[t].slice()).slice(0,3);},
+  drec(t){G.drafts[G.draftSide].load[t]=RECOMENDADAS[t].slice();},
+  dall(){const d=G.drafts[G.draftSide];for(const t of draftTypes(d))d.load[t]=shuffle(PIECE_ABILS[t].slice()).slice(0,3);},
+  dallrec(){const d=G.drafts[G.draftSide];for(const t of draftTypes(d))d.load[t]=RECOMENDADAS[t].slice();},
+  ddone(){const d=G.drafts[G.draftSide];if(draftMissing(d))return;if(d.dark==null){toast('Falta poner el Peón Oscuro.');return;}
+    window.scrollTo(0,0);
+    if(G.draftSide==='w'){G.draftSide='b';G.draftMode='J';if(G.hide)G.curtain={side:'b',title:'Ahora eligen Negras',text:'Blancas ya eligió en secreto. Pasale el dispositivo a quien juega con Negras.',items:[],btn:'Soy Negras: elegir'};}
+    else{G.screen='revelar';if(G.hide)G.curtain={title:'Listos los dos ejércitos',text:'Ahora se revelan juntos los Nobles y las habilidades. Pueden mirar los dos.',items:[],btn:'Revelar'};}},
+  startgame(){startGame(G.drafts);},
+  curtain(){G.curtain=null;window.scrollTo(0,0);},
+  sq(arg){const sq=+arg,s=G.s;if(s.result){G.sel=pieceAt(s,sq)?pieceAt(s,sq).id:null;return;}
+    if(G.mode){const next=modeNext();
+      if(next.includes(sq)){G.mode.prefix.push(sq);const m=G.mode;
+        const rem=m.acts.filter(a=>m.prefix.every((q,i)=>a.path[i]===q));
+        if(rem.every(a=>a.path.length===m.prefix.length)){
+          if(rem.length===1&&!rem[0].choice){commit(rem[0]);return 'done';}
+          G.choice={acts:rem,title:A[m.id].name+(rem[0].inner?' → '+A[rem[0].inner].name:'')};G.mode=null;}
+        return;}
+      G.mode=null;}
+    if(G.choice){G.choice=null;}
+    const sel=G.sel?s.pieces[G.sel]:null;
+    if(sel&&sel.side===s.turn){const acts=G.legal.filter(a=>a.kind==='move'&&a.pid===sel.id&&a.to===sq);
+      if(acts.length===1){commit(acts[0]);return 'done';}
+      if(acts.length>1){G.choice={acts,title:'¿En qué corona?'};return;}}
+    const p=pieceAt(s,sq);G.sel=p&&!(p.sq<0)?p.id:null;},
+  useab(arg){const [id,b]=arg.split('|');const s=G.s,p=s.pieces[G.sel];if(!p)return;
+    const acts=G.legal.filter(a=>a.kind==='abil'&&a.pid===p.id&&a.id===id&&!!a.borrowed===(b==='1'));if(!acts.length)return;
+    if(acts.every(a=>a.path.length===1&&a.path[0]===p.sq)){G.choice={acts,title:A[id].name};G.mode=null;}
+    else{G.mode={id,acts,prefix:[]};G.choice=null;}},
+  choose(i){const a=G.choice&&G.choice.acts[+i];if(a){commit(a);return 'done';}},
+  cancel(){G.mode=null;G.choice=null;},
+  react(id){const s=G.s,side=s.pieces[G.sel].side;s.reactOn[side][id]=s.reactOn[side][id]===false;},
+  showjoker(){const s=G.s,p=s.pieces[G.sel];if(!p||p.type!=='J')return;p.revealed=true;addLogs([{w:`¡${SIDE_NAME[p.side]} muestra su Joker en ${sqName(p.sq)}!`,b:`¡${SIDE_NAME[p.side]} muestra su Joker en ${sqName(p.sq)}!`,kind:'alerta'}],s.ply,s.turn);G.legal=legalActions(s,s.turn);},
+  resign(){if(!G.confirmResign){G.confirmResign=true;toast('Tocá «Rendirse» otra vez para confirmar.');setTimeout(()=>{G.confirmResign=false;},3000);return;}
+    G.confirmResign=false;const s=G.s;s.result={winner:opp(s.turn),reason:`${SIDE_NAME[s.turn]} se rindió`};G.sel=null;G.mode=null;G.choice=null;G.notice=null;},
+  rival(){G.showRival=!G.showRival;},
+  menu(){const hide=G.hide;G=freshG();G.hide=hide;window.scrollTo(0,0);}
+};
+app.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  const fn=H[el.dataset.act];if(!fn)return;
+  const r=fn(el.dataset.arg,el);if(r!=='done')render();});
+app.addEventListener('change',e=>{if(e.target.id==='opt-hide'){G.hide=e.target.checked;save();}});
+
+/* ---------- arranque ---------- */
+function start(data){G=data&&data.G?data.G:freshG();render();}
+if(window.claude&&window.claude.hot&&window.claude.hot.snapshot)window.claude.hot.snapshot(()=>({G}));
+if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start);else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
+</script>
