@@ -561,6 +561,84 @@ button.naipe[disabled]{cursor:default;filter:brightness(.72)}
 .muestra{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:6px;background:var(--coin-soft);border:1.5px solid color-mix(in srgb,var(--coin) 40%,transparent)}
 .muestra>span{display:flex;flex-direction:column;gap:2px;min-width:0}
 .muestra b{font-family:var(--font-display);text-transform:uppercase;letter-spacing:.1em;color:var(--coin)}
+/* sala de juegos */
+.hub{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);text-align:left;min-width:0}
+.hcard b{font-family:var(--font-display);font-size:15px;text-transform:uppercase;letter-spacing:.03em;line-height:1.1}
+.hub .hcard:last-child:nth-child(odd){grid-column:1/-1;flex-direction:row;align-items:center;gap:12px}
+.hub .hcard:last-child:nth-child(odd) b{flex:1}
+.hcard[aria-pressed="true"]{border-color:var(--brand);box-shadow:var(--glow-brand);background:color-mix(in srgb,var(--brand) 7%,var(--surface))}
+/* cuentas de juego */
+.idbox{display:flex;flex-direction:column;gap:8px}
+.idbox label{display:flex;flex-direction:column;gap:2px}
+.loader{display:flex;justify-content:center;gap:8px;padding:6px 0}
+.loader i{width:12px;height:12px;background:var(--brand);clip-path:var(--cut-sm);animation:blink 1s infinite}
+.loader i:nth-child(2){animation-delay:.2s}.loader i:nth-child(3){animation-delay:.4s}
+/* cuatro en línea */
+.c4{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:8px;border-radius:10px;background:linear-gradient(180deg,#2340A8,#172C78);box-shadow:0 0 34px -12px var(--brand);width:min(100%,calc((100svh - 330px) * 7 / 6));align-self:center}
+.c4c{position:relative;aspect-ratio:1;border-radius:50%;background:var(--bg);box-shadow:inset 0 3px 6px rgba(0,0,0,.6)}
+.disc{position:absolute;inset:0;border-radius:50%}
+.disc.me{background:radial-gradient(circle at 35% 30%,#9FF4FF,var(--brand) 55%,#0090A8)}
+.disc.ai{background:radial-gradient(circle at 35% 30%,#FFB3D1,var(--rival) 55%,#A0104A)}
+.disc.w{box-shadow:0 0 0 3px var(--coin),0 0 18px var(--coin)}
+.disc.drop{animation:c4drop .38s cubic-bezier(.4,0,.8,1)}
+@keyframes c4drop{from{transform:translateY(calc(var(--r) * -114%))}to{transform:none}}
+.c4cols{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr)}
+.c4cols button{border:0;background:transparent;border-radius:8px}
+.c4cols button:not([disabled]):hover,.c4cols button:not([disabled]):focus-visible{background:rgba(255,255,255,.08)}
+.c4cols button[disabled]{cursor:default}
+.mini{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.mini.me{background:var(--brand)} .mini.ai{background:var(--rival)}
+/* damas */
+.ck{width:76%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center}
+.ck.me{background:radial-gradient(circle at 35% 30%,#B5F7FF,var(--brand) 60%,#007E94);box-shadow:inset 0 0 0 4px rgba(0,0,0,.18),0 3px 0 #005E6E}
+.ck.ai{background:radial-gradient(circle at 35% 30%,#FFC2DA,var(--rival) 60%,#9B0E46);box-shadow:inset 0 0 0 4px rgba(0,0,0,.18),0 3px 0 #6E0A32}
+.ck svg{width:56%;height:56%;color:var(--coin);filter:drop-shadow(0 1px 0 rgba(0,0,0,.5))}
+.sq[disabled]{cursor:default}
+.sq.must{box-shadow:inset 0 0 0 3px var(--coin)}
+/* generala */
+.tapete{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 8px;border-radius:8px;background:radial-gradient(ellipse at center,var(--felt-a) 0%,var(--felt-b) 85%);border:3px solid var(--felt-edge)}
+.dice{display:flex;gap:8px;justify-content:center}
+.die{width:52px;height:52px;padding:0;border:0;background:none;border-radius:12px;transition:transform .15s}
+.die svg{width:100%;height:100%}
+.dface{fill:#FFFDF6;stroke:#D6CBB1;stroke-width:3}
+.pip{fill:#1B1530}
+.die.held{transform:translateY(-6px)}
+.die.held .dface{stroke:var(--brand);stroke-width:7}
+.die.ghost{opacity:.35}
+.die.roll{animation:roll .45s ease-out}
+@keyframes roll{0%{transform:rotate(-200deg) scale(.6)}70%{transform:rotate(12deg) scale(1.05)}100%{transform:none}}
+.tapete .g-status{color:#fff}
+.gtable{padding:4px 12px}
+.gr{display:grid;grid-template-columns:1fr 80px 64px;align-items:center;gap:8px;padding:6px 0;border-bottom:1.5px solid var(--line);font-size:14px;min-height:42px}
+.gr:last-child{border-bottom:0}
+.gr.head{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);min-height:0}
+.gr .me,.gr .ai{text-align:center;font-family:var(--font-score);font-size:24px;line-height:1}
+.gr.head .me,.gr.head .ai{font-family:var(--font-display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gr .me b{color:var(--brand);font-weight:600} .gr .ai b{color:var(--rival);font-weight:600}
+.gr .x{color:var(--muted);font-family:var(--font-body);font-size:15px}
+.gr .btn.sm{min-height:30px;padding:0 10px;font-size:12px}
+/* póker */
+.mesa.poker{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 8px}
+.hole{position:relative;display:flex;gap:6px;justify-content:center}
+.boardc{display:flex;gap:5px;justify-content:center}
+.pozo{display:flex;align-items:baseline;gap:8px;padding:4px 14px;clip-path:var(--para);background:rgba(0,0,0,.45);color:#fff}
+.pozo .lbl{font-family:var(--font-display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.pozo b{font-family:var(--font-score);font-size:28px;line-height:.8;padding-top:4px;color:var(--coin);font-weight:600}
+.carta{position:relative;display:grid;place-items:center;width:60px;height:86px;border-radius:7px;border:2px solid var(--paper-edge);background:linear-gradient(160deg,var(--paper),var(--paper-2));color:#15112B;box-shadow:0 8px 16px -8px rgba(0,0,0,.9);flex:none;font-family:'Segoe UI Symbol','DejaVu Sans',var(--font-display),sans-serif}
+.carta.red{color:#C81E3A}
+.carta .cr{position:absolute;top:4px;left:6px;display:flex;flex-direction:column;align-items:center;font-family:var(--font-display);font-weight:700;font-size:18px;line-height:1}
+.carta .cr i{font-style:normal;font-size:14px;font-family:'Segoe UI Symbol','DejaVu Sans',sans-serif}
+.carta .cs{font-size:34px;line-height:1;margin-top:8px}
+.carta.sm{width:46px;height:66px;border-radius:6px}
+.carta.sm .cr{font-size:14px;top:3px;left:4px} .carta.sm .cr i{font-size:11px} .carta.sm .cs{font-size:24px;margin-top:8px}
+.carta.back{background:repeating-linear-gradient(45deg,var(--rival) 0 4px,var(--rival-soft) 4px 8px);border-color:var(--rival)}
+.carta.slot{background:none;border:1.5px dashed rgba(255,255,255,.22);box-shadow:none}
+.carta.flip{animation:flip .4s ease-out}
+@keyframes flip{from{transform:rotateY(90deg)}to{transform:none}}
+.chipbet{position:absolute;right:-58px;top:50%;transform:translateY(-50%);padding:3px 10px;clip-path:var(--para);font-family:var(--font-score);font-size:20px;line-height:1;padding-top:5px;background:var(--coin);color:var(--on-coin)}
+.dealer{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#fff;color:#111;font-size:10px;font-weight:800}
+.raises .btn{flex:1 1 30%;font-size:13px;min-height:42px;padding:0 8px}
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} #fx{display:none} }
 </style>
 
@@ -583,8 +661,8 @@ button.naipe[disabled]{cursor:default;filter:brightness(.72)}
 
 /* ---------- datos fijos ---------- */
 // tos: 'no' = los términos del editor prohíben apostar sobre sus partidas; '?' = términos todavía sin revisar
-const CATS = { pc:'PC y consola', movil:'Celular', online:'Ajedrez online', fisico:'Presencial' };
-const CAT_ICO = { pc:'🎮', movil:'📱', online:'♟️', fisico:'🤝' };
+const CATS = { online:'En la app', pc:'PC y consola', movil:'Celular', fisico:'Presencial' };
+const CAT_ICO = { pc:'🎮', movil:'📱', online:'🎲', fisico:'🤝' };
 const G = (name, cat, short, modes, plat, extra = {}) => ({ name, cat, short, modes, plat, ...extra });
 const GAMES = {
   valorant:  G('Valorant', 'pc', 'VAL', ['1v1','5v5'], 'PC', { tos:'no', pub:'Riot Games', ico:'🎯' }),
@@ -600,9 +678,13 @@ const GAMES = {
   codm:      G('Call of Duty: Mobile', 'movil', 'COD', ['1v1','5v5'], 'Celular', { tos:'?', pub:'Activision', ico:'🪖' }),
   efootball: G('eFootball', 'movil', 'eF', ['1v1'], 'Celular · consola · PC', { tos:'?', pub:'Konami', draw:true, ico:'🥅' }),
   pool8:     G('8 Ball Pool', 'movil', '8B', ['1v1'], 'Celular', { tos:'?', pub:'Miniclip', ico:'🎱' }),
-  trucoapp:  G('Truco argentino', 'movil', 'TR', ['1v1'], 'En la app · sin muestra · a 15', { auto:true, inapp:'truco', variant:'ar', ico:'🃏' }),
-  trucouy:   G('Truco uruguayo', 'movil', 'TU', ['1v1'], 'En la app · con muestra y flor · a 15', { auto:true, inapp:'truco', variant:'uy', ico:'🧉' }),
-  lichess:   G('Ajedrez online', 'online', '♞', ['1v1'], 'En la app · 5+3', { draw:true, auto:true, inapp:'chess', ico:'♟️' }),
+  trucoapp:  G('Truco argentino', 'online', 'TR', ['1v1'], 'En la app · sin muestra · a 15', { auto:true, inapp:'truco', variant:'ar', ico:'🃏', blurb:'Sin muestra · a 15', rules:'truco argentino 1 contra 1 a 15 puntos, con envido y truco' }),
+  trucouy:   G('Truco uruguayo', 'online', 'TU', ['1v1'], 'En la app · con muestra y flor · a 15', { auto:true, inapp:'truco', variant:'uy', ico:'🧉', blurb:'Con muestra y flor', rules:'truco uruguayo 1 contra 1 a 15 puntos, con muestra, piezas y flor' }),
+  lichess:   G('Ajedrez online', 'online', '♞', ['1v1'], 'En la app · 5+3', { draw:true, auto:true, inapp:'chess', ico:'♟️', blurb:'Blitz 5+3', rules:'ajedrez con blancas, 5 minutos por lado y 3 segundos extra por jugada' }),
+  poker:     G("Póker Texas Hold'em", 'online', 'PK', ['1v1'], 'En la app · mano a mano', { draw:true, auto:true, inapp:'poker', ico:'♠️', blurb:'Mano a mano · 15 manos', rules:"Texas Hold'em mano a mano: 1.000 fichas cada uno, 15 manos y ciegas que suben; gana el que termina con más fichas" }),
+  generala:  G('Generala', 'online', 'GN', ['1v1'], 'En la app · 5 dados', { draw:true, auto:true, inapp:'generala', ico:'🎲', blurb:'5 dados · 11 casilleros', rules:'generala con 5 dados y 11 casilleros; la generala servida gana al toque' }),
+  damas:     G('Damas', 'online', 'DM', ['1v1'], 'En la app · clásicas', { draw:true, auto:true, inapp:'damas', ico:'⚪', blurb:'Captura obligatoria', rules:'damas clásicas: captura obligatoria y la dama mueve de a una casilla' }),
+  c4:        G('Cuatro en línea', 'online', 'C4', ['1v1'], 'En la app · partida rápida', { draw:true, auto:true, inapp:'c4', ico:'🔴', blurb:'Partida rápida', rules:'cuatro en línea: gana el primero que junta cuatro fichas seguidas' }),
   truco:     G('Truco', 'fisico', 'TR', ['1v1','2v2','3v3'], 'Cartas españolas', { ico:'🃏' }),
   ajedrez:   G('Ajedrez presencial', 'fisico', '♜', ['1v1'], 'Tablero', { draw:true, ico:'♟️' }),
   pool:      G('Pool', 'fisico', 'PO', ['1v1','2v2'], 'Mesa de pool', { ico:'🎱' }),
@@ -610,12 +692,14 @@ const GAMES = {
   metegol:   G('Metegol', 'fisico', 'MG', ['1v1','2v2'], 'Metegol', { ico:'⚽' }),
   padel:     G('Pádel', 'fisico', 'PD', ['2v2'], 'Cancha de pádel', { ico:'🎾' }),
 };
+// Juegos que se juegan fuera de la app: cuenta con la que se verifica el resultado
+for (const [g, p] of Object.entries({ valorant:'riot', lol:'riot', cs2:'steam', fortnite:'epic', rocket:'epic', fc:'ea', tekken:'bandai', clash:'supercell', brawl:'supercell', freefire:'garena', codm:'activision', efootball:'konami', pool8:'miniclip' })) GAMES[g].idp = p;
 const GAME_IDS = Object.keys(GAMES);
-const gsub = g => `${GAMES[g].plat} · ${GAMES[g].inapp ? 'resultado automático' : 'reportan los dos'}`;
+const gsub = g => `${GAMES[g].plat} · ${GAMES[g].inapp ? 'resultado automático' : GAMES[g].idp ? 'se verifica con tu ID' : 'reportan los dos'}`;
 const teamSize = f => parseInt(f || '1v1', 10);
 const potOf = c => c.stake * 2 * teamSize(c.fmt);
 const fmtTag = c => c.fmt && c.fmt !== '1v1' ? ' · ' + c.fmt : '';
-const tosTag = g => GAMES[g].tos === 'no' ? `<span class="warn-tag bad">${GAMES[g].pub} prohíbe apuestas</span>` : GAMES[g].tos === '?' ? '<span class="warn-tag">Términos sin revisar</span>' : '';
+const tosTag = g => S.mode === 'vision' ? '' : GAMES[g].tos === 'no' ? `<span class="warn-tag bad">${GAMES[g].pub} prohíbe apuestas</span>` : GAMES[g].tos === '?' ? '<span class="warn-tag">Términos sin revisar</span>' : '';
 const STAKES = [10, 25, 50, 100, 250];
 const K = 32;
 const TIERS = [['Bronce',0],['Plata',950],['Oro',1100],['Platino',1250],['Diamante',1400]];
@@ -664,7 +748,8 @@ function seed(){
     loginStreak: 2,
     streak: 1,
     sxp: 120,
-    mode: 'regulado',
+    mode: 'vision',
+    ids: {},
     points: 40,
     pointsLog: [
       { ts: now-DAY, amount:15, text:'Bonus diario · racha de 2 días' },
@@ -687,6 +772,8 @@ function seed(){
     challenges: [
       { id:'c1', game:'trucoapp', fmt:'1v1', stake:50, rival:'caro_mate', mine:false, origin:'amigo', status:'pendiente', created: now-25*60e3, myLocked:false,
         events:[ev(25*60e3,'@caro_mate creó el desafío y bloqueó 50 monedas')] },
+      { id:'c6', game:'valorant', fmt:'1v1', stake:100, rival:'gonza_b', mine:false, origin:'amigo', status:'pendiente', created: now-5*60e3, myLocked:false,
+        events:[ev(5*60e3,'@gonza_b te retó a un Valorant 1v1 y bloqueó 100 monedas')] },
       { id:'c5', game:'trucouy', fmt:'1v1', stake:25, rival:'flor_rp', mine:false, origin:'amigo', status:'pendiente', created: now-10*60e3, myLocked:false,
         events:[ev(10*60e3,'@flor_rp te retó a un Truco uruguayo y bloqueó 25 monedas')] },
       { id:'c4', game:'rocket', fmt:'2v2', stake:25, rival:'juancito', mine:false, origin:'amigo', status:'pendiente', created: now-90*60e3, myLocked:false,
@@ -702,6 +789,7 @@ function seed(){
     ],
     notifs: [
       { id:'n1', ts: now-25*60e3, text:'@caro_mate te retó a un Truco argentino por 50 monedas', ref:'c1', read:false },
+      { id:'n6', ts: now-5*60e3, text:'@gonza_b te retó a un Valorant 1v1 por 100 monedas', ref:'c6', read:false },
       { id:'n5', ts: now-10*60e3, text:'@flor_rp te retó a un Truco uruguayo por 25 monedas', ref:'c5', read:false },
       { id:'n0', ts: now-90*60e3, text:'@juancito te invitó a un 2v2 de Rocket League por 25 monedas', ref:'c4', read:false },
       { id:'n2', ts: now-32*60e3, text:'@lu_pereyra aceptó tu desafío de Ajedrez online', ref:'c2', read:true },
@@ -732,6 +820,17 @@ if (!S.v5){
   }
   S.v5 = true;
 }
+// v6: catálogo de juegos, cuentas de juego y modo con licencia por defecto
+if (!S.v6){
+  S.mode = 'vision'; S.ids = S.ids || {};
+  if (!S.challenges.some(c => c.game === 'valorant')){
+    const t0 = Date.now() - 5*60e3;
+    S.challenges.push({ id:'c6', game:'valorant', fmt:'1v1', stake:100, rival:'gonza_b', mine:false, origin:'amigo', status:'pendiente', created:t0, myLocked:false, events:[{ ts:t0, text:'@gonza_b te retó a un Valorant 1v1 y bloqueó 100 monedas' }] });
+    S.notifs.unshift({ id:'n6', ts:t0, text:'@gonza_b te retó a un Valorant 1v1 por 100 monedas', ref:'c6', read:false });
+  }
+  S.v6 = true;
+}
+S.ids = S.ids || {};
 for (const g of GAME_IDS){ if (S.ratings[g] == null) S.ratings[g] = 1000; for (const u in S.players) if (S.players[u].r[g] == null) S.players[u].r[g] = fakeElo(u + g); }
 if (!S.cash) S.cash = newCash();
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
@@ -868,7 +967,7 @@ const ICONS = {
   trophy: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3h12v6a6 6 0 0 1-12 0zM4 5h2v4a3 3 0 0 1-2-3zM18 5h2v1a3 3 0 0 1-2 3zM10.5 15h3v3h3v3h-9v-3h3z"/></svg>',
 };
 const TABS = [['inicio','Inicio'],['desafios','Desafíos'],['jugar','Jugar'],['ranking','Ranking'],['perfil','Perfil']];
-const TITLES = { desafios:'Desafíos', jugar:'Buscar rival', ranking:'Ranking', perfil:'Perfil' };
+const TITLES = { desafios:'Desafíos', jugar:'Juegos', ranking:'Ranking', perfil:'Perfil' };
 
 /* plegables: recuerdan si están abiertos mientras dure la sesión */
 const OPEN = { historial:true };
@@ -947,7 +1046,7 @@ function openNotifs(){
 /* ---------- piezas comunes ---------- */
 function statusPill(c){
   if (c.status === 'finalizado') return `<span class="pill ${c.result === 'gane' ? 'finalizado' : c.result === 'empate' ? 'aceptado' : 'en_disputa'}">${c.result === 'gane' ? 'Ganaste' : c.result === 'empate' ? 'Empate' : 'Perdiste'}</span>`;
-  if (needsMe(c)) return `<span class="pill toca">${c.status === 'pendiente' ? 'Responder' : c.status === 'aceptado' ? 'Te toca' : (inApp(c) ? 'Jugar' : 'Reportar')}</span>`;
+  if (needsMe(c)) return `<span class="pill toca">${c.status === 'pendiente' ? 'Responder' : c.status === 'aceptado' ? 'Te toca' : (inApp(c) ? 'Jugar' : GAMES[c.game].idp && !c.manual ? 'Verificar' : 'Reportar')}</span>`;
   return `<span class="pill ${c.status}">${c.status === 'pendiente' ? 'Esperando' : STATUS[c.status]}</span>`;
 }
 function chRow(c){
@@ -976,7 +1075,7 @@ function podium(rows, val){
 }
 function modeBanner(){
   return S.mode === 'vision'
-    ? '<div class="banner"><b>Modo visión · concepto para inversores</b><span>Acá las monedas se apuestan y además se canjean por productos. Eso requiere licencia de juego: hoy no se puede operar en Uruguay. Datos simulados.</span></div>'
+    ? '<div class="banner"><b>Modo visión · Challenge con licencia</b><span>Así funciona la versión completa: monedas apostables y canjeables y todo el catálogo de juegos. Datos simulados para inversores.</span></div>'
     : '';
 }
 
@@ -1018,7 +1117,7 @@ function vInicio(){
 
   <div class="big-actions">
     <button class="big gold" data-a="new"><span class="ic">${ICONS.swords}</span><span>Retar a un amigo<small>Elegís juego, rival y monto</small></span></button>
-    <button class="big" data-a="tab" data-t="jugar"><span class="ic">${ICONS.jugar}</span><span>Buscar rival<small>Ajedrez online, nivel parecido</small></span></button>
+    <button class="big" data-a="tab" data-t="jugar"><span class="ic">${ICONS.jugar}</span><span>Jugar ya<small>Póker, truco, generala y más</small></span></button>
   </div>
 
   <section class="section">
@@ -1109,8 +1208,9 @@ function vNuevo(){
         <div class="r"><span>Rival</span><b>@${esc(d.rival)} <button class="link small" data-a="d-goto" data-s="1">Cambiar</button></b></div>
         <div class="r"><span>Ponés</span><b class="num">${fmt(d.stake)}${n > 1 ? ' c/u' : ''} · ${d.hot ? 'caliente' : 'normal'} <button class="link small" data-a="d-goto" data-s="2">Cambiar</button></b></div>
       </div>
+      ${GAMES[d.game].idp ? (myId(GAMES[d.game].idp) ? `<div class="card recap"><div class="r"><span>Tu ${PLAT[GAMES[d.game].idp].name}</span><b>${esc(myId(GAMES[d.game].idp))} <button class="link small" data-a="unlink-id" data-p="${GAMES[d.game].idp}">Cambiar</button></b></div></div>` : idField(GAMES[d.game].idp)) : ''}
       <div class="summary"><span>Si ganás te llevás</span><b class="num">${coinSvg}${fmt(d.stake*2)}</b></div>
-      ${GAMES[d.game].tos === 'no' ? `<div class="alert bad"><b>${GAMES[d.game].pub} prohíbe apostar sobre sus partidas</b><span>Solo visible en el modo visión. Para ofrecerlo de verdad haría falta un acuerdo con el editor.</span></div>` : ''}
+      ${GAMES[d.game].tos === 'no' && S.mode !== 'vision' ? `<div class="alert bad"><b>${GAMES[d.game].pub} prohíbe apostar sobre sus partidas</b><span>Solo visible en el modo visión. Para ofrecerlo de verdad haría falta un acuerdo con el editor.</span></div>` : ''}
       <p class="muted small" style="margin:0">${n > 1 ? `Formato ${d.fmt}: cada uno de los ${n*2} jugadores pone ${fmt(d.stake)} (pozo de ${fmt(d.stake*2*n)}). Cada integrante del equipo ganador se lleva ${fmt(d.stake*2)}. Tus compañeros se suman con un link. ` : ''}Al enviar se bloquean tus ${fmt(d.stake)} monedas. Si no aceptan en 48 h, vuelven a tu saldo. Comisión: 0%.</p>
       ${d.stake > bal ? '<div class="err">No te alcanzan las monedas para ese monto.</div>' : ''}`;
   }
@@ -1119,7 +1219,7 @@ function vNuevo(){
 function nuevoFoot(){
   const d = S.draft, step = d.step || 0, over = d.stake > balance();
   const back = step > 0 ? `<button class="btn back" data-a="d-prev" aria-label="Paso anterior">${ICONS.back}</button>` : '';
-  if (step === 3) return back + `<button class="btn gold xl" data-a="create" ${!d.rival || over ? 'disabled' : ''}>Firmar y enviar reto</button>`;
+  if (step === 3) return back + `<button class="btn gold xl" data-a="create" ${!d.rival || over || idMissing(d.game) ? 'disabled' : ''}>${idMissing(d.game) ? 'Vinculá tu cuenta para enviar' : 'Firmar y enviar reto'}</button>`;
   const ok = step === 1 ? !!d.rival : step === 2 ? !over : true;
   const label = step === 1 && !d.rival ? 'Elegí un rival' : 'Siguiente';
   return back + `<button class="btn primary xl" data-a="d-next" ${ok ? '' : 'disabled'}>${label}</button>`;
@@ -1159,7 +1259,8 @@ function vDetalle(c){
 
   if (c.status === 'pendiente' && !c.mine){
     st = { tone:'warn', eye:'Te toca', title:`${rival} te retó`, text:`Si aceptás, se bloquean ${fmt(c.stake)} de tus monedas hasta que termine. Si ganás te llevás ${fmt(c.stake*2)}.` };
-    acts = `<div class="btn-row"><button class="btn gold xl" data-a="accept">Aceptar</button><button class="btn xl" data-a="reject">Rechazar</button></div>`;
+    const needP = idMissing(c.game);
+    acts = (needP ? idField(g.idp) : '') + `<div class="btn-row"><button class="btn gold xl" data-a="accept" ${needP ? 'disabled' : ''}>Aceptar</button><button class="btn xl" data-a="reject">Rechazar</button></div>`;
   } else if (c.status === 'pendiente'){
     st = { tone:'warn', eye:'Esperando', title:`Esperando que ${rival} acepte`, text:`Tus ${fmt(c.stake)} monedas están bloqueadas. Si no responde en 48 h, vuelven a tu saldo.` };
     acts = `<button class="btn danger block" data-a="withdraw">Retirar el reto</button>`;
@@ -1168,10 +1269,23 @@ function vDetalle(c){
     if (inApp(c)){
       const chess = GAMES[c.game].inapp === 'chess', started = !!c.play;
       st = c.status === 'aceptado'
-        ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text: chess ? 'Se juega acá, dentro de la app: vos con blancas, 5 minutos por lado y 3 segundos extra por jugada. El resultado queda registrado solo.' : (GAMES[c.game].variant === 'uy' ? 'Se juega acá, dentro de la app: truco uruguayo 1 contra 1 a 15 puntos, con muestra, piezas y flor.' : 'Se juega acá, dentro de la app: truco argentino 1 contra 1 a 15 puntos, con envido y truco.') + ' El resultado queda registrado solo.' }
-        : { tone:'info', eye:'En juego', title: started ? 'Partida en pausa' : 'Partida lista', text: chess ? 'Volvé al tablero cuando quieras: el reloj se frena mientras no estás.' : 'Volvé a la mesa cuando quieras: la partida te espera.' };
+        ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text:`Se juega acá, dentro de la app: ${g.rules}. El resultado queda registrado solo.` }
+        : { tone:'info', eye:'En juego', title: started ? 'Partida en pausa' : 'Partida lista', text: chess ? 'Volvé al tablero cuando quieras: el reloj se frena mientras no estás.' : 'Volvé a la partida cuando quieras: te espera tal cual la dejaste.' };
       acts = `<button class="btn gold block xl" data-a="play">${started ? 'Volver a la partida' : 'Jugar ahora'}</button><span class="small muted" style="text-align:center">En la demo, a ${rival} lo maneja la computadora.</span>`;
       demo = `<span class="small muted">Saltear la partida y simular el resultado:</span><div class="btn-row"><button class="btn" data-a="sim-lichess" data-r="gane">Ganaste</button><button class="btn" data-a="sim-lichess" data-r="perdi">Perdiste</button>${g.draw ? '<button class="btn" data-a="sim-lichess" data-r="empate">Tablas</button>' : ''}<button class="btn" data-a="sim-lichess" data-r="anulado">Abortada</button></div>`;
+    } else if (g.idp && !c.manual){
+      const P = PLAT[g.idp];
+      if (c.status === 'aceptado'){
+        st = { tone:'info', eye:'Te toca', title:'¡A jugar!', text:`Jueguen la partida en ${g.name} con estas cuentas. Al terminar, Challenge busca el resultado en ${P.src}: no hace falta reportar nada.` };
+        acts = idsCard(c) + (myId(g.idp) ? '' : idField(g.idp)) + `<button class="btn primary block xl" data-a="start" ${myId(g.idp) ? '' : 'disabled'}>Empezamos a jugar</button>`;
+      } else if (!c.verifying){
+        st = { tone:'info', eye:'En juego', title:'¿Ya terminaron?', text:`Tocá el botón cuando termine la partida y Challenge la busca en ${P.src} con el ID de los dos.` };
+        acts = idsCard(c) + `<button class="btn gold block xl" data-a="verify">Buscar el resultado</button>`;
+      } else {
+        st = { tone:'info', eye:'Verificando', title:'Buscando la partida…', text:`Revisando ${P.src} de ${esc(myId(g.idp))} y ${esc(rivalId(c.rival, g.idp))}. Suele tardar menos de un minuto.` };
+        acts = '<div class="loader" aria-hidden="true"><i></i><i></i><i></i></div>' + idsCard(c);
+        demo = `<span class="small muted">Resultado que encuentra la verificación:</span><div class="btn-row"><button class="btn" data-a="sim-verify" data-r="gane">Ganaste</button><button class="btn" data-a="sim-verify" data-r="perdi">Perdiste</button>${g.draw ? '<button class="btn" data-a="sim-verify" data-r="empate">Empate</button>' : ''}<button class="btn" data-a="sim-verify" data-r="none">No aparece</button></div>`;
+      }
     } else {
       st = c.status === 'aceptado'
         ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text:`Los dos bloquearon ${fmt(c.stake)} monedas. Cuando terminen, cada uno reporta quién ganó.` }
@@ -1207,7 +1321,7 @@ function vDetalle(c){
   }
 
   const a = assurance(c);
-  const tosWarn = g.tos === 'no' ? `<div class="alert bad"><b>${g.pub} prohíbe apostar sobre sus partidas</b><span>En la app real, este juego quedaría sin monedas o deshabilitado hasta tener permiso del editor.</span></div>` : '';
+  const tosWarn = g.tos === 'no' && S.mode !== 'vision' ? `<div class="alert bad"><b>${g.pub} prohíbe apostar sobre sus partidas</b><span>En la app real, este juego quedaría sin monedas o deshabilitado hasta tener permiso del editor.</span></div>` : '';
   return `
   ${vsCard(c, `${c.origin === 'matchmaking' ? 'Matchmaking' : 'Entre amigos'} · ${gsub(c.game)}`)}
   ${c.status !== 'cancelado' ? `<div class="track"><span class="bar-fill" style="width:${fillPct}%"></span>${steps}</div>` : ''}
@@ -1222,36 +1336,6 @@ function vDetalle(c){
   ${demo ? `<div class="demo"><span class="demo-t">${ICONS.flask.replace('<svg', '<svg width="14" height="14"')}Simular al rival (solo demo)</span>${demo}</div>` : ''}
   ${fold('garantia', ICONS.shield, 'Garantía del duelo', 'Confianza ' + a.lvl, `<ul class="plain">${a.items.map(i => `<li>${i}</li>`).join('')}</ul><span class="muted small">Challenge custodia el pozo: nadie puede retirar su parte hasta que el resultado quede confirmado.</span>`)}
   ${fold('historial', ICONS.clock, 'Historial', String(c.events.length), `<div class="timeline">${c.events.slice().reverse().map(e => `<div class="tl"><b></b><span class="t"><span>${esc(e.text)}</span><span class="muted small">${ago(e.ts)}</span></span></div>`).join('')}</div>`)}`;
-}
-
-function vJugar(){
-  const mm = S.mm, e = S.ratings.lichess;
-  if (mm.status !== 'buscando' && mm.stake > maxStake()) mm.stake = maxStake();
-  if (mm.status === 'buscando'){
-    return `
-    <div class="radar" aria-hidden="true"><span></span><span></span><span></span><div class="core num" id="mm-time">0:00</div></div>
-    <div style="text-align:center"><h2 class="q">Buscando rival</h2><div class="muted small">Ajedrez online · ${fmt(mm.stake)} monedas · tu ELO ${e}</div></div>
-    <div class="card window"><div class="h"><b>Rango de ELO aceptado</b><span class="num" id="mm-range">±100</span></div>
-      <div class="bar"><i id="mm-bar" style="left:40%;right:40%"></i><u></u></div>
-      <span class="muted small num" id="mm-hint">${e-100} a ${e+100}. Se amplía mientras esperás.</span></div>
-    <div class="muted small" style="text-align:center"><span class="num" id="mm-queue">14</span> jugadores buscando en este momento</div>
-    <button class="btn block" data-a="mm-cancel">Salir de la cola</button>
-    <p class="muted small" style="margin:0;text-align:center">Tus ${fmt(mm.stake)} monedas quedan retenidas mientras buscás. Si salís, vuelven a tu saldo. (Tiempos acelerados para la demo.)</p>`;
-  }
-  return `
-  <div class="vs-card">
-    <div class="vs-top">${gt('lichess', 'lg')}<span class="t"><b>Ajedrez online</b><span>En la app · 5+3 · resultado automático</span></span></div>
-    <div class="vs">
-      <div class="who">${avatar(ME, 'lg')}<b>@${ME}</b><span class="tier ${tierOf(e)}">${tierOf(e)} ${e}</span></div>
-      <div class="pot"><span class="lbl">Pozo</span><span class="big-n num">${coinSvg}${fmt(mm.stake*2)}</span><span class="lbl">comisión 0%</span></div>
-      <div class="who"><span class="avatar lg" style="--avc:var(--surface-3)">?</span><b>Rival</b><span class="tier ${tierOf(e)}">Nivel parecido</span></div>
-    </div></div>
-  <p class="muted" style="margin:0">Te emparejamos con alguien de nivel parecido que pone lo mismo. Por ahora solo ajedrez online: los presenciales se juegan entre amigos.</p>
-  <section class="section"><div class="h"><h2>¿Cuánto ponés?</h2><span class="muted small num">Tenés ${fmt(balance())}</span></div>
-    <div class="stakes">${STAKES.map(s => `<button class="chip num" data-a="mm-stake" data-s="${s}" aria-pressed="${mm.stake === s}" ${s > maxStake() ? 'disabled' : ''}>${s}</button>`).join('')}</div>
-  </section>
-  <button class="btn gold block xl" data-a="mm-start" ${mm.stake > balance() ? 'disabled' : ''}>Buscar rival</button>
-  ${mm.stake > balance() ? '<div class="err">No te alcanzan las monedas para ese monto.</div>' : ''}`;
 }
 
 function vRanking(){
@@ -1292,6 +1376,7 @@ function vPerfil(){
     <form class="btn-row" data-form="friend"><label for="friend-in" class="sr">Nombre de usuario</label><input id="friend-in" class="input" placeholder="Nombre de usuario" autocomplete="off" style="flex:2 1 160px"><button class="btn" type="submit" style="flex:1 1 100px">Agregar</button></form>
     <span class="muted small">Tu link para que te agreguen: challenge.app/u/${ME}</span>
   </section>
+  ${vCuentas()}
   <section class="section"><div class="h"><h2>Modo de la demo</h2></div>
     <div class="seg" role="group" aria-label="Modo"><button data-a="mode" data-m="regulado" aria-pressed="${!vis}">Regulado</button><button data-a="mode" data-m="vision" aria-pressed="${vis}">Visión (concepto)</button></div>
     <span class="muted small">${vis ? 'Visión: monedas apostables y canjeables, y todos los juegos. Es lo que el producto podría ser con licencia de juego; hoy no se puede operar en Uruguay.' : 'Regulado: las monedas se apuestan pero no valen nada; los puntos se canjean pero no se apuestan. Es la versión pensada para lanzar.'}</span>
@@ -1418,6 +1503,8 @@ function vInversores(){
   return `
   <div class="alert info"><b>Challenge en una frase</b><span>Duelos entre amigos con algo real en juego, y una app que hace de mediador para que lo acordado se cumpla.</span></div>
   ${block('', 'Los dos pilares', ['<b>Adrenalina:</b> pozos, duelos calientes, rachas con recompensa, temporadas con premio y revanchas.', '<b>Mediador confiable:</b> el pozo queda custodiado, cada decisión se firma, el resultado se verifica y las disputas se arbitran.'])}
+  ${block('', 'Sin casa: Challenge es solo el intermediario', ['Los jugadores apuestan entre ellos. Challenge nunca juega contra nadie ni tiene ventaja.', 'Custodia el pozo, verifica el resultado y le paga al que gana.', 'Gana con una comisión fija por pozo, no con lo que pierden los jugadores.'])}
+  ${block('', 'Catálogo de juegos', ['Juegos propios dentro de la app: póker, truco argentino y uruguayo, generala, ajedrez, damas y cuatro en línea.', 'Juegos externos (Valorant, Rocket League, Clash Royale y más) verificados con el ID de cada jugador.', 'Juegos presenciales con check-in en el lugar.'])}
   ${block('', 'Cómo se evitan las trampas', ['Partidas dentro de la app con resultado automático (hoy: ajedrez y truco argentino o uruguayo).', 'Check-in con QR y ubicación en partidas presenciales.', 'Doble reporte firmado con huella o PIN, más evidencia en foto o video.', 'Puntaje de confianza: quien miente pierde confianza y puede apostar menos.'])}
   ${block('', 'Cómo genera ingresos (hipótesis a validar)', ['Videos con recompensa.', 'Comercios aliados que pagan por aparecer en la tienda de canje.', 'Sponsors de temporadas y torneos.', 'Con licencia: comisión sobre cada pozo.'])}
   ${block('Etapa 1', 'Lanzamiento sin valor real', ['Monedas para apostar que no se compran ni se canjean.', 'Puntos canjeables que solo se ganan por actividad.', 'Solo juegos sin editor que prohíba apuestas (truco, pool, ajedrez, ping-pong, pádel).', 'Objetivo: probar que la mecánica engancha.'])}
@@ -1796,19 +1883,21 @@ const GLYPH = { k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' };
 const PIECE_ES = { k:'rey', q:'dama', r:'torre', b:'alfil', n:'caballo', p:'peón' };
 const glyph = p => GLYPH[p.toLowerCase()] + '︎';
 const fmtClock = ms => ms < 10000 ? (ms / 1000).toFixed(1) : Math.floor(ms / 60000) + ':' + String(Math.floor(ms / 1000) % 60).padStart(2, '0');
-const newPlay = c => GAMES[c.game].inapp === 'chess' ? { kind:'chess', st: CH.init() } : TR.init(GAMES[c.game].variant || 'ar');
+const newPlay = c => { const k = GAMES[c.game].inapp; return k === 'chess' ? { kind:'chess', st: CH.init() } : k === 'truco' ? TR.init(GAMES[c.game].variant || 'ar') : k === 'poker' ? PK.init() : k === 'generala' ? GN.init() : k === 'damas' ? DM.init() : C4.init(); };
 
 function openGame(c){
   if (!c.play) c.play = newPlay(c);
-  GAME = c.id; chSel = null; resignAsk = false; clockTs = Date.now(); gameEnter = true; animLen = -1;
+  GAME = c.id; chSel = null; dmSel = null; resignAsk = false; clockTs = Date.now(); gameEnter = true; animLen = -1;
+  c4Anim = c.play.n; gnAnim = String(c.play.n); pkAnim = c.play.h && c.play.kind === 'poker' ? c.play.hand + ':' + c.play.h.board.length : '';
   clearInterval(clockIv);
   if (c.play.kind === 'chess' && !c.play.done) clockIv = setInterval(tickClock, 250);
   save(); renderGame(); pump(c);
 }
 function closeGame(){ tickClock(); clearInterval(clockIv); clearTimeout(gameTimer); GAME = null; $('game').innerHTML = ''; save(); render(); }
-const pump = c => c.play.kind === 'chess' ? chessAfter(c) : trucoPump(c);
+const pump = c => ({ chess:chessAfter, truco:trucoPump, poker:pkPump, generala:gnPump, damas:dmPump, c4:c4Pump })[c.play.kind](c);
 function finishGame(c, res, why){
   const P = c.play; if (P.done) return;
+  why = why.replace(/\{R\}/g, '@' + c.rival);
   P.done = true; P.final = { res, why }; resignAsk = false;
   clearInterval(clockIv); clearTimeout(gameTimer);
   if (c.status === 'aceptado') c.status = 'en_juego';
@@ -1852,12 +1941,12 @@ function renderGame(){
   const c = GAME && find(GAME);
   if (!c || !c.play){ GAME = null; el.innerHTML = ''; return; }
   const old = el.querySelector('.g-body'), sc = old ? old.scrollTop : 0;
-  el.innerHTML = c.play.kind === 'chess' ? vChess(c) : vTruco(c);
+  el.innerHTML = ({ chess:vChess, truco:vTruco, poker:vPoker, generala:vGenerala, damas:vDamas, c4:vC4 })[c.play.kind](c);
   if (gameEnter){ el.firstElementChild.classList.add('enter'); gameEnter = false; }
   const body = el.querySelector('.g-body'); if (body) body.scrollTop = sc;
-  if (c.play.kind === 'chess'){
-    const st = c.play.st, first = animLen < 0;
-    if (st.hist.length !== animLen){ animLen = st.hist.length; if (!first && st.last) slidePiece(st.last); }
+  if (c.play.kind === 'chess' || c.play.kind === 'damas'){
+    const chess = c.play.kind === 'chess', st = chess ? c.play.st : c.play, n = chess ? st.hist.length : st.n, first = animLen < 0;
+    if (n !== animLen){ animLen = n; if (!first && st.last) slidePiece(st.last); }
   }
 }
 function slidePiece([from, to]){
@@ -1959,6 +2048,561 @@ function vTruco(c){
   </div></div>`;
 }
 
+/* ---------- cuatro en línea (vos con fichas cian, la computadora con magenta) ---------- */
+const C4 = (() => {
+  const W = 7, H = 6, ORDER = [3, 2, 4, 1, 5, 0, 6];
+  const LINES = [];
+  for (let r = 0; r < H; r++) for (let c = 0; c < W; c++) for (const [dr, dc] of [[0,1],[1,0],[1,1],[1,-1]]){
+    const cells = [];
+    for (let k = 0; k < 4; k++){ const rr = r + dr*k, cc = c + dc*k; if (rr < 0 || rr >= H || cc < 0 || cc >= W) break; cells.push(rr*W + cc); }
+    if (cells.length === 4) LINES.push(cells);
+  }
+  const init = () => ({ kind:'c4', g:Array(42).fill(0), turn:'me', last:-1, n:0, win:null, result:null });
+  const top = (g, c) => { for (let r = H - 1; r >= 0; r--) if (!g[r*W + c]) return r; return -1; };
+  function winner(g){ for (const l of LINES){ const v = g[l[0]]; if (v && v === g[l[1]] && v === g[l[2]] && v === g[l[3]]) return { v, cells:l }; } return null; }
+  function drop(st, col){
+    const r = top(st.g, col); if (r < 0) return null;
+    const g = st.g.slice(); g[r*W + col] = st.turn === 'me' ? 1 : 2;
+    const n = Object.assign({}, st, { g, last:r*W + col, n:st.n + 1, turn: st.turn === 'me' ? 'ai' : 'me' });
+    const w = winner(g);
+    if (w){ n.win = w.cells; n.result = w.v === 1 ? 'me' : 'ai'; } else if (g.every(Boolean)) n.result = 'draw';
+    return n;
+  }
+  function score(g, v){
+    const o = 3 - v; let s = 0;
+    for (let r = 0; r < H; r++){ if (g[r*W + 3] === v) s += 3; else if (g[r*W + 3] === o) s -= 3; }
+    for (const l of LINES){
+      let a = 0, b = 0; for (const i of l){ if (g[i] === v) a++; else if (g[i] === o) b++; }
+      if (a && b) continue;
+      if (a === 3) s += 5; else if (a === 2) s += 2;
+      if (b === 3) s -= 6; else if (b === 2) s -= 2;
+    }
+    return s;
+  }
+  function negamax(g, v, depth, alpha, beta){
+    if (winner(g)) return -100000 - depth;   // ganó el que acaba de jugar
+    if (g.every(Boolean)) return 0;
+    if (!depth) return score(g, v);
+    let best = -Infinity;
+    for (const c of ORDER){
+      const r = top(g, c); if (r < 0) continue;
+      g[r*W + c] = v; const s = -negamax(g, 3 - v, depth - 1, -beta, -alpha); g[r*W + c] = 0;
+      if (s > best) best = s; if (s > alpha) alpha = s; if (alpha >= beta) break;
+    }
+    return best;
+  }
+  function best(st, elo){
+    const depth = elo < 1000 ? 3 : elo < 1200 ? 5 : 6, noise = elo < 1000 ? 8 : elo < 1200 ? 3 : 1;
+    let bc = 3, bv = -Infinity;
+    for (const c of ORDER){
+      const r = top(st.g, c); if (r < 0) continue;
+      const g = st.g.slice(); g[r*W + c] = 2;
+      const v = -negamax(g, 1, depth - 1, -Infinity, Infinity) + Math.random()*noise;
+      if (v > bv){ bv = v; bc = c; }
+    }
+    return bc;
+  }
+  return { W, H, init, top, drop, best };
+})();
+
+/* ---------- damas (reglas clásicas: captura obligatoria, la dama mueve de a una casilla) ---------- */
+const DM = (() => {
+  const on = (r, f) => r >= 0 && r < 8 && f >= 0 && f < 8;
+  const own = (p, s) => !!p && (s === 'me' ? (p === 'm' || p === 'M') : (p === 'a' || p === 'A'));
+  const king = p => p === 'M' || p === 'A';
+  const other = s => s === 'me' ? 'ai' : 'me';
+  const dirs = p => king(p) ? [[-1,-1],[-1,1],[1,-1],[1,1]] : p === 'm' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
+  function init(){
+    const b = Array(64).fill('');
+    for (let i = 0; i < 64; i++){ const r = i >> 3, f = i & 7; if ((r + f) % 2){ if (r < 3) b[i] = 'a'; else if (r > 4) b[i] = 'm'; } }
+    return { kind:'damas', b, turn:'me', last:null, n:0, quiet:0, result:null, reason:'' };
+  }
+  function moves(b, s){
+    const caps = [], simple = [], lastRow = s === 'me' ? 0 : 7;
+    for (let i = 0; i < 64; i++){
+      const p = b[i]; if (!own(p, s)) continue;
+      const dfs = (pos, path, taken) => {
+        let ext = false;
+        for (const [dr, df] of dirs(p)){
+          const pr = pos >> 3, pf = pos & 7, lr = pr + 2*dr, lf = pf + 2*df;
+          if (!on(lr, lf)) continue;
+          const mid = (pr + dr)*8 + pf + df, land = lr*8 + lf;
+          if (!b[mid] || own(b[mid], s) || taken.includes(mid) || (b[land] && land !== i)) continue;
+          ext = true;
+          if (!king(p) && lr === lastRow) caps.push({ f:i, t:land, path:path.concat(land), caps:taken.concat(mid) });
+          else dfs(land, path.concat(land), taken.concat(mid));
+        }
+        if (!ext && taken.length) caps.push({ f:i, t:pos, path, caps:taken });
+      };
+      dfs(i, [], []);
+      const r = i >> 3, f = i & 7;
+      for (const [dr, df] of dirs(p)) if (on(r + dr, f + df) && !b[(r + dr)*8 + f + df]) simple.push({ f:i, t:(r + dr)*8 + f + df, path:[(r + dr)*8 + f + df], caps:[] });
+    }
+    return caps.length ? caps : simple;
+  }
+  function applyB(b, m, s){
+    const n = b.slice(), p = n[m.f]; n[m.f] = '';
+    for (const c of m.caps) n[c] = '';
+    n[m.t] = !king(p) && (m.t >> 3) === (s === 'me' ? 0 : 7) ? p.toUpperCase() : p;
+    return n;
+  }
+  function play(st, m){
+    const p = st.b[m.f], b = applyB(st.b, m, st.turn), opp = other(st.turn);
+    const quiet = m.caps.length || !king(p) ? 0 : st.quiet + 1;
+    const n = Object.assign({}, st, { b, turn:opp, last:[m.f, m.t], n:st.n + 1, quiet, result:null, reason:'' });
+    if (!moves(b, opp).length){ n.result = st.turn; n.reason = b.some(x => own(x, opp)) ? 'Se quedó sin movimientos' : 'Se quedó sin fichas'; }
+    else if (quiet >= 50){ n.result = 'draw'; n.reason = '25 jugadas seguidas de damas sin capturas'; }
+    return n;
+  }
+  function evalB(b, s){
+    let v = 0;
+    for (let i = 0; i < 64; i++){
+      const p = b[i]; if (!p) continue;
+      const r = i >> 3, f = i & 7;
+      let x = king(p) ? 175 : 100 + (p === 'm' ? (7 - r) : r) * 4;
+      if (f === 0 || f === 7) x += 3;
+      v += own(p, s) ? x : -x;
+    }
+    return v;
+  }
+  function negamax(b, s, depth, alpha, beta){
+    const ms = moves(b, s);
+    if (!ms.length) return -100000 - depth;
+    if (!depth) return evalB(b, s);
+    let best = -Infinity;
+    for (const m of ms){
+      const v = -negamax(applyB(b, m, s), other(s), depth - 1, -beta, -alpha);
+      if (v > best) best = v; if (v > alpha) alpha = v; if (alpha >= beta) break;
+    }
+    return best;
+  }
+  function best(st, elo){
+    const depth = elo < 1000 ? 3 : elo < 1200 ? 5 : 6, noise = elo < 1000 ? 40 : elo < 1200 ? 15 : 4;
+    const ms = moves(st.b, 'ai'); let top = ms[0], tv = -Infinity;
+    for (const m of ms){
+      const v = -negamax(applyB(st.b, m, 'ai'), 'me', depth - 1, -Infinity, Infinity) + Math.random()*noise;
+      if (v > tv){ tv = v; top = m; }
+    }
+    return top;
+  }
+  return { init, moves, play, best, own, king };
+})();
+
+/* ---------- generala (5 dados, 3 tiros por turno, 11 casilleros) ---------- */
+const GN = (() => {
+  const CATS = ['1','2','3','4','5','6','esc','full','poker','gen','dgen'];
+  const LBL = { 1:'Al 1', 2:'Al 2', 3:'Al 3', 4:'Al 4', 5:'Al 5', 6:'Al 6', esc:'Escalera', full:'Full', poker:'Póker', gen:'Generala', dgen:'Doble generala' };
+  const other = w => w === 'me' ? 'ai' : 'me';
+  const who = w => w === 'me' ? 'Vos' : '{R}';
+  const counts = d => { const c = Array(7).fill(0); for (const x of d) c[x]++; return c; };
+  function score(d, cat, first, card){
+    const c = counts(d);
+    if (/^[1-6]$/.test(cat)) return c[+cat] * +cat;
+    const s = d.slice().sort().join('');
+    if (cat === 'esc') return (s === '12345' || s === '23456' || s === '13456') ? (first ? 25 : 20) : 0;
+    if (cat === 'full') return (c.includes(3) && c.includes(2)) ? (first ? 35 : 30) : 0;
+    if (cat === 'poker') return c.some(x => x >= 4) ? (first ? 45 : 40) : 0;
+    if (cat === 'gen') return c.includes(5) ? 50 : 0;
+    if (cat === 'dgen') return c.includes(5) && card.gen === 50 ? 100 : 0;
+    return 0;
+  }
+  const init = () => ({ kind:'generala', turn:'me', dice:[1,2,3,4,5], held:[false,false,false,false,false], rolls:0, n:0, card:{ me:{}, ai:{} }, log:['Empezás vos. Tirá los dados.'], result:null, reason:'' });
+  const avail = (t, w) => CATS.filter(c => !(c in t.card[w]));
+  const total = card => Object.values(card).reduce((a, b) => a + b, 0);
+  function roll(t){
+    if (t.rolls >= 3 || t.result) return;
+    t.dice = t.dice.map((d, i) => t.held[i] ? d : 1 + Math.floor(Math.random()*6));
+    t.rolls++; t.n++;
+    if (t.rolls === 1 && new Set(t.dice).size === 1){
+      t.result = t.turn; t.reason = `¡Generala servida de ${who(t.turn) === 'Vos' ? 'vos' : '{R}'}!`;
+      t.log.push(`${t.turn === 'me' ? '¡Sacaste' : '¡{R} sacó'} generala servida! Gana la partida.`);
+    }
+  }
+  function hold(t, i){ if (t.rolls > 0 && t.rolls < 3 && !t.result) t.held[i] = !t.held[i]; }
+  function write(t, cat){
+    const w = t.turn, s = score(t.dice, cat, t.rolls === 1, t.card[w]);
+    t.card[w][cat] = s;
+    t.log.push(s ? `${who(w)} ${w === 'me' ? 'anotaste' : 'anotó'} ${s} ${cat.length > 1 ? 'en ' + LBL[cat].toLowerCase() : LBL[cat].toLowerCase()}.` : `${who(w)} ${w === 'me' ? 'tachaste' : 'tachó'} ${LBL[cat].toLowerCase()}.`);
+    if (!avail(t, 'me').length && !avail(t, 'ai').length){
+      const a = total(t.card.me), b = total(t.card.ai);
+      t.result = a > b ? 'me' : b > a ? 'ai' : 'draw'; t.reason = `Generala ${a} a ${b}`;
+      return;
+    }
+    t.turn = other(w); t.rolls = 0; t.held = [false,false,false,false,false];
+  }
+  function setHolds(t){
+    const c = counts(t.dice), av = avail(t, 'ai'), uniq = [...new Set(t.dice)];
+    if (av.includes('esc')){
+      for (const run of [[2,3,4,5],[1,2,3,4],[3,4,5,6]]) if (run.every(x => uniq.includes(x))){ const used = new Set(); t.held = t.dice.map(x => run.includes(x) && !used.has(x) ? !!used.add(x) : false); return; }
+    }
+    const pairs = [1,2,3,4,5,6].filter(f => c[f] === 2);
+    if (av.includes('full') && pairs.length === 2){ t.held = t.dice.map(x => pairs.includes(x)); return; }
+    let bf = 6, bw = -1;
+    for (let f = 6; f >= 1; f--){ const w = c[f] + (av.includes(String(f)) ? .5 : 0) + f/100; if (w > bw){ bw = w; bf = f; } }
+    t.held = t.dice.map(x => x === bf);
+  }
+  function aiStep(t){
+    if (t.result) return;
+    if (t.rolls === 0) return roll(t);
+    const av = avail(t, 'ai'), first = t.rolls === 1;
+    const opts = av.map(c => ({ c, s:score(t.dice, c, first, t.card.ai) }));
+    const special = opts.filter(o => ['esc','full','poker','gen','dgen'].includes(o.c) && o.s > 0).sort((a, b) => b.s - a.s)[0];
+    if (special) return write(t, special.c);
+    if (t.rolls < 3){ setHolds(t); return roll(t); }
+    const num = opts.filter(o => /^[1-6]$/.test(o.c) && o.s > 0).map(o => Object.assign({ v:o.s - 2.5*(+o.c) }, o)).sort((a, b) => b.v - a.v)[0];
+    if (num && num.v >= -4) return write(t, num.c);
+    const order = ['dgen','1','gen','2','esc','3','full','poker','4','5','6'];
+    const zero = opts.filter(o => o.s === 0);
+    if (zero.length) return write(t, order.find(c => zero.some(o => o.c === c)));
+    return write(t, opts.sort((a, b) => a.s - b.s)[0].c);
+  }
+  return { CATS, LBL, init, avail, total, score, roll, hold, write, aiStep };
+})();
+
+/* ---------- póker Texas Hold'em mano a mano (1.000 fichas cada uno, 15 manos) ---------- */
+const PK = (() => {
+  const START = 1000, MAXH = 15;
+  const other = w => w === 'me' ? 'ai' : 'me';
+  const who = w => w === 'me' ? 'Vos' : '{R}';
+  const blinds = h => h <= 4 ? [10, 20] : h <= 8 ? [20, 40] : h <= 12 ? [40, 80] : [75, 150];
+  const CAT_ES = ['carta alta','par','doble par','trío','escalera','color','full','póker','escalera de color'];
+  const FULL = []; for (let r = 2; r <= 14; r++) for (let s = 0; s < 4; s++) FULL.push({ r, s });
+  const shuffle = d => { for (let i = d.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; };
+  function eval7(cards){
+    const cnt = Array(15).fill(0), bys = [[], [], [], []];
+    for (const c of cards){ cnt[c.r]++; bys[c.s].push(c.r); }
+    const straight = has => { for (let h = 14; h >= 5; h--){ let ok = true; for (let k = 0; k < 5; k++){ const r = h - k === 1 ? 14 : h - k; if (!has[r]){ ok = false; break; } } if (ok) return h; } return 0; };
+    const enc = (cat, ks) => { let v = cat; for (let i = 0; i < 5; i++) v = v*15 + (ks[i] || 0); return { v, cat, hi:ks[0] }; };
+    const fs = bys.find(a => a.length >= 5);
+    if (fs){ const has = Array(15).fill(false); fs.forEach(r => { has[r] = true; }); const h = straight(has); if (h) return enc(8, [h]); }
+    const groups = []; for (let r = 14; r >= 2; r--) if (cnt[r]) groups.push([cnt[r], r]);
+    groups.sort((a, b) => b[0] - a[0] || b[1] - a[1]);
+    const kick = (excl, n) => [...new Set(cards.map(c => c.r))].filter(r => !excl.includes(r)).sort((a, b) => b - a).slice(0, n);
+    if (groups[0][0] === 4) return enc(7, [groups[0][1], ...kick([groups[0][1]], 1)]);
+    if (groups[0][0] === 3 && groups[1] && groups[1][0] >= 2) return enc(6, [groups[0][1], groups[1][1]]);
+    if (fs) return enc(5, fs.slice().sort((a, b) => b - a).slice(0, 5));
+    const has = Array(15).fill(false); cards.forEach(c => { has[c.r] = true; });
+    const sh = straight(has); if (sh) return enc(4, [sh]);
+    if (groups[0][0] === 3) return enc(3, [groups[0][1], ...kick([groups[0][1]], 2)]);
+    if (groups[0][0] === 2 && groups[1] && groups[1][0] === 2) return enc(2, [groups[0][1], groups[1][1], ...kick([groups[0][1], groups[1][1]], 1)]);
+    if (groups[0][0] === 2) return enc(1, [groups[0][1], ...kick([groups[0][1]], 3)]);
+    return enc(0, kick([], 5));
+  }
+  const handName = e => e.cat === 8 && e.hi === 14 ? 'escalera real' : CAT_ES[e.cat];
+  function equity(hole, board, sims){
+    const key = c => c.r*4 + c.s, used = new Set(hole.concat(board).map(key));
+    const rest = FULL.filter(c => !used.has(key(c))), need = 5 - board.length;
+    let win = 0;
+    for (let i = 0; i < sims; i++){
+      const d = rest.slice();
+      for (let k = 0; k < need + 2; k++){ const j = k + Math.floor(Math.random()*(d.length - k)); [d[k], d[j]] = [d[j], d[k]]; }
+      const b = board.concat(d.slice(2, 2 + need));
+      const a = eval7(hole.concat(b)).v, o = eval7(d.slice(0, 2).concat(b)).v;
+      win += a > o ? 1 : a === o ? .5 : 0;
+    }
+    return win / sims;
+  }
+  function post(t, w, amt){ const a = Math.min(amt, t.stacks[w]); t.stacks[w] -= a; t.h.bets[w] += a; }
+  const toCall = (t, w) => Math.max(0, t.h.bets[other(w)] - t.h.bets[w]);
+  const maxTo = (t, w) => Math.min(t.h.bets[w] + t.stacks[w], t.h.bets[other(w)] + t.stacks[other(w)]);
+  const minTo = (t, w) => Math.min(maxTo(t, w), t.h.bets[other(w)] + t.h.lastRaise);
+  const canRaise = (t, w) => t.h.raises < 4 && maxTo(t, w) > t.h.bets[other(w)];
+  const potTotal = t => t.h.pot + t.h.bets.me + t.h.bets.ai;
+  function settle(t){
+    const h = t.h;
+    for (const w of ['me', 'ai']){ const o = other(w); if (h.bets[w] < h.bets[o] && t.stacks[w] === 0){ t.stacks[o] += h.bets[o] - h.bets[w]; h.bets[o] = h.bets[w]; } }
+  }
+  function newHand(t){
+    t.hand++; t.button = other(t.button);
+    const [sb, bb] = blinds(t.hand), d = shuffle(FULL.slice());
+    t.h = { deck:d, hole:{ me:[d.pop(), d.pop()], ai:[d.pop(), d.pop()] }, board:[], street:0, pot:0, bets:{ me:0, ai:0 }, acted:{ me:false, ai:false }, raises:0, lastRaise:bb, bb, toAct:t.button, over:false, show:false, winner:null, names:null };
+    t.bubble = null;
+    post(t, t.button, sb); post(t, other(t.button), bb);
+    t.log.push(`Mano ${t.hand} de ${MAXH}: ciegas ${sb}/${bb}.`);
+    settle(t);
+    if ((t.stacks.me === 0 || t.stacks.ai === 0) && t.h.bets.me === t.h.bets.ai) runout(t);
+  }
+  function init(){ const t = { kind:'poker', stacks:{ me:START, ai:START }, hand:0, button:'ai', max:MAXH, log:[], result:null, reason:'' }; newHand(t); return t; }
+  function award(t, w, why){
+    const h = t.h, pot = potTotal(t);
+    h.pot = 0; h.bets = { me:0, ai:0 }; h.over = true; h.winner = w;
+    if (w === 'split'){ const half = Math.floor(pot / 2); t.stacks.me += half; t.stacks.ai += pot - half; t.log.push(`${why} Se reparte el pozo de ${pot}.`); }
+    else { t.stacks[w] += pot; t.log.push(`${why} ${w === 'me' ? 'Ganás' : '{R} gana'} ${pot} fichas.`); }
+    if (t.stacks.me === 0 || t.stacks.ai === 0){ t.result = t.stacks.me ? 'me' : 'ai'; t.reason = `${t.stacks.me ? 'Te quedaste con todas las fichas' : '{R} se quedó con todas las fichas'}`; }
+    else if (t.hand >= MAXH){ const a = t.stacks.me, b = t.stacks.ai; t.result = a > b ? 'me' : b > a ? 'ai' : 'draw'; t.reason = `Póker: terminaste con ${a} fichas contra ${b}`; }
+  }
+  function showdown(t){
+    const h = t.h; h.show = true;
+    const a = eval7(h.hole.me.concat(h.board)), b = eval7(h.hole.ai.concat(h.board));
+    h.names = { me:handName(a), ai:handName(b) };
+    award(t, a.v > b.v ? 'me' : b.v > a.v ? 'ai' : 'split', `Vos: ${h.names.me}. {R}: ${h.names.ai}.`);
+  }
+  function runout(t){ const h = t.h; while (h.board.length < 5) h.board.push(h.deck.pop()); h.pot += h.bets.me + h.bets.ai; h.bets = { me:0, ai:0 }; h.street = 3; showdown(t); }
+  function nextStreet(t){
+    const h = t.h;
+    h.pot += h.bets.me + h.bets.ai; h.bets = { me:0, ai:0 }; h.acted = { me:false, ai:false }; h.raises = 0; h.lastRaise = h.bb;
+    if (h.street === 3) return showdown(t);
+    if (t.stacks.me === 0 || t.stacks.ai === 0) return runout(t);
+    h.street++; for (let i = 0; i < (h.street === 1 ? 3 : 1); i++) h.board.push(h.deck.pop());
+    h.toAct = other(t.button);
+  }
+  function act(t, w, type, to){
+    const h = t.h, o = other(w);
+    if (h.over || h.toAct !== w) return;
+    if (type === 'fold'){ t.bubble = { who:w, text:'Me retiro' }; return award(t, o, `${who(w)} ${w === 'me' ? 'te retiraste' : 'se retiró'}.`); }
+    if (type === 'raise' && canRaise(t, w)){
+      const target = Math.max(minTo(t, w), Math.min(Math.round(to), maxTo(t, w)));
+      h.lastRaise = Math.max(h.lastRaise, target - h.bets[o]);
+      post(t, w, target - h.bets[w]); h.raises++; h.acted[w] = true; h.acted[o] = false;
+      const allin = t.stacks[w] === 0;
+      t.bubble = { who:w, text: allin ? '¡All-in!' : `Subo a ${target}` };
+      t.log.push(`${who(w)} ${w === 'me' ? 'subiste' : 'subió'} a ${target}${allin ? ' (all-in)' : ''}.`);
+    } else {
+      const c = toCall(t, w);
+      if (c){ post(t, w, c); t.bubble = { who:w, text:'Igualo' }; t.log.push(`${who(w)} ${w === 'me' ? 'igualaste' : 'igualó'}.`); }
+      else { t.bubble = { who:w, text:'Paso' }; t.log.push(`${who(w)} ${w === 'me' ? 'pasaste' : 'pasó'}.`); }
+      h.acted[w] = true;
+    }
+    settle(t);
+    const even = h.bets.me === h.bets.ai, allIn = t.stacks.me === 0 || t.stacks.ai === 0;
+    if (even && ((h.acted.me && h.acted.ai) || (allIn && h.acted[w]))) return nextStreet(t);
+    h.toAct = o;
+  }
+  const needs = t => (t.result || t.h.over) ? null : t.h.toAct;
+  function aiStep(t, elo){
+    const h = t.h, w = 'ai', c = toCall(t, w), pot = potTotal(t);
+    const eq = equity(h.hole.ai, h.board, 260) + (Math.random() - .5) * (elo < 1000 ? .16 : elo < 1200 ? .1 : .05);
+    const odds = c / (pot + c || 1);
+    if (canRaise(t, w) && (eq > .8 || (eq > .63 && Math.random() < .35) || (h.street > 0 && Math.random() < .06)))
+      return act(t, w, 'raise', h.bets.me + Math.round((eq > .85 ? 1 : .55) * (pot + c)));
+    if (!c) return act(t, w, 'check');
+    if (eq >= odds + .04 || Math.random() < .05) return act(t, w, 'call');
+    return act(t, w, 'fold');
+  }
+  return { init, newHand, act, aiStep, needs, toCall, maxTo, minTo, canRaise, potTotal, blinds, eval7, handName, equity, MAXH };
+})();
+
+/* ---------- póker, generala, damas y cuatro en línea: pantallas ---------- */
+let dmSel = null, c4Anim = -1, gnAnim = '', pkAnim = '';
+const txtR = (s, c) => esc(s).replace(/\{R\}/g, '@' + esc(c.rival));
+const resOf = r => r === 'me' ? 'gane' : r === 'ai' ? 'perdi' : 'empate';
+
+function c4Pump(c){
+  const st = c.play; clearTimeout(gameTimer);
+  if (st.done) return;
+  if (st.result) return finishGame(c, resOf(st.result), st.result === 'draw' ? 'Tablero lleno' : st.result === 'me' ? 'Hiciste cuatro en línea' : `@${c.rival} hizo cuatro en línea`);
+  if (st.turn !== 'ai' || GAME !== c.id) return;
+  gameTimer = setTimeout(() => {
+    if (GAME !== c.id || c.play.done) return;
+    const n = C4.drop(c.play, C4.best(c.play, ratingOf(c.rival, c.game)));
+    if (n){ c.play = n; save(); renderGame(); c4Pump(c); }
+  }, 550);
+}
+function dmPump(c){
+  const st = c.play; clearTimeout(gameTimer);
+  if (st.done) return;
+  if (st.result) return finishGame(c, resOf(st.result), st.result === 'draw' ? 'Tablas: ' + st.reason : (st.result === 'me' ? `@${c.rival}: ` : 'Vos: ') + st.reason.toLowerCase());
+  if (st.turn !== 'ai' || GAME !== c.id) return;
+  gameTimer = setTimeout(() => {
+    if (GAME !== c.id || c.play.done) return;
+    c.play = DM.play(c.play, DM.best(c.play, ratingOf(c.rival, c.game))); save(); renderGame(); dmPump(c);
+  }, 550);
+}
+function gnPump(c){
+  const t = c.play; clearTimeout(gameTimer);
+  if (t.done) return;
+  if (t.result) return finishGame(c, resOf(t.result), t.reason.replace(/\{R\}/g, '@' + c.rival));
+  if (t.turn !== 'ai' || GAME !== c.id) return;
+  gameTimer = setTimeout(() => { if (GAME !== c.id || t.done) return; GN.aiStep(t); save(); renderGame(); gnPump(c); }, 950);
+}
+function pkPump(c){
+  const t = c.play; clearTimeout(gameTimer);
+  if (t.done) return;
+  if (t.result) return finishGame(c, resOf(t.result), t.reason.replace(/\{R\}/g, '@' + c.rival));
+  if (GAME !== c.id) return;
+  if (t.h.over){ gameTimer = setTimeout(() => { if (GAME !== c.id || t.done) return; PK.newHand(t); save(); renderGame(); pkPump(c); }, 2800); return; }
+  if (PK.needs(t) === 'ai') gameTimer = setTimeout(() => { if (GAME !== c.id || t.done) return; PK.aiStep(t, ratingOf(c.rival, c.game)); save(); renderGame(); pkPump(c); }, 1000);
+}
+
+const seat = (c, w, on, extra = '', bubbleTxt = '') => `<div class="g-player ${w} ${on ? 'on' : ''}">${bubbleTxt ? `<span class="bubble ${w}">${esc(bubbleTxt)}</span>` : ''}${avatar(w === 'me' ? ME : c.rival)}<span class="nm"><b>${w === 'me' ? 'Vos' : '@' + esc(c.rival)}</b>${extra}</span></div>`;
+
+function vC4(c){
+  const st = c.play, mine = !st.done && st.turn === 'me', anim = st.n !== c4Anim; c4Anim = st.n;
+  let cells = '';
+  for (let i = 0; i < 42; i++){
+    const v = st.g[i], r = Math.floor(i / 7);
+    cells += `<span class="c4c">${v ? `<i class="disc ${v === 1 ? 'me' : 'ai'} ${st.win && st.win.includes(i) ? 'w' : ''} ${anim && i === st.last ? 'drop' : ''}" style="--r:${r + 1}"></i>` : ''}</span>`;
+  }
+  const cols = [0,1,2,3,4,5,6].map(k => `<button data-a="c4-col" data-c="${k}" aria-label="Tirar en la columna ${k + 1}" ${mine && C4.top(st.g, k) >= 0 ? '' : 'disabled'}></button>`).join('');
+  return `<div class="game" role="dialog" aria-label="Cuatro en línea">${gameTop(c, 'Cuatro en línea')}<div class="g-body">
+    ${seat(c, 'ai', !st.done && st.turn === 'ai', '<span class="small muted"><i class="mini ai"></i>Fichas magenta</span>')}
+    <div class="c4">${cells}<div class="c4cols">${cols}</div></div>
+    ${seat(c, 'me', mine, '<span class="small muted"><i class="mini me"></i>Fichas cian · empezás vos</span>')}
+    ${st.done ? gameEnd(c) : `<div class="g-status ${mine ? '' : 'ai'}">${mine ? 'Tu turno · tocá una columna' : `@${esc(c.rival)} está pensando…`}</div><div class="btn-row">${resignBtns('abandono')}</div>`}
+  </div></div>`;
+}
+
+function vDamas(c){
+  const st = c.play, mine = !st.done && st.turn === 'me';
+  const ms = mine ? DM.moves(st.b, 'me') : [], must = ms.length && ms[0].caps.length;
+  const movable = new Set(ms.map(m => m.f)), tg = dmSel !== null ? ms.filter(m => m.f === dmSel) : [];
+  const crown = '<svg viewBox="0 0 24 20" fill="currentColor" aria-hidden="true"><path d="M2 6l5 4 5-8 5 8 5-4-2 12H4z"/></svg>';
+  let sq = '';
+  for (let i = 0; i < 64; i++){
+    const r = i >> 3, f = i & 7, p = st.b[i], dark = (r + f) % 2 === 1, t = tg.find(m => m.t === i);
+    const cls = ['sq', dark ? 'd' : 'l', st.last && st.last.includes(i) ? 'last' : '', i === dmSel ? 'sel' : '', t ? 'hint' : '', mine && must && movable.has(i) && dmSel === null ? 'must' : ''].filter(Boolean).join(' ');
+    const lbl = p ? (DM.own(p, 'me') ? 'tu ficha' : 'ficha rival') + (DM.king(p) ? ' (dama)' : '') : 'casilla';
+    sq += `<button class="${cls}" data-a="dm-sq" data-i="${i}" aria-label="${lbl}" ${dark ? '' : 'disabled'}>${p ? `<span class="pc ck ${DM.own(p, 'me') ? 'me' : 'ai'} ${DM.king(p) ? 'k' : ''}">${DM.king(p) ? crown : ''}</span>` : ''}</button>`;
+  }
+  const count = s => st.b.filter(p => DM.own(p, s)).length;
+  return `<div class="game" role="dialog" aria-label="Damas">${gameTop(c, 'Damas')}<div class="g-body">
+    ${seat(c, 'ai', !st.done && st.turn === 'ai', `<span class="small muted">${count('ai')} fichas</span>`)}
+    <div class="board">${sq}</div>
+    ${seat(c, 'me', mine, `<span class="small muted">${count('me')} fichas · jugás hacia arriba</span>`)}
+    ${st.done ? gameEnd(c) : `<div class="g-status ${mine ? (must ? 'alert' : '') : 'ai'}">${mine ? (must ? '¡Captura obligatoria!' : 'Tu turno') : `@${esc(c.rival)} está pensando…`}</div>
+      <div class="moves"><span>Tocá una ficha y después adónde va. Si podés comer, tenés que comer.</span></div>
+      <div class="btn-row">${resignBtns('me rindo')}</div>`}
+  </div></div>`;
+}
+
+const PIPS = { 1:[[50,50]], 2:[[29,29],[71,71]], 3:[[27,27],[50,50],[73,73]], 4:[[29,29],[71,29],[29,71],[71,71]], 5:[[27,27],[73,27],[50,50],[27,73],[73,73]], 6:[[29,25],[71,25],[29,50],[71,50],[29,75],[71,75]] };
+const dieSvg = n => `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="5" y="5" width="90" height="90" rx="20" class="dface"/>${PIPS[n].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9.5" class="pip"/>`).join('')}</svg>`;
+function vGenerala(c){
+  const t = c.play, mine = !t.done && t.turn === 'me', R = '@' + esc(c.rival);
+  const key = String(t.n), anim = key !== gnAnim; gnAnim = key;
+  const dice = t.rolls === 0 ? '<div class="dice idle">' + [1,2,3,4,5].map(n => `<span class="die ghost">${dieSvg(n)}</span>`).join('') + '</div>'
+    : '<div class="dice">' + t.dice.map((d, i) => `<button class="die ${t.held[i] ? 'held' : ''} ${anim && !t.held[i] ? 'roll' : ''}" data-a="gn-hold" data-i="${i}" ${mine && t.rolls < 3 ? '' : 'disabled'} aria-label="Dado con ${d}${t.held[i] ? ', guardado' : ''}">${dieSvg(d)}</button>`).join('') + '</div>';
+  const canWrite = mine && t.rolls > 0;
+  const rows = GN.CATS.map(k => {
+    const my = t.card.me[k], ai = t.card.ai[k];
+    let mc;
+    if (my !== undefined) mc = my ? `<b>${my}</b>` : '<span class="x">✕</span>';
+    else if (canWrite){ const s = GN.score(t.dice, k, t.rolls === 1, t.card.me); mc = `<button class="btn sm ${s ? 'gold' : ''}" data-a="gn-write" data-k="${k}">${s ? '+' + s : 'Tachar'}</button>`; }
+    else mc = '<span class="muted">·</span>';
+    return `<div class="gr"><span>${GN.LBL[k]}</span><span class="me">${mc}</span><span class="ai">${ai === undefined ? '<span class="muted">·</span>' : ai ? `<b>${ai}</b>` : '<span class="x">✕</span>'}</span></div>`;
+  }).join('');
+  const status = t.done ? '' : mine ? (t.rolls === 0 ? 'Tu turno · tirá los dados' : t.rolls < 3 ? `Tiro ${t.rolls} de 3 · tocá los dados que querés guardar` : 'Último tiro · anotá en un casillero') : `${R} está tirando…`;
+  return `<div class="game" role="dialog" aria-label="Generala">${gameTop(c, 'Generala')}<div class="g-body">
+    <div class="tanteador"><div class="side me"><b>Vos</b><span class="pts num">${GN.total(t.card.me)}</span></div><div class="mid"><span>${GN.avail(t, 'me').length + GN.avail(t, 'ai').length} turnos</span><span class="pill ${mine ? 'toca' : ''}">${mine ? 'Te toca' : 'Juega ' + esc(c.rival)}</span></div><div class="side ai"><b>${R}</b><span class="pts num">${GN.total(t.card.ai)}</span></div></div>
+    <div class="tapete">${dice}<div class="g-status ${mine ? '' : 'ai'}">${status}</div></div>
+    ${!t.done && mine && t.rolls < 3 ? `<button class="btn gold block xl" data-a="gn-roll">${t.rolls === 0 ? 'Tirar los dados' : `Tirar de nuevo (quedan ${3 - t.rolls})`}</button>` : ''}
+    <div class="tlog">${t.log.slice(-2).map(l => `<span>${txtR(l, c)}</span>`).join('')}</div>
+    <div class="card gtable"><div class="gr head"><span>Casillero</span><span class="me">Vos</span><span class="ai">${esc(c.rival)}</span></div>${rows}</div>
+    ${t.done ? gameEnd(c) : `<div class="btn-row">${resignBtns('abandono')}</div>`}
+    <p class="muted small" style="margin:0">Escalera 20, full 30, póker 40 y generala 50; si salen en el primer tiro valen 5 más. La generala servida gana la partida.</p>
+  </div></div>`;
+}
+
+const FR_SUIT = ['♠', '♥', '♦', '♣'], FR_NAME = ['picas', 'corazones', 'diamantes', 'tréboles'];
+const rlbl = r => ({ 11:'J', 12:'Q', 13:'K', 14:'A' })[r] || String(r);
+const carta = (cd, size = '') => `<span class="carta ${size} ${cd.s === 1 || cd.s === 2 ? 'red' : ''}" aria-label="${rlbl(cd.r)} de ${FR_NAME[cd.s]}"><span class="cr">${rlbl(cd.r)}<i>${FR_SUIT[cd.s]}︎</i></span><span class="cs">${FR_SUIT[cd.s]}︎</span></span>`;
+function vPoker(c){
+  const t = c.play, h = t.h, need = PK.needs(t), mine = !t.done && need === 'me', R = '@' + esc(c.rival);
+  const [sb, bb] = PK.blinds(t.hand), key = t.hand + ':' + h.board.length, anim = key !== pkAnim; pkAnim = key;
+  const bub = w => t.bubble && t.bubble.who === w && !h.over ? t.bubble.text : '';
+  const bet = w => h.bets[w] ? `<span class="chipbet ${w}">${fmt(h.bets[w])}</span>` : '';
+  const stackTxt = w => `<span class="small muted num">${fmt(t.stacks[w])} fichas${t.button === w ? ' · <b class="dealer">D</b>' : ''}</span>`;
+  const board = [0,1,2,3,4].map(i => h.board[i] ? carta(h.board[i], 'sm' + (anim && i >= (h.board.length === 3 ? 0 : h.board.length - 1) ? ' flip' : '')) : '<span class="carta sm slot"></span>').join('');
+  const aiCards = h.show ? h.hole.ai.map(x => carta(x, 'sm')).join('') : '<span class="carta sm back"></span><span class="carta sm back"></span>';
+  let acts = '';
+  if (t.done) acts = gameEnd(c);
+  else if (h.over) acts = `<div class="g-status">${h.winner === 'me' ? 'Ganaste la mano' : h.winner === 'ai' ? R + ' ganó la mano' : 'Pozo repartido'} · repartiendo…</div>`;
+  else if (mine){
+    const call = PK.toCall(t, 'me'), pot = PK.potTotal(t), opp = h.bets.ai, mx = PK.maxTo(t, 'me');
+    let raises = '';
+    if (PK.canRaise(t, 'me')){
+      const opts = [...new Set([PK.minTo(t, 'me'), opp + Math.round((pot + call) / 2), opp + pot + call, mx].map(x => Math.min(x, mx)).filter(x => x > opp))].sort((a, b) => a - b);
+      raises = `<div class="btn-row raises">${opts.map(x => `<button class="btn ${x === mx ? 'danger' : ''}" data-a="pk-act" data-t="raise" data-v="${x}">${x === mx ? 'All-in' : (call ? 'Resubir a ' : 'Subir a ') + fmt(x)}</button>`).join('')}</div>`;
+    }
+    acts = `<div class="g-status">Tu turno${call ? ` · para seguir tenés que poner ${fmt(Math.min(call, t.stacks.me))}` : ''}</div>
+      <div class="btn-row">${call ? '<button class="btn" data-a="pk-act" data-t="fold">Retirarse</button>' : ''}<button class="btn primary" data-a="pk-act" data-t="call">${call ? (call >= t.stacks.me ? 'Igualar all-in' : 'Igualar ' + fmt(call)) : 'Pasar'}</button></div>${raises}`;
+  } else acts = `<div class="g-status ai">${R} está pensando…</div>`;
+  if (!t.done) acts += `<div class="btn-row">${resignBtns('abandono')}</div>`;
+  return `<div class="game" role="dialog" aria-label="Póker">${gameTop(c, 'Póker · mano a mano')}<div class="g-body">
+    ${seat(c, 'ai', need === 'ai', stackTxt('ai'), bub('ai'))}
+    <div class="mesa poker">
+      <div class="hole">${aiCards}${bet('ai')}</div>
+      <div class="pozo"><span class="lbl">Pozo</span><b class="num">${fmt(PK.potTotal(t))}</b></div>
+      <div class="boardc">${board}</div>
+      <div class="hole">${h.hole.me.map(x => carta(x, '')).join('')}${bet('me')}</div>
+    </div>
+    ${h.names ? `<div class="tlog"><span>Vos: ${h.names.me} · ${R}: ${h.names.ai}</span></div>` : `<div class="tlog">${t.log.slice(-2).map(l => `<span>${txtR(l, c)}</span>`).join('')}</div>`}
+    ${seat(c, 'me', mine, stackTxt('me'), bub('me'))}
+    <div class="moves"><span>Mano ${t.hand} de ${t.max} · ciegas ${sb}/${bb}</span></div>
+    ${acts}
+  </div></div>`;
+}
+
+/* ---------- cuentas de juego para verificar partidas fuera de la app ---------- */
+const PLAT = {
+  riot:       { name:'Riot ID', ph:'Nombre#TAG', re:/^[^#]{3,16}#[A-Za-z0-9]{2,5}$/, src:'el historial de partidas de Riot' },
+  epic:       { name:'Cuenta de Epic Games', ph:'Nombre de Epic', re:/^.{3,32}$/, src:'el historial de Epic Games' },
+  steam:      { name:'Cuenta de Steam', ph:'Nombre o SteamID', re:/^.{3,32}$/, src:'el historial de Steam' },
+  ea:         { name:'EA ID', ph:'Nombre de EA', re:/^[A-Za-z0-9_.-]{3,20}$/, src:'el historial de EA' },
+  bandai:     { name:'Bandai Namco ID', ph:'Nombre de jugador', re:/^.{3,20}$/, src:'el historial de Tekken 8' },
+  supercell:  { name:'Tag de Supercell', ph:'#2PP8R9VQ', re:/^#?[0289PYLQGRJCUV]{3,12}$/i, src:'el historial de Supercell' },
+  garena:     { name:'ID de Free Fire', ph:'1234567890', re:/^\d{6,12}$/, src:'el historial de Garena' },
+  activision: { name:'Activision ID', ph:'Nombre#1234567', re:/^[^#]{2,16}#\d{4,8}$/, src:'el historial de Activision' },
+  konami:     { name:'Konami ID', ph:'Nombre de usuario', re:/^.{3,20}$/, src:'el historial de eFootball' },
+  miniclip:   { name:'ID de Miniclip', ph:'123-456-789', re:/^[\d-]{6,15}$/, src:'el historial de 8 Ball Pool' },
+};
+let editId = null;
+const myId = p => (S.ids || {})[p] || '';
+const idMissing = g => !!GAMES[g].idp && !myId(GAMES[g].idp);
+function rivalId(u, p){
+  const base = u.replace(/[^a-z0-9]/gi, ''), n = fakeElo(u + p) * 7919;
+  const digits = k => String(n * 104729).padEnd(k, '7').slice(0, k);
+  if (p === 'riot') return `${base}#LAS`;
+  if (p === 'activision') return `${base}#${digits(7)}`;
+  if (p === 'supercell') return '#' + digits(8).split('').map(d => '0289PYLQGR'[+d]).join('');
+  if (p === 'garena') return digits(10);
+  if (p === 'miniclip') return digits(9).replace(/(\d{3})(\d{3})(\d{3})/, '$1-$2-$3');
+  return base;
+}
+const idField = p => `<div class="idbox"><label for="gid-${p}"><b>Tu ${PLAT[p].name}</b><span class="small muted">Con esto Challenge encuentra tus partidas y verifica el resultado solo.</span></label>
+  <div class="btn-row"><input id="gid-${p}" class="input" placeholder="${PLAT[p].ph}" autocomplete="off" spellcheck="false" style="flex:2 1 150px"><button class="btn primary" data-a="link-id" data-p="${p}" style="flex:1 1 100px">Vincular</button></div></div>`;
+const idsCard = c => { const p = GAMES[c.game].idp, P = PLAT[p]; return `<div class="card recap"><div class="r"><span>Tu ${P.name}</span><b>${esc(myId(p) || 'Sin vincular')}</b></div><div class="r"><span>${P.name} de @${esc(c.rival)}</span><b>${esc(rivalId(c.rival, p))}</b></div></div>`; };
+function vCuentas(){
+  const ids = Object.keys(PLAT), linked = ids.filter(p => myId(p)).length;
+  return `<section class="section"><div class="h"><h2>Tus cuentas de juego</h2><span class="muted small">${linked} de ${ids.length}</span></div>
+    <span class="muted small">Para los juegos que se juegan fuera de la app, Challenge busca la partida en el historial oficial con el ID de cada jugador.</span>
+    <div class="list">${ids.map(p => {
+      const games = GAME_IDS.filter(g => GAMES[g].idp === p).map(g => GAMES[g].name).join(', ');
+      if (editId === p) return `<div class="card">${idField(p)}<span class="muted small">Sirve para: ${games}</span></div>`;
+      return `<div class="opt"><span class="mico">${ICONS.id}</span><span class="opt-main"><b>${PLAT[p].name}</b><span class="muted small">${myId(p) ? esc(myId(p)) : 'Sin vincular'} · ${games}</span></span><button class="btn sm ${myId(p) ? '' : 'primary'}" data-a="edit-id" data-p="${p}">${myId(p) ? 'Cambiar' : 'Vincular'}</button></div>`;
+    }).join('')}</div></section>`;
+}
+
+/* ---------- sala de juegos (tipo Plato) ---------- */
+const APP_GAMES = () => GAME_IDS.filter(g => GAMES[g].inapp);
+function vJugar(){
+  const mm = S.mm;
+  if (!mm.game || !GAMES[mm.game] || !GAMES[mm.game].inapp) mm.game = 'poker';
+  const g = mm.game, e = S.ratings[g];
+  if (mm.status !== 'buscando' && mm.stake > maxStake()) mm.stake = maxStake();
+  if (mm.status === 'buscando'){
+    return `
+    <div class="radar" aria-hidden="true"><span></span><span></span><span></span><div class="core num" id="mm-time">0:00</div></div>
+    <div style="text-align:center"><h2 class="q">Buscando rival</h2><div class="muted small">${GAMES[g].name} · ${fmt(mm.stake)} monedas · tu ELO ${e}</div></div>
+    <div class="card window"><div class="h"><b>Rango de ELO aceptado</b><span class="num" id="mm-range">±100</span></div>
+      <div class="bar"><i id="mm-bar" style="left:40%;right:40%"></i><u></u></div>
+      <span class="muted small num" id="mm-hint">${e-100} a ${e+100}. Se amplía mientras esperás.</span></div>
+    <div class="muted small" style="text-align:center"><span class="num" id="mm-queue">14</span> jugadores buscando en este momento</div>
+    <button class="btn block" data-a="mm-cancel">Salir de la cola</button>
+    <p class="muted small" style="margin:0;text-align:center">Tus ${fmt(mm.stake)} monedas quedan retenidas mientras buscás. Si salís, vuelven a tu saldo.</p>`;
+  }
+  return `
+  <h2 class="q">¿A qué jugamos?</h2>
+  <div class="hub">${APP_GAMES().map(id => `<button class="hcard" data-a="mm-game" data-g="${id}" aria-pressed="${g === id}">${g === id ? `<span class="check">${ICONS.check}</span>` : ''}${gt(id, 'lg')}<b>${GAMES[id].name}</b><span class="small muted">${GAMES[id].blurb}</span></button>`).join('')}</div>
+  <section class="section"><div class="h"><h2>¿Cuánto ponés?</h2><span class="muted small num">Tenés ${fmt(balance())}</span></div>
+    <div class="stakes">${STAKES.map(s => `<button class="chip num" data-a="mm-stake" data-s="${s}" aria-pressed="${mm.stake === s}" ${s > maxStake() ? 'disabled' : ''}>${s}</button>`).join('')}</div>
+  </section>
+  <div class="summary"><span>Si ganás te llevás</span><b class="num">${coinSvg}${fmt(mm.stake*2)}</b></div>
+  <button class="btn gold block xl" data-a="mm-start" ${mm.stake > balance() ? 'disabled' : ''}>Buscar rival de ${GAMES[g].name.split(' ')[0].toLowerCase()}</button>
+  ${mm.stake > balance() ? '<div class="err">No te alcanzan las monedas para ese monto.</div>' : ''}
+  <p class="muted small" style="margin:0">Te emparejamos con alguien de nivel parecido que pone lo mismo. Challenge no juega: solo guarda el pozo y se lo paga al que gana.</p>`;
+}
+
 /* ---------- render ---------- */
 let lastBal = null;
 function render(){
@@ -1998,19 +2642,19 @@ function tickMM(){
   const mm = S.mm; if (mm.status !== 'buscando') return;
   const secs = Math.floor((Date.now() - mm.startedAt)/1000);
   const w = Math.min(400, 100 + 50*Math.floor(secs/2));
-  const e = S.ratings.lichess;
+  const g = mm.game || 'lichess', e = S.ratings[g];
   const t = $('mm-time'); if (t) t.textContent = Math.floor(secs/60) + ':' + String(secs%60).padStart(2,'0');
   const r = $('mm-range'); if (r) r.textContent = '±' + w;
   const b = $('mm-bar'); if (b){ const p = 50 - (w/400)*45; b.style.left = p + '%'; b.style.right = p + '%'; }
   const h = $('mm-hint'); if (h) h.textContent = `${e-w} a ${e+w}. ${w < 400 ? 'Se amplía mientras esperás.' : 'Llegó al máximo.'}`;
   const q = $('mm-queue'); if (q) q.textContent = 12 + (secs % 5);
   if (secs >= mm.matchAt){
-    const cands = Object.entries(S.players).filter(([,p]) => !p.friend && Math.abs(p.r.lichess - e) <= w);
+    const cands = Object.entries(S.players).filter(([,p]) => !p.friend && Math.abs(p.r[g] - e) <= w);
     const pick = (cands.length ? cands : Object.entries(S.players).filter(([,p]) => !p.friend))
-      .sort((a,b) => Math.abs(a[1].r.lichess - e) - Math.abs(b[1].r.lichess - e))[0][0];
+      .sort((a,b) => Math.abs(a[1].r[g] - e) - Math.abs(b[1].r[g] - e))[0][0];
     clearInterval(mmTimer);
-    const c = { id: uid('c'), game:'lichess', stake: mm.stake, rival: pick, mine:true, origin:'matchmaking', status:'aceptado', created: Date.now(), myLocked:true, lichessId: Math.random().toString(36).slice(2,10), events:[] };
-    ev(c, `Matchmaking: te emparejamos con @${pick} (ELO ${S.players[pick].r.lichess}) en ${secs} s`);
+    const c = { id: uid('c'), game:g, stake: mm.stake, rival: pick, mine:true, origin:'matchmaking', status:'aceptado', created: Date.now(), myLocked:true, lichessId: Math.random().toString(36).slice(2,10), events:[] };
+    ev(c, `Matchmaking: te emparejamos con @${pick} (ELO ${S.players[pick].r[g]}) en ${secs} s`);
     ev(c, `Las ${fmt(mm.stake)} monedas retenidas pasaron al pozo. @${pick} bloqueó las suyas`);
     ev(c, `Se creó la partida ${c.lichessId} en la app`);
     // la retención de la cola pasa al escrow del desafío
@@ -2018,10 +2662,11 @@ function tickMM(){
     S.ledger.push({ id: uid('m'), type:'bloqueo', amount: -mm.stake, ref: c.id, ts: Date.now() });
     S.challenges.push(c);
     notify(`Encontramos rival: @${pick}. Tu partida en la app está lista`, c.id);
-    S.mm = { status:'idle', stake: mm.stake };
+    S.mm = { status:'idle', stake: mm.stake, game: g };
     toast(`¡Rival encontrado: @${pick}!`, 'good');
+    c.status = 'en_juego'; ev(c, 'La partida empezó en la app');
     S.nav = { tab:'desafios', sub:{ type:'detalle', id:c.id } };
-    save(); render();
+    save(); render(); openGame(c);
   }
 }
 function startMMTimer(){ clearInterval(mmTimer); mmTimer = setInterval(() => { if (S.nav.tab === 'jugar' && !S.nav.sub) tickMM(); else if (S.mm.status === 'buscando') tickMMBackground(); }, 500); }
@@ -2082,6 +2727,7 @@ function act(a, d, el){
     case 'challenge-friend': S.draft.rival = d.u; S.draft.step = 0; go({ type:'nuevo' }); break;
     case 'create': {
       const dr = { ...S.draft };
+      if (idMissing(dr.game)){ toast(`Primero vinculá tu ${PLAT[GAMES[dr.game].idp].name}`, 'bad'); return; }
       sign('Crear desafío', `${GAMES[dr.game].name}${dr.fmt !== '1v1' ? ' ' + dr.fmt : ''} · ${fmt(dr.stake)} monedas vs @${dr.rival}`, () => {
         const c = { id: uid('c'), game: dr.game, fmt: dr.fmt, stake: dr.stake, rival: dr.rival, hot: !!dr.hot, mine:true, origin:'amigo', status:'pendiente', created: Date.now(), myLocked:true, events:[] };
         post('bloqueo', -dr.stake, c.id);
@@ -2095,6 +2741,7 @@ function act(a, d, el){
     case 'rematch': S.draft = { cat: GAMES[cur.game].cat, game: cur.game, fmt: cur.fmt || '1v1', stake: Math.min(cur.stake, balance()) || 10, rival: S.players[cur.rival].friend ? cur.rival : null, hot: !!cur.hot }; S.draft.step = S.draft.rival ? 3 : 1; go({ type:'nuevo' }); break;
 
     case 'accept':
+      if (idMissing(cur.game)){ toast(`Primero vinculá tu ${PLAT[GAMES[cur.game].idp].name}`, 'bad'); return; }
       if (balance() < cur.stake){ toast('No te alcanzan las monedas para aceptar', 'bad'); return; }
       sign('Aceptar desafío', `${GAMES[cur.game].name} · ${fmt(cur.stake)} monedas vs @${cur.rival}`, () => {
         post('bloqueo', -cur.stake, cur.id); cur.myLocked = true; cur.status = 'aceptado';
@@ -2144,6 +2791,35 @@ function act(a, d, el){
       if (cur.status === 'aceptado'){ cur.status = 'en_juego'; ev(cur, 'La partida empezó en la app'); }
       render(); openGame(cur); break;
     case 'g-close': closeGame(); break;
+    case 'link-id': {
+      const p = d.p, el = $('gid-' + p), v = el ? el.value.trim() : '';
+      if (!PLAT[p].re.test(v)){ toast(`Revisá el formato. Ejemplo: ${PLAT[p].ph}`, 'bad'); return; }
+      S.ids[p] = p === 'supercell' ? '#' + v.replace(/^#/, '').toUpperCase() : v;
+      editId = null; save(); render(); toast(`${PLAT[p].name} vinculado`, 'good'); break;
+    }
+    case 'edit-id': editId = editId === d.p ? null : d.p; render(); break;
+    case 'unlink-id': delete S.ids[d.p]; save(); render(); break;
+    case 'verify': if (!cur) return; cur.verifying = true; ev(cur, `Challenge empezó a buscar la partida en ${PLAT[GAMES[cur.game].idp].src}`); save(); render(); break;
+    case 'sim-verify': {
+      if (!cur || !cur.verifying) return;
+      cur.verifying = false;
+      if (d.r === 'none'){ cur.manual = true; ev(cur, 'La partida no apareció en el historial: los dos reportan el resultado'); save(); render(); toast('No apareció la partida: reporten a mano', 'bad'); break; }
+      ev(cur, `Se encontró la partida en ${PLAT[GAMES[cur.game].idp].src}`);
+      finalize(cur, d.r, 'Verificado con el ID de cada jugador'); save(); render();
+      toast(d.r === 'gane' ? `¡Ganaste ${fmt(cur.stake*2)} monedas!` : d.r === 'perdi' ? 'Perdiste esta vez' : 'Empate: se devolvieron las monedas', d.r === 'gane' ? 'good' : ''); break;
+    }
+    case 'mm-game': S.mm.game = d.g; save(); render(); break;
+    case 'c4-col': { const c = find(GAME); if (!c) return; const st = c.play; if (st.done || st.turn !== 'me') return; const n = C4.drop(st, +d.c); if (!n) return; c.play = n; save(); renderGame(); c4Pump(c); break; }
+    case 'dm-sq': {
+      const c = find(GAME); if (!c) return; const st = c.play; if (st.done || st.turn !== 'me') return;
+      const i = +d.i, ms = DM.moves(st.b, 'me');
+      if (dmSel !== null){ const opts = ms.filter(m => m.f === dmSel && m.t === i).sort((a, b) => b.caps.length - a.caps.length); if (opts.length){ c.play = DM.play(st, opts[0]); dmSel = null; save(); renderGame(); dmPump(c); return; } }
+      dmSel = ms.some(m => m.f === i) && dmSel !== i ? i : null; renderGame(); break;
+    }
+    case 'gn-roll': { const c = find(GAME); if (!c) return; const t = c.play; if (t.done || t.turn !== 'me' || t.rolls >= 3) return; GN.roll(t); save(); renderGame(); gnPump(c); break; }
+    case 'gn-hold': { const c = find(GAME); if (!c) return; const t = c.play; if (t.done || t.turn !== 'me') return; GN.hold(t, +d.i); save(); renderGame(); break; }
+    case 'gn-write': { const c = find(GAME); if (!c) return; const t = c.play; if (t.done || t.turn !== 'me' || !t.rolls || !GN.avail(t, 'me').includes(d.k)) return; GN.write(t, d.k); save(); renderGame(); gnPump(c); break; }
+    case 'pk-act': { const c = find(GAME); if (!c) return; const t = c.play; if (t.done || PK.needs(t) !== 'me') return; PK.act(t, 'me', d.t, +d.v || 0); save(); renderGame(); pkPump(c); break; }
     case 'g-resign': resignAsk = true; renderGame(); break;
     case 'g-resign-no': resignAsk = false; renderGame(); break;
     case 'g-resign-yes': { const c = find(GAME); if (!c || c.play.done) return; finishGame(c, 'perdi', c.play.kind === 'chess' ? 'Te rendiste' : 'Abandonaste la partida'); break; }
@@ -2193,14 +2869,14 @@ function act(a, d, el){
     case 'mm-stake': S.mm.stake = +d.s; save(); render(); break;
     case 'mm-start': {
       const st = S.mm.stake;
-      sign('Entrar al matchmaking', `Ajedrez online · ${fmt(st)} monedas`, () => {
+      sign('Entrar al matchmaking', `${GAMES[S.mm.game || 'poker'].name} · ${fmt(st)} monedas`, () => {
         post('retencion_cola', -st);
-        S.mm = { status:'buscando', stake: st, startedAt: Date.now(), matchAt: 4 + Math.floor(Math.random()*5) };
+        S.mm = { status:'buscando', stake: st, game: S.mm.game || 'poker', startedAt: Date.now(), matchAt: 4 + Math.floor(Math.random()*5) };
         startMMTimer();
       });
       break;
     }
-    case 'mm-cancel': clearInterval(mmTimer); post('devolucion_cola', S.mm.stake); S.mm = { status:'idle', stake:S.mm.stake }; save(); render(); toast('Saliste de la cola. Recuperaste tus monedas'); break;
+    case 'mm-cancel': clearInterval(mmTimer); post('devolucion_cola', S.mm.stake); S.mm = { status:'idle', stake:S.mm.stake, game:S.mm.game }; save(); render(); toast('Saliste de la cola. Recuperaste tus monedas'); break;
 
     case 'd-hot': S.draft.hot = d.h === '1'; render(); break;
     case 'go-tienda': go({ type:'tienda' }); break;
