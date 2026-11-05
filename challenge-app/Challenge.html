@@ -14,6 +14,7 @@
   --rival:#FF2E7E; --rival-soft:#36102B;
   --coin:#FFCF0F; --coin-hi:#FFE45E; --coin-soft:#2A2208; --coin-ink:#FFD83D; --on-coin:#171000;
   --win:#2BFF8E; --win-soft:#0B2A1B; --on-win:#00180B;
+  --cash:#3DE08A; --cash-ink:#04301A; --cash-soft:#0B2A1C; --cash-a:#0E3F2B; --cash-b:#06170F;
   --loss:#FF3D5A; --loss-soft:#320E18;
   --warn:#FFA41C; --warn-soft:#301D06;
   --demo:#BD95FF; --demo-soft:#1C1438;
@@ -51,7 +52,7 @@ svg{flex:none}
 
 /* ---------- barra superior ---------- */
 .top{display:flex;align-items:center;gap:10px;padding:12px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:var(--surface-2);border-bottom:1.5px solid var(--line)}
-.logo{font-family:var(--font-display);font-weight:700;font-style:italic;font-size:25px;letter-spacing:.02em;text-transform:uppercase;line-height:1;color:var(--ink)}
+.logo{font-family:var(--font-display);font-weight:700;font-style:italic;font-size:clamp(19px,5.6vw,25px);letter-spacing:.02em;text-transform:uppercase;line-height:1;color:var(--ink)}
 .logo span{color:var(--coin)}
 .top-title{font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:.03em;text-transform:uppercase;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .spacer{flex:1}
@@ -639,6 +640,23 @@ button.naipe[disabled]{cursor:default;filter:brightness(.72)}
 .chipbet{position:absolute;right:-58px;top:50%;transform:translateY(-50%);padding:3px 10px;clip-path:var(--para);font-family:var(--font-score);font-size:20px;line-height:1;padding-top:5px;background:var(--coin);color:var(--on-coin)}
 .dealer{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#fff;color:#111;font-size:10px;font-weight:800}
 .raises .btn{flex:1 1 30%;font-size:13px;min-height:42px;padding:0 8px}
+/* dos monedas: gratis (dorada) y saldo depositado (billete verde) */
+.coin-chip.cash{background:var(--cash-soft);border-color:color-mix(in srgb,var(--cash) 50%,transparent);color:var(--cash)}
+.top .coin-chip{font-size:21px;padding:4px 8px 3px 5px} .top .coin-chip .coin{width:17px;height:17px}
+.m-cash{display:inline-flex;align-items:center;gap:inherit;color:var(--cash)!important}
+.saldo{position:relative;overflow:hidden;clip-path:var(--cut-lg);padding:16px 18px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(135deg,var(--cash-a),var(--cash-b));color:#fff}
+.saldo::after{content:"";position:absolute;inset:0 0 0 58%;background:repeating-linear-gradient(-60deg,color-mix(in srgb,var(--cash) 14%,transparent) 0 10px,transparent 10px 22px);-webkit-mask-image:linear-gradient(90deg,transparent,#000);mask-image:linear-gradient(90deg,transparent,#000);pointer-events:none}
+.saldo>*{position:relative;z-index:1}
+.saldo .label{font-family:var(--font-display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cash);font-weight:700}
+.saldo .samount{display:flex;align-items:center;gap:10px;font-family:var(--font-score);font-weight:600;font-size:62px;line-height:.78;padding-top:6px;color:var(--cash);text-shadow:0 0 24px color-mix(in srgb,var(--cash) 40%,transparent)}
+.saldo .samount .coin{width:38px;height:38px;margin-top:-8px}
+.saldo .small{color:rgba(255,255,255,.75)}
+.hbtn.solid.cash{background:var(--cash);color:var(--cash-ink)}
+.summary.cash{background:var(--cash-soft);color:var(--cash)} .summary.cash b{color:var(--cash)}
+.amount-pick.cash{background:var(--cash-soft);color:var(--cash)} .amount-pick.cash .val{color:var(--cash);text-shadow:0 0 24px color-mix(in srgb,var(--cash) 40%,transparent)}
+.seg.curs button .coin{width:17px;height:17px}
+.seg.curs button[data-c="cash"][aria-pressed="true"]{background:var(--cash);color:var(--cash-ink)}
+.seg.curs button[data-c="free"][aria-pressed="true"]{background:var(--coin);color:var(--on-coin)}
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} #fx{display:none} }
 </style>
 
@@ -772,7 +790,7 @@ function seed(){
     challenges: [
       { id:'c1', game:'trucoapp', fmt:'1v1', stake:50, rival:'caro_mate', mine:false, origin:'amigo', status:'pendiente', created: now-25*60e3, myLocked:false,
         events:[ev(25*60e3,'@caro_mate creó el desafío y bloqueó 50 monedas')] },
-      { id:'c6', game:'valorant', fmt:'1v1', stake:100, rival:'gonza_b', mine:false, origin:'amigo', status:'pendiente', created: now-5*60e3, myLocked:false,
+      { id:'c6', game:'valorant', cur:'cash', fmt:'1v1', stake:100, rival:'gonza_b', mine:false, origin:'amigo', status:'pendiente', created: now-5*60e3, myLocked:false,
         events:[ev(5*60e3,'@gonza_b te retó a un Valorant 1v1 y bloqueó 100 monedas')] },
       { id:'c5', game:'trucouy', fmt:'1v1', stake:25, rival:'flor_rp', mine:false, origin:'amigo', status:'pendiente', created: now-10*60e3, myLocked:false,
         events:[ev(10*60e3,'@flor_rp te retó a un Truco uruguayo y bloqueó 25 monedas')] },
@@ -789,7 +807,7 @@ function seed(){
     ],
     notifs: [
       { id:'n1', ts: now-25*60e3, text:'@caro_mate te retó a un Truco argentino por 50 monedas', ref:'c1', read:false },
-      { id:'n6', ts: now-5*60e3, text:'@gonza_b te retó a un Valorant 1v1 por 100 monedas', ref:'c6', read:false },
+      { id:'n6', ts: now-5*60e3, text:'@gonza_b te retó a un Valorant 1v1 por $ 100 de saldo', ref:'c6', read:false },
       { id:'n5', ts: now-10*60e3, text:'@flor_rp te retó a un Truco uruguayo por 25 monedas', ref:'c5', read:false },
       { id:'n0', ts: now-90*60e3, text:'@juancito te invitó a un 2v2 de Rocket League por 25 monedas', ref:'c4', read:false },
       { id:'n2', ts: now-32*60e3, text:'@lu_pereyra aceptó tu desafío de Ajedrez online', ref:'c2', read:true },
@@ -830,6 +848,18 @@ if (!S.v6){
   }
   S.v6 = true;
 }
+// v7: dos monedas. Saldo de ejemplo depositado y el reto de Valorant pasa a jugarse con saldo
+if (!S.v7){
+  if (!S.ledger.some(m => m.cur === 'cash')){
+    const t0 = Date.now() - 2*86400000;
+    S.ledger.push({ id:'m7', type:'deposito', amount:500, cur:'cash', ts:t0 });
+    S.cash.kyc = true;
+    S.cash.deposits.unshift({ id:'d0', amount:500, method:'billetera', day:new Date(t0).toISOString().slice(0,10), ts:t0, status:'ok' });
+  }
+  const c6 = S.challenges.find(c => c.id === 'c6' && c.status === 'pendiente' && !c.cur);
+  if (c6){ c6.cur = 'cash'; const n6 = S.notifs.find(n => n.id === 'n6'); if (n6) n6.text = '@gonza_b te retó a un Valorant 1v1 por $ 100 de saldo'; }
+  S.v7 = true;
+}
 S.ids = S.ids || {};
 for (const g of GAME_IDS){ if (S.ratings[g] == null) S.ratings[g] = 1000; for (const u in S.players) if (S.players[u].r[g] == null) S.players[u].r[g] = fakeElo(u + g); }
 if (!S.cash) S.cash = newCash();
@@ -849,14 +879,18 @@ function ago(ts){
   if (s < 86400) return 'hace ' + Math.floor(s/3600) + ' h';
   const d = Math.floor(s/86400); return 'hace ' + d + (d === 1 ? ' día' : ' días');
 }
-const balance = () => S.ledger.reduce((a, m) => a + m.amount, 0);
-const locked = () => S.challenges.filter(c => c.myLocked).reduce((a, c) => a + c.stake, 0) + (S.mm.status === 'buscando' ? S.mm.stake : 0);
+const balance = (cur = 'free') => S.ledger.filter(m => (m.cur || 'free') === cur).reduce((a, m) => a + m.amount, 0);
+const locked = (cur = 'free') => S.challenges.filter(c => c.myLocked && (c.cur || 'free') === cur).reduce((a, c) => a + c.stake, 0) + (S.mm.status === 'buscando' && (S.mm.cur || 'free') === cur ? S.mm.stake : 0);
 const tierOf = e => TIERS.reduce((t, x) => e >= x[1] ? x[0] : t, 'Bronce');
 const ratingOf = (u, g) => u === ME ? S.ratings[g] : S.players[u].r[g];
 const initials = u => u.replace(/[^a-z]/gi,'').slice(0,2);
 const active = c => !['finalizado','cancelado'].includes(c.status);
 const find = id => S.challenges.find(c => c.id === id);
 const needsMe = c => (c.status === 'pendiente' && !c.mine) || c.status === 'aceptado' || c.status === 'en_juego';
+const cashSvg = '<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="4.5" width="21" height="15" rx="3" fill="var(--cash)"/><circle cx="12" cy="12" r="4.3" fill="none" stroke="var(--cash-ink)" stroke-width="1.6"/><path d="M12 9.5v5" stroke="var(--cash-ink)" stroke-width="1.6" stroke-linecap="round"/><circle cx="5.6" cy="12" r="1.1" fill="var(--cash-ink)"/><circle cx="18.4" cy="12" r="1.1" fill="var(--cash-ink)"/></svg>';
+// Monedas gratis (dorada) o saldo depositado por el jugador (billete verde, en pesos)
+const money = (n, cur) => cur === 'cash' ? `<span class="m-cash">${cashSvg}$ ${fmt(n)}</span>` : `${coinSvg}${fmt(n)}`;
+const amt = (n, cur) => cur === 'cash' ? '$ ' + fmt(n) : fmt(n) + ' monedas';
 const coinSvg = '<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--coin)"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="var(--coin-soft)" stroke-width="1.6" opacity=".8"/><path d="M12 7.6v8.8M9.6 9.8h4.2a1.6 1.6 0 0 1 0 3.2h-3.6a1.6 1.6 0 0 0 0 3.2h4.2" fill="none" stroke="var(--coin-soft)" stroke-width="1.6" stroke-linecap="round"/></svg>';
 const gt = (g, size = '') => `<span class="gt ${GAMES[g].cat} ${size}" aria-hidden="true">${GAMES[g].ico}</span>`;
 function avc(u){ let h = 5; for (const ch of u) h = (h*33 + ch.charCodeAt(0)) | 0; return 'av' + (Math.abs(h) % 6); }
@@ -873,9 +907,10 @@ function assurance(c){
   if (g.cat === 'fisico') return { lvl:'media', pill:'aceptado', items:['Check-in presencial: QR de la mesa + ubicación de los dos', 'Doble reporte firmado con huella o PIN', 'Foto o video del resultado y arbitraje si no coinciden'] };
   return { lvl:'media', pill:'aceptado', items:['Doble reporte firmado con huella o PIN', 'Captura o video del resultado como evidencia', 'Arbitraje del equipo si los reportes no coinciden'] };
 }
-function post(type, amount, ref){
-  if (amount < 0 && balance() + amount < 0) throw new Error('saldo');
-  S.ledger.push({ id: uid('m'), type, amount, ref, ts: Date.now() });
+function post(type, amount, ref, cur = 'free'){
+  if (amount < 0 && balance(cur) + amount < 0) throw new Error('saldo');
+  const m = { id: uid('m'), type, amount, ref, ts: Date.now() }; if (cur === 'cash') m.cur = 'cash';
+  S.ledger.push(m);
 }
 function ev(c, text){ c.events.push({ ts: Date.now(), text }); }
 function notify(text, ref){ S.notifs.unshift({ id: uid('n'), ts: Date.now(), text, ref, read:false }); }
@@ -917,8 +952,8 @@ function progress(c, my){
   else { S.sxp += 10; }
 }
 function finalize0(c, my, via){
-  if (my === 'gane') post('pago', 2*c.stake, c.id);
-  else if (my === 'empate' || my === 'anulado') post('devolucion', c.stake, c.id);
+  if (my === 'gane') post('pago', 2*c.stake, c.id, c.cur);
+  else if (my === 'empate' || my === 'anulado') post('devolucion', c.stake, c.id, c.cur);
   c.myLocked = false;
   c.result = my;
   if (my === 'anulado'){ c.status = 'cancelado'; c.cancelReason = 'Partida anulada'; ev(c, 'Partida anulada: se devolvieron las monedas a los dos'); return; }
@@ -926,13 +961,13 @@ function finalize0(c, my, via){
   const d = eloUpdate(c.game, c.rival, my === 'gane' ? 1 : my === 'empate' ? .5 : 0, c.hot ? K*2 : K);
   c.eloDelta = d;
   const elo = 'ELO ' + (d >= 0 ? '+' : '') + d;
-  if (my === 'gane') ev(c, `${via}: ganaste. Cobraste ${fmt(2*c.stake)} monedas · ${elo}`);
-  else if (my === 'empate') ev(c, `${via}: empate. Se devolvieron ${fmt(c.stake)} monedas a cada uno · ${elo}`);
+  if (my === 'gane') ev(c, `${via}: ganaste. Cobraste ${amt(2*c.stake, c.cur)} · ${elo}`);
+  else if (my === 'empate') ev(c, `${via}: empate. Se devolvieron ${amt(c.stake, c.cur)} a cada uno · ${elo}`);
   else ev(c, `${via}: ganó @${c.rival} · ${elo}`);
-  notify(my === 'gane' ? `Ganaste ${fmt(2*c.stake)} monedas contra @${c.rival}` : my === 'empate' ? `Empate con @${c.rival}: recuperaste tus monedas` : `@${c.rival} ganó el desafío de ${GAMES[c.game].name}`, c.id);
+  notify(my === 'gane' ? `Ganaste ${amt(2*c.stake, c.cur)} contra @${c.rival}` : my === 'empate' ? `Empate con @${c.rival}: recuperaste tus monedas` : `@${c.rival} ganó el desafío de ${GAMES[c.game].name}`, c.id);
 }
 function refundCancel(c, reason, text){
-  if (c.myLocked) post('devolucion', c.stake, c.id);
+  if (c.myLocked) post('devolucion', c.stake, c.id, c.cur);
   c.myLocked = false; c.status = 'cancelado'; c.cancelReason = reason; c.cancelReq = null;
   ev(c, text);
 }
@@ -1011,7 +1046,7 @@ function signDone(method){
   const c = signCtx;
   S.signatures.unshift({ ts: Date.now(), action: c.action, detail: c.detail, method, device: method === 'Huella' ? 'iPhone de Marto' : 'Chrome en Windows' });
   signCtx = null; $('sheet').innerHTML = '';
-  try { c.onOk(); } catch(e){ if (e.message === 'saldo') toast('No te alcanzan las monedas', 'bad'); else throw e; }
+  try { c.onOk(); } catch(e){ if (e.message === 'saldo') toast('No te alcanza para ese monto', 'bad'); else throw e; }
   save(); render();
 }
 
@@ -1054,16 +1089,16 @@ function chRow(c){
   const who = c.origin === 'matchmaking' ? 'Matchmaking vs' : (c.mine ? 'Retaste a' : 'Te retó');
   return `<button class="ch" data-a="open" data-id="${c.id}">${gt(c.game)}
     <span class="ch-main"><b>${g.name}${fmtTag(c)}</b><span class="ch-who">${avatar(c.rival, 'xs')}<span>${who} @${esc(c.rival)} · ${ago(c.created)}</span></span></span>
-    <span class="ch-side"><span class="stake num">${coinSvg}${fmt(c.stake)}</span>${statusPill(c)}</span></button>`;
+    <span class="ch-side"><span class="stake num">${money(c.stake, c.cur)}</span>${statusPill(c)}</span></button>`;
 }
-function vsCard({ game, rival, stake, fmt: f, hot }, sub){
+function vsCard({ game, rival, stake, fmt: f, hot, cur }, sub){
   const me = ratingOf(ME, game), rv = ratingOf(rival, game), n = teamSize(f);
   const pot = stake * 2 * n;
   return `<div class="vs-card">
     <div class="vs-top">${gt(game)}<span class="t"><b>${GAMES[game].name}${f && f !== '1v1' ? ' · ' + f : ''}</b><span>${sub}</span></span>${hot ? '<span class="hot">Duelo caliente</span>' : ''}</div>
     <div class="vs">
       <div class="who">${avatar(ME, 'lg')}<b>@${ME}</b><span class="tier ${tierOf(me)}">${tierOf(me)} ${me}</span></div>
-      <div class="pot"><span class="lbl">Pozo</span><span class="big-n num">${coinSvg}${fmt(pot)}</span><span class="lbl">${n > 1 ? fmt(stake) + ' c/u' : 'comisión 0%'}</span></div>
+      <div class="pot"><span class="lbl">Pozo</span><span class="big-n num">${money(pot, cur)}</span><span class="lbl">${n > 1 ? fmt(stake) + ' c/u' : 'comisión 0%'}</span></div>
       <div class="who">${avatar(rival, 'lg')}<b>@${esc(rival)}</b><span class="tier ${tierOf(rv)}">${tierOf(rv)} ${rv}</span></div>
     </div></div>`;
 }
@@ -1096,21 +1131,26 @@ function vInicio(){
   const streakPips = Array.from({ length: 7 }, (_, i) => `<i class="${i < Math.min(claimed ? S.loginStreak : nextStreak - 1, 7) ? 'on' : ''}"></i>`).join('');
   const adPips = Array.from({ length: 5 }, (_, i) => `<i class="${i < S.ads.count ? 'on' : ''}"></i>`).join('');
   return `
+  ${vis ? `<section class="saldo" aria-label="Tu saldo">
+    <span class="label">Tu saldo · lo que depositaste</span>
+    <span class="samount num">${cashSvg}$ ${fmt(balance('cash'))}</span>
+    <span class="small num">${locked('cash') ? `$ ${fmt(locked('cash'))} en juego · ` : ''}Se usa para retar con plata y se puede retirar</span>
+    <div class="hbtns"><button class="hbtn solid cash" data-a="go-caja" data-t="depositar">${ICONS.in}Depositar</button><button class="hbtn" data-a="go-caja" data-t="retirar">${ICONS.out}Retirar</button></div>
+  </section>` : ''}
   <section class="wallet" aria-label="Tus monedas">
-    <span class="label">Tus monedas</span>
+    <span class="label">${vis ? 'Monedas gratis' : 'Tus monedas'}</span>
     <span class="amount num">${coinSvg}${fmt(bal)}</span>
     <span class="meta">
       <span class="hchip num">${ICONS.lock}<b>${fmt(lk)}</b> en juego</span>
       ${vis ? '' : `<span class="hchip num">${ICONS.star}<b>${fmt(S.points)}</b> puntos para canjear</span>`}
     </span>
-    ${vis ? `<div class="hbtns"><button class="hbtn solid" data-a="go-caja" data-t="depositar">${ICONS.in}Depositar</button><button class="hbtn" data-a="go-caja" data-t="retirar">${ICONS.out}Retirar</button></div>` : ''}
-    <details><summary>${ICONS.info}Cómo funcionan</summary><p>${vis ? 'Concepto: las monedas ganadas en duelos se canjean en la tienda. Requiere licencia.' : 'Las monedas son para retar: no se compran, no se canjean y no se retiran. Los puntos se ganan entrando y viendo videos (nunca apostando) y se canjean por productos.'}</p></details>
+    <details><summary>${ICONS.info}Cómo funcionan</summary><p>${vis ? 'Monedas gratis: las ganás entrando y viendo videos, sirven para retar sin poner plata y se canjean en la tienda. Saldo: es lo que depositás; lo que ganás retando con saldo vuelve a tu saldo y se puede retirar.' : 'Las monedas son para retar: no se compran, no se canjean y no se retiran. Los puntos se ganan entrando y viendo videos (nunca apostando) y se canjean por productos.'}</p></details>
   </section>
 
   ${incoming.length ? `<section class="section"><div class="h"><h2>Te desafiaron</h2><span class="pill toca">${incoming.length}</span></div>
     ${incoming.map(c => `<div class="incoming">
       <div class="top-row">${avatar(c.rival, 'lg')}<span class="txt"><b>@${esc(c.rival)} te retó</b><span class="muted small">${GAMES[c.game].name}${fmtTag(c)} · ${ago(c.created)}</span></span>${gt(c.game)}</div>
-      <div class="summary"><span>Pozo en juego</span><b class="num">${coinSvg}${fmt(potOf(c))}</b></div>
+      <div class="summary ${c.cur === 'cash' ? 'cash' : ''}"><span>Pozo en juego${c.cur === 'cash' ? ' · con saldo' : ''}</span><b class="num">${money(potOf(c), c.cur)}</b></div>
       <button class="btn gold block" data-a="open" data-id="${c.id}">Ver el reto y responder</button>
     </div>`).join('')}
   </section>` : ''}
@@ -1168,7 +1208,9 @@ function vDesafios(){
 /* asistente en 4 pasos */
 const WIZ = ['Juego', 'Rival', 'Monto', 'Confirmar'];
 function vNuevo(){
-  const d = S.draft, bal = balance(), vis = S.mode === 'vision';
+  const d = S.draft, vis = S.mode === 'vision';
+  if (!vis || d.cur !== 'cash') d.cur = 'free';
+  const bal = balance(d.cur), cash = d.cur === 'cash';
   const games = avail(d.cat);
   if (!games.includes(d.game)){ d.game = games[0]; d.fmt = GAMES[d.game].modes[0]; }
   if (d.stake > maxStake()) d.stake = maxStake();
@@ -1189,11 +1231,12 @@ function vNuevo(){
       ${friends.some(([,p]) => (p.streak || 0) >= 3) ? '<span class="muted small">El número rojo es su racha de victorias: si le ganás, cobrás una recompensa extra.</span>' : ''}`;
   } else if (step === 2){
     body = `<h2 class="q">¿Cuánto ponen?</h2>
-      <div class="amount-pick"><span class="small" style="font-weight:700">${n > 1 ? 'Cada jugador pone' : 'Vos ponés'}</span><span class="val num">${coinSvg}${fmt(d.stake)}</span><span class="win-line num">Si ganás te llevás ${fmt(d.stake*2)}</span></div>
+      ${vis ? `<div class="seg curs" role="group" aria-label="Con qué juegan"><button data-a="d-cur" data-c="free" aria-pressed="${!cash}">${coinSvg}Monedas gratis</button><button data-a="d-cur" data-c="cash" aria-pressed="${cash}">${cashSvg}Saldo</button></div>` : ''}
+      <div class="amount-pick ${cash ? 'cash' : ''}"><span class="small" style="font-weight:700">${n > 1 ? 'Cada jugador pone' : 'Vos ponés'}${cash ? ' de tu saldo' : ''}</span><span class="val num">${money(d.stake, d.cur)}</span><span class="win-line num">Si ganás te llevás ${amt(d.stake*2, d.cur)}</span></div>
       <div class="stakes">${STAKES.map(s => `<button class="chip num" data-a="d-stake" data-s="${s}" aria-pressed="${d.stake === s}" ${s > maxStake() ? 'disabled' : ''}>${s}</button>`).join('')}</div>
-      <span class="muted small num">Tenés ${fmt(bal)} monedas disponibles.</span>
+      <span class="muted small num">Tenés ${amt(bal, d.cur)} disponibles.${cash && bal < d.stake ? ' <button class="link small" data-a="go-caja" data-t="depositar">Depositar</button>' : ''}</span>
       ${maxStake() < 250 ? `<div class="alert warn"><span>Tu confianza es ${S.trust}/100, así que el monto máximo es ${maxStake()}. Sube de nuevo con duelos sin disputas.</span></div>` : ''}
-      ${d.stake > bal ? '<div class="err">No te alcanzan las monedas para ese monto.</div>' : ''}
+      ${d.stake > bal ? `<div class="err">${cash ? 'No te alcanza el saldo para ese monto.' : 'No te alcanzan las monedas para ese monto.'}</div>` : ''}
       ${modes.length > 1 ? `<div class="section"><div class="h"><h2>Formato</h2></div><div class="chips">${modes.map(m => `<button class="chip" data-a="d-fmt" data-f="${m}" aria-pressed="${d.fmt === m}">${m}</button>`).join('')}</div></div>` : ''}
       <div class="section"><div class="h"><h2>Intensidad</h2></div>
         <div class="duo">
@@ -1202,22 +1245,22 @@ function vNuevo(){
         </div></div>`;
   } else {
     body = `<h2 class="q">Revisá y enviá</h2>
-      ${vsCard({ game:d.game, rival:d.rival, stake:d.stake, fmt:d.fmt, hot:d.hot }, 'Entre amigos · ' + gsub(d.game))}
+      ${vsCard({ game:d.game, rival:d.rival, stake:d.stake, fmt:d.fmt, hot:d.hot, cur:d.cur }, 'Entre amigos · ' + gsub(d.game))}
       <div class="card recap">
         <div class="r"><span>Juego</span><b>${GAMES[d.game].name}${d.fmt !== '1v1' ? ' · ' + d.fmt : ''} <button class="link small" data-a="d-goto" data-s="0">Cambiar</button></b></div>
         <div class="r"><span>Rival</span><b>@${esc(d.rival)} <button class="link small" data-a="d-goto" data-s="1">Cambiar</button></b></div>
-        <div class="r"><span>Ponés</span><b class="num">${fmt(d.stake)}${n > 1 ? ' c/u' : ''} · ${d.hot ? 'caliente' : 'normal'} <button class="link small" data-a="d-goto" data-s="2">Cambiar</button></b></div>
+        <div class="r"><span>Ponés</span><b class="num">${amt(d.stake, d.cur)}${n > 1 ? ' c/u' : ''} · ${d.hot ? 'caliente' : 'normal'} <button class="link small" data-a="d-goto" data-s="2">Cambiar</button></b></div>
       </div>
       ${GAMES[d.game].idp ? (myId(GAMES[d.game].idp) ? `<div class="card recap"><div class="r"><span>Tu ${PLAT[GAMES[d.game].idp].name}</span><b>${esc(myId(GAMES[d.game].idp))} <button class="link small" data-a="unlink-id" data-p="${GAMES[d.game].idp}">Cambiar</button></b></div></div>` : idField(GAMES[d.game].idp)) : ''}
-      <div class="summary"><span>Si ganás te llevás</span><b class="num">${coinSvg}${fmt(d.stake*2)}</b></div>
+      <div class="summary ${cash ? 'cash' : ''}"><span>Si ganás te llevás</span><b class="num">${money(d.stake*2, d.cur)}</b></div>
       ${GAMES[d.game].tos === 'no' && S.mode !== 'vision' ? `<div class="alert bad"><b>${GAMES[d.game].pub} prohíbe apostar sobre sus partidas</b><span>Solo visible en el modo visión. Para ofrecerlo de verdad haría falta un acuerdo con el editor.</span></div>` : ''}
-      <p class="muted small" style="margin:0">${n > 1 ? `Formato ${d.fmt}: cada uno de los ${n*2} jugadores pone ${fmt(d.stake)} (pozo de ${fmt(d.stake*2*n)}). Cada integrante del equipo ganador se lleva ${fmt(d.stake*2)}. Tus compañeros se suman con un link. ` : ''}Al enviar se bloquean tus ${fmt(d.stake)} monedas. Si no aceptan en 48 h, vuelven a tu saldo. Comisión: 0%.</p>
+      <p class="muted small" style="margin:0">${n > 1 ? `Formato ${d.fmt}: cada uno de los ${n*2} jugadores pone ${fmt(d.stake)} (pozo de ${fmt(d.stake*2*n)}). Cada integrante del equipo ganador se lleva ${fmt(d.stake*2)}. Tus compañeros se suman con un link. ` : ''}Al enviar se bloquean tus ${amt(d.stake, d.cur)}. Si no aceptan en 48 h, vuelven a tu saldo. Comisión: 0%.</p>
       ${d.stake > bal ? '<div class="err">No te alcanzan las monedas para ese monto.</div>' : ''}`;
   }
   return wiz + body;
 }
 function nuevoFoot(){
-  const d = S.draft, step = d.step || 0, over = d.stake > balance();
+  const d = S.draft, step = d.step || 0, over = d.stake > balance(d.cur === 'cash' ? 'cash' : 'free');
   const back = step > 0 ? `<button class="btn back" data-a="d-prev" aria-label="Paso anterior">${ICONS.back}</button>` : '';
   if (step === 3) return back + `<button class="btn gold xl" data-a="create" ${!d.rival || over || idMissing(d.game) ? 'disabled' : ''}>${idMissing(d.game) ? 'Vinculá tu cuenta para enviar' : 'Firmar y enviar reto'}</button>`;
   const ok = step === 1 ? !!d.rival : step === 2 ? !over : true;
@@ -1258,11 +1301,11 @@ function vDetalle(c){
   let st = { tone:'info', eye:'', title:'', text:'' }, acts = '', demo = '', extra = '';
 
   if (c.status === 'pendiente' && !c.mine){
-    st = { tone:'warn', eye:'Te toca', title:`${rival} te retó`, text:`Si aceptás, se bloquean ${fmt(c.stake)} de tus monedas hasta que termine. Si ganás te llevás ${fmt(c.stake*2)}.` };
+    st = { tone:'warn', eye:'Te toca', title:`${rival} te retó`, text:`Si aceptás, se bloquean ${c.cur === 'cash' ? '$ ' + fmt(c.stake) + ' de tu saldo' : fmt(c.stake) + ' de tus monedas'} hasta que termine. Si ganás te llevás ${amt(c.stake*2, c.cur)}.` };
     const needP = idMissing(c.game);
     acts = (needP ? idField(g.idp) : '') + `<div class="btn-row"><button class="btn gold xl" data-a="accept" ${needP ? 'disabled' : ''}>Aceptar</button><button class="btn xl" data-a="reject">Rechazar</button></div>`;
   } else if (c.status === 'pendiente'){
-    st = { tone:'warn', eye:'Esperando', title:`Esperando que ${rival} acepte`, text:`Tus ${fmt(c.stake)} monedas están bloqueadas. Si no responde en 48 h, vuelven a tu saldo.` };
+    st = { tone:'warn', eye:'Esperando', title:`Esperando que ${rival} acepte`, text:`Tus ${amt(c.stake, c.cur)} están bloqueadas. Si no responde en 48 h, vuelven a tu saldo.` };
     acts = `<button class="btn danger block" data-a="withdraw">Retirar el reto</button>`;
     demo = `<div class="btn-row"><button class="btn" data-a="sim-accept">${rival} acepta</button><button class="btn" data-a="sim-reject">${rival} rechaza</button></div>`;
   } else if (c.status === 'aceptado' || c.status === 'en_juego'){
@@ -1288,7 +1331,7 @@ function vDetalle(c){
       }
     } else {
       st = c.status === 'aceptado'
-        ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text:`Los dos bloquearon ${fmt(c.stake)} monedas. Cuando terminen, cada uno reporta quién ganó.` }
+        ? { tone:'info', eye:'Te toca', title:'¡A jugar!', text:`Los dos bloquearon ${amt(c.stake, c.cur)}. Cuando terminen, cada uno reporta quién ganó.` }
         : { tone:'info', eye:'En juego', title:'¿Cómo salió?', text:'Reportá el resultado. Si los dos coinciden, se liquida al instante.' };
       acts = (c.status === 'aceptado' ? startBlock(c) : '') +
         `<span class="small muted" style="font-weight:700">${c.status === 'aceptado' ? '¿Ya terminaron? Reportá el resultado:' : 'Tocá el resultado (se firma):'}</span><div class="picks">
@@ -1307,13 +1350,13 @@ function vDetalle(c){
     const opposite = { gane:'perdi', perdi:'gane', empate:'empate' }[c.myReport];
     demo = `<div class="btn-row"><button class="btn" data-a="sim-report" data-r="${opposite}">${rival} reporta lo mismo</button><button class="btn" data-a="sim-report" data-r="${c.myReport === 'gane' ? 'gane' : 'perdi'}">${rival} reporta otra cosa</button></div><button class="btn" data-a="sim-timeout">Pasan 24 h sin respuesta</button>`;
   } else if (c.status === 'en_disputa'){
-    st = { tone:'bad', eye:'En revisión', title:'Desafío en disputa', text:`Vos reportaste "${OUT[c.myReport]}" y ${rival} reportó "${OUT[c.rivalReport]}". Las ${fmt(potOf(c))} monedas del pozo quedan retenidas hasta que un administrador revise la evidencia.` };
+    st = { tone:'bad', eye:'En revisión', title:'Desafío en disputa', text:`Vos reportaste "${OUT[c.myReport]}" y ${rival} reportó "${OUT[c.rivalReport]}". Las ${amt(potOf(c), c.cur)} del pozo quedan retenidas hasta que un administrador revise la evidencia.` };
     acts = evidenceBlock(c);
     demo = `<button class="btn" data-a="go-admin">Abrir el panel de administración</button>`;
   } else if (c.status === 'finalizado'){
     const d = c.eloDelta || 0, elo = `ELO ${d >= 0 ? '+' : ''}${d} en ${g.name}`;
-    st = c.result === 'gane' ? { tone:'good', eye:'Resultado', title:`¡Ganaste ${fmt(c.stake*2)} monedas!`, text:elo }
-      : c.result === 'empate' ? { tone:'info', eye:'Resultado', title:'Empate', text:`Recuperaste tus ${fmt(c.stake)} monedas · ${elo}` }
+    st = c.result === 'gane' ? { tone:'good', eye:'Resultado', title:`¡Ganaste ${amt(c.stake*2, c.cur)}!`, text:elo }
+      : c.result === 'empate' ? { tone:'info', eye:'Resultado', title:'Empate', text:`Recuperaste tus ${amt(c.stake, c.cur)} · ${elo}` }
       : { tone:'bad', eye:'Resultado', title:`Ganó ${rival}`, text:`${elo}. La próxima es tuya.` };
     acts = `<button class="btn gold block xl" data-a="rematch">Pedir revancha</button>`;
   } else if (c.status === 'cancelado'){
@@ -1355,7 +1398,7 @@ function vPerfil(){
   const friends = Object.entries(S.players).filter(([,p]) => p.friend);
   const pending = S.pendingFriends || [];
   const disputes = S.challenges.filter(c => c.status === 'en_disputa').length;
-  const movs = S.ledger.slice().reverse().slice(0, 10);
+  const movs = S.ledger.filter(m => !m.cur).reverse().slice(0, 10);
   const vis = S.mode === 'vision';
   const ringC = S.trust >= 80 ? 'var(--win)' : S.trust >= 50 ? 'var(--warn)' : 'var(--loss)';
   return `
@@ -1381,7 +1424,8 @@ function vPerfil(){
     <div class="seg" role="group" aria-label="Modo"><button data-a="mode" data-m="regulado" aria-pressed="${!vis}">Regulado</button><button data-a="mode" data-m="vision" aria-pressed="${vis}">Visión (concepto)</button></div>
     <span class="muted small">${vis ? 'Visión: monedas apostables y canjeables, y todos los juegos. Es lo que el producto podría ser con licencia de juego; hoy no se puede operar en Uruguay.' : 'Regulado: las monedas se apuestan pero no valen nada; los puntos se canjean pero no se apuestan. Es la versión pensada para lanzar.'}</span>
   </section>
-  ${fold('monedas', coinSvg, 'Movimientos de monedas', fmt(balance()), movs.map(m => `<div class="mov"><span>${MOV[m.type]}</span><span class="amt num ${m.amount > 0 ? 'pos' : 'neg'}">${m.amount > 0 ? '+' : ''}${fmt(m.amount)}</span><span class="muted small">${ago(m.ts)}${m.ref ? ' · desafío ' + esc(m.ref) : ''}</span></div>`).join(''))}
+  ${vis ? fold('saldo', cashSvg, 'Movimientos de saldo', '$ ' + fmt(balance('cash')), (S.ledger.filter(m => m.cur === 'cash').reverse().slice(0, 10).map(m => `<div class="mov"><span>${MOV[m.type]}</span><span class="amt num ${m.amount > 0 ? 'pos' : 'neg'}">${m.amount > 0 ? '+' : '−'}$ ${fmt(Math.abs(m.amount))}</span><span class="muted small">${ago(m.ts)}${m.ref ? ' · desafío ' + esc(m.ref) : ''}</span></div>`).join('') || '<span class="muted small">Todavía no hay movimientos de saldo.</span>')) : ''}
+  ${fold('monedas', coinSvg, vis ? 'Movimientos de monedas gratis' : 'Movimientos de monedas', fmt(balance()), movs.map(m => `<div class="mov"><span>${MOV[m.type]}</span><span class="amt num ${m.amount > 0 ? 'pos' : 'neg'}">${m.amount > 0 ? '+' : ''}${fmt(m.amount)}</span><span class="muted small">${ago(m.ts)}${m.ref ? ' · desafío ' + esc(m.ref) : ''}</span></div>`).join(''))}
   ${vis ? '' : fold('puntos', ICONS.star, 'Movimientos de puntos', fmt(S.points) + ' pts', S.pointsLog.slice(0, 8).map(m => `<div class="mov"><span>${esc(m.text)}</span><span class="amt num ${m.amount > 0 ? 'pos' : 'neg'}">${m.amount > 0 ? '+' : ''}${fmt(m.amount)}</span><span class="muted small">${ago(m.ts)}</span></div>`).join(''))}
   ${fold('firmas', ICONS.shield, 'Decisiones firmadas', String(S.signatures.length), S.signatures.slice(0,6).map(s => `<div class="mov"><span><b>${esc(s.action)}</b></span><span class="tag">${esc(s.method)}</span><span class="muted small">${esc(s.detail)} · ${esc(s.device)} · ${ago(s.ts)}</span></div>`).join(''))}
   ${fold('terminos', ICONS.info, 'Términos aceptados', 'v2', `<span class="small">${vis ? 'Modo visión: términos de ejemplo de un producto con licencia. No aplican a la versión de lanzamiento.' : 'Las monedas no tienen valor monetario y no se compran, retiran ni canjean. Los puntos se canjean por productos de comercios aliados y no se pueden apostar.'}</span>`)}
@@ -1406,9 +1450,9 @@ function vCaja(){
   if (K.tab === 'depositar'){
     const used = cashToday(), left = Math.max(0, K.limit - used), d = K.dep, over = d.amount > left;
     body = `
-    <div class="amount-pick"><span class="small" style="font-weight:700">Vas a depositar</span><span class="val num">${pesos(d.amount)}</span><span class="win-line num">Recibís ${fmt(d.amount)} monedas · comisión 0%</span></div>
+    <div class="amount-pick"><span class="small" style="font-weight:700">Vas a depositar</span><span class="val num">${pesos(d.amount)}</span><span class="win-line num">Se acredita en tu saldo · comisión 0%</span></div>
     <div class="stakes four">${DEP_AMOUNTS.map(v => `<button class="chip num" data-a="dep-amt" data-s="${v}" aria-pressed="${d.amount === v}">${fmt(v)}</button>`).join('')}</div>
-    <span class="muted small">Cambio de ejemplo: 1 moneda = $ 1.</span>
+    <span class="muted small num">Tu saldo hoy: $ ${fmt(balance('cash'))}. Las monedas gratis no cambian: siguen siendo gratis.</span>
     <section class="section"><div class="h"><h2>¿Cómo pagás?</h2></div><div class="list">${Object.keys(METHODS).filter(k => METHODS[k].canDep).map(k => method(k, d.method, 'dep')).join('')}</div></section>
     ${over ? `<div class="err">Con este monto superás tu límite diario. Hoy te quedan ${pesos(left)}.</div>` : ''}
     <button class="btn gold block xl" data-a="dep-go" ${!K.kyc || over ? 'disabled' : ''}>${K.kyc ? 'Continuar al pago' : 'Primero verificá tu identidad'}</button>
@@ -1419,14 +1463,14 @@ function vCaja(){
       ${K.pendingLimit ? `<div class="demo"><span class="demo-t">Solo demo</span><button class="btn" data-a="cash-limit-apply">Simular que pasaron 24 h</button></div>` : ''}
     </div>`;
   } else {
-    const bal = balance(), r = K.ret, over = r.amount > bal;
+    const bal = balance('cash'), r = K.ret, over = r.amount > bal;
     const pend = K.withdrawals.filter(w => w.status === 'revision');
     body = `
-    <div class="amount-pick"><span class="small" style="font-weight:700">Vas a retirar</span><span class="val num">${pesos(r.amount)}</span><span class="win-line num">Se descuentan ${fmt(r.amount)} monedas</span></div>
+    <div class="amount-pick"><span class="small" style="font-weight:700">Vas a retirar</span><span class="val num">${pesos(r.amount)}</span><span class="win-line num">Sale de tu saldo</span></div>
     <div class="stakes four">${RET_AMOUNTS.map(v => `<button class="chip num" data-a="ret-amt" data-s="${v}" aria-pressed="${r.amount === v}" ${v > bal ? 'disabled' : ''}>${fmt(v)}</button>`).join('')}</div>
-    <span class="muted small num">Podés retirar hasta ${fmt(bal)} monedas. Las que están en juego se liberan cuando termina el desafío.</span>
+    <span class="muted small num">Podés retirar hasta $ ${fmt(bal)} de tu saldo. Lo que está en juego se libera cuando termina el desafío. Las monedas gratis no se retiran.</span>
     <section class="section"><div class="h"><h2>¿Adónde te lo mandamos?</h2></div><div class="list">${Object.keys(METHODS).filter(k => METHODS[k].canRet).map(k => method(k, r.method, 'ret')).join('')}</div></section>
-    ${over ? '<div class="err">No tenés tantas monedas disponibles.</div>' : ''}
+    ${over ? '<div class="err">No tenés tanto saldo disponible.</div>' : ''}
     <button class="btn gold block xl" data-a="ret-go" ${!K.kyc || over ? 'disabled' : ''}>${K.kyc ? 'Pedir retiro' : 'Primero verificá tu identidad'}</button>
     <span class="muted small">Cada retiro se revisa antes de pagarse (hasta 48 h) para prevenir fraude y lavado de dinero.</span>
     ${pend.length ? `<section class="section"><div class="h"><h2>En revisión</h2><span class="muted small">${pend.length}</span></div><div class="card" style="padding-block:2px">${pend.map(w => `<div class="wd"><div class="r1"><span><b class="num">${pesos(w.amount)}</b><br><span class="muted small">${METHODS[w.method].name} · ${ago(w.ts)}</span></span><span class="pill pendiente">En revisión</span></div>
@@ -1446,7 +1490,7 @@ function openPay(){
   const d = S.cash.dep, m = METHODS[d.method];
   $('sheet').innerHTML = `<div class="sheet" data-a="sheet-bg"><div class="panel" role="dialog" aria-modal="true" aria-labelledby="pay-t">
     <div class="grab"></div><h3 id="pay-t">Confirmar el pago</h3>
-    <div class="sigbox"><b class="num">${pesos(d.amount)} → ${fmt(d.amount)} monedas</b><span class="muted">${m.name}</span></div>
+    <div class="sigbox"><b class="num">${pesos(d.amount)} a tu saldo</b><span class="muted">${m.name}</span></div>
     <div class="provider"><span class="lockbig">${ICONS.lock}</span><b>Acá se abriría la página segura del proveedor de pagos</b>
       <span class="muted">El usuario entra con su cuenta ahí, no en Challenge. La app nunca ve su contraseña ni los datos de su tarjeta: el proveedor solo le avisa al servidor si el pago salió bien.</span></div>
     <div class="demo"><span class="demo-t">Solo demo</span><div class="btn-row"><button class="btn" data-a="pay-ok">Simular pago aprobado</button><button class="btn" data-a="pay-bad">Simular pago rechazado</button></div></div>
@@ -1460,7 +1504,7 @@ function vAdmin(){
   <div class="alert info"><b>Panel de administración</b><span>En la app real solo lo ven usuarios con rol admin. Cada resolución se firma y queda auditada.</span></div>
   <section class="section"><div class="h"><h2>Disputas abiertas</h2><span class="muted small">${ds.length}</span></div>
   ${ds.length ? ds.map(c => `<div class="card section">
-      <div style="display:flex;gap:12px;align-items:center">${gt(c.game)}<div style="min-width:0"><b>${GAMES[c.game].name}${fmtTag(c)} · ${fmt(potOf(c))} en el pozo</b><div class="muted small">@${ME} vs @${esc(c.rival)}</div></div></div>
+      <div style="display:flex;gap:12px;align-items:center">${gt(c.game)}<div style="min-width:0"><b>${GAMES[c.game].name}${fmtTag(c)} · ${amt(potOf(c), c.cur)} en el pozo</b><div class="muted small">@${ME} vs @${esc(c.rival)}</div></div></div>
       <div class="mov"><span>@${ME} reportó</span><b>${OUT[c.myReport]}</b></div>
       <div class="mov"><span>@${esc(c.rival)} reportó</span><b>${OUT[c.rivalReport]}</b></div>
       <div class="muted small">Evidencia: ${(c.evidence || []).length ? (c.evidence).map(esc).join(', ') : 'ninguna'}</div>
@@ -1957,11 +2001,11 @@ function slidePiece([from, to]){
   pc.style.zIndex = 5;
   pc.animate([{ transform:`translate(${dx}px, ${dy}px)` }, { transform:'none' }], { duration:220, easing:'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => { pc.style.zIndex = ''; };
 }
-const gameTop = (c, title) => `<header class="g-top"><button class="icon-btn" data-a="g-close" aria-label="Salir de la partida">${ICONS.back}</button><span class="top-title">${title}</span><span class="coin-chip num">${coinSvg}${fmt(potOf(c))}</span></header>`;
+const gameTop = (c, title) => `<header class="g-top"><button class="icon-btn" data-a="g-close" aria-label="Salir de la partida">${ICONS.back}</button><span class="top-title">${title}</span><span class="coin-chip num ${c.cur === 'cash' ? 'cash' : ''}">${money(potOf(c), c.cur)}</span></header>`;
 function gameEnd(c){
   const f = c.play.final, win = f.res === 'gane', draw = f.res === 'empate';
   return `<section class="next ${win ? 'good' : draw ? 'info' : 'bad'}"><span class="eyebrow">Fin de la partida</span><span class="ttl">${win ? '¡Victoria!' : draw ? 'Tablas' : 'Derrota'}</span>
-    <p>${esc(f.why)}. ${win ? `Cobraste ${fmt(c.stake*2)} monedas.` : draw ? `Recuperaste tus ${fmt(c.stake)} monedas.` : `@${esc(c.rival)} se lleva el pozo.`}</p>
+    <p>${esc(f.why)}. ${win ? `Cobraste ${amt(c.stake*2, c.cur)}.` : draw ? `Recuperaste tus ${amt(c.stake, c.cur)}.` : `@${esc(c.rival)} se lleva el pozo.`}</p>
     <button class="btn gold block xl" data-a="g-close">Volver al desafío</button></section>`;
 }
 const resignBtns = word => resignAsk
@@ -2579,32 +2623,35 @@ function vJugar(){
   const mm = S.mm;
   if (!mm.game || !GAMES[mm.game] || !GAMES[mm.game].inapp) mm.game = 'poker';
   const g = mm.game, e = S.ratings[g];
+  if (S.mode !== 'vision' && mm.status !== 'buscando') mm.cur = 'free';
+  const mc = mm.cur === 'cash' ? 'cash' : 'free', mbal = balance(mc);
   if (mm.status !== 'buscando' && mm.stake > maxStake()) mm.stake = maxStake();
   if (mm.status === 'buscando'){
     return `
     <div class="radar" aria-hidden="true"><span></span><span></span><span></span><div class="core num" id="mm-time">0:00</div></div>
-    <div style="text-align:center"><h2 class="q">Buscando rival</h2><div class="muted small">${GAMES[g].name} · ${fmt(mm.stake)} monedas · tu ELO ${e}</div></div>
+    <div style="text-align:center"><h2 class="q">Buscando rival</h2><div class="muted small">${GAMES[g].name} · ${amt(mm.stake, mm.cur)} · tu ELO ${e}</div></div>
     <div class="card window"><div class="h"><b>Rango de ELO aceptado</b><span class="num" id="mm-range">±100</span></div>
       <div class="bar"><i id="mm-bar" style="left:40%;right:40%"></i><u></u></div>
       <span class="muted small num" id="mm-hint">${e-100} a ${e+100}. Se amplía mientras esperás.</span></div>
     <div class="muted small" style="text-align:center"><span class="num" id="mm-queue">14</span> jugadores buscando en este momento</div>
     <button class="btn block" data-a="mm-cancel">Salir de la cola</button>
-    <p class="muted small" style="margin:0;text-align:center">Tus ${fmt(mm.stake)} monedas quedan retenidas mientras buscás. Si salís, vuelven a tu saldo.</p>`;
+    <p class="muted small" style="margin:0;text-align:center">Tus ${amt(mm.stake, mm.cur)} quedan retenidas mientras buscás. Si salís, vuelven a tu saldo.</p>`;
   }
   return `
   <h2 class="q">¿A qué jugamos?</h2>
   <div class="hub">${APP_GAMES().map(id => `<button class="hcard" data-a="mm-game" data-g="${id}" aria-pressed="${g === id}">${g === id ? `<span class="check">${ICONS.check}</span>` : ''}${gt(id, 'lg')}<b>${GAMES[id].name}</b><span class="small muted">${GAMES[id].blurb}</span></button>`).join('')}</div>
-  <section class="section"><div class="h"><h2>¿Cuánto ponés?</h2><span class="muted small num">Tenés ${fmt(balance())}</span></div>
+  <section class="section"><div class="h"><h2>¿Cuánto ponés?</h2><span class="muted small num">Tenés ${amt(mbal, mc)}</span></div>
+    ${S.mode === 'vision' ? `<div class="seg curs" role="group" aria-label="Con qué jugás"><button data-a="mm-cur" data-c="free" aria-pressed="${mc === 'free'}">${coinSvg}Monedas gratis</button><button data-a="mm-cur" data-c="cash" aria-pressed="${mc === 'cash'}">${cashSvg}Saldo</button></div>` : ''}
     <div class="stakes">${STAKES.map(s => `<button class="chip num" data-a="mm-stake" data-s="${s}" aria-pressed="${mm.stake === s}" ${s > maxStake() ? 'disabled' : ''}>${s}</button>`).join('')}</div>
   </section>
-  <div class="summary"><span>Si ganás te llevás</span><b class="num">${coinSvg}${fmt(mm.stake*2)}</b></div>
-  <button class="btn gold block xl" data-a="mm-start" ${mm.stake > balance() ? 'disabled' : ''}>Buscar rival de ${GAMES[g].name.split(' ')[0].toLowerCase()}</button>
-  ${mm.stake > balance() ? '<div class="err">No te alcanzan las monedas para ese monto.</div>' : ''}
+  <div class="summary ${mc === 'cash' ? 'cash' : ''}"><span>Si ganás te llevás</span><b class="num">${money(mm.stake*2, mc)}</b></div>
+  <button class="btn gold block xl" data-a="mm-start" ${mm.stake > mbal ? 'disabled' : ''}>Buscar rival de ${GAMES[g].name.split(' ')[0].toLowerCase()}</button>
+  ${mm.stake > mbal ? (mc === 'cash' ? '<div class="err">No te alcanza el saldo. <button class="link small" data-a="go-caja" data-t="depositar">Depositar</button></div>' : '<div class="err">No te alcanzan las monedas para ese monto.</div>') : ''}
   <p class="muted small" style="margin:0">Te emparejamos con alguien de nivel parecido que pone lo mismo. Challenge no juega: solo guarda el pozo y se lo paga al que gana.</p>`;
 }
 
 /* ---------- render ---------- */
-let lastBal = null;
+let lastBal = null, lastCash = null;
 function render(){
   const { tab, sub } = S.nav;
   let title = '', body = '', foot = '';
@@ -2621,10 +2668,12 @@ function render(){
   }
   const unread = S.notifs.filter(n => !n.read).length;
   const bal = balance(), diff = lastBal === null ? 0 : bal - lastBal; lastBal = bal;
+  const cb = balance('cash'), cdiff = lastCash === null ? 0 : cb - lastCash; lastCash = cb;
   $('top').innerHTML = (sub
       ? `<button class="icon-btn" data-a="back" aria-label="Volver">${ICONS.back}</button><span class="top-title">${title}</span>`
       : (tab === 'inicio' ? `<span class="logo">Challenge<span>.</span></span><span class="spacer"></span>` : `<span class="top-title">${TITLES[tab]}</span>`))
     + `<span class="coin-chip num ${diff ? 'bump' : ''}">${coinSvg}${fmt(bal)}${diff ? `<span class="delta ${diff > 0 ? 'pos' : 'neg'}">${diff > 0 ? '+' : ''}${fmt(diff)}</span>` : ''}</span>`
+    + (S.mode === 'vision' ? `<span class="coin-chip cash num ${cdiff ? 'bump' : ''}" aria-label="Saldo">${cashSvg}${fmt(cb)}${cdiff ? `<span class="delta ${cdiff > 0 ? 'pos' : 'neg'}">${cdiff > 0 ? '+$' : '−$'}${fmt(Math.abs(cdiff))}</span>` : ''}</span>` : '')
     + `<button class="icon-btn" data-a="notifs" aria-label="Notificaciones">${ICONS.bell}${unread ? `<span class="dot">${unread}</span>` : ''}</button>`;
   $('view').innerHTML = modeBanner() + body;
   $('foot').innerHTML = foot;
@@ -2653,16 +2702,16 @@ function tickMM(){
     const pick = (cands.length ? cands : Object.entries(S.players).filter(([,p]) => !p.friend))
       .sort((a,b) => Math.abs(a[1].r[g] - e) - Math.abs(b[1].r[g] - e))[0][0];
     clearInterval(mmTimer);
-    const c = { id: uid('c'), game:g, stake: mm.stake, rival: pick, mine:true, origin:'matchmaking', status:'aceptado', created: Date.now(), myLocked:true, lichessId: Math.random().toString(36).slice(2,10), events:[] };
+    const c = { id: uid('c'), game:g, cur: mm.cur === 'cash' ? 'cash' : 'free', stake: mm.stake, rival: pick, mine:true, origin:'matchmaking', status:'aceptado', created: Date.now(), myLocked:true, lichessId: Math.random().toString(36).slice(2,10), events:[] };
     ev(c, `Matchmaking: te emparejamos con @${pick} (ELO ${S.players[pick].r[g]}) en ${secs} s`);
-    ev(c, `Las ${fmt(mm.stake)} monedas retenidas pasaron al pozo. @${pick} bloqueó las suyas`);
+    ev(c, `Las ${amt(mm.stake, mm.cur)} retenidas pasaron al pozo. @${pick} bloqueó las suyas`);
     ev(c, `Se creó la partida ${c.lichessId} en la app`);
     // la retención de la cola pasa al escrow del desafío
-    S.ledger.push({ id: uid('m'), type:'devolucion_cola', amount: mm.stake, ts: Date.now() });
-    S.ledger.push({ id: uid('m'), type:'bloqueo', amount: -mm.stake, ref: c.id, ts: Date.now() });
+    post('devolucion_cola', mm.stake, undefined, c.cur);
+    post('bloqueo', -mm.stake, c.id, c.cur);
     S.challenges.push(c);
     notify(`Encontramos rival: @${pick}. Tu partida en la app está lista`, c.id);
-    S.mm = { status:'idle', stake: mm.stake, game: g };
+    S.mm = { status:'idle', stake: mm.stake, game: g, cur: mm.cur };
     toast(`¡Rival encontrado: @${pick}!`, 'good');
     c.status = 'en_juego'; ev(c, 'La partida empezó en la app');
     S.nav = { tab:'desafios', sub:{ type:'detalle', id:c.id } };
@@ -2728,42 +2777,42 @@ function act(a, d, el){
     case 'create': {
       const dr = { ...S.draft };
       if (idMissing(dr.game)){ toast(`Primero vinculá tu ${PLAT[GAMES[dr.game].idp].name}`, 'bad'); return; }
-      sign('Crear desafío', `${GAMES[dr.game].name}${dr.fmt !== '1v1' ? ' ' + dr.fmt : ''} · ${fmt(dr.stake)} monedas vs @${dr.rival}`, () => {
-        const c = { id: uid('c'), game: dr.game, fmt: dr.fmt, stake: dr.stake, rival: dr.rival, hot: !!dr.hot, mine:true, origin:'amigo', status:'pendiente', created: Date.now(), myLocked:true, events:[] };
-        post('bloqueo', -dr.stake, c.id);
-        ev(c, `Creaste el desafío y bloqueaste ${fmt(dr.stake)} monedas`);
+      sign('Crear desafío', `${GAMES[dr.game].name}${dr.fmt !== '1v1' ? ' ' + dr.fmt : ''} · ${amt(dr.stake, dr.cur)} vs @${dr.rival}`, () => {
+        const c = { id: uid('c'), cur: dr.cur === 'cash' ? 'cash' : 'free', game: dr.game, fmt: dr.fmt, stake: dr.stake, rival: dr.rival, hot: !!dr.hot, mine:true, origin:'amigo', status:'pendiente', created: Date.now(), myLocked:true, events:[] };
+        post('bloqueo', -dr.stake, c.id, c.cur);
+        ev(c, `Creaste el desafío y bloqueaste ${amt(dr.stake, dr.cur)}`);
         S.challenges.push(c); S.draft.rival = null; S.draft.step = 0;
         S.nav = { tab:'desafios', sub:{ type:'detalle', id:c.id } };
         toast(`Reto enviado a @${dr.rival}`, 'good');
       });
       break;
     }
-    case 'rematch': S.draft = { cat: GAMES[cur.game].cat, game: cur.game, fmt: cur.fmt || '1v1', stake: Math.min(cur.stake, balance()) || 10, rival: S.players[cur.rival].friend ? cur.rival : null, hot: !!cur.hot }; S.draft.step = S.draft.rival ? 3 : 1; go({ type:'nuevo' }); break;
+    case 'rematch': S.draft = { cat: GAMES[cur.game].cat, game: cur.game, fmt: cur.fmt || '1v1', cur: cur.cur, stake: Math.min(cur.stake, balance(cur.cur)) || 10, rival: S.players[cur.rival].friend ? cur.rival : null, hot: !!cur.hot }; S.draft.step = S.draft.rival ? 3 : 1; go({ type:'nuevo' }); break;
 
     case 'accept':
       if (idMissing(cur.game)){ toast(`Primero vinculá tu ${PLAT[GAMES[cur.game].idp].name}`, 'bad'); return; }
-      if (balance() < cur.stake){ toast('No te alcanzan las monedas para aceptar', 'bad'); return; }
-      sign('Aceptar desafío', `${GAMES[cur.game].name} · ${fmt(cur.stake)} monedas vs @${cur.rival}`, () => {
-        post('bloqueo', -cur.stake, cur.id); cur.myLocked = true; cur.status = 'aceptado';
-        ev(cur, `Aceptaste y bloqueaste ${fmt(cur.stake)} monedas`);
+      if (balance(cur.cur) < cur.stake){ toast(cur.cur === 'cash' ? 'No te alcanza el saldo: depositá para aceptar' : 'No te alcanzan las monedas para aceptar', 'bad'); return; }
+      sign('Aceptar desafío', `${GAMES[cur.game].name} · ${amt(cur.stake, cur.cur)} vs @${cur.rival}`, () => {
+        post('bloqueo', -cur.stake, cur.id, cur.cur); cur.myLocked = true; cur.status = 'aceptado';
+        ev(cur, `Aceptaste y bloqueaste ${amt(cur.stake, cur.cur)}`);
         if (GAMES[cur.game].inapp){ cur.lichessId = Math.random().toString(36).slice(2,10); ev(cur, `Se creó la partida ${cur.lichessId} en la app`); }
         toast('Desafío aceptado', 'good');
       });
       break;
     case 'reject': cur.status = 'cancelado'; cur.cancelReason = 'Rechazaste el reto'; ev(cur, 'Rechazaste el reto. @' + cur.rival + ' recuperó sus monedas'); save(); render(); break;
     case 'withdraw':
-      sign('Retirar desafío', `${GAMES[cur.game].name} · ${fmt(cur.stake)} monedas vs @${cur.rival}`, () => refundCancel(cur, 'Retiraste el reto', `Retiraste el reto y recuperaste ${fmt(cur.stake)} monedas`));
+      sign('Retirar desafío', `${GAMES[cur.game].name} · ${amt(cur.stake, cur.cur)} vs @${cur.rival}`, () => refundCancel(cur, 'Retiraste el reto', `Retiraste el reto y recuperaste ${amt(cur.stake, cur.cur)}`));
       break;
     case 'sim-accept':
-      cur.status = 'aceptado'; ev(cur, `@${cur.rival} aceptó y bloqueó ${fmt(cur.stake)} monedas`);
+      cur.status = 'aceptado'; ev(cur, `@${cur.rival} aceptó y bloqueó ${amt(cur.stake, cur.cur)}`);
       if (GAMES[cur.game].inapp){ cur.lichessId = Math.random().toString(36).slice(2,10); ev(cur, `Se creó la partida ${cur.lichessId} en la app`); }
       notify(`@${cur.rival} aceptó tu desafío de ${GAMES[cur.game].name}`, cur.id); save(); render(); break;
-    case 'sim-reject': refundCancel(cur, `@${cur.rival} rechazó el reto`, `@${cur.rival} rechazó el reto. Recuperaste ${fmt(cur.stake)} monedas`); notify(`@${cur.rival} rechazó tu reto`, cur.id); save(); render(); break;
+    case 'sim-reject': refundCancel(cur, `@${cur.rival} rechazó el reto`, `@${cur.rival} rechazó el reto. Recuperaste ${amt(cur.stake, cur.cur)}`); notify(`@${cur.rival} rechazó tu reto`, cur.id); save(); render(); break;
     case 'start': cur.status = 'en_juego'; ev(cur, 'Empezaron a jugar'); save(); render(); break;
     case 'sim-lichess':
       if (cur.status === 'aceptado'){ cur.status = 'en_juego'; ev(cur, 'La partida empezó en la app'); }
       if (cur.play && !cur.play.done){ cur.play.done = true; cur.play.final = { res: d.r, why: 'Resultado simulado' }; }
-      finalize(cur, d.r, 'Resultado registrado por la app'); save(); render(); toast(d.r === 'gane' ? `¡Ganaste ${fmt(cur.stake*2)} monedas!` : d.r === 'perdi' ? 'Perdiste esta vez' : 'Se devolvieron las monedas', d.r === 'gane' ? 'good' : ''); break;
+      finalize(cur, d.r, 'Resultado registrado por la app'); save(); render(); toast(d.r === 'gane' ? `¡Ganaste ${amt(cur.stake*2, cur.cur)}!` : d.r === 'perdi' ? 'Perdiste esta vez' : 'Se devolvieron las monedas', d.r === 'gane' ? 'good' : ''); break;
     case 'report':
       sign('Reportar resultado', `${GAMES[cur.game].name} vs @${cur.rival} · ${OUT[d.r]}`, () => {
         cur.myReport = d.r; cur.status = 'resultado_reportado'; ev(cur, `Reportaste: ${OUT[d.r]}`);
@@ -2781,7 +2830,7 @@ function act(a, d, el){
     case 'cancel-req':
       sign('Pedir cancelación', `${GAMES[cur.game].name} vs @${cur.rival}`, () => { cur.cancelReq = { by:ME, at:Date.now() }; ev(cur, 'Pediste cancelar el desafío'); });
       break;
-    case 'sim-cancel-ok': refundCancel(cur, 'Cancelado por los dos', `@${cur.rival} confirmó la cancelación. Recuperaste ${fmt(cur.stake)} monedas`); notify(`Se canceló tu desafío con @${cur.rival}`, cur.id); save(); render(); break;
+    case 'sim-cancel-ok': refundCancel(cur, 'Cancelado por los dos', `@${cur.rival} confirmó la cancelación. Recuperaste ${amt(cur.stake, cur.cur)}`); notify(`Se canceló tu desafío con @${cur.rival}`, cur.id); save(); render(); break;
     case 'sim-cancel-expire': cur.cancelReq = null; ev(cur, 'El pedido de cancelación venció sin respuesta. El desafío sigue'); save(); render(); toast('El pedido venció: el desafío sigue'); break;
 
     case 'go-admin': go({ type:'admin' }); break;
@@ -2806,7 +2855,7 @@ function act(a, d, el){
       if (d.r === 'none'){ cur.manual = true; ev(cur, 'La partida no apareció en el historial: los dos reportan el resultado'); save(); render(); toast('No apareció la partida: reporten a mano', 'bad'); break; }
       ev(cur, `Se encontró la partida en ${PLAT[GAMES[cur.game].idp].src}`);
       finalize(cur, d.r, 'Verificado con el ID de cada jugador'); save(); render();
-      toast(d.r === 'gane' ? `¡Ganaste ${fmt(cur.stake*2)} monedas!` : d.r === 'perdi' ? 'Perdiste esta vez' : 'Empate: se devolvieron las monedas', d.r === 'gane' ? 'good' : ''); break;
+      toast(d.r === 'gane' ? `¡Ganaste ${amt(cur.stake*2, cur.cur)}!` : d.r === 'perdi' ? 'Perdiste esta vez' : 'Empate: se devolvieron las monedas', d.r === 'gane' ? 'good' : ''); break;
     }
     case 'mm-game': S.mm.game = d.g; save(); render(); break;
     case 'c4-col': { const c = find(GAME); if (!c) return; const st = c.play; if (st.done || st.turn !== 'me') return; const n = C4.drop(st, +d.c); if (!n) return; c.play = n; save(); renderGame(); c4Pump(c); break; }
@@ -2869,16 +2918,18 @@ function act(a, d, el){
     case 'mm-stake': S.mm.stake = +d.s; save(); render(); break;
     case 'mm-start': {
       const st = S.mm.stake;
-      sign('Entrar al matchmaking', `${GAMES[S.mm.game || 'poker'].name} · ${fmt(st)} monedas`, () => {
-        post('retencion_cola', -st);
-        S.mm = { status:'buscando', stake: st, game: S.mm.game || 'poker', startedAt: Date.now(), matchAt: 4 + Math.floor(Math.random()*5) };
+      sign('Entrar al matchmaking', `${GAMES[S.mm.game || 'poker'].name} · ${amt(st, S.mm.cur)}`, () => {
+        post('retencion_cola', -st, undefined, S.mm.cur);
+        S.mm = { status:'buscando', stake: st, game: S.mm.game || 'poker', cur: S.mm.cur, startedAt: Date.now(), matchAt: 4 + Math.floor(Math.random()*5) };
         startMMTimer();
       });
       break;
     }
-    case 'mm-cancel': clearInterval(mmTimer); post('devolucion_cola', S.mm.stake); S.mm = { status:'idle', stake:S.mm.stake, game:S.mm.game }; save(); render(); toast('Saliste de la cola. Recuperaste tus monedas'); break;
+    case 'mm-cancel': clearInterval(mmTimer); post('devolucion_cola', S.mm.stake, undefined, S.mm.cur); S.mm = { status:'idle', stake:S.mm.stake, game:S.mm.game, cur:S.mm.cur }; save(); render(); toast('Saliste de la cola. Recuperaste tus monedas'); break;
 
     case 'd-hot': S.draft.hot = d.h === '1'; render(); break;
+    case 'd-cur': S.draft.cur = d.c; save(); render(); break;
+    case 'mm-cur': S.mm.cur = d.c; save(); render(); break;
     case 'go-tienda': go({ type:'tienda' }); break;
     case 'go-caja': if (d.t) S.cash.tab = d.t; go({ type:'caja' }); break;
     case 'cash-tab': S.cash.tab = d.t; save(); render(); break;
@@ -2901,7 +2952,7 @@ function act(a, d, el){
     }
     case 'pay-ok': {
       const x = { id: uid('d'), amount: S.cash.dep.amount, method: S.cash.dep.method, day: today(), ts: Date.now(), status:'ok' };
-      post('deposito', x.amount); S.cash.deposits.unshift(x);
+      post('deposito', x.amount, undefined, 'cash'); S.cash.deposits.unshift(x);
       $('sheet').innerHTML = ''; save(); render(); toast(`Depositaste ${pesos(x.amount)}: +${fmt(x.amount)} monedas (simulado)`, 'good'); break;
     }
     case 'pay-bad':
@@ -2909,16 +2960,16 @@ function act(a, d, el){
       $('sheet').innerHTML = ''; save(); render(); toast('El pago fue rechazado. No se movió plata.', 'bad'); break;
     case 'ret-go': {
       const r = { ...S.cash.ret };
-      if (!S.cash.kyc || r.amount > balance()) return;
+      if (!S.cash.kyc || r.amount > balance('cash')) return;
       sign('Pedir retiro', `${pesos(r.amount)} a ${METHODS[r.method].name} (simulado)`, () => {
-        post('retiro', -r.amount);
+        post('retiro', -r.amount, undefined, 'cash');
         S.cash.withdrawals.unshift({ id: uid('w'), amount: r.amount, method: r.method, ts: Date.now(), status:'revision' });
         toast('Retiro pedido: queda en revisión', 'good');
       });
       break;
     }
     case 'ret-ok': { const w = S.cash.withdrawals.find(x => x.id === d.id); if (!w) return; w.status = 'ok'; save(); render(); toast(`Se pagó el retiro de ${pesos(w.amount)} (simulado)`, 'good'); break; }
-    case 'ret-bad': { const w = S.cash.withdrawals.find(x => x.id === d.id); if (!w) return; w.status = 'rechazado'; post('devolucion_retiro', w.amount); save(); render(); toast('Retiro rechazado: las monedas volvieron a tu saldo'); break; }
+    case 'ret-bad': { const w = S.cash.withdrawals.find(x => x.id === d.id); if (!w) return; w.status = 'rechazado'; post('devolucion_retiro', w.amount, undefined, 'cash'); save(); render(); toast('Retiro rechazado: las monedas volvieron a tu saldo'); break; }
     case 'go-season': go({ type:'temporada' }); break;
     case 'go-inversores': go({ type:'inversores' }); break;
     case 'mode':
@@ -2950,7 +3001,7 @@ function act(a, d, el){
     }
     case 'reset': S.confirmReset = true; render(); break;
     case 'reset-no': S.confirmReset = false; render(); break;
-    case 'reset-yes': clearInterval(mmTimer); S = seed(); lastBal = null; save(); render(); toast('Demo reiniciada'); break;
+    case 'reset-yes': clearInterval(mmTimer); S = seed(); lastBal = null; lastCash = null; save(); render(); toast('Demo reiniciada'); break;
   }
 }
 
