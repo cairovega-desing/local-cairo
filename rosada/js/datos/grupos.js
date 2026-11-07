@@ -11,7 +11,7 @@
       avatar: { piel: 0, pelo: 3, colorPelo: 2, anteojos: 2, barba: 0, ropa: 0 } },
     { id: 'media', emoji: '🏙️', nombre: 'Clase media', personaje: 'Sofía', oficio: 'docente', peso: 30, ideo: 0.15,
       avatar: { piel: 1, pelo: 2, colorPelo: 1, anteojos: 1, barba: 0, ropa: 4 } },
-    { id: 'humildes', emoji: '🏚️', nombre: 'Barrios humildes', personaje: 'Kevin', oficio: 'repartidor', peso: 25, ideo: -0.6,
+    { id: 'humildes', emoji: '🏘️', nombre: 'Barrios humildes', personaje: 'Kevin', oficio: 'repartidor', peso: 25, ideo: -0.6,
       avatar: { piel: 3, pelo: 4, colorPelo: 0, anteojos: 0, barba: 0, ropa: 2 } },
     { id: 'jubilados', emoji: '👵', nombre: 'Jubilados', personaje: 'Doña Marta', oficio: 'jubilada', peso: 15, ideo: -0.2,
       avatar: { piel: 0, pelo: 3, colorPelo: 4, anteojos: 1, barba: 0, ropa: 4 } },

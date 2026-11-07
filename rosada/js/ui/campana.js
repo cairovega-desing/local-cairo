@@ -238,11 +238,11 @@
       return;
     }
     ui.confirmoPasar = false;
-    const antes = R.camp.encuesta(s).YO;
+    const antes = s.fase === 'campana' ? R.camp.encuesta(s).YO : 0;
     R.son.tambor();
     R.turno.pasar(s);
     R.guardar(s);
-    ui.vista = { tab: (ui.vista && ui.vista.tab) || 'acciones' };
+    ui.vista = { tab: (ui.vista && ui.vista.tab) || (s.fase === 'gobierno' ? 'inicio' : 'acciones') };
     ui.render();
     window.scrollTo(0, 0);
     if (s.fase === 'campana') {

@@ -51,4 +51,4 @@ Mirar las capturas y criticar: texto de más, cosas tapadas, botones chicos, efe
 - `[hidden]` siempre con `display:none !important` en el CSS.
 
 ## Estado y plan
-Ver `PLAN.md` (diseño completo y vueltas). Hecho: Vuelta 0 (plan) y Vuelta 1 (crear partido, campaña, PASO, generales, ballotage, debate, noche electoral, Congreso).
+Ver `PLAN.md` (diseño completo y vueltas). Hecho: Vuelta 0 (plan), Vuelta 1 (crear partido, campaña, PASO, generales, ballotage, debate, noche electoral, Congreso) y Vuelta 2 (gobierno: presupuesto en % por área, impuestos, déficit, la gente con caras y frases, aprobación, crisis, resumen del mes con «¿Por qué?», 40 noticias). `tests/sim_gob.js` simula gobiernos con 4 estrategias.

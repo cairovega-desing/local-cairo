@@ -448,10 +448,101 @@ p { margin: 0; }
 .historial .item .em { font-size: 20px; }
 .historial .item .f { font-size: 12px; color: var(--tinta-suave); font-weight: 900; }
 
+
+/* ── Gobierno: la gente ── */
+.gente { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.persona {
+  border: 2px solid var(--tinta); border-radius: 14px; background: var(--papel-2); padding: 8px 4px 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; position: relative; min-width: 0;
+}
+.persona .avatar { border-width: 2px; }
+.persona .nom { font-size: 12px; font-weight: 900; text-align: center; line-height: 1.1; }
+.persona .delta { position: absolute; top: 4px; right: 6px; font-size: 13px; font-weight: 900; }
+.persona .delta.sube { color: var(--bien); }
+.persona .delta.baja { color: var(--mal); }
+
+/* El país en tarjetas */
+.pais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.indicador {
+  text-align: left; border: 2px solid var(--tinta); border-radius: 14px; background: var(--papel-2); padding: 8px 10px;
+  display: flex; flex-direction: column; gap: 2px; cursor: pointer; min-width: 0;
+}
+.indicador .em { font-size: 24px; }
+.indicador .nom { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tinta-suave); font-weight: 900; }
+.indicador .val { font-family: var(--f-titulo); font-size: 20px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.indicador .sub { font-size: 12px; color: var(--tinta-suave); }
+.indicador .chip { font-size: 11px; padding: 1px 6px; }
+.munecos { display: flex; gap: 0; font-size: 13px; }
+.munecos span { filter: grayscale(1) opacity(0.35); }
+.munecos span.pobre { filter: hue-rotate(-30deg) saturate(2); }
+
+/* Razones / causas */
+.razones { display: flex; flex-direction: column; gap: 6px; }
+.razon { display: grid; grid-template-columns: 26px minmax(0, 1fr) 70px 26px; gap: 8px; align-items: center; font-size: 14px; padding: 6px 8px; border-radius: 10px; background: var(--papel-2); }
+.razon .em { font-size: 20px; text-align: center; }
+.barrita { height: 10px; border-radius: 6px; background: #e3ebf5; overflow: hidden; display: block; }
+.barrita i { display: block; height: 100%; border-radius: 6px; }
+
+/* Resumen del mes */
+.resumen-filas { display: flex; flex-direction: column; gap: 4px; }
+.fila-resumen { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto 38px; gap: 8px; align-items: center; padding: 5px 8px; border-radius: 10px; background: var(--papel-2); }
+.fila-resumen .em { font-size: 20px; }
+.fila-resumen .nom { font-size: 14px; }
+.fila-resumen .val { font-weight: 900; }
+.fila-resumen .chip { justify-content: center; }
+.porque { font-size: 15px; padding: 6px 10px; border-radius: 10px; background: var(--sol-claro); border: 2px solid var(--tinta); }
+.dicho { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 8px; align-items: center; }
+.dicho .avatar { border-width: 2px; }
+.globo { position: relative; padding: 8px 12px; border-radius: 14px; border: 2px solid var(--tinta); background: var(--papel); font-size: 15px; }
+.globo::before { content: ""; position: absolute; left: -9px; top: 50%; margin-top: -7px; border: 7px solid transparent; border-right-color: var(--tinta); border-left: 0; }
+.globo.bien { background: #effbf3; }
+.globo.mal { background: #fff3f2; }
+
+/* Economía: balanza */
+.balanza { position: relative; height: 70px; display: flex; justify-content: center; }
+.balanza .brazo { position: absolute; top: 18px; width: 220px; max-width: 80%; height: 6px; background: var(--tinta); border-radius: 3px; display: flex; justify-content: space-between; align-items: flex-start; transition: transform 0.6s cubic-bezier(.3,1.4,.5,1); }
+.balanza .plato { margin-top: 4px; font-size: 26px; width: 46px; height: 34px; display: grid; place-items: end center; border-bottom: 4px solid var(--tinta); border-radius: 0 0 22px 22px; }
+.balanza .plato:first-child { margin-left: -18px; }
+.balanza .plato:last-child { margin-right: -18px; }
+.balanza .pie { position: absolute; top: 18px; width: 8px; height: 48px; background: var(--tinta); border-radius: 4px; }
+.balanza .pie::after { content: ""; position: absolute; bottom: -4px; left: -18px; width: 44px; height: 8px; border-radius: 4px; background: var(--tinta); }
+.linea-balanza { display: grid; grid-template-columns: 96px minmax(0, 1fr) 54px; gap: 8px; align-items: center; font-weight: 900; font-size: 14px; }
+.linea-balanza b { text-align: right; }
+.selector { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.selector .opcion { border: 2px solid var(--tinta); border-radius: 12px; background: var(--papel); padding: 6px 4px; display: flex; flex-direction: column; align-items: center; gap: 1px; cursor: pointer; font-size: 13px; }
+.selector .opcion .em { font-size: 22px; }
+.selector .opcion.elegida { background: var(--sol-claro); box-shadow: inset 0 0 0 2px var(--sol-osc); }
+.selector .opcion[disabled] { opacity: 0.4; cursor: not-allowed; }
+.perilla { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 14px; background: var(--papel-2); }
+.puntos-nivel { display: flex; gap: 4px; }
+.puntos-nivel i { flex: 1; height: 10px; border-radius: 5px; border: 2px solid var(--tinta); background: var(--papel); }
+.puntos-nivel i.lleno { background: var(--sol); }
+
+/* Presupuesto por área */
+.torta-barra { display: flex; height: 28px; border: var(--borde); border-radius: 10px; overflow: hidden; }
+.torta-barra i { display: grid; place-items: center; font-style: normal; font-size: 14px; border-right: 2px solid var(--tinta); min-width: 3px; }
+.torta-barra i:nth-child(1) { background: #b9dcf6; } .torta-barra i:nth-child(2) { background: #ffd6a5; } .torta-barra i:nth-child(3) { background: #ffadad; }
+.torta-barra i:nth-child(4) { background: #caffbf; } .torta-barra i:nth-child(5) { background: #9bf6ff; } .torta-barra i:nth-child(6) { background: #bdb2ff; }
+.torta-barra i:nth-child(7) { background: #fdffb6; } .torta-barra i:nth-child(8) { background: #ffc6ff; } .torta-barra i:nth-child(9) { background: #d0f4de; border-right: 0; }
+.areas { display: flex; flex-direction: column; gap: 8px; }
+.area { border: 2px solid var(--tinta); border-radius: 14px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--papel); }
+.area.cambiada { background: #fffaea; box-shadow: inset 0 0 0 2px var(--sol); }
+.area-cab { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.area-cab .em { font-size: 24px; }
+.area-cab .pct { font-family: var(--f-titulo); font-size: 22px; text-align: right; line-height: 1; }
+.area-cab .pct small { display: block; font-family: var(--f-texto); font-size: 11px; color: var(--tinta-suave); }
+.area-control { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; align-items: center; }
+.area-control .boton.mini { font-size: 22px; padding: 0; min-height: 40px; }
+.nivel { position: relative; }
+.nivel .barra { height: 16px; overflow: visible; }
+.nivel .barra > i { border-radius: 999px; }
+.marca-hoy { position: absolute; top: -5px; width: 4px; height: 22px; margin-left: -2px; background: var(--tinta); border-radius: 2px; }
+
 /* ── Escritorio: dos columnas ── */
 .columnas { display: grid; gap: 14px; }
 @media (min-width: 900px) {
   .columnas { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: start; }
+  .pais { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .columnas > .col-izq { position: sticky; top: 92px; }
   .acciones { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .solo-celu { display: none !important; }
@@ -741,7 +832,7 @@ p { margin: 0; }
       avatar: { piel: 0, pelo: 3, colorPelo: 2, anteojos: 2, barba: 0, ropa: 0 } },
     { id: 'media', emoji: '🏙️', nombre: 'Clase media', personaje: 'Sofía', oficio: 'docente', peso: 30, ideo: 0.15,
       avatar: { piel: 1, pelo: 2, colorPelo: 1, anteojos: 1, barba: 0, ropa: 4 } },
-    { id: 'humildes', emoji: '🏚️', nombre: 'Barrios humildes', personaje: 'Kevin', oficio: 'repartidor', peso: 25, ideo: -0.6,
+    { id: 'humildes', emoji: '🏘️', nombre: 'Barrios humildes', personaje: 'Kevin', oficio: 'repartidor', peso: 25, ideo: -0.6,
       avatar: { piel: 3, pelo: 4, colorPelo: 0, anteojos: 0, barba: 0, ropa: 2 } },
     { id: 'jubilados', emoji: '👵', nombre: 'Jubilados', personaje: 'Doña Marta', oficio: 'jubilada', peso: 15, ideo: -0.2,
       avatar: { piel: 0, pelo: 3, colorPelo: 4, anteojos: 1, barba: 0, ropa: 4 } },
@@ -1752,6 +1843,861 @@ p { margin: 0; }
 
 </script>
 <script>
+// ── js/motor/economia.js ──
+// Economía: presupuesto por áreas (en % del gasto), impuestos, déficit y la simulación mensual.
+// Cada indicador guarda sus «causas» (cuánto aportó cada cosa) para el botón «¿Por qué?».
+(function (R) {
+  'use strict';
+
+  const eco = (R.eco = {});
+
+  // base = gasto inicial en % del PBI. El jugador mueve un «nivel» (0,5 = la mitad … 1,6 = 60 % más).
+  R.AREAS = [
+    { id: 'jubilaciones', emoji: '👵', nombre: 'Jubilaciones', base: 7.5,
+      gana: [['👵', 'Jubilados', 3], ['🏚️', 'Pobreza', -1]] },
+    { id: 'social', emoji: '🤲', nombre: 'Ayuda social', base: 1.5,
+      gana: [['🏘️', 'Barrios humildes', 3], ['🏚️', 'Pobreza', -2], ['🏙️', 'Clase media', -1]] },
+    { id: 'salud', emoji: '🏥', nombre: 'Salud', base: 0.7, calidad: 'salud',
+      gana: [['🏥', 'Hospitales', 2], ['👵', 'Jubilados', 1], ['🏘️', 'Humildes', 1]] },
+    { id: 'educacion', emoji: '🎓', nombre: 'Educación', base: 1.1, calidad: 'educacion',
+      gana: [['🎓', 'Escuelas', 2], ['🏙️', 'Clase media', 2], ['🚀', 'Crecimiento futuro', 1]] },
+    { id: 'seguridad', emoji: '👮', nombre: 'Seguridad', base: 0.7, calidad: 'seguridad',
+      gana: [['👮', 'Menos delito', 2], ['🏙️', 'Clase media', 2]] },
+    { id: 'defensa', emoji: '🪖', nombre: 'Defensa', base: 0.5, calidad: 'defensa',
+      gana: [['🪖', 'Poder militar', 3]] },
+    { id: 'obras', emoji: '🏗️', nombre: 'Obra pública', base: 0.8, calidad: 'infra',
+      gana: [['📈', 'Crecimiento', 2], ['👷', 'Trabajadores', 2], ['🛣️', 'Rutas', 1]] },
+    { id: 'subsidios', emoji: '⚡', nombre: 'Subsidios a tarifas', base: 1.5,
+      gana: [['💡', 'Tarifas baratas', 3], ['🏘️', 'Humildes', 1], ['👵', 'Jubilados', 1]] },
+    { id: 'ciencia', emoji: '🔬', nombre: 'Ciencia', base: 0.3, calidad: 'ciencia',
+      gana: [['🔬', 'Inventos', 2], ['🚀', 'Crecimiento futuro', 1]] },
+  ];
+  R.AREA = Object.fromEntries(R.AREAS.map((a) => [a.id, a]));
+  eco.NIVEL_MIN = 0.5;
+  eco.NIVEL_MAX = 1.6;
+  eco.nivelTxt = (m) => (m < 0.75 ? 'Recorte fuerte' : m < 0.95 ? 'Recorte' : m <= 1.05 ? 'Como estaba' : m <= 1.25 ? 'Más plata' : 'Mucha más plata');
+
+  eco.IMPUESTOS = [
+    { nombre: 'Muy bajos', recauda: 12.6 },
+    { nombre: 'Bajos', recauda: 13.8 },
+    { nombre: 'Normales', recauda: 15.0 },
+    { nombre: 'Altos', recauda: 16.2 },
+    { nombre: 'Muy altos', recauda: 17.4 },
+  ];
+  eco.RETENCIONES = [
+    { nombre: 'Sin retenciones', pct: 0, recauda: 0 },
+    { nombre: '10 %', pct: 10, recauda: 0.5 },
+    { nombre: '20 %', pct: 20, recauda: 1.0 },
+    { nombre: '30 %', pct: 30, recauda: 1.5 },
+  ];
+  eco.FINANCIAMIENTO = [
+    { emoji: '🖨️', nombre: 'Emitir', desc: 'Más inflación', emision: 1 },
+    { emoji: '⚖️', nombre: 'Mitad y mitad', desc: 'Un poco de cada', emision: 0.5 },
+    { emoji: '🏦', nombre: 'Pedir prestado', desc: 'Más deuda', emision: 0 },
+  ];
+
+  eco.inicial = function () {
+    const e = {
+      pbi: 100,
+      crec: 1.0,
+      inflMes: 2.0,
+      inflAnual: 27,
+      inflHist: [2.1, 2.1, 2.0, 2.0, 2.1, 2.0, 2.0, 1.9, 2.0, 2.1, 2.0, 2.0],
+      desempleo: 7.8,
+      pobreza: 34,
+      salarioReal: 100,
+      reservas: 28,
+      deuda: 78,
+      riesgo: 750,
+      dolar: 1550,
+      brecha: 0,
+      cepo: false,
+      changuito: 120000,
+      niveles: Object.fromEntries(R.AREAS.map((a) => [a.id, 1])),
+      nivelesInicioMes: Object.fromEntries(R.AREAS.map((a) => [a.id, 1])),
+      impuestos: 2,
+      retenciones: 2,
+      financiamiento: 1,
+      impuestosInicioMes: 2,
+      retencionesInicioMes: 2,
+      calidad: { salud: 48, educacion: 50, seguridad: 42, defensa: 30, infra: 44, ciencia: 45 },
+      gastoExtraAnio: 0, // gastos puntuales del año (en % del PBI)
+      gastoExtraMes: 0,
+      shocks: [], // [{k: 'crec'|'expo'|'infl', v, meses}]
+      deficitAcumAnio: 0,
+      causas: {},
+      historia: [],
+    };
+    return e;
+  };
+
+  // ── Cuentas del presupuesto ──
+  eco.gastoArea = (e, id) => R.AREA[id].base * e.niveles[id];
+  eco.gastoPrimario = (e) => R.sum(R.AREAS.map((a) => eco.gastoArea(e, a.id)));
+  eco.tasa = (e) => 1.6 + e.riesgo / 1000; // % anual que se paga por la deuda
+  eco.intereses = (e) => (e.deuda * eco.tasa(e)) / 100;
+  eco.gastoTotal = (e) => eco.gastoPrimario(e) + eco.intereses(e);
+  eco.factorExpo = (s) => {
+    const e = s.eco;
+    let f = 1 + (2 - e.retenciones) * 0.06;
+    if (e.cepo) f -= 0.05;
+    if (s.gob) f += ((s.gob.grupos.campo.humor - 50) / 50) * 0.05;
+    for (const sh of e.shocks) if (sh.k === 'expo') f += sh.v;
+    if (s.gob && s.gob.bonusExpo) f += s.gob.bonusExpo;
+    return Math.max(0.5, f);
+  };
+  eco.recaudacion = (s) => {
+    const e = s.eco;
+    const evasion = 1 - 0.012 * Math.max(0, e.desempleo - 8) - 0.002 * Math.max(0, e.inflAnual - 60) / 10;
+    return eco.IMPUESTOS[e.impuestos].recauda * Math.max(0.8, evasion) + eco.RETENCIONES[e.retenciones].recauda * eco.factorExpo(s);
+  };
+  eco.resultado = (s) => eco.recaudacion(s) - eco.gastoTotal(s.eco); // + superávit, − déficit (% PBI anual)
+  eco.participacion = (e, id) => (eco.gastoArea(e, id) / eco.gastoPrimario(e)) * 100; // % del presupuesto
+
+  // Gasto puntual en «% del presupuesto anual» → % del PBI.
+  eco.gastoComoPBI = (s, pctPresupuesto) => (pctPresupuesto / 100) * eco.gastoTotal(s.eco);
+
+  eco.inflAnualDe = (hist) => (hist.reduce((a, m) => a * (1 + m / 100), 1) - 1) * 100;
+
+  // ── Un mes de economía ──
+  eco.mes = function (s) {
+    const e = s.eco;
+    const g = s.gob;
+    const m = e.niveles;
+    const shock = (k) => R.sum(e.shocks.filter((x) => x.k === k).map((x) => x.v));
+    const min = g ? R.MINISTROS[g.ministro] : null;
+    const ley = (id) => !!(g && g.leyes && g.leyes[id]);
+    const C = {}; // causas
+
+    // 1) Cuentas fiscales del mes
+    const rec = eco.recaudacion(s);
+    const gasto = eco.gastoTotal(e);
+    const deficitMes = (gasto - rec) / 12 + e.gastoExtraMes; // % del PBI de este mes
+    e.gastoExtraMes = 0;
+    e.deficitAcumAnio += deficitMes;
+    const dolarizado = ley('dolarizacion');
+    const emision = dolarizado ? 0 : eco.FINANCIAMIENTO[e.financiamiento].emision;
+    const emitido = Math.max(0, deficitMes) * emision;
+    const prestado = deficitMes > 0 ? deficitMes * (1 - emision) : deficitMes; // superávit = paga deuda
+
+    // 2) Inflación
+    const inercia = 0.55 * e.inflMes;
+    let base = 0.45 * 0.8;
+    let ancla = 0;
+    if (min && min.ancla) ancla -= min.ancla;
+    if (ley('bcra')) ancla -= 0.12;
+    if (dolarizado) { base = 0.45 * 0.25; ancla = 0; }
+    const pEmision = emitido * 18;
+    const subsidiosAntes = e.nivelesInicioMes.subsidios;
+    const pTarifas = m.subsidios < subsidiosAntes ? (subsidiosAntes - m.subsidios) * R.AREA.subsidios.base * 2.6 : 0;
+    // Dólar: se mueve con la inflación más presión si faltan reservas.
+    let presion = 0;
+    if (e.reservas < 15) presion += (15 - e.reservas) * 0.18;
+    if (!e.cepo && e.riesgo > 1200) presion += (e.riesgo - 1200) / 900;
+    presion += shock('dolar');
+    const pDolar = dolarizado ? 0 : presion * 0.38;
+    const pShock = shock('infl');
+    const pParitarias = g && g.grupos.trabajadores.humor < 30 ? 0.15 : 0;
+    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + R.gauss(s) * 0.12;
+    infl = R.clamp(infl, -0.5, 60);
+    C.inflacion = [
+      { k: 'inercia', v: inercia + base },
+      { k: 'emision', v: pEmision },
+      { k: 'tarifas', v: pTarifas },
+      { k: 'dolar', v: pDolar },
+      { k: 'ancla', v: ancla },
+      { k: 'shock', v: pShock + pParitarias },
+    ];
+    const inflAntes = e.inflMes;
+    e.inflMes = infl;
+    e.inflHist.push(infl);
+    if (e.inflHist.length > 12) e.inflHist.shift();
+    e.inflAnual = eco.inflAnualDe(e.inflHist);
+    e.changuito *= 1 + infl / 100;
+
+    // 3) Dólar y brecha
+    if (!dolarizado) {
+      const devalMes = Math.max(0, inflAntes * 0.95 + presion);
+      e.dolar *= 1 + devalMes / 100;
+      if (e.cepo) e.brecha = R.clamp(e.brecha * 0.9 + 3 + Math.max(0, e.inflAnual - 30) * 0.1 + Math.max(0, 15 - e.reservas), 5, 250);
+      else e.brecha = Math.max(0, e.brecha * 0.5);
+    }
+
+    // 4) Crecimiento (anualizado)
+    const pPot = 1.4;
+    const pObras = 2.2 * (m.obras - 1) + (e.calidad.infra - 50) / 30;
+    const pFuturo = (e.calidad.educacion - 50) / 45 + (e.calidad.ciencia - 50) / 45;
+    const pConfianza = -(e.riesgo - 650) / 420;
+    const pImpuestos = -0.7 * (e.impuestos - 2) - 0.3 * (e.retenciones - 2);
+    const pInflacion = -Math.max(0, e.inflAnual - 35) / 25;
+    const pCepo = e.cepo ? -0.7 : 0;
+    const pExpo = (eco.factorExpo(s) - 1) * 6;
+    const pGasto = 0.5 * (eco.gastoPrimario(e) - 14.6);
+    const pShockCrec = shock('crec');
+    const pMin = min && min.crec ? min.crec : 0;
+    const pLeyes = g && g.bonusCrec ? g.bonusCrec : 0;
+    let crecMes = pPot + pObras + pFuturo + pConfianza + pImpuestos + pInflacion + pCepo + pExpo + pGasto + pShockCrec + pMin + pLeyes + R.gauss(s) * 0.6;
+    crecMes = R.clamp(crecMes, -15, 12);
+    e.pbi *= 1 + crecMes / 1200;
+    e.crec = e.crec * 0.82 + crecMes * 0.18;
+    C.crecimiento = [
+      { k: 'obras', v: pObras }, { k: 'futuro', v: pFuturo }, { k: 'confianza', v: pConfianza }, { k: 'impuestos', v: pImpuestos },
+      { k: 'inflacion', v: pInflacion }, { k: 'cepo', v: pCepo }, { k: 'expo', v: pExpo }, { k: 'gasto', v: pGasto },
+      { k: 'shock', v: pShockCrec }, { k: 'ministro', v: pMin + pLeyes },
+    ];
+
+    // 5) Empleo
+    const desObj = R.clamp(7.5 - 0.5 * (e.crec - 1.5) - (g && g.bonusEmpleo ? g.bonusEmpleo : 0), 2.5, 30);
+    const desAntes = e.desempleo;
+    e.desempleo = R.clamp(e.desempleo + (desObj - e.desempleo) * 0.09 + shock('desempleo'), 2, 35);
+    C.desempleo = [{ k: 'crecimiento', v: (e.desempleo - desAntes) }];
+
+    // 6) Salario real: las paritarias corren detrás de la inflación.
+    const paritaria = 0.75 * inflAntes + 0.25 * Math.min(infl, inflAntes * 1.5) + 0.12 + (g && g.grupos.trabajadores.humor < 35 ? 0.1 : 0) + shock('salario');
+    const salAntes = e.salarioReal;
+    e.salarioReal = R.clamp(e.salarioReal * (1 + (paritaria - infl) / 100) + (e.crec - 1) * 0.02, 45, 160);
+    C.salario = [{ k: 'inflacion', v: e.salarioReal - salAntes }];
+
+    // 7) Pobreza
+    const pDes = 1.0 * (e.desempleo - 7.5);
+    const pSal = 0.4 * (100 - e.salarioReal);
+    const pInf = 0.12 * Math.max(0, e.inflAnual - 15);
+    const pSocial = -6 * (m.social - 1) - 3 * (m.jubilaciones - 1);
+    const pobObj = R.clamp(29 + pDes + pSal + pInf + pSocial, 3, 75);
+    e.pobreza = R.clamp(e.pobreza + (pobObj - e.pobreza) * 0.1, 3, 75);
+    C.pobreza = [{ k: 'desempleo', v: pDes }, { k: 'salario', v: pSal }, { k: 'inflacion', v: pInf }, { k: 'social', v: pSocial }];
+
+    // 8) Reservas (miles de millones de dólares)
+    const expo = 6.6 * eco.factorExpo(s);
+    const impo = 6.0 * (1 + (e.crec - 1.5) / 40) * (e.cepo ? 0.92 : 1);
+    const pagos = 0.55 + (e.deuda / 100) * 0.15;
+    const fuga = e.cepo ? 0 : Math.max(0, (e.riesgo - 900) / 1000) * 0.6 + Math.max(0, e.inflAnual - 60) / 200;
+    const prestamos = shock('reservas');
+    const dRes = expo - impo - pagos - fuga + prestamos;
+    e.reservas = R.clamp(e.reservas + dRes, -5, 250);
+    C.reservas = [{ k: 'comercio', v: expo - impo }, { k: 'pagos', v: -pagos }, { k: 'fuga', v: -fuga }, { k: 'prestamos', v: prestamos }];
+
+    // 9) Deuda y riesgo país
+    e.deuda = R.clamp(e.deuda + prestado * 1.0 - e.deuda * (crecMes / 1200) + shock('deuda'), 5, 300);
+    const defAnual = -eco.resultado(s);
+    const riesgoObj = R.clamp(320 + 7 * Math.max(0, e.deuda - 45) + 70 * Math.max(0, defAnual) + 3.5 * Math.max(0, e.inflAnual - 20)
+      - 5 * (e.reservas - 25) + (e.cepo ? 120 : 0) + shock('riesgo') + (min && min.riesgo ? min.riesgo : 0) - (ley('bcra') ? 80 : 0), 150, 5000);
+    e.riesgo = R.clamp(e.riesgo + (riesgoObj - e.riesgo) * 0.2, 150, 5000);
+
+    // 10) Calidad de cada área: va lento hacia lo que le das.
+    for (const a of R.AREAS) {
+      if (!a.calidad) continue;
+      const obj = R.clamp(50 + 48 * (m[a.id] - 1) - Math.max(0, e.inflAnual - 40) * 0.08 + (g && g.bonusCalidad && g.bonusCalidad[a.calidad] ? g.bonusCalidad[a.calidad] : 0), 5, 97);
+      e.calidad[a.calidad] = R.clamp(e.calidad[a.calidad] + (obj - e.calidad[a.calidad]) * 0.06, 0, 100);
+    }
+
+    // 11) Los shocks se gastan
+    e.shocks.forEach((x) => x.meses--);
+    e.shocks = e.shocks.filter((x) => x.meses > 0);
+    e.causas = C;
+    e.ultimoDeficitMes = deficitMes;
+    return C;
+  };
+
+  // Foto del mes (para gráficos y para comparar).
+  eco.foto = function (s) {
+    const e = s.eco;
+    return {
+      mes: s.mes, aprob: s.gob ? s.gob.aprob : null, inflMes: e.inflMes, inflAnual: e.inflAnual, crec: e.crec, desempleo: e.desempleo,
+      pobreza: e.pobreza, salarioReal: e.salarioReal, reservas: e.reservas, deuda: e.deuda, riesgo: e.riesgo, dolar: e.dolar,
+      changuito: e.changuito, resultado: eco.resultado(s),
+    };
+  };
+
+  // Textos de causas para «¿Por qué?».
+  R.CAUSAS = {
+    inflacion: {
+      inercia: ['🔁', 'Los precios vienen subiendo'], emision: ['🖨️', 'Emitiste para pagar el déficit'], tarifas: ['⚡', 'Subieron las tarifas'],
+      dolar: ['💵', 'Saltó el dólar'], ancla: ['⚓', 'Confían en tu plan'], shock: ['💥', 'Golpes de este mes'],
+    },
+    crecimiento: {
+      obras: ['🏗️', 'Obra pública y rutas'], futuro: ['🎓', 'Educación y ciencia'], confianza: ['📊', 'Riesgo país'],
+      impuestos: ['🧾', 'Impuestos y retenciones'], inflacion: ['🛒', 'La inflación frena todo'], cepo: ['🔒', 'El cepo'],
+      expo: ['🚢', 'Exportaciones'], gasto: ['💸', 'Gasto del Estado'], shock: ['💥', 'Clima y sorpresas'], ministro: ['🧑‍💼', 'Tu ministro y tus leyes'],
+    },
+    pobreza: {
+      desempleo: ['👷', 'Falta de trabajo'], salario: ['💰', 'Sueldos que no alcanzan'], inflacion: ['🛒', 'Precios altos'], social: ['🤲', 'Ayuda social y jubilaciones'],
+    },
+    reservas: {
+      comercio: ['🚢', 'Exportaciones menos importaciones'], pagos: ['🏦', 'Pago de deuda'], fuga: ['✈️', 'Gente que se lleva los dólares'], prestamos: ['🤝', 'Préstamos'],
+    },
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/gobierno.js ──
+// Gobierno: la gente (humor de cada grupo), aprobación, capital político, crisis y el paso del mes.
+(function (R) {
+  'use strict';
+
+  const gob = (R.gob = {});
+
+  R.MINISTROS = {
+    ortodoxo: {
+      emoji: '📉', tipo: 'Ortodoxo', nombre: 'Bruno Lagos', desc: 'Baja la inflación, pero enfría la economía',
+      ancla: 0.22, riesgo: -90, crec: -0.4, impacto: { trabajadores: -6, humildes: -4, empresarios: 7 },
+      avatar: { piel: 0, pelo: 1, colorPelo: 4, anteojos: 2, barba: 0, ropa: 1 },
+    },
+    heterodoxo: {
+      emoji: '📈', tipo: 'Heterodoxo', nombre: 'Marina Paz', desc: 'Empuja el consumo, pero sube la inflación',
+      ancla: -0.15, riesgo: 80, crec: 0.6, impacto: { trabajadores: 6, humildes: 5, empresarios: -6 },
+      avatar: { piel: 2, pelo: 2, colorPelo: 0, anteojos: 1, barba: 0, ropa: 2 },
+    },
+    pragmatico: {
+      emoji: '🤝', tipo: 'Pragmático', nombre: 'Jorge Ibarra', desc: 'Ni frío ni calor: negocia bien (+1 ⭐ por mes)',
+      pcExtra: 1, impacto: {},
+      avatar: { piel: 1, pelo: 5, colorPelo: 1, anteojos: 0, barba: 1, ropa: 0 },
+    },
+  };
+
+  // Elecciones del mandato (mes 0 = enero 2027).
+  gob.MES_MEDIO_TERMINO = R.mesNum(2029, 9);
+  gob.MES_PRESIDENCIAL = R.mesNum(2031, 9);
+
+  gob.iniciar = function (s) {
+    s.fase = 'gobierno';
+    s.mes = R.mesNum(2027, 11);
+    s.eco = R.eco.inicial();
+    const grupos = {};
+    for (const g of R.GRUPOS) {
+      const h = R.simpatiaInicialGrupo(g, s.partido.ideo) + 6;
+      grupos[g.id] = { humor: h, antes: h, partes: [], partesAntes: [] };
+    }
+    s.gob = {
+      inicio: s.mes, mandato: 1, pc: 8, pcMax: 20, aprob: 55, lunaMiel: 12, ministro: null, grupos,
+      leyes: {}, enfr: {}, meses: 0, crisisMeses: 0, escandalo: 0, historia: [], llamas: [],
+    };
+    gob.actualizarAprob(s);
+    s.gob.historia.push(R.eco.foto(s));
+    R.diario(s, '🎖️', 'Asumís la Presidencia', 'gobierno');
+    s.cola.push({ tipo: 'ministro' });
+  };
+
+  gob.elegirMinistro = function (s, id) {
+    const antes = s.gob.ministro;
+    s.gob.ministro = id;
+    const imp = R.MINISTROS[id].impacto || {};
+    const aplicado = gob.aplicarEfectos(s, imp);
+    R.diario(s, R.MINISTROS[id].emoji, 'Ministro/a de Economía: ' + R.MINISTROS[id].nombre + (antes ? ' (cambio de gabinete)' : ''), 'gobierno');
+    return aplicado;
+  };
+
+  // ── Lo que quiere cada grupo ──
+  // Devuelve { obj, partes: [{k, v}] } — cada parte es una razón de su humor (sirve para las frases y el «¿por qué?»).
+  gob.objetivoGrupo = function (s, id) {
+    const e = s.eco;
+    const m = e.niveles;
+    const g = R.GRUPO[id];
+    const ideoGob = s.partido.ideo;
+    const Pinf = R.clamp((e.inflAnual - 15) / 2, 0, 45);
+    const Pdes = (e.desempleo - 7.5) * 2.2;
+    const S = (e.salarioReal - 100) * 0.7;
+    const Gr = (e.crec - 1.5) * 2;
+    const q = e.calidad;
+    const p = [];
+    const add = (k, v) => p.push({ k, v });
+    add('ideas', 12 * (0.45 - Math.abs(g.ideo - ideoGob)));
+    switch (id) {
+      case 'trabajadores':
+        add('salario', S * 1.2); add('empleo', -Pdes * 1.3); add('inflacion', -Pinf * 0.5); add('obras', 12 * (m.obras - 1));
+        break;
+      case 'campo':
+        add('retenciones', -10 * (e.retenciones - 1.5)); add('cepo', e.cepo ? -10 : 0); add('crecimiento', Gr * 0.6);
+        add('inflacion', -Pinf * 0.25); add('rutas', (q.infra - 50) * 0.25);
+        break;
+      case 'empresarios':
+        add('impuestos', -7 * (e.impuestos - 2)); add('riesgo', -(e.riesgo - 650) / 35); add('cepo', e.cepo ? -10 : 0);
+        add('crecimiento', Gr * 1.3); add('inflacion', -Pinf * 0.35);
+        break;
+      case 'media':
+        add('inflacion', -Pinf * 0.85); add('seguridad', (q.seguridad - 50) * 0.3); add('educacion', (q.educacion - 50) * 0.2);
+        add('salud', (q.salud - 50) * 0.15); add('impuestos', -5 * (e.impuestos - 2)); add('crecimiento', Gr * 0.7);
+        add('social', -12 * Math.max(0, m.social - 1.2));
+        break;
+      case 'humildes':
+        add('inflacion', -Pinf * 0.7); add('empleo', -Pdes * 0.8); add('social', 25 * (m.social - 1)); add('subsidios', 10 * (m.subsidios - 1));
+        add('salud', (q.salud - 50) * 0.2); add('pobreza', -(e.pobreza - 30) * 0.4);
+        break;
+      case 'jubilados':
+        add('jubilaciones', 35 * (m.jubilaciones - 1)); add('inflacion', -Pinf * 0.95); add('salud', (q.salud - 50) * 0.3); add('subsidios', 6 * (m.subsidios - 1));
+        break;
+    }
+    const bonus = s.gob && s.gob.bonusGrupo ? s.gob.bonusGrupo[id] || 0 : 0;
+    if (bonus) add('leyes', bonus);
+    const obj = R.clamp(50 + R.sum(p.map((x) => x.v)), 3, 97);
+    return { obj, partes: p };
+  };
+
+  gob.actualizarAprob = function (s) {
+    const G = s.gob;
+    let tot = 0;
+    let w = 0;
+    for (const g of R.GRUPOS) {
+      tot += G.grupos[g.id].humor * g.peso;
+      w += g.peso;
+    }
+    const desgaste = Math.min(7, G.meses * 0.08);
+    G.aprob = R.clamp(tot / w + G.lunaMiel - desgaste - G.escandalo * 0.6, 2, 96);
+    return G.aprob;
+  };
+
+  // Capital político por mes.
+  gob.ingresoPC = function (s) {
+    const G = s.gob;
+    let pc = 2 + Math.round((G.aprob - 40) / 15);
+    if (G.ministro && R.MINISTROS[G.ministro].pcExtra) pc += R.MINISTROS[G.ministro].pcExtra;
+    if (R.congreso && R.congreso.mayoria && R.congreso.mayoria(s)) pc += 1;
+    return Math.max(1, pc);
+  };
+
+  // 🔥 Termómetro de crisis: cada problema grave es una llamita.
+  gob.LLAMAS = [
+    { id: 'hiper', emoji: '🛒', txt: 'Inflación descontrolada', si: (s) => s.eco.inflAnual > 100, doble: (s) => s.eco.inflAnual > 300, arreglo: 'Bajá el déficit o dejá de emitir' },
+    { id: 'pobreza', emoji: '🏚️', txt: 'Pobreza muy alta', si: (s) => s.eco.pobreza > 45, arreglo: 'Más ayuda social y empleo' },
+    { id: 'desempleo', emoji: '🚪', txt: 'Mucho desempleo', si: (s) => s.eco.desempleo > 13, arreglo: 'Obra pública y crecimiento' },
+    { id: 'reservas', emoji: '🏦', txt: 'Sin dólares en el Banco Central', si: (s) => s.eco.reservas < 5, arreglo: 'Exportá más, pedí un préstamo o poné cepo' },
+    { id: 'riesgo', emoji: '📊', txt: 'Riesgo país por las nubes', si: (s) => s.eco.riesgo > 2000, arreglo: 'Ordená las cuentas' },
+    { id: 'recesion', emoji: '📉', txt: 'Recesión fuerte', si: (s) => s.eco.crec < -3, arreglo: 'Bajá impuestos o más obra pública' },
+    { id: 'aprob', emoji: '👎', txt: 'Nadie te banca', si: (s) => s.gob.aprob < 25, doble: (s) => s.gob.aprob < 15, arreglo: 'Contentá a los grupos más enojados' },
+    { id: 'cgt', emoji: '✊', txt: 'Paro general permanente', si: (s) => s.gob.grupos.trabajadores.humor < 18, arreglo: 'Mesa con la CGT y salarios' },
+    { id: 'barrios', emoji: '🔥', txt: 'Estallido en los barrios', si: (s) => s.gob.grupos.humildes.humor < 18, arreglo: 'Ayuda social y comida' },
+    { id: 'deficit', emoji: '💸', txt: 'Déficit enorme', si: (s) => R.eco.resultado(s) < -6, arreglo: 'Recortá gastos o subí impuestos' },
+  ];
+  gob.llamas = function (s) {
+    const out = [];
+    for (const l of gob.LLAMAS) {
+      if (l.si(s)) {
+        out.push(l);
+        if (l.doble && l.doble(s)) out.push(l);
+      }
+    }
+    return out;
+  };
+
+  // ── Efectos del gobierno ──
+  R.EF_GOB = {
+    trabajadores: { emoji: '👷', nombre: 'Trabajadores', paso: 4, grupo: true },
+    campo: { emoji: '🌾', nombre: 'Campo', paso: 4, grupo: true },
+    empresarios: { emoji: '💼', nombre: 'Empresarios', paso: 4, grupo: true },
+    media: { emoji: '🏙️', nombre: 'Clase media', paso: 4, grupo: true },
+    humildes: { emoji: '🏘️', nombre: 'Humildes', paso: 4, grupo: true },
+    jubilados: { emoji: '👵', nombre: 'Jubilados', paso: 4, grupo: true },
+    todos: { emoji: '👥', nombre: 'Todos', paso: 3, grupo: true },
+    pc: { emoji: '⭐', nombre: 'Capital político', paso: 1, numero: true },
+    gastoExtra: { emoji: '💸', nombre: 'del presupuesto', paso: 1, inverso: true, pct: true },
+    inflacion: { emoji: '🛒', nombre: 'Inflación', paso: 0.4, inverso: true },
+    crec: { emoji: '📈', nombre: 'Economía', paso: 0.6 },
+    expo: { emoji: '🚢', nombre: 'Exportaciones', paso: 0.04 },
+    reservas: { emoji: '🏦', nombre: 'Reservas', paso: 2 },
+    deuda: { emoji: '💳', nombre: 'Deuda', paso: 2, inverso: true },
+    riesgo: { emoji: '📊', nombre: 'Riesgo país', paso: 80, inverso: true },
+    desempleo: { emoji: '🚪', nombre: 'Desempleo', paso: 0.4, inverso: true },
+    pobreza: { emoji: '🏚️', nombre: 'Pobreza', paso: 1, inverso: true },
+    dolar: { emoji: '💵', nombre: 'Dólar', paso: 6, inverso: true },
+    escandalo: { emoji: '🕵️', nombre: 'Escándalo', paso: 1, inverso: true },
+    salud: { emoji: '🏥', nombre: 'Hospitales', paso: 3 },
+    educacion: { emoji: '🎓', nombre: 'Escuelas', paso: 3 },
+    seguridad: { emoji: '👮', nombre: 'Seguridad', paso: 3 },
+    defensa: { emoji: '🪖', nombre: 'Fuerzas Armadas', paso: 3 },
+    infra: { emoji: '🛣️', nombre: 'Rutas', paso: 3 },
+    ciencia: { emoji: '🔬', nombre: 'Ciencia', paso: 3 },
+  };
+  const CALIDADES = ['salud', 'educacion', 'seguridad', 'defensa', 'infra', 'ciencia'];
+  const MESES_SHOCK = { crec: 6, expo: 8, riesgo: 4 };
+
+  gob.expandir = function (s, ef) {
+    const out = [];
+    for (const [k, v] of Object.entries(ef || {})) {
+      if (!v) continue;
+      if (k === 'calidad' && typeof v === 'object') {
+        for (const [c, n] of Object.entries(v)) out.push({ k: c, v: n });
+      } else if (R.EF_GOB[k]) out.push({ k, v });
+    }
+    return out;
+  };
+
+  gob.aplicarEfectos = function (s, ef) {
+    const lista = gob.expandir(s, ef);
+    const G = s.gob;
+    const e = s.eco;
+    for (const { k, v } of lista) {
+      if (R.GRUPO[k]) G.grupos[k].humor = R.clamp(G.grupos[k].humor + v, 0, 100);
+      else if (k === 'todos') R.GRUPOS.forEach((g) => (G.grupos[g.id].humor = R.clamp(G.grupos[g.id].humor + v, 0, 100)));
+      else if (k === 'pc') G.pc = R.clamp(G.pc + v, 0, G.pcMax);
+      else if (k === 'gastoExtra') {
+        const pbi = R.eco.gastoComoPBI(s, v);
+        e.gastoExtraMes += pbi;
+        e.gastoExtraAnio += pbi;
+      } else if (k === 'inflacion') e.shocks.push({ k: 'infl', v, meses: 1 });
+      else if (MESES_SHOCK[k]) e.shocks.push({ k, v, meses: MESES_SHOCK[k] });
+      else if (k === 'reservas') e.reservas = Math.max(-5, e.reservas + v);
+      else if (k === 'deuda') e.deuda = Math.max(5, e.deuda + v);
+      else if (k === 'desempleo') e.desempleo = R.clamp(e.desempleo + v, 2, 35);
+      else if (k === 'pobreza') e.pobreza = R.clamp(e.pobreza + v, 3, 75);
+      else if (k === 'dolar') {
+        e.dolar *= 1 + v / 100;
+        e.shocks.push({ k: 'infl', v: v * 0.12, meses: 3 });
+      } else if (k === 'escandalo') G.escandalo = Math.max(0, G.escandalo + v);
+      else if (CALIDADES.includes(k)) e.calidad[k] = R.clamp(e.calidad[k] + v, 0, 100);
+    }
+    gob.actualizarAprob(s);
+    return lista;
+  };
+
+  gob.describirAplicado = function (s, lista) {
+    return lista.map(({ k, v }) => {
+      const meta = R.EF_GOB[k];
+      if (!meta) return null;
+      const sube = v > 0;
+      return {
+        k, v, sube, bueno: meta.inverso ? !sube : sube, emoji: meta.emoji, nombre: meta.nombre, numero: meta.numero || meta.pct,
+        pct: meta.pct, flechas: Math.min(3, Math.max(1, Math.ceil(Math.abs(v) / meta.paso - 0.15))),
+      };
+    }).filter(Boolean);
+  };
+  gob.describirEfectos = (s, ef) => gob.describirAplicado(s, gob.expandir(s, ef));
+
+  gob.bloqueoCosto = function (s, costo) {
+    if (!s.gob) return null;
+    if (costo.pc && costo.pc > s.gob.pc) return 'Falta capital político ⭐';
+    return null;
+  };
+
+  // ── Acciones de gobierno (cuestan ⭐) ──
+  gob.ACCIONES = [
+    { id: 'cadena', emoji: '📺', nombre: 'Cadena nacional', desc: 'Explicás tu plan', pc: 2, enfr: 2,
+      ef: { todos: 2.5 }, azar: { p: 0.25, ef: { media: -5 }, txt: 'Cortaste la novela: la gente se enojó 😒' }, res: 'Te escucharon en todo el país 📺' },
+    { id: 'cgt', emoji: '✊', nombre: 'Mesa con la CGT', desc: 'Calmás a los gremios', pc: 2, enfr: 3,
+      ef: { trabajadores: 8, empresarios: -2 }, res: 'Foto con los gremios 🤝' },
+    { id: 'campo', emoji: '🌾', nombre: 'Reunión con el campo', desc: 'Escuchás a los productores', pc: 2, enfr: 3,
+      ef: { campo: 9 }, res: 'Mate en la estancia 🧉' },
+    { id: 'inversores', emoji: '💼', nombre: 'Foro de inversiones', desc: 'Traés empresas', pc: 2, enfr: 3,
+      ef: { empresarios: 8, riesgo: -40 }, res: 'Los inversores sonríen 💼' },
+    { id: 'barrios', emoji: '🏘️', nombre: 'Recorrer los barrios', desc: 'Escuchás a los vecinos', pc: 2, enfr: 3,
+      ef: { humildes: 8, media: 1 }, res: 'Abrazos en el barrio 🫂' },
+    { id: 'remedios', emoji: '💊', nombre: 'Remedios gratis', desc: 'Para jubilados', pc: 1, gasto: 1.5, enfr: 4,
+      ef: { jubilados: 10 }, res: 'Doña Marta ya tiene sus pastillas 💊' },
+    { id: 'bono', emoji: '💵', nombre: 'Bono', desc: 'Plata extra a todos', pc: 1, gasto: 3, enfr: 6,
+      ef: { trabajadores: 6, humildes: 7, jubilados: 6, inflacion: 0.3 }, res: 'El bono llegó 💵' },
+    { id: 'precios', emoji: '🏷️', nombre: 'Acuerdo de precios', desc: 'Frenás los aumentos', pc: 3, enfr: 6,
+      ef: { inflacion: -0.6, empresarios: -6, media: 3 }, azar: { p: 0.3, ef: { inflacion: 0.6 }, txt: 'Nadie respetó el acuerdo 🙄' }, res: 'Precios congelados 🏷️' },
+    { id: 'feriado', emoji: '🏖️', nombre: 'Feriado largo', desc: 'Fin de semana XL', pc: 1, enfr: 4,
+      ef: { media: 4, trabajadores: 3, empresarios: -4, crec: -0.3 }, res: '¡A la costa! 🏖️' },
+  ];
+  gob.ACC = Object.fromEntries(gob.ACCIONES.map((a) => [a.id, a]));
+
+  gob.bloqueoAccion = function (s, a) {
+    const G = s.gob;
+    if (s.fase !== 'gobierno') return 'No es momento';
+    if (G.enfr[a.id] && s.mes - G.enfr[a.id] < a.enfr) return 'De nuevo en ' + (a.enfr - (s.mes - G.enfr[a.id])) + (a.enfr - (s.mes - G.enfr[a.id]) === 1 ? ' mes' : ' meses');
+    if (a.pc > G.pc) return 'Falta ⭐';
+    return null;
+  };
+
+  gob.efectosAccion = (s, a) => Object.assign({}, a.ef, a.gasto ? { gastoExtra: a.gasto } : {}, { pc: -a.pc });
+
+  gob.hacer = function (s, id) {
+    const a = gob.ACC[id];
+    const b = gob.bloqueoAccion(s, a);
+    if (b) return { error: b };
+    let ef = gob.efectosAccion(s, a);
+    let txt = a.res;
+    let bueno = true;
+    if (a.azar && R.chance(s, a.azar.p)) {
+      ef = R.sumarEfectos(ef, a.azar.ef);
+      txt = a.azar.txt;
+      bueno = false;
+    }
+    const antes = s.gob.aprob;
+    const aplicado = gob.aplicarEfectos(s, ef);
+    s.gob.enfr[id] = s.mes;
+    R.diario(s, a.emoji, a.nombre, 'accion');
+    return { txt, bueno, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
+
+  // ── Medidas económicas fuertes ──
+  gob.MEDIDAS = [
+    { id: 'devaluar', emoji: '💱', nombre: 'Devaluar', desc: 'Dólar 30 % más caro', enfr: 12,
+      ef: { dolar: 30, expo: 0.12, campo: 8, empresarios: 3, trabajadores: -8, media: -7, humildes: -5, jubilados: -5 },
+      res: 'El dólar saltó: más exportaciones, pero suben los precios 💱' },
+    { id: 'cepo', emoji: '🔒', nombre: 'Poner cepo', desc: 'Nadie compra dólares', enfr: 6, si: (s) => !s.eco.cepo,
+      ef: { empresarios: -10, campo: -6, media: -5 }, hacer: (s) => { s.eco.cepo = true; s.eco.brecha = 15; },
+      res: 'Cepo al dólar: cuidás las reservas, pero aparece el blue 🔒' },
+    { id: 'sincepo', emoji: '🔓', nombre: 'Sacar el cepo', desc: 'Dólar libre', enfr: 6, si: (s) => s.eco.cepo,
+      ef: (s) => ({ empresarios: 10, campo: 7, dolar: Math.round(Math.max(5, s.eco.brecha * 0.6 + (s.eco.reservas < 15 ? 20 : 0))), media: -2 }),
+      hacer: (s) => { s.eco.cepo = false; s.eco.brecha = 0; }, res: 'Chau cepo: el dólar se acomoda 🔓' },
+    { id: 'motosierra', emoji: '🪚', nombre: 'Motosierra', desc: 'Recorte del 15 % en todo', enfr: 12,
+      ef: { empresarios: 6, riesgo: -150 },
+      hacer: (s) => { for (const a of R.AREAS) s.eco.niveles[a.id] = Math.max(R.eco.NIVEL_MIN, R.round(s.eco.niveles[a.id] - 0.15, 2)); },
+      res: '¡Motosierra! El gasto se achica. A fin de mes reacciona la gente 🪚' },
+  ];
+  gob.MED = Object.fromEntries(gob.MEDIDAS.map((m) => [m.id, m]));
+  gob.efectoMedida = (s, m) => (typeof m.ef === 'function' ? m.ef(s) : m.ef);
+  gob.bloqueoMedida = function (s, m) {
+    if (m.si && !m.si(s)) return 'No aplica';
+    const k = 'med_' + m.id;
+    if (s.gob.enfr[k] && s.mes - s.gob.enfr[k] < m.enfr) return 'De nuevo en ' + (m.enfr - (s.mes - s.gob.enfr[k])) + ' meses';
+    return null;
+  };
+  gob.medida = function (s, id) {
+    const m = gob.MED[id];
+    const b = gob.bloqueoMedida(s, m);
+    if (b) return { error: b };
+    const antes = s.gob.aprob;
+    const aplicado = gob.aplicarEfectos(s, gob.efectoMedida(s, m));
+    if (m.hacer) m.hacer(s);
+    s.gob.enfr['med_' + id] = s.mes;
+    R.diario(s, m.emoji, m.nombre, 'medida');
+    return { txt: m.res, bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
+
+  // ── Cambios de presupuesto: la gente reacciona a fin de mes ──
+  const AREA_GRUPOS = {
+    jubilaciones: { jubilados: 1 },
+    social: { humildes: 1, media: -0.25 },
+    salud: { jubilados: 0.4, humildes: 0.4, media: 0.3 },
+    educacion: { media: 0.6 },
+    seguridad: { media: 0.5 },
+    defensa: {},
+    obras: { trabajadores: 0.6 },
+    subsidios: { trabajadores: 0.35, media: 0.35, humildes: 0.5, jubilados: 0.5 },
+    ciencia: { media: 0.25 },
+  };
+  // Reacción inmediata (anuncio) a los cambios del mes, comparando con cómo arrancó el mes.
+  gob.reaccionPresupuesto = function (s) {
+    const e = s.eco;
+    const ef = {};
+    const sumar = (k, v) => (ef[k] = (ef[k] || 0) + v);
+    for (const a of R.AREAS) {
+      const d = e.niveles[a.id] - e.nivelesInicioMes[a.id];
+      if (Math.abs(d) < 0.01) continue;
+      const fuerza = d < 0 ? 22 : 11; // perder duele el doble que ganar
+      for (const [g, w] of Object.entries(AREA_GRUPOS[a.id])) sumar(g, d * fuerza * w * (a.id === 'jubilaciones' || a.id === 'social' ? 1.4 : 1));
+    }
+    const di = e.impuestos - e.impuestosInicioMes;
+    if (di) { sumar('empresarios', di > 0 ? -7 * di : -4 * di); sumar('media', di > 0 ? -5 * di : -3 * di); }
+    const dr = e.retenciones - e.retencionesInicioMes;
+    if (dr) sumar('campo', dr > 0 ? -9 * dr : -6 * dr);
+    for (const k in ef) ef[k] = R.round(ef[k], 1);
+    return ef;
+  };
+
+  // ── El mes del gobierno ──
+  gob.pasarMes = function (s, momentos) {
+    const G = s.gob;
+    const e = s.eco;
+    const antes = R.eco.foto(s);
+    const humorAntes = Object.fromEntries(R.GRUPOS.map((g) => [g.id, G.grupos[g.id].humor]));
+    const aprobAntes = G.aprob;
+
+    // Reacción a los cambios de presupuesto e impuestos del mes
+    const reaccion = gob.reaccionPresupuesto(s);
+    if (Object.keys(reaccion).length) gob.aplicarEfectos(s, reaccion);
+
+    R.eco.mes(s);
+
+    // La gente se acomoda de a poco a cómo le va
+    for (const g of R.GRUPOS) {
+      const st = G.grupos[g.id];
+      const { obj, partes } = gob.objetivoGrupo(s, g.id);
+      st.partesAntes = st.partes;
+      st.partes = partes;
+      st.objetivo = obj;
+      st.antes = humorAntes[g.id];
+      st.humor = R.clamp(st.humor + (obj - st.humor) * 0.2 + R.gauss(s) * 0.6, 0, 100);
+    }
+    G.lunaMiel *= 0.88;
+    G.meses++;
+    G.escandalo *= 0.93;
+    gob.actualizarAprob(s);
+    G.pc = R.clamp(G.pc + gob.ingresoPC(s), 0, G.pcMax);
+
+    // Nuevo mes y año
+    s.mes++;
+    e.nivelesInicioMes = Object.assign({}, e.niveles);
+    e.impuestosInicioMes = e.impuestos;
+    e.retencionesInicioMes = e.retenciones;
+    if (R.mesDelAnio(s.mes) === 0) {
+      e.gastoExtraAnio = 0;
+      e.deficitAcumAnio = 0;
+    }
+
+    const despues = R.eco.foto(s);
+    G.historia.push(despues);
+    if (G.historia.length > 120) G.historia.shift();
+
+    // Crisis
+    G.llamas = gob.llamas(s).map((l) => l.id);
+    G.aprobBajaMeses = G.aprob < 12 ? (G.aprobBajaMeses || 0) + 1 : 0;
+
+    momentos.push({ tipo: 'resumen', antes, despues, aprobAntes, aprobDespues: G.aprob, humorAntes, reaccion, frases: gob.frases(s, humorAntes, 3) });
+
+    if (G.aprobBajaMeses >= 3) {
+      gob.terminar(s, momentos, 'helicoptero');
+      return;
+    }
+    const nLlamas = G.llamas.length;
+    if (nLlamas >= 6 && R.chance(s, 0.1 * (nLlamas - 5))) {
+      const ev = R.ev.porId('g_estallido');
+      if (ev) momentos.push(R.ev.instanciar(s, ev));
+    }
+
+    // Elecciones y fin de mandato (las elecciones completas se agregan en otra vuelta)
+    if (R.gob.elecciones && R.gob.elecciones(s, momentos)) return;
+
+    // Noticia del mes
+    if (R.chance(s, 0.85)) {
+      const n = R.ev.elegir(s, 'gobierno');
+      if (n) momentos.push(n);
+    }
+  };
+
+  gob.terminar = function (s, momentos, motivo) {
+    s.fase = 'fin';
+    s.fin = { motivo, mes: s.mes };
+    const txt = { helicoptero: 'Renunciaste y te fuiste en helicóptero 🚁', estallido: 'Estallido social: tuviste que renunciar', mandato: 'Terminaste tu mandato' }[motivo] || 'Fin';
+    R.diario(s, '🏁', txt, 'fin');
+    momentos.push({ tipo: 'fin' });
+  };
+
+  // Frase de la gente: elige la razón que más cambió para cada grupo.
+  gob.frases = function (s, humorAntes, max) {
+    const G = s.gob;
+    const out = [];
+    for (const g of R.GRUPOS) {
+      const st = G.grupos[g.id];
+      const d = st.humor - humorAntes[g.id];
+      let mejor = null;
+      let mejorD = 0;
+      for (const p of st.partes) {
+        const ant = (st.partesAntes || []).find((x) => x.k === p.k);
+        const dd = p.v - (ant ? ant.v : 0);
+        if (Math.abs(dd) > Math.abs(mejorD)) { mejor = p.k; mejorD = dd; }
+      }
+      // Si nada cambió mucho, habla de lo que más le pesa.
+      if (!mejor || Math.abs(mejorD) < 0.6) {
+        const top = st.partes.slice().sort((a, b) => Math.abs(b.v) - Math.abs(a.v))[0];
+        if (top && Math.abs(top.v) > 4) { mejor = top.k; mejorD = top.v; }
+      }
+      const clave = mejor ? mejor + (mejorD >= 0 ? '+' : '-') : d >= 0 ? 'bien' : 'mal';
+      const banco = (R.FRASES[g.id] && (R.FRASES[g.id][clave] || R.FRASES[g.id][d >= 0 ? 'bien' : 'mal'])) || [];
+      if (!banco.length) continue;
+      out.push({ grupo: g.id, d, txt: banco[Math.floor(R.rand(s) * banco.length)], bueno: (mejorD || d) >= 0, peso: Math.abs(d) + Math.abs(mejorD) * 0.5 });
+    }
+    return out.sort((a, b) => b.peso - a.peso).slice(0, max || 3);
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/datos/frases.js ──
+// Lo que dice la gente. Clave = razón + «+» (mejoró) o «-» (empeoró). «bien»/«mal» de comodín.
+(function (R) {
+  'use strict';
+
+  R.FRASES = {
+    trabajadores: {
+      'salario+': ['¡Este mes me alcanzó para el asado! 🥩', 'Por fin la paritaria le ganó a los precios 💪'],
+      'salario-': ['El sueldo se me evapora a mitad de mes 😩', 'Trabajo más y me alcanza menos'],
+      'empleo+': ['En la fábrica tomaron gente nueva 🏭', 'Mi cuñado consiguió laburo, ¡al fin!'],
+      'empleo-': ['Echaron a la mitad del turno noche 😟', 'Tengo miedo de quedarme sin laburo'],
+      'inflacion+': ['Los precios se calmaron un poco 🙏', 'Ya no remarcan todos los días'],
+      'inflacion-': ['Cada semana el súper está más caro 🛒', 'Con estos precios no hay sueldo que aguante'],
+      'obras+': ['Arrancó una obra enorme en el barrio 🏗️', 'Hay changas en la construcción de nuevo'],
+      'obras-': ['Pararon todas las obras, la UOCRA está que arde', 'Se cayeron las obras y se cayeron los laburos'],
+      'leyes+': ['Esa ley nos cuida a los laburantes 👍'],
+      'leyes-': ['Esa reforma nos sacó derechos ✊'],
+      'ideas+': ['Se nota que piensa en los que laburan'],
+      'ideas-': ['Este gobierno no es para los trabajadores'],
+      bien: ['Vamos tirando, mejor que antes 🙂'],
+      mal: ['Así no se puede, viene el paro ✊'],
+    },
+    campo: {
+      'retenciones+': ['¡Bajaron las retenciones! Este año siembro todo 🌱', 'Ahora sí conviene producir 🚜'],
+      'retenciones-': ['Con estas retenciones no me conviene ni cosechar 😤', 'Nos sacan la mitad de lo que producimos'],
+      'cepo+': ['Sin cepo puedo vender tranquilo'],
+      'cepo-': ['Con el cepo me pagan un dólar de juguete 🔒'],
+      'crecimiento+': ['El pueblo se mueve, la cooperativa vende más'],
+      'crecimiento-': ['No se mueve nada, ni las máquinas'],
+      'rutas+': ['¡Arreglaron la ruta! Ya no se rompen los camiones 🛣️'],
+      'rutas-': ['La ruta está llena de pozos, perdí una cubierta'],
+      'inflacion+': ['Al menos los insumos no suben como antes'],
+      'inflacion-': ['El gasoil sube más que el precio de la soja'],
+      bien: ['Buen año para el campo 🌾'],
+      mal: ['El campo está cansado de pagar la fiesta 🚜'],
+    },
+    empresarios: {
+      'impuestos+': ['Bajaron impuestos: voy a contratar a dos más 💼', 'Por fin puedo invertir en la pyme'],
+      'impuestos-': ['Entre impuestos y tasas no me queda nada', 'Con esta presión fiscal cierro la persiana'],
+      'riesgo+': ['Ahora los bancos te prestan, se nota la confianza 📊'],
+      'riesgo-': ['Nadie presta un peso, el riesgo país está por las nubes'],
+      'cepo+': ['Sin cepo puedo importar los repuestos 🔓'],
+      'cepo-': ['Con el cepo no puedo importar ni un tornillo'],
+      'crecimiento+': ['Las ventas vienen subiendo, ¡qué alivio! 📈'],
+      'crecimiento-': ['Las ventas están planchadas'],
+      'inflacion+': ['Con precios estables puedo planificar'],
+      'inflacion-': ['No sé a cuánto vender: cambio la lista cada semana'],
+      bien: ['Hay ganas de invertir 💼'],
+      mal: ['Así nadie va a invertir en este país'],
+    },
+    media: {
+      'inflacion+': ['¡Llené el changuito sin desmayarme en la caja! 🛒', 'Por primera vez en años pude ahorrar algo'],
+      'inflacion-': ['Fui al súper con 50 mil y volví con dos bolsas 😱', 'Ya no sé cuánto cuesta nada'],
+      'seguridad+': ['Ahora hay policía en la esquina, salgo más tranquila 👮'],
+      'seguridad-': ['Me robaron el celular en la parada del bondi 😡', 'No se puede salir de noche'],
+      'educacion+': ['La escuela de mis hijos tiene calefacción nueva 🎓'],
+      'educacion-': ['Otra semana sin clases… ¿y los chicos?'],
+      'salud+': ['Me atendieron rápido en el hospital 🏥'],
+      'salud-': ['Para un turno en el hospital hay que esperar tres meses'],
+      'impuestos+': ['Me bajaron los impuestos, se siente en el sueldo'],
+      'impuestos-': ['Entre Ganancias y el monotributo me matan'],
+      'crecimiento+': ['Se nota más movimiento en el centro 🙂'],
+      'crecimiento-': ['Cerraron tres locales en mi cuadra'],
+      'social-': ['Siento que pago impuestos para los planes 😒'],
+      'ideas+': ['Me gusta el rumbo que lleva el país'],
+      'ideas-': ['No me representa este gobierno'],
+      bien: ['Vamos bien, despacio pero bien 🙂'],
+      mal: ['Cada mes estamos un poco peor'],
+    },
+    humildes: {
+      'inflacion+': ['Este mes la comida no aumentó tanto 🙏', 'Alcanzó para la leche de los chicos'],
+      'inflacion-': ['El kilo de pan está imposible 🍞', 'Ya no alcanza ni para el guiso'],
+      'empleo+': ['Conseguí un laburo en blanco, ¡con obra social! 🙌'],
+      'empleo-': ['No hay changas, no hay nada'],
+      'social+': ['Con la ayuda del Estado llegamos a fin de mes 🤲', 'Abrieron un comedor nuevo en el barrio'],
+      'social-': ['Nos sacaron la ayuda y no hay trabajo 😢', 'En el comedor hay cada vez más gente'],
+      'subsidios+': ['La luz y el gas siguen baratos, menos mal 💡'],
+      'subsidios-': ['¡Me llegó una boleta de luz carísima! 💡😱', 'El boleto del colectivo se fue por las nubes 🚌'],
+      'salud+': ['En la salita ahora hay médicos y remedios 🩺'],
+      'salud-': ['Fui a la salita y no había ni un médico'],
+      'pobreza+': ['El barrio está un poquito mejor'],
+      'pobreza-': ['Cada vez hay más gente durmiendo en la calle'],
+      bien: ['Se nota una mejora en el barrio 🙂'],
+      mal: ['Los de abajo siempre pagamos los platos rotos'],
+    },
+    jubilados: {
+      'jubilaciones+': ['¡Por fin me alcanza para los remedios! 💊', 'Aumentaron la jubilación, gracias a Dios 🙏'],
+      'jubilaciones-': ['Me recortaron la jubilación… después de 40 años de aportes 😢', 'Los miércoles vamos a marchar al Congreso'],
+      'inflacion+': ['Los precios se tranquilizaron, puedo comprar fruta 🍎'],
+      'inflacion-': ['La jubilación no me dura ni una semana 😩', 'Tuve que elegir entre la comida y los remedios'],
+      'salud+': ['El PAMI me atendió enseguida 🏥'],
+      'salud-': ['Hace dos meses que espero un turno con el cardiólogo'],
+      'subsidios+': ['Menos mal que la luz sigue barata'],
+      'subsidios-': ['No puedo pagar el gas, este invierno paso frío 🥶'],
+      bien: ['Los jubilados estamos un poco mejor 🙂'],
+      mal: ['Nadie piensa en los viejos'],
+    },
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
 // ── js/datos/eventos_campana.js ──
 // Noticias de la campaña. Titulares cortos, opciones de 1 a 3 palabras.
 // ef usa las claves de efectos.js; ideoDer/ideoIzq dependen de tus ideas; azar = chance de que salga distinto.
@@ -1997,6 +2943,357 @@ p { margin: 0; }
 
 </script>
 <script>
+// ── js/datos/eventos_gobierno.js ──
+// Noticias del gobierno. costo: { pc: ⭐, gasto: % del presupuesto anual }.
+// ef: grupos (trabajadores, campo, empresarios, media, humildes, jubilados, todos), inflacion, crec, expo, reservas,
+// deuda, riesgo, desempleo, pobreza, dolar, escandalo, calidad: {salud, educacion, seguridad, defensa, infra, ciencia}.
+(function (R) {
+  'use strict';
+  const mes = (anio, m) => R.mesNum(anio, m);
+
+  R.ev.registrar([
+    // ── Reacciones de la gente (aparecen cuando un grupo está enojado) ──
+    {
+      id: 'g_paro', fase: 'gobierno', peso: 5, repite: 6, cuando: (s) => s.gob.grupos.trabajadores.humor < 35, dibujo: '✊ 🏭 🚫',
+      titular: 'La CGT lanza un paro general',
+      opciones: [
+        { txt: 'Negociar', costo: { pc: 2 }, ef: { trabajadores: 8, empresarios: -2 }, res: 'Se levantó el paro 🤝' },
+        { txt: 'Aumento por decreto', costo: { gasto: 2 }, ef: { trabajadores: 12, inflacion: 0.4, empresarios: -4 }, res: 'Los gremios festejan, los precios también 📈' },
+        { txt: 'Descontar el día', ef: { trabajadores: -8, empresarios: 5, crec: -0.6 }, res: 'El país se paralizó un día', bueno: false },
+      ],
+    },
+    {
+      id: 'g_lockout', fase: 'gobierno', peso: 5, repite: 8, cuando: (s) => s.gob.grupos.campo.humor < 33, dibujo: '🚜 🛑 🌾',
+      titular: 'El campo corta rutas y deja de vender granos',
+      opciones: [
+        { txt: 'Bajar retenciones', si: (s) => s.eco.retenciones > 0, siTxt: 'Ya no hay retenciones', ef: { campo: 14 },
+          despues: (s) => { s.eco.retenciones = Math.max(0, s.eco.retenciones - 1); }, res: 'Las rutas se liberan 🚜' },
+        { txt: 'Dialogar', costo: { pc: 3 }, ef: { campo: 9 }, res: 'Tregua con el campo 🧉' },
+        { txt: 'No ceder', ef: { campo: -6, expo: -0.08, reservas: -3, humildes: 2 }, res: 'Se frenan las exportaciones', bueno: false },
+      ],
+    },
+    {
+      id: 'g_cacerolazo', fase: 'gobierno', peso: 5, repite: 6, cuando: (s) => s.gob.grupos.media.humor < 32, dibujo: '🍳 🥄 🏙️',
+      titular: 'Cacerolazo en todo el país',
+      opciones: [
+        { txt: 'Cadena nacional', costo: { pc: 2 }, ef: { media: 5 }, azar: { p: 0.35, ef: { media: -6 }, txt: 'Más cacerolas que antes 🍳' }, res: 'Bajó el ruido' },
+        { txt: 'Cambiar ministros', costo: { pc: 4 }, ef: { media: 9, todos: 2 }, res: 'Caras nuevas en el gabinete' },
+        { txt: 'Ignorarlo', ef: { media: -6 }, res: 'Las cacerolas siguen sonando 🥄', bueno: false },
+      ],
+    },
+    {
+      id: 'g_miercoles', fase: 'gobierno', peso: 5, repite: 6, cuando: (s) => s.gob.grupos.jubilados.humor < 35, dibujo: '👵 🪧 🏛️',
+      titular: 'Miles de jubilados marchan al Congreso',
+      opciones: [
+        { txt: 'Aumento de emergencia', costo: { gasto: 3 }, ef: { jubilados: 14, todos: 1 }, res: 'Los abuelos se vuelven a casa más tranquilos 👵' },
+        { txt: 'Recibirlos', costo: { pc: 2 }, ef: { jubilados: 6, media: 2 }, res: 'Mate y charla en la Rosada 🧉' },
+        { txt: 'Vallar la plaza', ef: { jubilados: -10, media: -6, escandalo: 2 }, res: 'Las fotos dan vuelta al mundo 📸', bueno: false },
+      ],
+    },
+    {
+      id: 'g_piquetes', fase: 'gobierno', peso: 5, repite: 6, cuando: (s) => s.gob.grupos.humildes.humor < 33, dibujo: '🔥 🛞 🏘️',
+      titular: 'Cortes y piquetes en los accesos a la ciudad',
+      opciones: [
+        { txt: 'Más planes sociales', costo: { gasto: 2.5 }, ef: { humildes: 12, media: -4 }, res: 'Se levantan los cortes' },
+        { txt: 'Comedores y trabajo', costo: { gasto: 1.5, pc: 2 }, ef: { humildes: 9, media: 1 }, res: 'Cooperativas trabajando 🛠️' },
+        { txt: 'Despejar con policía', ef: { humildes: -9, media: 4, escandalo: 1 }, azar: { p: 0.3, ef: { todos: -4, escandalo: 3 }, txt: 'Hubo heridos y es escándalo 🚨' }, res: 'Accesos liberados' },
+      ],
+    },
+    {
+      id: 'g_estallido', fase: 'gobierno-especial', peso: 0, dibujo: '🔥 🚨 🏛️',
+      titular: '¡Estallido social! Saqueos y represión',
+      bajada: 'El país entero está en llamas',
+      opciones: [
+        { txt: 'Renunciar', ef: {}, res: 'Te vas en helicóptero 🚁', bueno: false, despues: (s) => { s.fase = 'fin'; s.fin = { motivo: 'estallido', mes: s.mes }; } },
+        { txt: 'Gabinete nuevo', costo: { pc: 5 }, ef: { todos: 7 }, res: 'Ganaste un poco de aire' },
+        { txt: 'Estado de sitio', ef: { todos: -4, escandalo: 4 }, azar: { p: 0.5, ef: {}, txt: 'Te sostenés… por ahora', bueno: true }, res: 'La calle se calma con miedo', bueno: false },
+      ],
+    },
+
+    // ── Economía ──
+    {
+      id: 'g_corrida', fase: 'gobierno', peso: 4, repite: 8, cuando: (s) => s.eco.reservas < 16 && !s.eco.cepo, dibujo: '💵 🏃 📉',
+      titular: 'Corrida cambiaria: todos quieren dólares',
+      opciones: [
+        { txt: 'Vender reservas', ef: { reservas: -5, todos: 1 }, res: 'El dólar se calma… por ahora' },
+        { txt: 'Dejar que suba', ef: { dolar: 18, media: -5, campo: 4 }, res: 'El dólar saltó 18 % 💵', bueno: false },
+        { txt: 'Poner cepo', ef: { empresarios: -8, campo: -5 }, despues: (s) => { s.eco.cepo = true; s.eco.brecha = 20; }, res: 'Cepo: se cuidan los dólares, aparece el blue 🔒' },
+      ],
+    },
+    {
+      id: 'g_fmi', fase: 'gobierno', peso: 4, repite: 18, cuando: (s) => s.eco.reservas < 14, dibujo: '🏦 🤝 🌎',
+      titular: 'El FMI ofrece un préstamo… con condiciones',
+      opciones: [
+        { txt: 'Aceptar y ajustar', ef: { reservas: 15, deuda: 4, riesgo: -200, humildes: -5, trabajadores: -5, empresarios: 5 },
+          despues: (s) => { for (const a of R.AREAS) s.eco.niveles[a.id] = Math.max(0.5, R.round(s.eco.niveles[a.id] - 0.05, 2)); }, res: 'Llegaron los dólares del Fondo 🏦' },
+        { txt: 'Negociar', costo: { pc: 3 }, ef: { reservas: 8, deuda: 2, riesgo: -80 }, res: 'Préstamo más chico, sin ajuste' },
+        { txt: 'Rechazar', ef: { trabajadores: 4, riesgo: 120 }, res: '«Soberanía», dicen unos. «Locura», dicen otros' },
+      ],
+    },
+    {
+      id: 'g_inflacion_record', fase: 'gobierno', peso: 6, repite: 6, cuando: (s) => s.eco.inflMes > 6, dibujo: '🛒 🔥 📈',
+      titular: 'Inflación récord: los precios cambian a diario',
+      opciones: [
+        { txt: 'Congelar precios', costo: { pc: 2 }, ef: { inflacion: -1.5, empresarios: -8, media: 3 }, azar: { p: 0.4, ef: { inflacion: 2 }, txt: 'Desabastecimiento: las góndolas vacías 😱' }, res: 'Precios congelados 🧊' },
+        { txt: 'Dejar de emitir', ef: { empresarios: 4, trabajadores: -3 }, despues: (s) => { s.eco.financiamiento = 2; }, res: 'Ahora pedís prestado en vez de imprimir' },
+        { txt: 'Culpar a los formadores', ef: { humildes: 3, empresarios: -5 }, res: 'Nadie te cree mucho' },
+      ],
+    },
+    {
+      id: 'g_superavit', fase: 'gobierno', peso: 3, cuando: (s) => R.eco.resultado(s) > 0.5, dibujo: '⚖️ ✅ 💰',
+      titular: '¡Superávit fiscal! Sobra plata en el Tesoro',
+      opciones: [
+        { txt: 'Bajar impuestos', si: (s) => s.eco.impuestos > 0, ef: { empresarios: 8, media: 6 }, despues: (s) => { s.eco.impuestos = Math.max(0, s.eco.impuestos - 1); s.eco.impuestosInicioMes = s.eco.impuestos; }, res: 'Impuestos más bajos 🧾' },
+        { txt: 'Pagar deuda', ef: { deuda: -3, riesgo: -150, empresarios: 4 }, res: 'El riesgo país se desploma 📉' },
+        { txt: 'Aumento a jubilados', ef: { jubilados: 10 }, despues: (s) => { s.eco.niveles.jubilaciones = Math.min(1.6, R.round(s.eco.niveles.jubilaciones + 0.05, 2)); s.eco.nivelesInicioMes.jubilaciones = s.eco.niveles.jubilaciones; }, res: 'Jubilaciones +5 % 👵' },
+      ],
+    },
+    {
+      id: 'g_sequia', fase: 'gobierno', peso: 2, repite: 24, dibujo: '☀️ 🌾 🥀',
+      titular: 'Sequía histórica en la pampa húmeda',
+      opciones: [
+        { txt: 'Emergencia agropecuaria', costo: { gasto: 2 }, ef: { campo: 8, expo: -0.06, crec: -1 }, res: 'Ayudaste a los productores' },
+        { txt: 'Bajar retenciones', si: (s) => s.eco.retenciones > 0, siTxt: 'Ya no hay retenciones', ef: { campo: 10, expo: -0.05, crec: -1 }, despues: (s) => { s.eco.retenciones = Math.max(0, s.eco.retenciones - 1); s.eco.retencionesInicioMes = s.eco.retenciones; }, res: 'Alivio para el campo' },
+        { txt: 'Rezar por lluvia', ef: { expo: -0.12, crec: -2, campo: -6 }, res: 'No llovió 🌵', bueno: false },
+      ],
+    },
+    {
+      id: 'g_cosecha', fase: 'gobierno', peso: 2, repite: 18, dibujo: '🌽 🚛 💵',
+      titular: '¡Cosecha récord! Entran dólares',
+      opciones: [
+        { txt: 'Guardar reservas', ef: { reservas: 6, campo: 3 }, res: 'El Banco Central respira 🏦' },
+        { txt: 'Fondo para obras', ef: { reservas: 3, infra: 6, trabajadores: 3 }, res: 'Rutas nuevas con la cosecha 🛣️' },
+      ],
+    },
+    {
+      id: 'g_vaca_muerta', fase: 'gobierno', peso: 2, unaVez: true, dibujo: '🛢️ 🏔️ ⚡',
+      titular: 'Descubren un yacimiento enorme en Vaca Muerta',
+      opciones: [
+        { txt: 'Que inviertan privados', ef: { empresarios: 8, expo: 0.1, riesgo: -60 }, res: 'Llueven inversiones 💼' },
+        { txt: 'Que lo haga YPF', costo: { gasto: 3 }, ef: { trabajadores: 6, expo: 0.07, reservas: 2 }, res: 'Bandera argentina en el pozo 🇦🇷' },
+        { txt: 'Asociarse con China', ef: { expo: 0.08, reservas: 4, empresarios: -2 }, res: 'Acuerdo con capitales chinos' },
+      ],
+    },
+    {
+      id: 'g_litio', fase: 'gobierno', peso: 2, dibujo: '🔋 ⛰️ 🚚',
+      titular: 'Fiebre del litio en el Norte',
+      opciones: [
+        { txt: 'Abrir la minería', ef: { expo: 0.08, empresarios: 5, humildes: 2 }, azar: { p: 0.25, ef: { media: -4 }, txt: 'Protestas ambientales 🌱' }, res: 'Camiones de litio rumbo al puerto' },
+        { txt: 'Fábrica de baterías', costo: { gasto: 2 }, ef: { ciencia: 6, trabajadores: 4, expo: 0.04 }, res: '¡Baterías argentinas! 🔋' },
+        { txt: 'Proteger los salares', ef: { media: 3, empresarios: -4 }, res: 'Los salares quedan intactos 🦩' },
+      ],
+    },
+    {
+      id: 'g_inversion', fase: 'gobierno', peso: 2, cuando: (s) => s.eco.riesgo < 900, dibujo: '🏭 🌍 💵',
+      titular: 'Una automotriz quiere poner una planta',
+      opciones: [
+        { txt: 'Darle exenciones', costo: { gasto: 1 }, ef: { trabajadores: 7, empresarios: 5, desempleo: -0.3, crec: 0.5 }, res: '3.000 puestos nuevos 🚗' },
+        { txt: 'Sin privilegios', ef: { media: 2 }, azar: { p: 0.5, ef: { empresarios: -4 }, txt: 'Se fue a Brasil 😞' }, res: 'Vino igual, sin beneficios' },
+      ],
+    },
+    {
+      id: 'g_aerolineas', fase: 'gobierno', peso: 2, unaVez: true, dibujo: '✈️ 💸 🤔',
+      titular: 'Aerolíneas Argentinas vuelve a dar pérdidas',
+      opciones: [
+        { txt: 'Privatizarla', ef: { empresarios: 6, trabajadores: -6, reservas: 1 }, res: 'Vendida al mejor postor ✈️' },
+        { txt: 'Capitalizarla', costo: { gasto: 1.5 }, ef: { trabajadores: 3, media: -2 }, res: 'Sigue siendo de todos' },
+        { txt: 'Achicarla', ef: { trabajadores: -3, empresarios: 2 }, res: 'Menos rutas, menos gastos' },
+      ],
+    },
+    {
+      id: 'g_tarifas', fase: 'gobierno', peso: 3, repite: 12, cuando: (s) => s.eco.niveles.subsidios >= 0.9, dibujo: '💡 🔥 🧾',
+      titular: 'Las energéticas piden aumentar las tarifas',
+      opciones: [
+        { txt: 'Tarifazo', ef: { media: -6, humildes: -6, jubilados: -5, empresarios: 4 },
+          despues: (s) => { s.eco.niveles.subsidios = Math.max(0.5, R.round(s.eco.niveles.subsidios - 0.2, 2)); }, res: 'Bajan los subsidios… y suben las boletas 💡' },
+        { txt: 'Aumento gradual', ef: { media: -2, humildes: -2 },
+          despues: (s) => { s.eco.niveles.subsidios = Math.max(0.5, R.round(s.eco.niveles.subsidios - 0.1, 2)); }, res: 'Suben de a poco' },
+        { txt: 'Congelar', ef: { humildes: 3, empresarios: -4 }, azar: { p: 0.3, ef: { infra: -6 }, txt: 'Falta inversión: hay cortes de luz ⚡' }, res: 'Tarifas congeladas' },
+      ],
+    },
+    {
+      id: 'g_apagon', fase: 'gobierno', peso: 3, repite: 12, cuando: (s) => s.eco.calidad.infra < 42, dibujo: '⚡ 🕯️ 🥵',
+      titular: 'Apagón masivo en plena ola de calor',
+      opciones: [
+        { txt: 'Plan de obras eléctricas', costo: { gasto: 2 }, ef: { infra: 8, media: 3 }, res: 'Vuelve la luz y se arma la red 🔌' },
+        { txt: 'Multar a las empresas', ef: { media: 4, empresarios: -5 }, res: 'Las empresas pagan… y no invierten' },
+        { txt: 'Pedir paciencia', ef: { media: -6, humildes: -4 }, res: 'Ventiladores apagados 🥵', bueno: false },
+      ],
+    },
+    {
+      id: 'g_bitcoin', fase: 'gobierno', peso: 1, unaVez: true, dibujo: '🪙 📱 🤑',
+      titular: 'Te proponen hacer al bitcoin moneda legal',
+      opciones: [
+        { txt: '¡Hagámoslo!', ef: { riesgo: 150, media: -2, empresarios: -2 }, azar: { p: 0.4, ef: { reservas: 4 }, txt: 'Subió el bitcoin, ¡ganaste! 🤑', bueno: true }, res: 'El mundo te mira raro 🪙' },
+        { txt: 'Ni loco', ef: { empresarios: 2 }, res: 'Seguimos con el peso' },
+      ],
+    },
+
+    // ── Sociedad ──
+    {
+      id: 'g_dengue', fase: 'gobierno', peso: 3, repite: 12, cuando: (s) => s.eco.calidad.salud < 52, dibujo: '🦟 🏥 🌡️',
+      titular: 'Brote de dengue en el norte',
+      opciones: [
+        { txt: 'Vacunación masiva', costo: { gasto: 1.5 }, ef: { salud: 5, humildes: 4, todos: 1 }, res: 'Se frenó el brote 💉' },
+        { txt: 'Fumigar barrios', costo: { gasto: 0.5 }, ef: { humildes: 2 }, res: 'Algo ayudó' },
+        { txt: 'Que se ocupen las provincias', ef: { humildes: -5, jubilados: -3 }, res: 'Hospitales colapsados 😷', bueno: false },
+      ],
+    },
+    {
+      id: 'g_narco', fase: 'gobierno', peso: 3, repite: 12, cuando: (s) => s.eco.calidad.seguridad < 50, dibujo: '🔫 🚨 🌃',
+      titular: 'Balaceras narco en Rosario',
+      opciones: [
+        { txt: 'Mandar Gendarmería', costo: { gasto: 1 }, ef: { seguridad: 6, media: 5 }, res: 'Gendarmes en las calles 👮' },
+        { txt: 'Plan social y urbano', costo: { gasto: 1.5 }, ef: { seguridad: 3, humildes: 4 }, res: 'Escuelas y clubes en los barrios' },
+        { txt: 'Militarizar', ef: { seguridad: 8, media: 4, humildes: -5, escandalo: 1 }, res: 'Mano dura total' },
+      ],
+    },
+    {
+      id: 'g_universidad', fase: 'gobierno', peso: 3, repite: 12, cuando: (s) => s.eco.niveles.educacion < 1, dibujo: '🎓 📚 🪧',
+      titular: 'Marcha universitaria masiva',
+      opciones: [
+        { txt: 'Más fondos', ef: { media: 7, educacion: 3 }, despues: (s) => { s.eco.niveles.educacion = Math.min(1.6, R.round(s.eco.niveles.educacion + 0.1, 2)); s.eco.nivelesInicioMes.educacion = s.eco.niveles.educacion; }, res: 'Las universidades respiran 🎓' },
+        { txt: 'Auditar primero', ef: { media: -3, empresarios: 2 }, res: 'Polémica en las aulas' },
+        { txt: 'No ceder', ef: { media: -7 }, res: 'Un millón en la calle 🪧', bueno: false },
+      ],
+    },
+    {
+      id: 'g_docentes', fase: 'gobierno', peso: 3, repite: 10, dibujo: '👩‍🏫 ✋ 🏫',
+      titular: 'Paro docente: no empiezan las clases',
+      opciones: [
+        { txt: 'Aumento docente', costo: { gasto: 1.5 }, ef: { media: 5, trabajadores: 3 }, res: 'Arrancaron las clases 🏫' },
+        { txt: 'Descontar los días', ef: { media: -2, trabajadores: -4, empresarios: 2 }, res: 'Pelea abierta con los gremios' },
+      ],
+    },
+    {
+      id: 'g_crimen', fase: 'gobierno', peso: 2, repite: 10, dibujo: '🚨 🕯️ 😢',
+      titular: 'Un crimen conmueve al país',
+      opciones: [
+        { txt: 'Ley más dura', costo: { pc: 2 }, ef: { media: 5, seguridad: 2 }, res: 'Mensaje de firmeza ⚖️' },
+        { txt: 'Recibir a la familia', costo: { pc: 1 }, ef: { todos: 2 }, res: 'Un gesto que se valora 🕯️' },
+        { txt: 'Silencio', ef: { media: -5 }, res: '«No le importa», dicen', bueno: false },
+      ],
+    },
+    {
+      id: 'g_tomas', fase: 'gobierno', peso: 2, repite: 12, dibujo: '🏠 🪵 ⛺',
+      titular: 'Toma de tierras en el conurbano',
+      opciones: [
+        { txt: 'Plan de viviendas', costo: { gasto: 2.5 }, ef: { humildes: 9, infra: 2 }, res: 'Lotes con servicios para todos 🏠' },
+        { txt: 'Desalojar', ef: { media: 3, humildes: -8 }, res: 'Desalojo con topadoras' },
+        { txt: 'Negociar', costo: { pc: 2 }, ef: { humildes: 3, media: -1 }, res: 'Se va arreglando' },
+      ],
+    },
+    {
+      id: 'g_inundacion', fase: 'gobierno', peso: 2, repite: 12, dibujo: '🌧️ 🏠 🛶',
+      titular: 'Inundaciones dejan miles de evacuados',
+      opciones: [
+        { txt: 'Ayuda y obras', costo: { gasto: 2 }, ef: { humildes: 6, infra: 3, todos: 2 }, res: 'Llegó la ayuda 🚚' },
+        { txt: 'Ir al lugar', costo: { pc: 1 }, ef: { todos: 2 }, res: 'Con las botas en el agua 👢' },
+        { txt: 'Mandar un tuit', ef: { todos: -3 }, res: '«Pura foto»', bueno: false },
+      ],
+    },
+    {
+      id: 'g_incendios', fase: 'gobierno', peso: 2, repite: 12, dibujo: '🔥 🌲 🚒',
+      titular: 'Incendios forestales en la Patagonia',
+      opciones: [
+        { txt: 'Aviones hidrantes', costo: { gasto: 1 }, ef: { media: 4 }, res: 'Fuego controlado 🚒' },
+        { txt: 'Que las provincias se arreglen', ef: { media: -4 }, res: 'Se quemaron miles de hectáreas', bueno: false },
+      ],
+    },
+    {
+      id: 'g_ola_calor', fase: 'gobierno', peso: 1, repite: 12, dibujo: '🥵 🌡️ 💧',
+      titular: 'Ola de calor récord: 45 grados',
+      opciones: [
+        { txt: 'Feriado y agua gratis', costo: { gasto: 0.5 }, ef: { media: 3, humildes: 3, crec: -0.2 }, res: '¡A la pileta! 🏊' },
+        { txt: 'Que trabajen igual', ef: { trabajadores: -3 }, res: 'Golpes de calor en las fábricas' },
+      ],
+    },
+
+    // ── Política ──
+    {
+      id: 'g_ministro_escandalo', fase: 'gobierno', peso: 3, repite: 14, desde: 15, dibujo: '🕵️ 💼 📰',
+      titular: 'Un ministro, acusado de cobrar coimas',
+      opciones: [
+        { txt: 'Echarlo ya', costo: { pc: 2 }, ef: { media: 4, escandalo: -2 }, res: 'Tolerancia cero 🧹' },
+        { txt: 'Defenderlo', ef: { escandalo: 4, media: -5 }, azar: { p: 0.4, ef: { escandalo: 4, todos: -4 }, txt: 'Aparecieron los videos 📹' }, res: 'Lo bancaste… a un costo' },
+        { txt: 'Que decida la Justicia', ef: { escandalo: 2, media: -2 }, res: 'El tema sigue en las tapas' },
+      ],
+    },
+    {
+      id: 'g_audios', fase: 'gobierno', peso: 2, repite: 18, desde: 6, dibujo: '🎧 🤐 💣',
+      titular: 'Filtran audios tuyos insultando a gobernadores',
+      opciones: [
+        { txt: 'Pedir disculpas', costo: { pc: 2 }, ef: { todos: 1 }, res: 'Disculpas aceptadas… a medias' },
+        { txt: '«Son falsos»', ef: { escandalo: 3 }, azar: { p: 0.5, ef: { todos: -5 }, txt: 'Los peritos dicen que son reales 😬' }, res: 'Nadie sabe qué creer' },
+        { txt: 'Redoblar la apuesta', ef: { media: -3, empresarios: 2, escandalo: 2 }, res: 'Pelea con todos los gobernadores' },
+      ],
+    },
+    {
+      id: 'g_vice', fase: 'gobierno', peso: 2, unaVez: true, desde: 8, dibujo: '🗡️ 🤵 🏛️',
+      titular: 'Tu vice critica al gobierno en público',
+      opciones: [
+        { txt: 'Reunirte a solas', costo: { pc: 2 }, ef: { todos: 1 }, res: 'Paz… por ahora 🤝' },
+        { txt: 'Romper con tu vice', ef: { media: -2, escandalo: 2 }, res: 'Guerra abierta en el gobierno ⚔️' },
+        { txt: 'Ignorarlo', ef: { escandalo: 1 }, res: 'Las tapas hablan de la interna' },
+      ],
+    },
+    {
+      id: 'g_meme', fase: 'gobierno', peso: 2, repite: 12, dibujo: '😂 📱 🖼️',
+      titular: 'Te hacen un meme que explota en redes',
+      opciones: [
+        { txt: 'Reírte y compartirlo', ef: { media: 3, humildes: 2 }, res: '¡Tenés calle! 😎' },
+        { txt: 'Denunciar a los tuiteros', ef: { media: -5, escandalo: 1 }, res: 'Efecto Streisand: más memes', bueno: false },
+      ],
+    },
+    {
+      id: 'g_gobernadores', fase: 'gobierno', peso: 3, repite: 8, dibujo: '🗺️ 💰 🤝',
+      titular: 'Los gobernadores piden más fondos',
+      opciones: [
+        { txt: 'Darles fondos', costo: { gasto: 2 }, ef: { pc: 3 }, res: 'Gobernadores contentos: más apoyo en el Congreso 🏛️' },
+        { txt: 'Prometer obras', costo: { pc: 1 }, ef: { infra: 2 }, res: 'Promesas para la foto' },
+        { txt: 'No hay plata', ef: { pc: -2, empresarios: 2 }, res: 'Los gobernadores se enojan', bueno: false },
+      ],
+    },
+    {
+      id: 'g_papa', fase: 'gobierno', peso: 1, unaVez: true, desde: 10, dibujo: '⛪ 🤍 🇦🇷',
+      titular: 'El Papa anuncia que visita la Argentina',
+      opciones: [
+        { txt: 'Recibirlo con todo', costo: { gasto: 0.5 }, ef: { todos: 3, humildes: 3 }, res: 'Multitud en la 9 de Julio ⛪' },
+        { txt: 'Visita protocolar', ef: { todos: 1 }, res: 'Correcto y breve' },
+      ],
+    },
+    {
+      id: 'g_influencer', fase: 'gobierno', peso: 2, repite: 12, dibujo: '🎙️ 📱 🔥',
+      titular: 'Un streamer gigante te invita a su canal',
+      opciones: [
+        { txt: 'Ir', ef: { media: 3, humildes: 2 }, azar: { p: 0.3, ef: { media: -6 }, txt: 'Te trabaste en vivo 🫠' }, res: 'Récord de audiencia 🎮' },
+        { txt: 'No ir', ef: {}, res: 'Nadie lo notó' },
+      ],
+    },
+
+    // ── Fechas especiales ──
+    {
+      id: 'g_mundial', fase: 'gobierno', peso: 50, unaVez: true, desde: mes(2030, 6), hasta: mes(2030, 7), dibujo: '⚽ 🏆 🇦🇷',
+      titular: '¡Argentina juega la final del Mundial!',
+      opciones: [
+        { txt: 'Feriado nacional', ef: { todos: 4, crec: -0.2 }, azar: { p: 0.5, ef: { todos: 6 }, txt: '¡SOMOS CAMPEONES DEL MUNDO! 🏆🎉', bueno: true }, res: 'Perdimos en los penales… 😭' },
+        { txt: 'Ver el partido en la Rosada', ef: { todos: 1 }, azar: { p: 0.5, ef: { todos: 5 }, txt: '¡CAMPEONES! La gente te asocia con la alegría 🏆', bueno: true }, res: 'Perdimos la final 😢' },
+      ],
+    },
+    {
+      id: 'g_aguinaldo', fase: 'gobierno', peso: 6, repite: 11, cuando: (s) => R.mesDelAnio(s.mes) === 11, dibujo: '🎄 🥂 💵',
+      titular: 'Llegan las fiestas: piden un bono navideño',
+      opciones: [
+        { txt: 'Bono navideño', costo: { gasto: 2 }, ef: { trabajadores: 5, humildes: 6, jubilados: 5, inflacion: 0.2 }, res: '¡Felices fiestas! 🎄' },
+        { txt: 'Canasta navideña', costo: { gasto: 0.5 }, ef: { humildes: 3 }, res: 'Pan dulce para todos 🍞' },
+        { txt: 'No hay plata', ef: { trabajadores: -3, humildes: -3, empresarios: 2 }, res: 'Fiestas austeras', bueno: false },
+      ],
+    },
+  ]);
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
 // ── js/ui/dom.js ──
 // Ayudantes de interfaz: crear nodos, ventanas, avisos, chips de efectos y animaciones.
 (function (R) {
@@ -2094,7 +3391,7 @@ p { margin: 0; }
     opts = opts || {};
     return h('div', { class: 'efectos' }, opts.antes || null, lista.map((e) => {
       const fl = (e.sube ? '▲' : '▼').repeat(e.flechas);
-      const etiqueta = e.numero ? R.signo(e.v, 0) : fl;
+      const etiqueta = e.pct ? R.fmt(Math.abs(e.v), 1) + '%' : e.numero ? R.signo(e.v, 0) : fl;
       return h('span', { class: 'ef ' + (e.bueno ? 'bien' : 'mal'), title: e.nombre + (e.sube ? ' sube' : ' baja') },
         h('span', { class: 'em' }, e.emoji),
         opts.conNombre !== false && !opts.compacto ? h('span', { class: 'nom' }, e.nombre) : null,
@@ -3337,11 +4634,11 @@ p { margin: 0; }
       return;
     }
     ui.confirmoPasar = false;
-    const antes = R.camp.encuesta(s).YO;
+    const antes = s.fase === 'campana' ? R.camp.encuesta(s).YO : 0;
     R.son.tambor();
     R.turno.pasar(s);
     R.guardar(s);
-    ui.vista = { tab: (ui.vista && ui.vista.tab) || 'acciones' };
+    ui.vista = { tab: (ui.vista && ui.vista.tab) || (s.fase === 'gobierno' ? 'inicio' : 'acciones') };
     ui.render();
     window.scrollTo(0, 0);
     if (s.fase === 'campana') {
@@ -3351,6 +4648,509 @@ p { margin: 0; }
     }
     ui.procesarCola();
   };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/gobierno.js ──
+// Pantalla de gobierno: aprobación, la gente con cara, el país en 6 tarjetas tangibles y acciones.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+  ui.momentos = ui.momentos || {};
+
+  ui.PESTANAS_GOB = [
+    { id: 'inicio', emoji: '🏠', nombre: 'Inicio' },
+    { id: 'economia', emoji: '💰', nombre: 'Economía' },
+    { id: 'diario', emoji: '📰', nombre: 'Diario' },
+  ];
+  ui.panelesGob = {};
+
+  ui.pantallaGobierno = function (s) {
+    const pc = ui.esPC();
+    let tab = (ui.vista && ui.vista.tab) || 'inicio';
+    if (!ui.PESTANAS_GOB.find((p) => p.id === tab)) tab = 'inicio';
+    const paneles = {
+      inicio: () => panelInicio(s, pc),
+      economia: () => ui.panelEconomia(s),
+      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Lo que pasó'), ui.historial(s, 60)),
+    };
+    Object.assign(paneles, ui.panelesGob);
+    const scroll = ui.montar(h('div', null, barraGobierno(s), paneles[tab]()), pc);
+    if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
+    ui.navInferior(ui.PESTANAS_GOB, tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
+      h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() }, '▶ Pasar el mes',
+        h('span', { class: 'chip', style: { fontFamily: 'var(--f-texto)', fontSize: '12px' } }, '⭐ ' + s.gob.pc)));
+  };
+
+  // Redibuja sin mover el scroll (después de tocar algo).
+  ui.refrescar = function () {
+    ui.vista = Object.assign({}, ui.vista, { mantenerScroll: true });
+    ui.render();
+    ui.vista.mantenerScroll = false;
+  };
+
+  function barraGobierno(s) {
+    const G = s.gob;
+    const ant = G.historia.length >= 2 ? G.historia[G.historia.length - 2].aprob : G.aprob;
+    const d = G.aprob - ant;
+    return h('header', { class: 'barra-sup' },
+      h('div', { class: 'quien' }, R.ui.avatar(s.lider.avatar, { size: 42, banda: true, humor: R.humorAvatar(G.aprob) }),
+        h('div', { style: { minWidth: 0 } }, h('b', null, R.cap(R.MESES_CORTOS[R.mesDelAnio(s.mes)]) + ' ' + R.anio(s.mes)), h('small', null, 'Presidencia de ' + s.lider.nombre))),
+      h('span', { class: 'recurso', title: 'Capital político: lo gastás en acciones y leyes' }, '⭐ ', h('span', { class: 'numero' }, String(G.pc))),
+      h('span', { class: 'recurso', title: 'Aprobación', style: { background: G.aprob >= 50 ? 'var(--bien-claro)' : G.aprob < 30 ? 'var(--mal-claro)' : 'var(--papel-2)' } },
+        '👍 ', h('span', { class: 'numero' }, R.fmt(G.aprob) + '%'), Math.abs(d) >= 0.5 ? h('span', { style: { color: d > 0 ? 'var(--bien)' : 'var(--mal)', fontSize: '11px' } }, d > 0 ? '▲' : '▼') : null),
+      h('button', { class: 'boton mini sec', onclick: () => ui.menu(), 'aria-label': 'Menú' }, '☰'));
+  }
+
+  // ── Inicio ──
+  function panelInicio(s, pc) {
+    const izq = [tarjetaAprobacion(s), tarjetaGente(s)];
+    const der = [tarjetaPais(s), tarjetaAcciones(s)];
+    if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
+    return h('div', { class: 'pila' }, izq[0], izq[1], der[0], der[1]);
+  }
+
+  function tarjetaAprobacion(s) {
+    const G = s.gob;
+    const llamas = R.gob.llamas(s);
+    const prox = proximaEleccionGob(s);
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'fila entre', style: { alignItems: 'flex-end' } },
+        h('div', null, h('div', { class: 'etiqueta' }, 'Aprobación'),
+          h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '48px', lineHeight: 1, color: G.aprob >= 50 ? 'var(--bien)' : G.aprob < 30 ? 'var(--mal)' : 'var(--tinta)' }, class: 'numero' },
+            R.fmt(G.aprob), h('span', { style: { fontSize: '24px' } }, ' %'))),
+        h('button', { class: 'chip toque', style: { cursor: 'pointer', background: llamas.length >= 4 ? 'var(--mal-claro)' : llamas.length ? 'var(--sol-claro)' : 'var(--bien-claro)' }, onclick: () => verLlamas(s) },
+          llamas.length ? '🔥'.repeat(Math.min(5, llamas.length)) + (llamas.length > 5 ? ' ×' + llamas.length : '') + ' Crisis' : '🧯 Sin crisis')),
+      ui.sparkline(G.historia.map((x) => x.aprob), { color: 'var(--celeste)', max: 100, alto: 54, etiqueta: '%' }),
+      prox ? h('div', { class: 'fila', style: { gap: '8px' } }, h('span', { style: { fontSize: '22px' } }, prox.emoji),
+        h('div', null, h('b', null, prox.nombre), h('div', { class: 'chico suave' }, prox.faltan === 0 ? '¡Este mes!' : 'Faltan ' + prox.faltan + (prox.faltan === 1 ? ' mes' : ' meses')))) : null);
+  }
+
+  function proximaEleccionGob(s) {
+    const m = s.mes;
+    const fechas = [
+      { mes: R.gob.MES_MEDIO_TERMINO, nombre: 'Elecciones de medio término', emoji: '🗳️' },
+      { mes: R.gob.MES_PRESIDENCIAL, nombre: 'Elecciones presidenciales', emoji: '🏆' },
+    ].concat(s.gob.mandato > 1 ? [{ mes: R.gob.MES_PRESIDENCIAL + 24, nombre: 'Medio término', emoji: '🗳️' }, { mes: R.gob.MES_PRESIDENCIAL + 48, nombre: 'Fin del mandato', emoji: '🏁' }] : []);
+    const f = fechas.find((x) => x.mes >= m);
+    return f ? Object.assign({ faltan: f.mes - m }, f) : null;
+  }
+
+  function verLlamas(s) {
+    const llamas = R.gob.llamas(s);
+    const vistos = new Set();
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, '🔥 Termómetro de crisis'),
+      h('p', { class: 'chico suave' }, 'Cada llamita es un problema grave. Con 6 o más, puede haber un estallido.'),
+      h('div', { class: 'barra gorda' }, h('i', { style: { width: Math.min(100, llamas.length * 10) + '%', background: llamas.length >= 6 ? 'var(--mal)' : 'var(--sol)' } })),
+      llamas.length ? h('div', { class: 'lista-elegir' }, llamas.filter((l) => !vistos.has(l.id) && vistos.add(l.id)).map((l) =>
+        h('div', { class: 'item-elegir', style: { cursor: 'default' } }, h('span', { class: 'ic' }, l.emoji),
+          h('div', null, h('b', null, l.txt), h('div', { class: 'chico suave' }, '🧯 ' + l.arreglo)), h('span', null, '🔥'))))
+        : h('p', { class: 'centro' }, '🧯 Todo bajo control. ¡Seguí así!')), { cerrable: true });
+  }
+
+  // La gente: 6 personajes con su cara.
+  function tarjetaGente(s) {
+    const G = s.gob;
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'titulo-seccion' }, '👥 La gente'),
+      h('div', { class: 'gente' }, R.GRUPOS.map((g) => {
+        const st = G.grupos[g.id];
+        const d = st.humor - (st.antes ?? st.humor);
+        return h('button', { class: 'persona toque', onclick: () => verGrupo(s, g.id), 'aria-label': g.nombre + ': ' + Math.round(st.humor) + ' de 100' },
+          R.ui.avatar(g.avatar, { size: 56, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
+          h('span', { class: 'nom' }, g.emoji + ' ' + g.nombre),
+          h('span', { class: 'barra', style: { height: '8px', width: '100%' } }, h('i', { style: { width: st.humor + '%', background: colorHumorFuerte(st.humor) } })),
+          Math.abs(d) >= 1 ? h('span', { class: 'delta ' + (d > 0 ? 'sube' : 'baja') }, d > 0 ? '▲' : '▼') : null);
+      })));
+  }
+  const colorHumor = (v) => (v >= 62 ? '#d5f5e1' : v >= 42 ? '#eef3f9' : v >= 28 ? '#fde9c9' : '#fde0df');
+  const colorHumorFuerte = (v) => (v >= 62 ? 'var(--bien)' : v >= 42 ? 'var(--celeste)' : v >= 28 ? 'var(--sol)' : 'var(--mal)');
+  ui.colorHumor = colorHumor;
+
+  R.RAZONES = {
+    inflacion: ['🛒', 'Precios'], empleo: ['🚪', 'Trabajo'], salario: ['💰', 'Sueldo'], obras: ['🏗️', 'Obra pública'], retenciones: ['🌾', 'Retenciones'],
+    cepo: ['🔒', 'Cepo'], crecimiento: ['📈', 'Economía'], rutas: ['🛣️', 'Rutas'], impuestos: ['🧾', 'Impuestos'], riesgo: ['📊', 'Confianza'],
+    seguridad: ['👮', 'Seguridad'], educacion: ['🎓', 'Escuelas'], salud: ['🏥', 'Salud'], social: ['🤲', 'Ayuda social'], subsidios: ['💡', 'Tarifas'],
+    pobreza: ['🏚️', 'Pobreza'], jubilaciones: ['👵', 'Jubilación'], ideas: ['💭', 'Piensa como vos'], leyes: ['📜', 'Tus leyes'],
+  };
+
+  function verGrupo(s, id) {
+    const g = R.GRUPO[id];
+    const st = s.gob.grupos[id];
+    const { obj, partes } = R.gob.objetivoGrupo(s, id);
+    const orden = partes.slice().sort((a, b) => Math.abs(b.v) - Math.abs(a.v));
+    const max = Math.max(5, ...orden.map((p) => Math.abs(p.v)));
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('div', { class: 'fila' }, R.ui.avatar(g.avatar, { size: 84, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
+        h('div', null, h('h2', null, g.personaje), h('div', { class: 'suave' }, g.emoji + ' ' + g.oficio + ' · ' + g.nombre),
+          h('div', { class: 'chip', style: { marginTop: '6px' } }, R.cara(st.humor) + ' ' + Math.round(st.humor) + '/100'))),
+      h('p', { class: 'chico' }, obj > st.humor + 2 ? '📈 Está mejorando: va hacia ' + Math.round(obj) : obj < st.humor - 2 ? '📉 Está empeorando: va hacia ' + Math.round(obj) : '➡️ Está estable'),
+      h('div', { class: 'etiqueta' }, 'Lo que le importa'),
+      h('div', { class: 'razones' }, orden.map((p) => {
+        const r = R.RAZONES[p.k] || ['•', p.k];
+        return h('div', { class: 'razon' }, h('span', { class: 'em' }, r[0]), h('span', null, r[1]),
+          h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(6, (Math.abs(p.v) / max) * 100) + '%', background: Math.abs(p.v) < 1 ? 'var(--meh)' : p.v > 0 ? 'var(--bien)' : 'var(--mal)' } })),
+          h('span', { style: { fontWeight: 900 } }, Math.abs(p.v) < 1 ? '😐' : p.v > 0 ? '🙂' : '😠'));
+      })),
+      h('p', { class: 'chico suave' }, 'Pesa ' + g.peso + ' de cada 100 votos.')), { cerrable: true });
+  }
+
+  // ── El país en 6 tarjetas tangibles ──
+  ui.indicadores = function (s) {
+    const e = s.eco;
+    const hist = s.gob.historia;
+    const ant = hist.length >= 2 ? hist[hist.length - 2] : null;
+    const dif = (k) => (ant ? e[k] - ant[k] : 0);
+    const pobres = Math.round(e.pobreza / 10);
+    return [
+      { id: 'inflacion', emoji: '🛒', nombre: 'Changuito', valor: '$ ' + R.fmt(e.changuito), sub: '+' + R.fmt(e.inflMes, 1) + '% este mes · ' + R.fmt(e.inflAnual) + '% al año', d: e.inflMes - (ant ? (s.gob.historia[hist.length - 2].inflMes) : e.inflMes), malo: true, umbral: 0.05 },
+      { id: 'crecimiento', emoji: e.crec >= 0 ? '📈' : '📉', nombre: 'Economía', valor: (e.crec >= 0 ? 'Crece ' : 'Cae ') + R.fmt(Math.abs(e.crec), 1) + '%', sub: 'por año', d: dif('crec'), umbral: 0.1 },
+      { id: 'desempleo', emoji: '🚪', nombre: 'Trabajo', valor: Math.round(e.desempleo) + ' de cada 100', sub: 'no consiguen trabajo', d: dif('desempleo'), malo: true, umbral: 0.1 },
+      { id: 'pobreza', emoji: '🏚️', nombre: 'Pobreza', valor: pobres + ' de cada 10', sub: 'son pobres (' + R.fmt(e.pobreza) + '%)', d: dif('pobreza'), malo: true, umbral: 0.2,
+        extra: h('div', { class: 'munecos', 'aria-hidden': 'true' }, Array.from({ length: 10 }, (_, i) => h('span', { class: i < pobres ? 'pobre' : '' }, '🧍'))) },
+      { id: 'dolar', emoji: '💵', nombre: 'Dólar', valor: '$ ' + R.fmt(e.dolar), sub: e.cepo ? '🔒 Blue: $ ' + R.fmt(e.dolar * (1 + e.brecha / 100)) : 'libre', d: ant ? ((e.dolar / ant.dolar - 1) * 100) - e.inflMes : 0, malo: true, umbral: 1 },
+      { id: 'reservas', emoji: '🏦', nombre: 'Reservas', valor: 'US$ ' + R.fmt(Math.max(0, e.reservas), 0) + ' mil M', sub: e.reservas < 10 ? '⚠️ ¡casi vacías!' : 'en el Banco Central', d: dif('reservas'), umbral: 0.3,
+        extra: h('div', { class: 'barra', style: { height: '8px' } }, h('i', { style: { width: R.clamp(e.reservas / 60 * 100, 0, 100) + '%', background: e.reservas < 10 ? 'var(--mal)' : 'var(--bien)' } })) },
+    ];
+  };
+
+  function tarjetaPais(s) {
+    const e = s.eco;
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🇦🇷 El país'), h('span', { class: 'chico suave' }, 'Tocá para ver por qué')),
+      h('div', { class: 'pais' }, ui.indicadores(s).map((x) => {
+        const mejora = x.malo ? x.d < -x.umbral : x.d > x.umbral;
+        const empeora = x.malo ? x.d > x.umbral : x.d < -x.umbral;
+        return h('button', { class: 'indicador toque', onclick: () => ui.porQue(s, x.id) },
+          h('div', { class: 'fila entre' }, h('span', { class: 'em' }, x.emoji), mejora ? h('span', { class: 'chip bien' }, '▲ mejora') : empeora ? h('span', { class: 'chip mal' }, '▼ empeora') : null),
+          h('div', { class: 'nom' }, x.nombre),
+          h('div', { class: 'val' }, x.valor),
+          h('div', { class: 'sub' }, x.sub),
+          x.extra || null);
+      })),
+      h('div', { class: 'fila envolver chico', style: { gap: '6px' } },
+        h('span', { class: 'chip' }, '💳 Deuda ' + R.fmt(e.deuda) + '% del PBI'),
+        h('span', { class: 'chip' }, '📊 Riesgo país ' + R.fmt(e.riesgo)),
+        h('span', { class: 'chip ' + (R.eco.resultado(s) >= 0 ? 'bien' : 'mal') }, '⚖️ ' + (R.eco.resultado(s) >= 0 ? 'Superávit ' : 'Déficit ') + R.fmt(Math.abs(R.eco.resultado(s)), 1) + '%')));
+  }
+
+  // «¿Por qué?»: las causas de cada indicador, con barras.
+  ui.porQue = function (s, id) {
+    const e = s.eco;
+    const C = e.causas || {};
+    const bloques = {
+      inflacion: { t: '🛒 ¿Por qué suben los precios?', lista: C.inflacion, dic: R.CAUSAS.inflacion, malo: true, nota: 'Lo que más baja la inflación: no tener déficit, no emitir y tener reservas.' },
+      crecimiento: { t: '📈 ¿Por qué crece (o no) la economía?', lista: C.crecimiento, dic: R.CAUSAS.crecimiento, nota: 'Obra pública, impuestos bajos, confianza y exportaciones la empujan.' },
+      desempleo: { t: '🚪 ¿Por qué hay (o no) trabajo?', lista: C.crecimiento, dic: R.CAUSAS.crecimiento, nota: 'El empleo sigue a la economía: si crece, se contrata gente.' },
+      pobreza: { t: '🏚️ ¿Por qué hay pobreza?', lista: C.pobreza, dic: R.CAUSAS.pobreza, malo: true, nota: 'Trabajo, sueldos que le ganen a los precios y ayuda social la bajan.' },
+      reservas: { t: '🏦 ¿Por qué entran o salen dólares?', lista: C.reservas, dic: R.CAUSAS.reservas, nota: 'Exportar más (retenciones bajas, campo contento) y no tener fuga.' },
+      dolar: { t: '💵 ¿Por qué se mueve el dólar?', lista: [{ k: 'inercia', v: e.inflMes }, { k: 'dolar', v: (C.inflacion || []).find((x) => x.k === 'dolar')?.v || 0 }], dic: { inercia: ['🛒', 'Acompaña a la inflación'], dolar: ['🏦', 'Faltan reservas o hay desconfianza'] }, malo: true, nota: e.cepo ? 'Con cepo aparece el dólar blue: la brecha crece si hay inflación y faltan reservas.' : 'Sin cepo, si falta confianza la gente compra dólares y se van las reservas.' },
+    };
+    const b = bloques[id];
+    if (!b) return;
+    const lista = (b.lista || []).filter((x) => Math.abs(x.v) >= 0.02).sort((a, c) => Math.abs(c.v) - Math.abs(a.v));
+    const max = Math.max(0.1, ...lista.map((x) => Math.abs(x.v)));
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, b.t),
+      lista.length ? h('div', { class: 'razones' }, lista.map((x) => {
+        const [em, txt] = b.dic[x.k] || ['•', x.k];
+        const bueno = b.malo ? x.v < 0 : x.v > 0;
+        return h('div', { class: 'razon' }, h('span', { class: 'em' }, em), h('span', null, txt),
+          h('span', { class: 'barrita' }, h('i', { style: { width: (Math.abs(x.v) / max) * 100 + '%', background: bueno ? 'var(--bien)' : 'var(--mal)' } })),
+          h('span', { style: { fontWeight: 900, color: bueno ? 'var(--bien)' : 'var(--mal)' } }, x.v > 0 ? '▲' : '▼'));
+      })) : h('p', { class: 'suave' }, 'Pasá un mes para ver las causas.'),
+      h('p', { class: 'chico tarjeta plana suave' }, '💡 ' + b.nota),
+      h('div', { class: 'etiqueta' }, 'Últimos meses'),
+      ui.sparkline(s.gob.historia.map((x) => ({ inflacion: x.inflMes, crecimiento: x.crec, desempleo: x.desempleo, pobreza: x.pobreza, reservas: x.reservas, dolar: x.dolar }[id])), { color: 'var(--tinta)', alto: 60 })), { cerrable: true });
+  };
+
+  // ── Acciones de gobierno (⭐) ──
+  function tarjetaAcciones(s) {
+    return h('section', { class: 'pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '⭐ Acciones de gobierno'), h('span', { class: 'chip sol' }, '⭐ ' + s.gob.pc + ' disponibles')),
+      h('div', { class: 'acciones' }, R.gob.ACCIONES.map((a) => {
+        const b = R.gob.bloqueoAccion(s, a);
+        const ef = Object.assign({}, a.ef, a.gasto ? { gastoExtra: a.gasto } : {});
+        return h('button', { class: 'accion', disabled: b ? true : null, onclick: () => hacerAccion(s, a.id) },
+          h('div', { class: 'cab' }, h('span', { class: 'ic' }, a.emoji), h('span', { class: 'nom' }, a.nombre)),
+          h('div', { class: 'desc' }, a.desc),
+          ui.chipsEfectos(R.gob.describirEfectos(s, ef), { compacto: true, antes: h('span', { class: 'chip sol' }, '⭐ ' + a.pc) }),
+          a.azar ? h('span', { class: 'chip', style: { alignSelf: 'flex-start', fontSize: '12px' } }, '🎲 ' + Math.round(a.azar.p * 100) + '% de que salga mal') : null,
+          b ? h('div', { class: 'bloq' }, b) : null);
+      })));
+  }
+
+  function hacerAccion(s, id) {
+    const res = R.gob.hacer(s, id);
+    if (res.error) { R.son.mal(); ui.aviso('🚫 ' + res.error, { tipo: 'mal' }); return; }
+    ui.mostrarResultado(s, res);
+  }
+
+  // Aviso de resultado con efectos y cambio de aprobación.
+  ui.mostrarResultado = function (s, res) {
+    R.guardar(s);
+    const efectos = R.describirAplicado(s, res.aplicado);
+    const d = res.aprobDespues - res.aprobAntes;
+    const extra = h('div', { class: 'chico', style: { fontWeight: 900 } }, '👍 Aprobación: ' + R.fmt(res.aprobAntes, 1) + '% → ',
+      h('span', { style: { color: d >= 0 ? 'var(--bien)' : 'var(--mal)' } }, R.fmt(res.aprobDespues, 1) + '% ' + (d >= 0.05 ? '▲' : d <= -0.05 ? '▼' : '')));
+    ui.aviso(res.txt, { tipo: res.bueno ? 'bien' : 'mal', efectos, extra });
+    if (res.bueno) R.son.bien(); else R.son.mal();
+    ui.refrescar();
+  };
+
+  // Mini gráfico de línea.
+  ui.sparkline = function (vals, opts) {
+    opts = opts || {};
+    const S = R.svg;
+    vals = vals.filter((v) => typeof v === 'number' && isFinite(v));
+    if (vals.length < 2) return h('p', { class: 'chico suave' }, 'Todavía no hay historia.');
+    const W = 300;
+    const H = opts.alto || 60;
+    const min = opts.min ?? Math.min(0, ...vals);
+    const max = opts.max ?? Math.max(...vals) * 1.1 + 0.01;
+    const x = (i) => 8 + (i * (W - 16)) / (vals.length - 1);
+    const y = (v) => H - 6 - ((v - min) / (max - min || 1)) * (H - 14);
+    const d = vals.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+    const ult = vals[vals.length - 1];
+    return S('svg', { viewBox: '0 0 ' + W + ' ' + H, style: 'width:100%;height:auto;display:block', role: 'img', 'aria-label': 'Evolución' },
+      opts.max === 100 ? S('line', { x1: 8, x2: W - 8, y1: y(50), y2: y(50), stroke: '#c9d6e6', 'stroke-dasharray': '4 4' }) : null,
+      S('path', { d: d + ' L' + x(vals.length - 1) + ' ' + (H - 6) + ' L' + x(0) + ' ' + (H - 6) + ' Z', fill: 'rgba(108,180,234,0.18)' }),
+      S('path', { d, fill: 'none', stroke: opts.color || 'var(--tinta)', 'stroke-width': 3, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }),
+      S('circle', { cx: x(vals.length - 1), cy: y(ult), r: 4.5, fill: opts.color || 'var(--tinta)', stroke: '#13284a', 'stroke-width': 2 }));
+  };
+
+  // ── Momentos del gobierno ──
+  ui.momentos.ministro = function (s, m, listo) {
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', { class: 'centro' }, '🧑‍💼 ¿Quién maneja la economía?'),
+      h('p', { class: 'centro chico suave' }, 'Tu primera gran decisión. Se puede cambiar después (cuesta ⭐ 4).'),
+      h('div', { class: 'lista-elegir' }, Object.entries(R.MINISTROS).map(([id, mi]) =>
+        h('button', { class: 'item-elegir', style: { gridTemplateColumns: '64px minmax(0,1fr)' }, onclick: () => {
+          const aplicado = R.gob.elegirMinistro(s, id);
+          R.guardar(s);
+          ui.cerrarCapa();
+          R.son.bien();
+          ui.aviso(mi.emoji + ' ' + mi.nombre + ' asume en Economía', { tipo: 'bien', efectos: R.describirAplicado(s, aplicado) });
+          listo();
+        } },
+        R.ui.avatar(mi.avatar, { size: 60 }),
+        h('div', { class: 'pila', style: { gap: '4px' } }, h('b', null, mi.emoji + ' ' + mi.tipo + ' · ' + mi.nombre), h('span', { class: 'chico' }, mi.desc),
+          ui.chipsEfectos(R.gob.describirEfectos(s, Object.assign({}, mi.impacto, mi.ancla ? { inflacion: -mi.ancla } : {}, mi.crec ? { crec: mi.crec } : {})), { compacto: true })))))));
+  };
+
+  ui.momentos.resumen = function (s, m, listo) {
+    const a = m.antes;
+    const d = m.despues;
+    const fila = (em, nom, va, vd, fmt, malo, umbral) => {
+      const dif = vd - va;
+      const sube = dif > (umbral || 0.05);
+      const baja = dif < -(umbral || 0.05);
+      const bueno = malo ? baja : sube;
+      return h('div', { class: 'fila-resumen' }, h('span', { class: 'em' }, em), h('span', { class: 'nom' }, nom), h('span', { class: 'val numero' }, fmt(vd)),
+        h('span', { class: 'chip ' + (sube || baja ? (bueno ? 'bien' : 'mal') : '') }, sube ? '▲' : baja ? '▼' : '='));
+    };
+    const causaInfl = (s.eco.causas.inflacion || []).filter((x) => x.k !== 'inercia').sort((x, y) => Math.abs(y.v) - Math.abs(x.v))[0];
+    const causaCrec = (s.eco.causas.crecimiento || []).sort((x, y) => Math.abs(y.v) - Math.abs(x.v))[0];
+    const porque = [];
+    if (causaInfl && Math.abs(causaInfl.v) > 0.1) {
+      const c = R.CAUSAS.inflacion[causaInfl.k];
+      porque.push(h('div', { class: 'porque' }, '🛒 Precios ', h('b', { style: { color: causaInfl.v > 0 ? 'var(--mal)' : 'var(--bien)' } }, causaInfl.v > 0 ? '▲' : '▼'), ' por ', c[0] + ' ' + c[1].toLowerCase()));
+    }
+    if (causaCrec && Math.abs(causaCrec.v) > 0.2) {
+      const c = R.CAUSAS.crecimiento[causaCrec.k];
+      porque.push(h('div', { class: 'porque' }, '📈 Economía ', h('b', { style: { color: causaCrec.v > 0 ? 'var(--bien)' : 'var(--mal)' } }, causaCrec.v > 0 ? '▲' : '▼'), ' por ', c[0] + ' ' + c[1].toLowerCase()));
+    }
+    const da = m.aprobDespues - m.aprobAntes;
+    const reaccion = m.reaccion && Object.keys(m.reaccion).length ? R.gob.describirEfectos(s, m.reaccion) : null;
+    const contenido = h('div', { class: 'pila' },
+      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, '📅 ' + R.fechaTxt(s.mes)), h('span', { class: 'chico suave' }, 'Resumen del mes')),
+      h('div', { class: 'fila entre' },
+        h('div', null, h('div', { class: 'etiqueta' }, 'Aprobación'), h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '40px', lineHeight: 1 }, class: 'numero' }, R.fmt(m.aprobDespues), h('span', { style: { fontSize: '20px' } }, ' %'))),
+        h('span', { class: 'chip ' + (da >= 0 ? 'bien' : 'mal'), style: { fontSize: '16px' } }, (da >= 0 ? '▲ ' : '▼ ') + R.fmt(Math.abs(da), 1))),
+      reaccion ? h('div', { class: 'pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta' }, 'Reacción a tus cambios'), ui.chipsEfectos(reaccion)) : null,
+      h('div', { class: 'resumen-filas' },
+        fila('🛒', 'Changuito $ ' + R.fmt(d.changuito), a.inflMes, d.inflMes, (v) => '+' + R.fmt(v, 1) + '%', true, 0.1),
+        fila(d.crec >= 0 ? '📈' : '📉', 'Economía', a.crec, d.crec, (v) => R.signo(v, 1) + '%', false, 0.1),
+        fila('🚪', 'Desempleo', a.desempleo, d.desempleo, (v) => R.fmt(v, 1) + '%', true, 0.05),
+        fila('🏚️', 'Pobreza', a.pobreza, d.pobreza, (v) => R.fmt(v, 1) + '%', true, 0.1),
+        fila('🏦', 'Reservas', a.reservas, d.reservas, (v) => 'US$ ' + R.fmt(v, 0) + ' mil M', false, 0.3)),
+      porque.length ? h('div', { class: 'pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta' }, '¿Por qué?'), porque) : null,
+      m.frases && m.frases.length ? h('div', { class: 'pila', style: { gap: '8px' } }, h('div', { class: 'etiqueta' }, '🗣️ La gente dice'),
+        m.frases.map((f) => {
+          const g = R.GRUPO[f.grupo];
+          const st = s.gob.grupos[f.grupo];
+          return h('div', { class: 'dicho' }, R.ui.avatar(g.avatar, { size: 44, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
+            h('div', { class: 'globo ' + (f.bueno ? 'bien' : 'mal') }, h('b', null, g.personaje + ': '), f.txt));
+        })) : null,
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶'));
+    ui.abrirCapa(contenido, { clase: 'diario-hoja' });
+    if (da <= -3) ui.temblor(document.querySelector('.hoja'));
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/economia.js ──
+// Panel de economía: la balanza del presupuesto, impuestos, cómo pagás el déficit y el gasto por área en %.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+
+  ui.panelEconomia = function (s) {
+    const pc = ui.esPC();
+    const izq = [tarjetaBalanza(s), tarjetaIngresos(s), tarjetaMedidas(s)];
+    const der = [tarjetaPresupuesto(s)];
+    if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
+    return h('div', { class: 'pila' }, izq[0], der[0], izq[1], izq[2]);
+  };
+
+  // ⚖️ Lo que entra vs lo que sale.
+  function tarjetaBalanza(s) {
+    const e = s.eco;
+    const rec = R.eco.recaudacion(s);
+    const gp = R.eco.gastoPrimario(e);
+    const int = R.eco.intereses(e);
+    const tot = gp + int;
+    const res = rec - tot;
+    const max = Math.max(rec, tot) * 1.05;
+    const extra = e.gastoExtraAnio;
+    const inclina = R.clamp(-res * 4, -14, 14);
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '⚖️ Presupuesto del año'), h('span', { class: 'chip ' + (res >= 0 ? 'bien' : 'mal'), style: { fontSize: '15px' } }, (res >= 0 ? '✅ Superávit ' : '⚠️ Déficit ') + R.fmt(Math.abs(res), 1) + '%')),
+      h('div', { class: 'balanza', 'aria-hidden': 'true' },
+        h('div', { class: 'brazo', style: { transform: 'rotate(' + inclina + 'deg)' } },
+          h('span', { class: 'plato' }, '💰'), h('span', { class: 'plato' }, '💸')),
+        h('div', { class: 'pie' })),
+      h('div', { class: 'pila', style: { gap: '6px' } },
+        h('div', { class: 'linea-balanza' }, h('span', null, '💰 Recaudás'), h('div', { class: 'barra gorda' }, h('i', { style: { width: (rec / max) * 100 + '%', background: 'var(--bien)' } })), h('b', { class: 'numero' }, R.fmt(rec, 1) + '%')),
+        h('div', { class: 'linea-balanza' }, h('span', null, '💸 Gastás'), h('div', { class: 'barra gorda' }, h('i', { style: { width: (tot / max) * 100 + '%', background: res >= 0 ? 'var(--celeste)' : 'var(--mal)' } })), h('b', { class: 'numero' }, R.fmt(tot, 1) + '%'))),
+      h('p', { class: 'chico suave' }, 'En % del PBI (todo lo que produce el país en un año). Incluye ' + R.fmt(int, 1) + '% de intereses de la deuda.'),
+      extra > 0.05 ? h('p', { class: 'chico' }, '🧾 Gastos extra de este año (bonos, emergencias): ' + R.fmt(extra, 2) + '% del PBI') : null,
+      res < 0 ? tarjetaFinanciamiento(s) : null);
+  }
+
+  function tarjetaFinanciamiento(s) {
+    const e = s.eco;
+    const dolarizado = s.gob.leyes && s.gob.leyes.dolarizacion;
+    return h('div', { class: 'pila', style: { gap: '6px' } },
+      h('div', { class: 'etiqueta' }, '¿Cómo pagás el déficit?'),
+      h('div', { class: 'selector' }, R.eco.FINANCIAMIENTO.map((f, i) =>
+        h('button', { class: 'opcion' + (e.financiamiento === i ? ' elegida' : ''), disabled: dolarizado && i < 2 ? true : null, onclick: () => { e.financiamiento = i; R.son.toque(); R.guardar(s); ui.refrescar(); } },
+          h('span', { class: 'em' }, f.emoji), h('b', null, f.nombre), h('span', { class: 'chico' }, f.desc)))),
+      e.financiamiento < 2 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, '🖨️ Emitir plata sin respaldo hace subir los precios.') : h('p', { class: 'chico suave' }, '🏦 Pedir prestado sube la deuda y, si es mucha, el riesgo país.'));
+  }
+
+  // 🧾 Impuestos y retenciones.
+  function tarjetaIngresos(s) {
+    const e = s.eco;
+    const perilla = (titulo, emoji, valor, niveles, set, efMas, efMenos, nota) => {
+      const n = niveles.length;
+      return h('div', { class: 'perilla' },
+        h('div', { class: 'fila entre' }, h('b', null, emoji + ' ' + titulo), h('span', { class: 'chip sol' }, niveles[valor].nombre)),
+        h('div', { class: 'puntos-nivel' }, niveles.map((_, i) => h('i', { class: i <= valor ? 'lleno' : '' }))),
+        h('div', { class: 'fila', style: { gap: '8px' } },
+          h('button', { class: 'boton mini sec', disabled: valor <= 0 ? true : null, 'aria-label': 'Bajar ' + titulo, onclick: () => { set(valor - 1); } }, '− Bajar'),
+          h('button', { class: 'boton mini sec', disabled: valor >= n - 1 ? true : null, 'aria-label': 'Subir ' + titulo, onclick: () => { set(valor + 1); } }, '+ Subir')),
+        h('div', { class: 'fila envolver chico', style: { gap: '6px' } },
+          h('span', { class: 'suave' }, 'Si bajás:'), ui.chipsEfectos(efMenos, { compacto: true })),
+        h('div', { class: 'fila envolver chico', style: { gap: '6px' } },
+          h('span', { class: 'suave' }, 'Si subís:'), ui.chipsEfectos(efMas, { compacto: true })),
+        nota ? h('p', { class: 'chico suave' }, nota) : null);
+    };
+    const D = (ef) => R.gob.describirEfectos(s, ef);
+    const cambio = (k, v) => { e[k] = v; R.son.toque(); R.guardar(s); ui.aviso('🧾 ' + (k === 'impuestos' ? 'Impuestos: ' + R.eco.IMPUESTOS[v].nombre : 'Retenciones: ' + R.eco.RETENCIONES[v].nombre) + ' · la gente reacciona a fin de mes', { dur: 1800 }); ui.refrescar(); };
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'titulo-seccion' }, '🧾 Lo que cobrás'),
+      perilla('Impuestos', '🧾', e.impuestos, R.eco.IMPUESTOS, (v) => cambio('impuestos', v),
+        D({ empresarios: -7, media: -5, crec: -0.7 }), D({ empresarios: 4, media: 3, crec: 0.7 }), 'Cada nivel mueve ~1,2% del PBI de recaudación.'),
+      perilla('Retenciones al campo', '🌾', e.retenciones, R.eco.RETENCIONES, (v) => cambio('retenciones', v),
+        D({ campo: -9, expo: -0.06 }), D({ campo: 6, expo: 0.06 }), 'Menos retenciones = más exportaciones y dólares, pero recaudás menos.'));
+  }
+
+  // 💸 Gasto por área en % del presupuesto.
+  function tarjetaPresupuesto(s) {
+    const e = s.eco;
+    const gp = R.eco.gastoPrimario(e);
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '💸 ¿En qué gastás?'), h('span', { class: 'chico suave' }, 'Total ' + R.fmt(gp, 1) + '% del PBI')),
+      h('div', { class: 'torta-barra', 'aria-hidden': 'true' }, R.AREAS.map((a) => h('i', { style: { width: R.eco.participacion(e, a.id) + '%' }, title: a.nombre }, R.eco.participacion(e, a.id) > 7 ? a.emoji : ''))),
+      h('p', { class: 'chico suave' }, 'Tocá − o + (de a 10 %). La gente reacciona a fin de mes; si te arrepentís antes, no pasa nada.'),
+      h('div', { class: 'areas' }, R.AREAS.map((a) => filaArea(s, a))));
+  }
+
+  function filaArea(s, a) {
+    const e = s.eco;
+    const nivel = e.niveles[a.id];
+    const inicio = e.nivelesInicioMes[a.id];
+    const part = R.eco.participacion(e, a.id);
+    const costoPaso = a.base * 0.1;
+    const cambiar = (d) => {
+      const nuevo = R.round(R.clamp(nivel + d, R.eco.NIVEL_MIN, R.eco.NIVEL_MAX), 2);
+      if (nuevo === nivel) return;
+      const resAntes = R.eco.resultado(s);
+      e.niveles[a.id] = nuevo;
+      const resDespues = R.eco.resultado(s);
+      R.son.toque();
+      R.guardar(s);
+      ui.aviso(a.emoji + ' ' + a.nombre + ': ' + (d > 0 ? 'más plata' : 'menos plata'), {
+        tipo: d > 0 ? 'bien' : 'mal', dur: 2000,
+        efectos: a.gana.map(([em, nom, f]) => ({ emoji: em, nombre: nom, sube: (f > 0) === (d > 0), bueno: (f > 0) === (d > 0) !== (nom === 'Pobreza'), flechas: Math.min(3, Math.abs(f)) })),
+        extra: h('div', { class: 'chico', style: { fontWeight: 900 } }, '⚖️ ' + (resDespues >= 0 ? 'Superávit ' : 'Déficit ') + R.fmt(Math.abs(resAntes), 2) + '% → ',
+          h('span', { style: { color: resDespues >= resAntes ? 'var(--bien)' : 'var(--mal)' } }, R.fmt(Math.abs(resDespues), 2) + '%')),
+      });
+      ui.refrescar();
+    };
+    const pend = Math.abs(nivel - inicio) >= 0.01;
+    const cal = a.calidad ? e.calidad[a.calidad] : null;
+    return h('div', { class: 'area' + (pend ? ' cambiada' : '') },
+      h('div', { class: 'area-cab' },
+        h('span', { class: 'em' }, a.emoji),
+        h('div', { style: { minWidth: 0 } }, h('b', null, a.nombre), h('div', { class: 'chico suave' }, R.eco.nivelTxt(nivel) + (cal !== null ? ' · calidad ' + Math.round(cal) + '/100' : ''))),
+        h('div', { class: 'pct numero' }, R.fmt(part, 1) + '%', h('small', null, 'del gasto'))),
+      h('div', { class: 'area-control' },
+        h('button', { class: 'boton mini sec', disabled: nivel <= R.eco.NIVEL_MIN ? true : null, 'aria-label': 'Menos plata para ' + a.nombre, onclick: () => cambiar(-0.1) }, '−'),
+        h('div', { class: 'nivel' },
+          h('div', { class: 'barra' }, h('i', { style: { width: ((nivel - R.eco.NIVEL_MIN) / (R.eco.NIVEL_MAX - R.eco.NIVEL_MIN)) * 100 + '%', background: nivel > 1.02 ? 'var(--bien)' : nivel < 0.98 ? 'var(--mal)' : 'var(--celeste)' } }),
+            h('b', { class: 'marca-hoy', style: { left: ((1 - R.eco.NIVEL_MIN) / (R.eco.NIVEL_MAX - R.eco.NIVEL_MIN)) * 100 + '%' }, title: 'Como estaba al asumir' }))),
+        h('button', { class: 'boton mini sec', disabled: nivel >= R.eco.NIVEL_MAX ? true : null, 'aria-label': 'Más plata para ' + a.nombre, onclick: () => cambiar(0.1) }, '+')),
+      h('div', { class: 'fila envolver', style: { gap: '6px' } },
+        h('span', { class: 'chico suave' }, '+10 % te da:'),
+        ui.chipsEfectos(a.gana.map(([em, nom, f]) => ({ emoji: em, nombre: nom, sube: f > 0, bueno: (f > 0) !== (nom === 'Pobreza'), flechas: Math.abs(f) })), { compacto: true }),
+        h('span', { class: 'chip mal' }, '💸 ' + R.fmt(costoPaso, 2) + '% PBI')),
+      pend ? h('div', { class: 'chico', style: { color: 'var(--sol-osc)', fontWeight: 900 } }, '⏳ Cambiado este mes: la gente reacciona a fin de mes') : null);
+  }
+
+  // 💥 Medidas fuertes.
+  function tarjetaMedidas(s) {
+    let confirmar = null;
+    const caja = h('section', { class: 'tarjeta pila' });
+    const pintar = () => {
+      caja.replaceChildren(
+        h('div', { class: 'titulo-seccion' }, '💥 Medidas fuertes'),
+        h('div', { class: 'lista-elegir' }, R.gob.MEDIDAS.filter((m) => !m.si || m.si(s)).map((m) => {
+          const b = R.gob.bloqueoMedida(s, m);
+          const ef = R.gob.describirEfectos(s, R.gob.efectoMedida(s, m));
+          if (confirmar === m.id) {
+            return h('div', { class: 'item-elegir', style: { gridTemplateColumns: '1fr', background: 'var(--sol-claro)' } },
+              h('b', null, '¿Seguro? ' + m.emoji + ' ' + m.nombre),
+              ui.chipsEfectos(ef, { compacto: true }),
+              h('div', { class: 'fila' },
+                h('button', { class: 'boton mini rojo', onclick: () => { const res = R.gob.medida(s, m.id); if (res.error) { ui.aviso('🚫 ' + res.error, { tipo: 'mal' }); return; } ui.mostrarResultado(s, res); } }, '¡Sí, hacerlo!'),
+                h('button', { class: 'boton mini sec', onclick: () => { confirmar = null; pintar(); } }, 'Mejor no')));
+          }
+          return h('button', { class: 'item-elegir', disabled: b ? true : null, onclick: () => { confirmar = m.id; R.son.toque(); pintar(); } },
+            h('span', { class: 'ic' }, m.emoji),
+            h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, m.nombre), h('span', { class: 'chico suave' }, m.desc), ui.chipsEfectos(ef, { compacto: true }), b ? h('span', { class: 'bloq chico', style: { color: 'var(--mal)' } }, b) : null),
+            h('span', { class: 'chip' }, 'gratis'));
+        })));
+    };
+    pintar();
+    return caja;
+  }
 })(globalThis.R = globalThis.R || {});
 
 </script>
@@ -3375,28 +5175,55 @@ p { margin: 0; }
       h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, '🏛️ Entrar a la Rosada')));
   };
 
-  // Pantalla de fin (por ahora: perder la elección).
+  // Pantalla de fin: perder una elección, caer o terminar el mandato.
   ui.pantallaFin = function (s) {
     ui.ocultarNav();
     const f = s.fin || {};
     const motivos = {
-      paso: { em: '🥲', t: 'Quedaste afuera en las PASO', d: 'No llegaste al 1,5 %. El año que viene, más acto y más tele.' },
+      paso: { em: '🥲', t: 'Quedaste afuera en las PASO', d: 'No llegaste al 1,5 %. La próxima, más actos y más tele.' },
       general: { em: '😞', t: 'Perdiste la elección', d: 'No entraste al ballotage. Pero tu partido ya existe.' },
       ballotage: { em: '💔', t: 'Perdiste el ballotage', d: 'Por poco. La próxima es tuya.' },
+      helicoptero: { em: '🚁', t: 'Te fuiste en helicóptero', d: 'Tres meses con la aprobación por el piso. Renunciaste.' },
+      estallido: { em: '🔥', t: 'Estallido social', d: 'El país explotó y tuviste que renunciar.' },
+      reeleccion: { em: '😔', t: 'Perdiste la reelección', d: 'El pueblo eligió otro camino.' },
+      mandato: { em: '🏁', t: 'Terminaste tu mandato', d: 'Entregás la banda. La historia te juzgará.' },
     };
     const m = motivos[f.motivo] || { em: '🏁', t: 'Fin de la partida', d: '' };
-    const g = s.elecciones.general;
-    const yoGen = g ? g.lista.find((x) => x.id === 'YO') : null;
-    const mejor = Math.max(...s.encuestas.map((e) => e.YO));
+    const filas = [];
+    if (s.gob) {
+      const e = s.eco;
+      const ini = s.gob.historia[0] || {};
+      const dato = (em, nom, a, b, fmt, malo) => {
+        const mejor = malo ? b < a : b > a;
+        return h('div', { class: 'fila-resumen' }, h('span', { class: 'em' }, em), h('span', { class: 'nom' }, nom),
+          h('span', { class: 'val numero' }, fmt(a) + ' → ' + fmt(b)), h('span', { class: 'chip ' + (mejor ? 'bien' : 'mal') }, mejor ? '▲' : '▼'));
+      };
+      filas.push(h('section', { class: 'tarjeta pila' },
+        h('div', { class: 'titulo-seccion' }, '📊 Cómo dejaste el país'),
+        h('p', { class: 'chico suave' }, 'Gobernaste ' + s.gob.meses + ' meses.'),
+        h('div', { class: 'resumen-filas' },
+          dato('👍', 'Aprobación', ini.aprob ?? 55, s.gob.aprob, (v) => R.fmt(v) + '%'),
+          dato('🛒', 'Inflación anual', ini.inflAnual ?? 27, e.inflAnual, (v) => R.fmt(v) + '%', true),
+          dato('🏚️', 'Pobreza', ini.pobreza ?? 34, e.pobreza, (v) => R.fmt(v) + '%', true),
+          dato('🚪', 'Desempleo', ini.desempleo ?? 7.8, e.desempleo, (v) => R.fmt(v, 1) + '%', true),
+          dato('🏦', 'Reservas', ini.reservas ?? 28, e.reservas, (v) => R.fmt(v)),
+          dato('💳', 'Deuda', ini.deuda ?? 78, e.deuda, (v) => R.fmt(v) + '%', true))));
+    } else {
+      const g = s.elecciones.general;
+      const yoGen = g ? g.lista.find((x) => x.id === 'YO') : null;
+      const mejor = Math.max(...s.encuestas.map((e) => e.YO));
+      filas.push(h('div', { class: 'mis-numeros' },
+        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '📈'), h('div', { class: 'val' }, R.fmt(mejor, 1) + '%'), h('div', { class: 'nom' }, 'mejor encuesta')),
+        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗳️'), h('div', { class: 'val' }, yoGen ? R.fmt(yoGen.v, 1) + '%' : '–'), h('div', { class: 'nom' }, 'en las generales')),
+        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🏛️'), h('div', { class: 'val' }, g ? (g.bancas.dip.YO || 0) + (g.bancas.sen.YO || 0) : 0), h('div', { class: 'nom' }, 'bancas ganadas'))));
+    }
     ui.montar(h('main', { class: 'pila', style: { paddingTop: '16px' } },
       h('section', { class: 'tarjeta pila centro' },
         h('div', { style: { fontSize: '60px' } }, m.em),
+        s.gob ? h('div', { class: 'fila', style: { justifyContent: 'center' } }, R.ui.avatar(s.lider.avatar, { size: 90, humor: f.motivo === 'mandato' ? 'feliz' : 'triste', banda: f.motivo === 'mandato' })) : null,
         h('h2', { style: { fontSize: '30px' } }, m.t),
-        h('p', null, m.d),
-        h('div', { class: 'mis-numeros' },
-          h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '📈'), h('div', { class: 'val' }, R.fmt(mejor, 1) + '%'), h('div', { class: 'nom' }, 'mejor encuesta')),
-          h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗳️'), h('div', { class: 'val' }, yoGen ? R.fmt(yoGen.v, 1) + '%' : '–'), h('div', { class: 'nom' }, 'en las generales')),
-          h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🏛️'), h('div', { class: 'val' }, g ? (g.bancas.dip.YO || 0) + (g.bancas.sen.YO || 0) : 0), h('div', { class: 'nom' }, 'bancas ganadas')))),
+        h('p', null, m.d)),
+      filas,
       h('button', { class: 'boton grande ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.crear(); } }, '🏴 Fundar otro partido'),
       h('button', { class: 'boton sec ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.irPortada(); } }, '🏠 Portada'),
       h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Tu camino'), ui.historial(s, 25))));
@@ -3459,6 +5286,7 @@ p { margin: 0; }
     ui.procesando = true;
     const listo = () => {
       if (s.cola[0] === m) s.cola.shift();
+      if (s.fase === 'fin') s.cola = [];
       R.guardar(s);
       ui.procesando = false;
       ui.render();

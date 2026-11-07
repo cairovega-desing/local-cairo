@@ -52,7 +52,9 @@ fs.mkdirSync(OUT, { recursive: true });
       const tipo = (await capa.locator('.opcion-noticia').count()) ? 'noticia'
         : (await capa.locator('.estilos').count()) ? 'debate'
         : (await capa.locator('.noche').count()) ? 'eleccion'
-        : /asume la Presidencia/.test(txt) ? 'asuncion' : 'otra';
+        : /asume la Presidencia/.test(txt) ? 'asuncion'
+        : /Resumen del mes/.test(txt) ? 'resumen'
+        : /maneja la economía/.test(txt) ? 'ministro' : 'otra';
       if (!capturados.has(tipo)) { capturados.add(tipo); await foto(tipo); }
       if (tipo === 'noticia') { await capa.locator('.opcion-noticia:not([disabled])').first().click(); continue; }
       if (tipo === 'debate') { await capa.locator('.estilos .boton').first().click(); continue; }
@@ -62,6 +64,8 @@ fs.mkdirSync(OUT, { recursive: true });
         await page.waitForTimeout(400);
         await foto('eleccion-fin', true);
       }
+      const items = capa.locator('.item-elegir:not([disabled])');
+      if (await items.count()) { await items.first().click(); continue; }
       const botones = capa.locator('.boton:not(.cerrar):not([disabled])');
       const k = await botones.count();
       if (k) await botones.nth(k - 1).click();
@@ -93,7 +97,23 @@ fs.mkdirSync(OUT, { recursive: true });
       await page.click('#btn-pasar');
     } else if (fase === 'gobierno') {
       if (mesesGob++ >= MESES_GOB) break;
-      if (mesesGob === 1) await foto('gobierno', true);
+      if (mesesGob === 2) {
+        await foto('gobierno', true);
+        await page.click('.pestanas button:has-text("Economía")');
+        await foto('economia', true);
+        await page.click('.area:nth-child(3) .area-control .boton:last-child');
+        await page.click('.area:nth-child(8) .area-control .boton:first-child');
+        await foto('economia-cambio');
+        await page.click('.pestanas button:has-text("Inicio")');
+        await page.click('.persona >> nth=5');
+        await foto('grupo');
+        await page.click('#capa .cerrar');
+        await page.click('.indicador >> nth=0');
+        await foto('porque');
+        await page.click('#capa .cerrar');
+        const acc = page.locator('.accion:not([disabled])');
+        if (await acc.count()) { await acc.first().click(); await foto('accion-gob'); }
+      }
       await page.click('#btn-pasar');
     } else break;
   }

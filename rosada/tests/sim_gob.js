@@ -1,0 +1,89 @@
+// Simula gobiernos con distintas estrategias para ver que la economía reaccione con sentido.
+// Uso: node rosada/tests/sim_gob.js [partidas] [meses]
+'use strict';
+const { R, chequear } = require('./sim.js');
+
+function nuevoGobierno(semilla, ideo) {
+  const s = R.nuevaPartida({
+    semilla, dificultad: 'normal',
+    partido: { nombre: 'Prueba', sigla: 'PP', color: '#e8504f', simbolo: '☀️', ideo, estilo: 0 },
+    lider: { nombre: 'Bot', avatar: R.avatarAzar() },
+  });
+  // Congreso como si hubiéramos sacado ~35 % de los votos.
+  s.congreso.dip[2027] = { YO: 48, MNP: 40, PL: 22, AR: 12, UCF: 6, FT: 2 };
+  s.congreso.sen[2027] = { YO: 10, MNP: 8, PL: 4, UCF: 2 };
+  s.cola = [];
+  R.gob.iniciar(s);
+  s.cola = [];
+  return s;
+}
+
+const ESTRATEGIAS = {
+  quieto: () => {},
+  gastador: (s) => { for (const a of R.AREAS) s.eco.niveles[a.id] = 1.4; s.eco.financiamiento = 0; },
+  motosierra: (s) => { if (s.gob.meses === 0) { for (const a of R.AREAS) s.eco.niveles[a.id] = 0.75; s.eco.financiamiento = 2; } },
+  equilibrado: (s) => {
+    // Busca déficit ~0 subiendo/bajando subsidios y obras; usa acciones para el grupo más enojado.
+    const r = R.eco.resultado(s);
+    const e = s.eco;
+    e.financiamiento = 2;
+    if (r < -0.3) { if (e.niveles.subsidios > 0.6) e.niveles.subsidios = R.round(e.niveles.subsidios - 0.1, 2); else if (e.niveles.obras > 0.8) e.niveles.obras = R.round(e.niveles.obras - 0.1, 2); }
+    else if (r > 0.8 && e.niveles.salud < 1.4) { e.niveles.salud = R.round(e.niveles.salud + 0.1, 2); e.niveles.educacion = R.round(e.niveles.educacion + 0.05, 2); }
+    const peor = R.GRUPOS.slice().sort((a, b) => s.gob.grupos[a.id].humor - s.gob.grupos[b.id].humor)[0].id;
+    const accion = { trabajadores: 'cgt', campo: 'campo', empresarios: 'inversores', humildes: 'barrios', jubilados: 'remedios', media: 'cadena' }[peor];
+    if (accion && !R.gob.bloqueoAccion(s, R.gob.ACC[accion])) R.gob.hacer(s, accion);
+  },
+};
+
+function decidir(s, inst, modo) {
+  const d = R.ev.datos(s, inst);
+  const ok = d.opciones.filter((o) => !o.bloqueo);
+  if (!ok.length) return 0;
+  if (modo === 'primera') return ok[0].i;
+  let mejor = ok[0];
+  let mv = -1e9;
+  for (const o of ok) {
+    const v = R.describirEfectosFase(s, o.ef).reduce((a, e) => a + (e.bueno ? 1 : -1) * e.flechas, 0) - (o.costo.pc || 0) * 0.5 - (o.costo.gasto || 0) * 0.4;
+    if (v > mv) { mv = v; mejor = o; }
+  }
+  return mejor.i;
+}
+
+function jugar(semilla, est, meses) {
+  const s = nuevoGobierno(semilla, ((semilla % 5) - 2) / 2);
+  R.gob.elegirMinistro(s, ['ortodoxo', 'heterodoxo', 'pragmatico'][semilla % 3]);
+  const serie = [];
+  for (let i = 0; i < meses && s.fase === 'gobierno'; i++) {
+    ESTRATEGIAS[est](s);
+    R.turno.pasar(s);
+    while (s.cola.length) {
+      const m = s.cola.shift();
+      if (m.tipo === 'noticia') R.ev.resolver(s, m, decidir(s, m, est === 'quieto' ? 'primera' : 'mejor'));
+    }
+    chequear(s, est + ' mes ' + s.mes);
+    serie.push(R.eco.foto(s));
+  }
+  return { s, serie };
+}
+
+if (require.main === module) {
+  const N = +process.argv[2] || 60;
+  const MESES = +process.argv[3] || 48;
+  for (const est of Object.keys(ESTRATEGIAS)) {
+    const fin = { helicoptero: 0, estallido: 0 };
+    const cortes = [6, 12, 24, 47].map(() => []);
+    for (let i = 0; i < N; i++) {
+      const { s, serie } = jugar(500 + i, est, MESES);
+      if (s.fin) fin[s.fin.motivo] = (fin[s.fin.motivo] || 0) + 1;
+      [6, 12, 24, 47].forEach((m, k) => { if (serie[m]) cortes[k].push(serie[m]); });
+    }
+    console.log(`\n▶ ${est} (${N} partidas) · terminan antes: ${JSON.stringify(fin)}`);
+    [6, 12, 24, 47].forEach((m, k) => {
+      const c = cortes[k];
+      if (!c.length) return;
+      const p = (f) => R.round(c.reduce((a, x) => a + x[f], 0) / c.length, 1);
+      console.log(`  mes ${String(m + 1).padStart(2)}: aprob ${p('aprob')}% · infl anual ${p('inflAnual')}% · crec ${p('crec')}% · desempleo ${p('desempleo')}% · pobreza ${p('pobreza')}% · reservas ${p('reservas')} · deuda ${p('deuda')}% · riesgo ${p('riesgo')} · resultado ${p('resultado')}% (n=${c.length})`);
+    });
+  }
+}
+module.exports = { jugar, nuevoGobierno };

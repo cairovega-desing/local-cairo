@@ -51,6 +51,7 @@
     ui.procesando = true;
     const listo = () => {
       if (s.cola[0] === m) s.cola.shift();
+      if (s.fase === 'fin') s.cola = [];
       R.guardar(s);
       ui.procesando = false;
       ui.render();
