@@ -129,7 +129,7 @@
     inflacion: ['🛒', 'Precios'], empleo: ['🚪', 'Trabajo'], salario: ['💰', 'Sueldo'], obras: ['🏗️', 'Obra pública'], retenciones: ['🌾', 'Retenciones'],
     cepo: ['🔒', 'Cepo'], crecimiento: ['📈', 'Economía'], rutas: ['🛣️', 'Rutas'], impuestos: ['🧾', 'Impuestos'], riesgo: ['📊', 'Confianza'],
     seguridad: ['👮', 'Seguridad'], educacion: ['🎓', 'Escuelas'], salud: ['🏥', 'Salud'], social: ['🤲', 'Ayuda social'], subsidios: ['💡', 'Tarifas'],
-    pobreza: ['🏚️', 'Pobreza'], jubilaciones: ['👵', 'Jubilación'], ideas: ['💭', 'Piensa como vos'], leyes: ['📜', 'Tus leyes'],
+    pobreza: ['🏚️', 'Pobreza'], jubilaciones: ['👵', 'Lo que cobra'], ideas: ['💭', 'Piensa como vos'], leyes: ['📜', 'Tus leyes'],
   };
 
   function verGrupo(s, id) {
@@ -150,7 +150,17 @@
           h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(6, (Math.abs(p.v) / max) * 100) + '%', background: Math.abs(p.v) < 1 ? 'var(--meh)' : p.v > 0 ? 'var(--bien)' : 'var(--mal)' } })),
           h('span', { style: { fontWeight: 900 } }, Math.abs(p.v) < 1 ? '😐' : p.v > 0 ? '🙂' : '😠'));
       })),
+      plataRealGrupo(s, id),
       h('p', { class: 'chico suave' }, 'Pesa ' + g.peso + ' de cada 100 votos.')), { cerrable: true });
+  }
+
+  // Jubilados y barrios: lo que cobran en plata de verdad (el % del gasto × el tamaño de la torta).
+  function plataRealGrupo(s, id) {
+    const area = { jubilados: ['jubilaciones', 'Cobra'], humildes: ['social', 'La ayuda social rinde'] }[id];
+    if (!area) return null;
+    const d = (s.eco.niveles[area[0]] * R.eco.torta(s) - 1) * 100;
+    const cuanto = Math.abs(d) < 0.5 ? ' lo mismo en plata real' : ' ' + R.fmt(Math.abs(d), 0) + '% ' + (d > 0 ? 'más' : 'menos') + ' en plata real';
+    return h('p', { class: 'chico tarjeta plana suave' }, '💰 ' + area[1] + cuanto + ' que cuando asumiste. Si la economía crece, sube aunque no toques el %.');
   }
 
   // ── El país en 6 tarjetas tangibles ──

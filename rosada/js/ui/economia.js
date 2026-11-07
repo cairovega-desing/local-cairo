@@ -82,8 +82,29 @@
     return h('section', { class: 'tarjeta pila' },
       h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '💸 ¿En qué gastás?'), h('span', { class: 'chico suave' }, 'Total ' + R.fmt(gp, 1) + '% del PBI')),
       h('div', { class: 'torta-barra', 'aria-hidden': 'true' }, R.AREAS.map((a) => h('i', { style: { width: R.eco.participacion(e, a.id) + '%' }, title: a.nombre }, R.eco.participacion(e, a.id) > 7 ? a.emoji : ''))),
+      lineaTorta(s),
       h('p', { class: 'chico suave' }, 'Tocá − o + (de a 10 %). La gente reacciona a fin de mes; si te arrepentís antes, no pasa nada.'),
       h('div', { class: 'areas' }, R.AREAS.map((a) => filaArea(s, a))));
+  }
+
+  // 🍰 El gasto está en % del PBI: si la torta crece, el mismo % es más plata de verdad.
+  function lineaTorta(s) {
+    const t = R.eco.torta(s);
+    const d = (t - 1) * 100;
+    const txt = Math.abs(d) < 0.5
+      ? 'Si la economía crece, el mismo % es más plata de verdad (y si cae, menos).'
+      : 'La torta ' + (d > 0 ? 'creció ' : 'se achicó ') + R.fmt(Math.abs(d), 1) + '% por habitante desde que asumiste: el mismo % alcanza para ' + (d > 0 ? 'más.' : 'menos.');
+    return h('div', { class: 'tarjeta plana suave chico fila', style: { gap: '8px', alignItems: 'center', background: d >= 0.5 ? 'var(--bien-claro)' : d <= -0.5 ? 'var(--mal-claro)' : null } },
+      h('span', { style: { fontSize: '24px' } }, '🍰'), h('span', { style: { fontWeight: 800 } }, txt));
+  }
+
+  // Plata de verdad que recibe un área comparada con cuando asumiste (nivel × torta).
+  function plataReal(s, nivel) {
+    const t = R.eco.torta(s);
+    if (Math.abs(t - 1) < 0.005) return null;
+    const d = (nivel * t - 1) * 100;
+    return h('div', { class: 'chico', style: { fontWeight: 900, color: d >= 0.5 ? 'var(--bien)' : d <= -0.5 ? 'var(--mal)' : 'var(--tinta-suave)' } },
+      '💰 ' + (Math.abs(d) < 0.5 ? 'Misma plata real que al asumir' : (d > 0 ? '+' : '−') + R.fmt(Math.abs(d), 0) + '% de plata real'));
   }
 
   function filaArea(s, a) {
@@ -113,7 +134,8 @@
     return h('div', { class: 'area' + (pend ? ' cambiada' : '') },
       h('div', { class: 'area-cab' },
         h('span', { class: 'em' }, a.emoji),
-        h('div', { style: { minWidth: 0 } }, h('b', null, a.nombre), h('div', { class: 'chico suave' }, R.eco.nivelTxt(nivel) + (cal !== null ? ' · calidad ' + Math.round(cal) + '/100' : ''))),
+        h('div', { style: { minWidth: 0 } }, h('b', null, a.nombre), h('div', { class: 'chico suave' }, R.eco.nivelTxt(nivel) + (cal !== null ? ' · calidad ' + Math.round(cal) + '/100' : '')),
+          plataReal(s, nivel)),
         h('div', { class: 'pct numero' }, R.fmt(part, 1) + '%', h('small', null, 'del gasto'))),
       h('div', { class: 'area-control' },
         h('button', { class: 'boton mini sec', disabled: nivel <= R.eco.NIVEL_MIN ? true : null, 'aria-label': 'Menos plata para ' + a.nombre, onclick: () => cambiar(-0.1) }, '−'),

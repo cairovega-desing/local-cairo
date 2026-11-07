@@ -1,4 +1,4 @@
-// Congreso: hemiciclos, bloques, leyes, «contamos los porotos» y votación banca por banca.
+// Congreso: hemiciclos, bloques, leyes, cuántos votos tenés y votación banca por banca.
 (function (R) {
   'use strict';
   const h = R.h;
@@ -13,7 +13,7 @@
   function panelCongreso(s) {
     const pc = ui.esPC();
     const izq = [tarjetaCamaras(s), tarjetaBloques(s)];
-    const der = [tarjetaLeyes(s)];
+    const der = [tarjetaEnCamino(s), tarjetaLeyes(s)].filter(Boolean);
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
     return h('div', { class: 'pila' }, izq, der);
   }
@@ -67,10 +67,40 @@
           h('div', { class: 'cab' }, h('span', { class: 'ic' }, ley.emoji), h('span', { class: 'nom' }, ley.nombre)),
           h('div', { class: 'desc' }, ley.desc),
           ui.chipsEfectos(R.gob.describirEfectos(s, ley.ef || {}), { compacto: true, antes: h('span', { class: 'chip' }, ideoTxt(ley.ideo)) }),
+          ley.perm ? ui.chipsEfectos(R.gob.describirPerm(s, ley), { compacto: true, antes: h('span', { class: 'chip plazo' }, '⏳') }) : null,
           hecha ? h('span', { class: 'chip bien', style: { alignSelf: 'flex-start' } }, st && st.estado === 'dnu' ? '📜 Por decreto' : '✅ Es ley')
             : b ? h('div', { class: 'bloq' }, b) : ley.mayoria === 'dos_tercios' ? h('span', { class: 'chip', style: { alignSelf: 'flex-start' } }, '⚠️ Necesita 2/3') : null);
       })));
   }
+  // Corto y mediano plazo de una ley: lo que pasa al firmarla y lo que llega con el tiempo.
+  function plazos(s, ley, efectos) {
+    const perm = R.gob.describirPerm(s, ley);
+    if (!perm.length) return efectos.length ? ui.chipsEfectos(efectos) : null;
+    return h('div', { class: 'plazos' },
+      efectos.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⚡ Ahora'), ui.chipsEfectos(efectos)) : null,
+      h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⏳ En ' + R.gob.plazoTxt(ley.madura || 18)), ui.chipsEfectos(perm)));
+  }
+
+  // ⏳ Leyes que todavía no dieron todo: barra de cuánto falta.
+  function tarjetaEnCamino(s) {
+    const G = s.gob;
+    const porLey = {};
+    for (const m of G.madurando || []) porLey[m.ley] = Math.max(porLey[m.ley] || 0, R.eco.madurez(s, m));
+    const ids = Object.keys(porLey).filter((id) => R.LEY[id]);
+    if (!ids.length) return null;
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'titulo-seccion' }, '⏳ Tus leyes, en camino'),
+      h('p', { class: 'chico suave' }, 'Una fábrica o un empleo nuevo no aparecen el día que firmás: llegan de a poco.'),
+      h('div', { class: 'razones' }, ids.map((id) => {
+        const ley = R.LEY[id];
+        const k = porLey[id];
+        return h('div', { class: 'en-camino' },
+          h('div', { class: 'fila entre' }, h('b', null, ley.emoji + ' ' + ley.nombre), h('span', { class: 'chico', style: { fontWeight: 900 } }, Math.round(k * 100) + '%')),
+          h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(4, k * 100) + '%', background: 'var(--celeste)' } })),
+          ui.chipsEfectos(R.gob.describirPerm(s, ley).filter((x) => !R.GRUPOS.some((g) => g.emoji === x.emoji))));
+      })));
+  }
+
   const ideoTxt = (x) => (x <= -0.6 ? '🤲🤲' : x < -0.15 ? '🤲' : x <= 0.15 ? '⚖️' : x < 0.6 ? '💼' : '💼💼');
 
   // Hoja de una ley: porotos, negociación y votación.
@@ -93,8 +123,8 @@
     ui.abrirCapa(h('div', { class: 'pila' },
       h('h2', null, ley.emoji + ' ' + ley.nombre),
       h('p', null, ley.desc + (ley.nota ? ' · ' + ley.nota : '')),
-      efectos.length ? ui.chipsEfectos(efectos) : null,
-      h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '🫘 Contamos los porotos'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
+      plazos(s, ley, efectos),
+      h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '🗳️ ¿Te alcanzan los votos?'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
       h('div', { class: 'etiqueta' }, 'Bloques'),
       h('div', { class: 'lista-elegir' }, Object.values(bloques).filter((b) => b.id !== 'YO').map((b) => {
         const info = R.partidoInfo(s, b.id);

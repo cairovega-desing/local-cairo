@@ -68,6 +68,8 @@
     const S = (e.salarioReal - 100) * 0.7;
     const Gr = (e.crec - 1.5) * 2;
     const q = e.calidad;
+    // Plata real: el gasto está en % del PBI; si el país creció, el mismo % es más plata (y si se achicó, menos).
+    const torta = R.eco.torta(s);
     const p = [];
     const add = (k, v) => p.push({ k, v });
     add('ideas', 12 * (0.45 - Math.abs(g.ideo - ideoGob)));
@@ -89,11 +91,11 @@
         add('social', -12 * Math.max(0, m.social - 1.2));
         break;
       case 'humildes':
-        add('inflacion', -Pinf * 0.7); add('empleo', -Pdes * 0.8); add('social', 25 * (m.social - 1)); add('subsidios', 10 * (m.subsidios - 1));
+        add('inflacion', -Pinf * 0.7); add('empleo', -Pdes * 0.8); add('social', 25 * (m.social * torta - 1)); add('subsidios', 10 * (m.subsidios - 1));
         add('salud', (q.salud - 50) * 0.2); add('pobreza', -(e.pobreza - 30) * 0.4);
         break;
       case 'jubilados':
-        add('jubilaciones', 35 * (m.jubilaciones - 1)); add('inflacion', -Pinf * 0.95); add('salud', (q.salud - 50) * 0.3); add('subsidios', 6 * (m.subsidios - 1));
+        add('jubilaciones', 35 * (m.jubilaciones * torta - 1)); add('inflacion', -Pinf * 0.95); add('salud', (q.salud - 50) * 0.3); add('subsidios', 6 * (m.subsidios - 1));
         break;
     }
     const bonus = s.gob && s.gob.bonusGrupo ? s.gob.bonusGrupo[id] || 0 : 0;
@@ -237,6 +239,28 @@
     }).filter(Boolean);
   };
   gob.describirEfectos = (s, ef) => gob.describirAplicado(s, gob.expandir(s, ef));
+
+  // Lo que una ley deja «con el tiempo» (mediano plazo), para mostrarlo antes de votarla.
+  const PERM_META = {
+    bonusEmpleo: ['🚪', 'Trabajo', 0.4],
+    bonusCrec: ['📈', 'Economía', 0.2],
+    bonusExpo: ['🚢', 'Exportaciones', 0.025],
+    bonusRecauda: ['🧾', 'Recaudación', 0.15],
+  };
+  gob.describirPerm = function (s, ley) {
+    const p = ley.perm || {};
+    const out = [];
+    const add = (emoji, nombre, v, paso) => out.push({ emoji, nombre, v, sube: v > 0, bueno: v > 0, flechas: Math.min(3, Math.max(1, Math.ceil(Math.abs(v) / paso - 0.15))) });
+    for (const [k, [em, nom, paso]] of Object.entries(PERM_META)) if (p[k]) add(em, nom, p[k], paso);
+    for (const [c, v] of Object.entries(p.bonusCalidad || {})) {
+      const a = R.AREAS.find((x) => x.calidad === c);
+      add(a ? a.emoji : '•', a ? a.nombre : c, v, 5);
+    }
+    for (const [g, v] of Object.entries(p.bonusGrupo || {})) add(R.GRUPO[g].emoji, R.GRUPO[g].nombre, v, 2);
+    return out;
+  };
+  // Cuánto tarda en llegar, en palabras.
+  gob.plazoTxt = (meses) => (meses <= 12 ? '1 año' : meses <= 18 ? '1 año y medio' : '2 años');
 
   gob.bloqueoCosto = function (s, costo) {
     if (!s.gob) return null;

@@ -209,12 +209,15 @@
     const ef = Object.assign({}, ley.ef || {});
     if (ley.costo && ley.costo.gasto) ef.gastoExtra = ley.costo.gasto;
     if (ley.perm) {
+      // Lo económico madura de a poco (ley.madura meses); lo que siente cada grupo (bonusGrupo) es desde ya.
       const p = ley.perm;
-      if (p.bonusEmpleo) G.bonusEmpleo = (G.bonusEmpleo || 0) + p.bonusEmpleo;
-      if (p.bonusCrec) G.bonusCrec = (G.bonusCrec || 0) + p.bonusCrec;
-      if (p.bonusExpo) G.bonusExpo = (G.bonusExpo || 0) + p.bonusExpo;
-      if (p.bonusRecauda) G.bonusRecauda = (G.bonusRecauda || 0) + p.bonusRecauda;
-      if (p.bonusCalidad) { G.bonusCalidad = G.bonusCalidad || {}; for (const [k, v] of Object.entries(p.bonusCalidad)) G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) + v; }
+      const meses = ley.madura || 18;
+      G.madurando = G.madurando || [];
+      const madura = (k, v, sub) => G.madurando.push({ ley: ley.id, k, v, sub, desde: s.mes, meses });
+      for (const k of ['bonusEmpleo', 'bonusCrec', 'bonusExpo', 'bonusRecauda']) {
+        if (p[k]) { G[k] = (G[k] || 0) + p[k]; madura(k, p[k]); }
+      }
+      if (p.bonusCalidad) { G.bonusCalidad = G.bonusCalidad || {}; for (const [k, v] of Object.entries(p.bonusCalidad)) { G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) + v; madura('bonusCalidad', v, k); } }
       if (p.bonusGrupo) { G.bonusGrupo = G.bonusGrupo || {}; for (const [k, v] of Object.entries(p.bonusGrupo)) G.bonusGrupo[k] = (G.bonusGrupo[k] || 0) + v; }
     }
     if (ley.hacer) ley.hacer(s);

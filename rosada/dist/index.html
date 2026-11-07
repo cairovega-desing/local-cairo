@@ -388,6 +388,13 @@ p { margin: 0; }
 .item-elegir .ic { font-size: 28px; text-align: center; }
 .item-elegir[disabled] { opacity: 0.45; cursor: not-allowed; }
 .motivo-voto { margin-top: 3px; font-weight: 800; line-height: 1.25; }
+.plazos { display: flex; flex-direction: column; gap: 6px; }
+.plazo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.plazo .cuando { font-weight: 900; font-size: 13px; min-width: 88px; }
+.chip.plazo { background: var(--cielo-claro); }
+.en-camino { display: flex; flex-direction: column; gap: 4px; padding: 6px 0; border-bottom: 1px dashed #d3deeb; }
+.en-camino:last-child { border-bottom: 0; }
+.en-camino .barrita { display: block; width: 100%; }
 
 /* ── Mapa ── */
 .mapa { width: 100%; max-width: 360px; max-height: 72vh; display: block; margin: 0 auto; overflow: visible; }
@@ -2274,6 +2281,26 @@ label.boton { cursor: pointer; }
     return e;
   };
 
+  // ── Mediano plazo ──
+  // Bonos permanentes (leyes, tratados). Los de las leyes «maduran»: llegan de a poco en 1-2 años
+  // (una fábrica nueva no aparece el mismo mes que se firma la ley).
+  eco.madurez = (s, m) => R.clamp((s.mes - m.desde) / m.meses, 0, 1);
+  eco.bonus = function (s, k, sub) {
+    const g = s.gob;
+    if (!g) return 0;
+    let v = sub ? (g[k] && g[k][sub]) || 0 : g[k] || 0;
+    for (const m of g.madurando || []) {
+      if (m.k === k && (!sub || m.sub === sub)) v -= m.v * (1 - eco.madurez(s, m));
+    }
+    return v;
+  };
+  // La torta: el PBI por habitante desde que asumiste. El gasto está en % del PBI, así que si la economía
+  // crece, el mismo % alcanza para más (jubilaciones, ayuda, hospitales, escuelas). Si se achica, para menos.
+  eco.torta = function (s) {
+    const anios = s.gob ? Math.max(0, s.mes - s.gob.inicio) / 12 : 0;
+    return R.clamp(s.eco.pbi / 100 / Math.pow(1.009, anios), 0.7, 1.4);
+  };
+
   // ── Cuentas del presupuesto ──
   eco.gastoArea = (e, id) => R.AREA[id].base * e.niveles[id];
   eco.gastoPrimario = (e) => R.sum(R.AREAS.map((a) => eco.gastoArea(e, a.id)));
@@ -2286,13 +2313,13 @@ label.boton { cursor: pointer; }
     if (e.cepo) f -= 0.05;
     if (s.gob) f += ((s.gob.grupos.campo.humor - 50) / 50) * 0.05;
     for (const sh of e.shocks) if (sh.k === 'expo') f += sh.v;
-    if (s.gob && s.gob.bonusExpo) f += s.gob.bonusExpo;
+    f += eco.bonus(s, 'bonusExpo');
     return Math.max(0.5, f);
   };
   eco.recaudacion = (s) => {
     const e = s.eco;
     const evasion = 1 - 0.012 * Math.max(0, e.desempleo - 8) - 0.002 * Math.max(0, e.inflAnual - 60) / 10;
-    const extra = s.gob && s.gob.bonusRecauda ? s.gob.bonusRecauda : 0;
+    const extra = eco.bonus(s, 'bonusRecauda');
     return eco.IMPUESTOS[e.impuestos].recauda * Math.max(0.8, evasion) + extra + eco.RETENCIONES[e.retenciones].recauda * eco.factorExpo(s);
   };
   eco.resultado = (s) => eco.recaudacion(s) - eco.gastoTotal(s.eco); // + superávit, − déficit (% PBI anual)
@@ -2342,7 +2369,11 @@ label.boton { cursor: pointer; }
     const pDolar = dolarizado ? 0 : presion * 0.38;
     const pShock = shock('infl');
     const pParitarias = g && g.grupos.trabajadores.humor < 30 ? 0.15 : 0;
-    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + R.gauss(s) * 0.12;
+    // Si la economía crece por inversión, rutas, confianza y exportaciones (no por gastar), hay más
+    // producción y más competencia: los precios suben un poco menos. Si se derrumba la oferta, al revés.
+    // Con inflación casi cero el efecto se apaga (los precios no bajan para siempre).
+    const pOferta = -R.clamp((e.oferta || 0) * 0.03, -0.08, 0.1) * R.clamp(e.inflMes / 1.5, 0, 1);
+    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + R.gauss(s) * 0.12;
     infl = R.clamp(infl, -0.5, 60);
     C.inflacion = [
       { k: 'inercia', v: inercia + base },
@@ -2350,6 +2381,7 @@ label.boton { cursor: pointer; }
       { k: 'tarifas', v: pTarifas },
       { k: 'dolar', v: pDolar },
       { k: 'ancla', v: ancla },
+      { k: 'oferta', v: pOferta },
       { k: 'shock', v: pShock + pParitarias },
     ];
     const inflAntes = e.inflMes;
@@ -2379,11 +2411,13 @@ label.boton { cursor: pointer; }
     const pGasto = 0.5 * (eco.gastoPrimario(e) - 14.6);
     const pShockCrec = shock('crec');
     const pMin = min && min.crec ? min.crec : 0;
-    const pLeyes = g && g.bonusCrec ? g.bonusCrec : 0;
+    const pLeyes = eco.bonus(s, 'bonusCrec');
     let crecMes = pPot + pObras + pFuturo + pConfianza + pImpuestos + pInflacion + pCepo + pExpo + pGasto + pShockCrec + pMin + pLeyes + R.gauss(s) * 0.6;
     crecMes = R.clamp(crecMes, -15, 12);
     e.pbi *= 1 + crecMes / 1200;
     e.crec = e.crec * 0.82 + crecMes * 0.18;
+    const oferta = pObras + pFuturo + pConfianza + pImpuestos + pExpo + pMin + pLeyes;
+    e.oferta = (e.oferta || 0) * 0.85 + oferta * 0.15;
     C.crecimiento = [
       { k: 'obras', v: pObras }, { k: 'futuro', v: pFuturo }, { k: 'confianza', v: pConfianza }, { k: 'impuestos', v: pImpuestos },
       { k: 'inflacion', v: pInflacion }, { k: 'cepo', v: pCepo }, { k: 'expo', v: pExpo }, { k: 'gasto', v: pGasto },
@@ -2391,22 +2425,25 @@ label.boton { cursor: pointer; }
     ];
 
     // 5) Empleo
-    const desObj = R.clamp(7.5 - 0.5 * (e.crec - 1.5) - (g && g.bonusEmpleo ? g.bonusEmpleo : 0), 2.5, 30);
+    const desObj = R.clamp(7.5 - 0.5 * (e.crec - 1.5) - eco.bonus(s, 'bonusEmpleo'), 2.5, 30);
     const desAntes = e.desempleo;
     e.desempleo = R.clamp(e.desempleo + (desObj - e.desempleo) * 0.09 + shock('desempleo'), 2, 35);
     C.desempleo = [{ k: 'crecimiento', v: (e.desempleo - desAntes) }];
 
-    // 6) Salario real: las paritarias corren detrás de la inflación.
-    const paritaria = 0.75 * inflAntes + 0.25 * Math.min(infl, inflAntes * 1.5) + 0.12 + (g && g.grupos.trabajadores.humor < 35 ? 0.1 : 0) + shock('salario');
+    // 6) Salario real: las paritarias corren detrás de la inflación. Y a mediano plazo los sueldos siguen
+    // a la productividad: si la economía crece y falta gente para trabajar, las empresas pagan más.
+    const paritaria = 0.75 * inflAntes + 0.25 * Math.min(infl, inflAntes * 1.5) + 0.04 + (g && g.grupos.trabajadores.humor < 35 ? 0.1 : 0) + shock('salario');
+    const tiron = 0.05 * e.crec + 0.03 * (7.5 - e.desempleo);
     const salAntes = e.salarioReal;
-    e.salarioReal = R.clamp(e.salarioReal * (1 + (paritaria - infl) / 100) + (e.crec - 1) * 0.02, 45, 160);
-    C.salario = [{ k: 'inflacion', v: e.salarioReal - salAntes }];
+    e.salarioReal = R.clamp(e.salarioReal * (1 + (paritaria + tiron - infl) / 100), 45, 160);
+    C.salario = [{ k: 'inflacion', v: (salAntes * (paritaria - infl)) / 100 }, { k: 'productividad', v: (salAntes * tiron) / 100 }];
 
     // 7) Pobreza
     const pDes = 1.0 * (e.desempleo - 7.5);
     const pSal = 0.4 * (100 - e.salarioReal);
     const pInf = 0.12 * Math.max(0, e.inflAnual - 15);
-    const pSocial = -6 * (m.social - 1) - 3 * (m.jubilaciones - 1);
+    const torta = eco.torta(s);
+    const pSocial = -6 * (m.social * torta - 1) - 3 * (m.jubilaciones * torta - 1);
     const pobObj = R.clamp(29 + pDes + pSal + pInf + pSocial, 3, 75);
     e.pobreza = R.clamp(e.pobreza + (pobObj - e.pobreza) * 0.1, 3, 75);
     C.pobreza = [{ k: 'desempleo', v: pDes }, { k: 'salario', v: pSal }, { k: 'inflacion', v: pInf }, { k: 'social', v: pSocial }];
@@ -2431,11 +2468,20 @@ label.boton { cursor: pointer; }
     // 10) Calidad de cada área: va lento hacia lo que le das.
     for (const a of R.AREAS) {
       if (!a.calidad) continue;
-      const obj = R.clamp(50 + 48 * (m[a.id] - 1) - Math.max(0, e.inflAnual - 40) * 0.08 + (g && g.bonusCalidad && g.bonusCalidad[a.calidad] ? g.bonusCalidad[a.calidad] : 0), 5, 97);
+      const obj = R.clamp(50 + 48 * (m[a.id] * torta - 1) - Math.max(0, e.inflAnual - 40) * 0.08 + eco.bonus(s, 'bonusCalidad', a.calidad), 5, 97);
       e.calidad[a.calidad] = R.clamp(e.calidad[a.calidad] + (obj - e.calidad[a.calidad]) * 0.06, 0, 100);
     }
 
-    // 11) Los shocks se gastan
+    // 11) Los shocks se gastan y las leyes que ya maduraron dejan de estar «en camino»
+    if (g && g.madurando) {
+      const listas = new Set();
+      g.madurando = g.madurando.filter((x) => {
+        if (eco.madurez(s, x) < 1) return true;
+        listas.add(x.ley);
+        return false;
+      });
+      for (const id of listas) if (R.LEY && R.LEY[id] && !g.madurando.some((x) => x.ley === id)) R.diario(s, R.LEY[id].emoji, R.LEY[id].nombre + ': ya da todo su efecto', 'ley');
+    }
     e.shocks.forEach((x) => x.meses--);
     e.shocks = e.shocks.filter((x) => x.meses > 0);
     e.causas = C;
@@ -2458,6 +2504,7 @@ label.boton { cursor: pointer; }
     inflacion: {
       inercia: ['🔁', 'Los precios vienen subiendo'], emision: ['🖨️', 'Emitiste para pagar el déficit'], tarifas: ['⚡', 'Subieron las tarifas'],
       dolar: ['💵', 'Saltó el dólar'], ancla: ['⚓', 'Confían en tu plan'], shock: ['💥', 'Golpes de este mes'],
+      oferta: ['🏭', 'Más producción y competencia'],
     },
     crecimiento: {
       obras: ['🏗️', 'Obra pública y rutas'], futuro: ['🎓', 'Educación y ciencia'], confianza: ['📊', 'Riesgo país'],
@@ -2546,6 +2593,8 @@ label.boton { cursor: pointer; }
     const S = (e.salarioReal - 100) * 0.7;
     const Gr = (e.crec - 1.5) * 2;
     const q = e.calidad;
+    // Plata real: el gasto está en % del PBI; si el país creció, el mismo % es más plata (y si se achicó, menos).
+    const torta = R.eco.torta(s);
     const p = [];
     const add = (k, v) => p.push({ k, v });
     add('ideas', 12 * (0.45 - Math.abs(g.ideo - ideoGob)));
@@ -2567,11 +2616,11 @@ label.boton { cursor: pointer; }
         add('social', -12 * Math.max(0, m.social - 1.2));
         break;
       case 'humildes':
-        add('inflacion', -Pinf * 0.7); add('empleo', -Pdes * 0.8); add('social', 25 * (m.social - 1)); add('subsidios', 10 * (m.subsidios - 1));
+        add('inflacion', -Pinf * 0.7); add('empleo', -Pdes * 0.8); add('social', 25 * (m.social * torta - 1)); add('subsidios', 10 * (m.subsidios - 1));
         add('salud', (q.salud - 50) * 0.2); add('pobreza', -(e.pobreza - 30) * 0.4);
         break;
       case 'jubilados':
-        add('jubilaciones', 35 * (m.jubilaciones - 1)); add('inflacion', -Pinf * 0.95); add('salud', (q.salud - 50) * 0.3); add('subsidios', 6 * (m.subsidios - 1));
+        add('jubilaciones', 35 * (m.jubilaciones * torta - 1)); add('inflacion', -Pinf * 0.95); add('salud', (q.salud - 50) * 0.3); add('subsidios', 6 * (m.subsidios - 1));
         break;
     }
     const bonus = s.gob && s.gob.bonusGrupo ? s.gob.bonusGrupo[id] || 0 : 0;
@@ -2715,6 +2764,28 @@ label.boton { cursor: pointer; }
     }).filter(Boolean);
   };
   gob.describirEfectos = (s, ef) => gob.describirAplicado(s, gob.expandir(s, ef));
+
+  // Lo que una ley deja «con el tiempo» (mediano plazo), para mostrarlo antes de votarla.
+  const PERM_META = {
+    bonusEmpleo: ['🚪', 'Trabajo', 0.4],
+    bonusCrec: ['📈', 'Economía', 0.2],
+    bonusExpo: ['🚢', 'Exportaciones', 0.025],
+    bonusRecauda: ['🧾', 'Recaudación', 0.15],
+  };
+  gob.describirPerm = function (s, ley) {
+    const p = ley.perm || {};
+    const out = [];
+    const add = (emoji, nombre, v, paso) => out.push({ emoji, nombre, v, sube: v > 0, bueno: v > 0, flechas: Math.min(3, Math.max(1, Math.ceil(Math.abs(v) / paso - 0.15))) });
+    for (const [k, [em, nom, paso]] of Object.entries(PERM_META)) if (p[k]) add(em, nom, p[k], paso);
+    for (const [c, v] of Object.entries(p.bonusCalidad || {})) {
+      const a = R.AREAS.find((x) => x.calidad === c);
+      add(a ? a.emoji : '•', a ? a.nombre : c, v, 5);
+    }
+    for (const [g, v] of Object.entries(p.bonusGrupo || {})) add(R.GRUPO[g].emoji, R.GRUPO[g].nombre, v, 2);
+    return out;
+  };
+  // Cuánto tarda en llegar, en palabras.
+  gob.plazoTxt = (meses) => (meses <= 12 ? '1 año' : meses <= 18 ? '1 año y medio' : '2 años');
 
   gob.bloqueoCosto = function (s, costo) {
     if (!s.gob) return null;
@@ -2956,7 +3027,8 @@ label.boton { cursor: pointer; }
 <script>
 // ── js/datos/leyes.js ──
 // Leyes que podés mandar al Congreso. ideo: −1 (Estado presente) … +1 (mercado). polemica: 0 … 1.
-// ef: efecto inmediato (con las claves de gobierno). perm: efecto que queda para siempre.
+// ef: efecto inmediato (con las claves de gobierno). perm: efecto que queda para siempre; lo económico
+// (empleo, crecimiento, exportaciones, recaudación, calidad) madura de a poco en `madura` meses (18 si no dice).
 // mayoria: 'simple' (mitad + 1 de cada cámara) o 'dos_tercios'. dnu: se puede sacar por decreto.
 (function (R) {
   'use strict';
@@ -2968,13 +3040,13 @@ label.boton { cursor: pointer; }
 
   R.LEYES = [
     { id: 'reforma_laboral', emoji: '📋', nombre: 'Reforma laboral', desc: 'Contratar y despedir más fácil', ideo: 0.7, polemica: 0.6, dnu: true,
-      ef: { trabajadores: -10, empresarios: 10 }, perm: { bonusEmpleo: 1.0, bonusCrec: 0.3, bonusGrupo: { trabajadores: -4, empresarios: 5 } } },
+      ef: { trabajadores: -10, empresarios: 10 }, perm: { bonusEmpleo: 1.2, bonusCrec: 0.3, bonusGrupo: { trabajadores: -3, empresarios: 4 } }, madura: 18 },
     { id: 'salario_minimo', emoji: '💵', nombre: 'Suba del salario mínimo', desc: 'Que nadie gane menos de lo justo', ideo: -0.5, polemica: 0.3, dnu: true,
-      ef: { trabajadores: 9, humildes: 4, empresarios: -6, inflacion: 0.3 }, perm: { bonusGrupo: { trabajadores: 3 } } },
+      ef: { trabajadores: 9, humildes: 4, empresarios: -6, inflacion: 0.3 }, perm: { bonusEmpleo: -0.4, bonusGrupo: { trabajadores: 3 } }, madura: 12 },
     { id: 'reforma_previsional', emoji: '👴', nombre: 'Reforma jubilatoria', desc: 'Se jubilan más tarde', ideo: 0.6, polemica: 0.75,
       ef: { jubilados: -9, media: -3, empresarios: 4, riesgo: -100 }, hacer: subirNivel('jubilaciones', -0.1), nota: 'Baja el gasto en jubilaciones sin que se note de golpe' },
     { id: 'inversiones', emoji: '🏭', nombre: 'Ley de grandes inversiones', desc: 'Beneficios para invertir', ideo: 0.5, polemica: 0.35, dnu: true,
-      ef: { empresarios: 8, riesgo: -60 }, perm: { bonusCrec: 0.5, bonusExpo: 0.05 } },
+      ef: { empresarios: 8, riesgo: -60 }, perm: { bonusCrec: 0.5, bonusExpo: 0.05 }, madura: 24 },
     { id: 'bcra', emoji: '🏦', nombre: 'Banco Central independiente', desc: 'Nadie lo usa para imprimir', ideo: 0.4, polemica: 0.3,
       ef: { empresarios: 5, riesgo: -80 }, nota: 'Baja la inflación todos los meses' },
     { id: 'dolarizacion', emoji: '💵', nombre: 'Dolarización', desc: 'Chau peso, hola dólar', ideo: 0.9, polemica: 0.9,
@@ -2985,25 +3057,25 @@ label.boton { cursor: pointer; }
     { id: 'universidades', emoji: '🎓', nombre: 'Financiamiento universitario', desc: 'Más plata para las universidades', ideo: -0.4, polemica: 0.3,
       ef: { media: 7 }, hacer: subirNivel('educacion', 0.15) },
     { id: 'seguridad', emoji: '👮', nombre: 'Ley de seguridad', desc: 'Más policías y cárceles', ideo: 0.4, polemica: 0.3, dnu: true,
-      ef: { media: 5 }, perm: { bonusCalidad: { seguridad: 12 } } },
+      ef: { media: 5 }, perm: { bonusCalidad: { seguridad: 12 } }, madura: 12 },
     { id: 'imputabilidad', emoji: '⚖️', nombre: 'Bajar la edad de imputabilidad', desc: 'Menores que delinquen, a juicio', ideo: 0.6, polemica: 0.6,
-      ef: { media: 6, humildes: -5 }, perm: { bonusCalidad: { seguridad: 5 } } },
+      ef: { media: 6, humildes: -5 }, perm: { bonusCalidad: { seguridad: 5 } }, madura: 12 },
     { id: 'servicio_militar', emoji: '🪖', nombre: 'Servicio militar obligatorio', desc: 'Los jóvenes, a los cuarteles', ideo: 0.5, polemica: 0.8,
-      ef: { media: -4, humildes: -3 }, perm: { bonusCalidad: { defensa: 20 } }, nota: 'Mucho más poder militar' },
+      ef: { media: -4, humildes: -3 }, perm: { bonusCalidad: { defensa: 20 } }, madura: 24, nota: 'Mucho más poder militar' },
     { id: 'ciencia', emoji: '🔬', nombre: 'Ley de ciencia', desc: 'Más plata para investigar', ideo: -0.2, polemica: 0.1,
       ef: { media: 3 }, hacer: subirNivel('ciencia', 0.3) },
     { id: 'retenciones_cero', emoji: '🌾', nombre: 'Retenciones cero', desc: 'El campo no paga más retenciones', ideo: 0.7, polemica: 0.5,
       ef: { campo: 15, humildes: -2 }, hacer: (s) => { s.eco.retenciones = 0; s.eco.retencionesInicioMes = 0; } },
     { id: 'fortunas', emoji: '💰', nombre: 'Impuesto a las grandes fortunas', desc: 'Que paguen los que más tienen', ideo: -0.8, polemica: 0.6,
-      ef: { empresarios: -10, humildes: 5, trabajadores: 3 }, perm: { bonusRecauda: 0.4 } },
+      ef: { empresarios: -10, humildes: 5, trabajadores: 3 }, perm: { bonusRecauda: 0.4, bonusCrec: -0.2 }, madura: 12 },
     { id: 'privatizar', emoji: '🏷️', nombre: 'Privatizar empresas públicas', desc: 'Vender empresas del Estado', ideo: 0.8, polemica: 0.7,
-      ef: { reservas: 6, trabajadores: -6, empresarios: 6, riesgo: -60 } },
+      ef: { reservas: 6, trabajadores: -6, empresarios: 6, riesgo: -60 }, perm: { bonusCrec: 0.2 }, madura: 24 },
     { id: 'estatizar', emoji: '⛽', nombre: 'Estatizar la energía', desc: 'Petróleo y luz, del Estado', ideo: -0.8, polemica: 0.7,
-      ef: { trabajadores: 5, empresarios: -10, riesgo: 120 }, perm: { bonusExpo: -0.03, bonusGrupo: { trabajadores: 2 } } },
+      ef: { trabajadores: 5, empresarios: -10, riesgo: 120 }, perm: { bonusExpo: -0.03, bonusCrec: -0.2, bonusGrupo: { trabajadores: 2 } }, madura: 18 },
     { id: 'alquileres', emoji: '🏠', nombre: 'Ley de alquileres', desc: 'Contratos largos y con tope', ideo: -0.3, polemica: 0.4, dnu: true,
       ef: { media: 4, empresarios: -2 } },
     { id: 'litio', emoji: '🔋', nombre: 'Ley del litio', desc: 'Reglas claras para la minería', ideo: 0.2, polemica: 0.3,
-      ef: { empresarios: 4 }, perm: { bonusExpo: 0.06 } },
+      ef: { empresarios: 4 }, perm: { bonusExpo: 0.06 }, madura: 24 },
     { id: 'humedales', emoji: '🌱', nombre: 'Ley de humedales', desc: 'Proteger ríos y lagunas', ideo: -0.3, polemica: 0.4,
       ef: { media: 4, campo: -8 } },
     { id: 'boleta_unica', emoji: '🗳️', nombre: 'Boleta única', desc: 'Votar más fácil y sin trampa', ideo: 0, polemica: 0.1,
@@ -3248,12 +3320,15 @@ label.boton { cursor: pointer; }
     const ef = Object.assign({}, ley.ef || {});
     if (ley.costo && ley.costo.gasto) ef.gastoExtra = ley.costo.gasto;
     if (ley.perm) {
+      // Lo económico madura de a poco (ley.madura meses); lo que siente cada grupo (bonusGrupo) es desde ya.
       const p = ley.perm;
-      if (p.bonusEmpleo) G.bonusEmpleo = (G.bonusEmpleo || 0) + p.bonusEmpleo;
-      if (p.bonusCrec) G.bonusCrec = (G.bonusCrec || 0) + p.bonusCrec;
-      if (p.bonusExpo) G.bonusExpo = (G.bonusExpo || 0) + p.bonusExpo;
-      if (p.bonusRecauda) G.bonusRecauda = (G.bonusRecauda || 0) + p.bonusRecauda;
-      if (p.bonusCalidad) { G.bonusCalidad = G.bonusCalidad || {}; for (const [k, v] of Object.entries(p.bonusCalidad)) G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) + v; }
+      const meses = ley.madura || 18;
+      G.madurando = G.madurando || [];
+      const madura = (k, v, sub) => G.madurando.push({ ley: ley.id, k, v, sub, desde: s.mes, meses });
+      for (const k of ['bonusEmpleo', 'bonusCrec', 'bonusExpo', 'bonusRecauda']) {
+        if (p[k]) { G[k] = (G[k] || 0) + p[k]; madura(k, p[k]); }
+      }
+      if (p.bonusCalidad) { G.bonusCalidad = G.bonusCalidad || {}; for (const [k, v] of Object.entries(p.bonusCalidad)) { G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) + v; madura('bonusCalidad', v, k); } }
       if (p.bonusGrupo) { G.bonusGrupo = G.bonusGrupo || {}; for (const [k, v] of Object.entries(p.bonusGrupo)) G.bonusGrupo[k] = (G.bonusGrupo[k] || 0) + v; }
     }
     if (ley.hacer) ley.hacer(s);
@@ -7352,7 +7427,7 @@ label.boton { cursor: pointer; }
     inflacion: ['🛒', 'Precios'], empleo: ['🚪', 'Trabajo'], salario: ['💰', 'Sueldo'], obras: ['🏗️', 'Obra pública'], retenciones: ['🌾', 'Retenciones'],
     cepo: ['🔒', 'Cepo'], crecimiento: ['📈', 'Economía'], rutas: ['🛣️', 'Rutas'], impuestos: ['🧾', 'Impuestos'], riesgo: ['📊', 'Confianza'],
     seguridad: ['👮', 'Seguridad'], educacion: ['🎓', 'Escuelas'], salud: ['🏥', 'Salud'], social: ['🤲', 'Ayuda social'], subsidios: ['💡', 'Tarifas'],
-    pobreza: ['🏚️', 'Pobreza'], jubilaciones: ['👵', 'Jubilación'], ideas: ['💭', 'Piensa como vos'], leyes: ['📜', 'Tus leyes'],
+    pobreza: ['🏚️', 'Pobreza'], jubilaciones: ['👵', 'Lo que cobra'], ideas: ['💭', 'Piensa como vos'], leyes: ['📜', 'Tus leyes'],
   };
 
   function verGrupo(s, id) {
@@ -7373,7 +7448,17 @@ label.boton { cursor: pointer; }
           h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(6, (Math.abs(p.v) / max) * 100) + '%', background: Math.abs(p.v) < 1 ? 'var(--meh)' : p.v > 0 ? 'var(--bien)' : 'var(--mal)' } })),
           h('span', { style: { fontWeight: 900 } }, Math.abs(p.v) < 1 ? '😐' : p.v > 0 ? '🙂' : '😠'));
       })),
+      plataRealGrupo(s, id),
       h('p', { class: 'chico suave' }, 'Pesa ' + g.peso + ' de cada 100 votos.')), { cerrable: true });
+  }
+
+  // Jubilados y barrios: lo que cobran en plata de verdad (el % del gasto × el tamaño de la torta).
+  function plataRealGrupo(s, id) {
+    const area = { jubilados: ['jubilaciones', 'Cobra'], humildes: ['social', 'La ayuda social rinde'] }[id];
+    if (!area) return null;
+    const d = (s.eco.niveles[area[0]] * R.eco.torta(s) - 1) * 100;
+    const cuanto = Math.abs(d) < 0.5 ? ' lo mismo en plata real' : ' ' + R.fmt(Math.abs(d), 0) + '% ' + (d > 0 ? 'más' : 'menos') + ' en plata real';
+    return h('p', { class: 'chico tarjeta plana suave' }, '💰 ' + area[1] + cuanto + ' que cuando asumiste. Si la economía crece, sube aunque no toques el %.');
   }
 
   // ── El país en 6 tarjetas tangibles ──
@@ -7657,8 +7742,29 @@ label.boton { cursor: pointer; }
     return h('section', { class: 'tarjeta pila' },
       h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '💸 ¿En qué gastás?'), h('span', { class: 'chico suave' }, 'Total ' + R.fmt(gp, 1) + '% del PBI')),
       h('div', { class: 'torta-barra', 'aria-hidden': 'true' }, R.AREAS.map((a) => h('i', { style: { width: R.eco.participacion(e, a.id) + '%' }, title: a.nombre }, R.eco.participacion(e, a.id) > 7 ? a.emoji : ''))),
+      lineaTorta(s),
       h('p', { class: 'chico suave' }, 'Tocá − o + (de a 10 %). La gente reacciona a fin de mes; si te arrepentís antes, no pasa nada.'),
       h('div', { class: 'areas' }, R.AREAS.map((a) => filaArea(s, a))));
+  }
+
+  // 🍰 El gasto está en % del PBI: si la torta crece, el mismo % es más plata de verdad.
+  function lineaTorta(s) {
+    const t = R.eco.torta(s);
+    const d = (t - 1) * 100;
+    const txt = Math.abs(d) < 0.5
+      ? 'Si la economía crece, el mismo % es más plata de verdad (y si cae, menos).'
+      : 'La torta ' + (d > 0 ? 'creció ' : 'se achicó ') + R.fmt(Math.abs(d), 1) + '% por habitante desde que asumiste: el mismo % alcanza para ' + (d > 0 ? 'más.' : 'menos.');
+    return h('div', { class: 'tarjeta plana suave chico fila', style: { gap: '8px', alignItems: 'center', background: d >= 0.5 ? 'var(--bien-claro)' : d <= -0.5 ? 'var(--mal-claro)' : null } },
+      h('span', { style: { fontSize: '24px' } }, '🍰'), h('span', { style: { fontWeight: 800 } }, txt));
+  }
+
+  // Plata de verdad que recibe un área comparada con cuando asumiste (nivel × torta).
+  function plataReal(s, nivel) {
+    const t = R.eco.torta(s);
+    if (Math.abs(t - 1) < 0.005) return null;
+    const d = (nivel * t - 1) * 100;
+    return h('div', { class: 'chico', style: { fontWeight: 900, color: d >= 0.5 ? 'var(--bien)' : d <= -0.5 ? 'var(--mal)' : 'var(--tinta-suave)' } },
+      '💰 ' + (Math.abs(d) < 0.5 ? 'Misma plata real que al asumir' : (d > 0 ? '+' : '−') + R.fmt(Math.abs(d), 0) + '% de plata real'));
   }
 
   function filaArea(s, a) {
@@ -7688,7 +7794,8 @@ label.boton { cursor: pointer; }
     return h('div', { class: 'area' + (pend ? ' cambiada' : '') },
       h('div', { class: 'area-cab' },
         h('span', { class: 'em' }, a.emoji),
-        h('div', { style: { minWidth: 0 } }, h('b', null, a.nombre), h('div', { class: 'chico suave' }, R.eco.nivelTxt(nivel) + (cal !== null ? ' · calidad ' + Math.round(cal) + '/100' : ''))),
+        h('div', { style: { minWidth: 0 } }, h('b', null, a.nombre), h('div', { class: 'chico suave' }, R.eco.nivelTxt(nivel) + (cal !== null ? ' · calidad ' + Math.round(cal) + '/100' : '')),
+          plataReal(s, nivel)),
         h('div', { class: 'pct numero' }, R.fmt(part, 1) + '%', h('small', null, 'del gasto'))),
       h('div', { class: 'area-control' },
         h('button', { class: 'boton mini sec', disabled: nivel <= R.eco.NIVEL_MIN ? true : null, 'aria-label': 'Menos plata para ' + a.nombre, onclick: () => cambiar(-0.1) }, '−'),
@@ -7735,7 +7842,7 @@ label.boton { cursor: pointer; }
 </script>
 <script>
 // ── js/ui/congreso.js ──
-// Congreso: hemiciclos, bloques, leyes, «contamos los porotos» y votación banca por banca.
+// Congreso: hemiciclos, bloques, leyes, cuántos votos tenés y votación banca por banca.
 (function (R) {
   'use strict';
   const h = R.h;
@@ -7750,7 +7857,7 @@ label.boton { cursor: pointer; }
   function panelCongreso(s) {
     const pc = ui.esPC();
     const izq = [tarjetaCamaras(s), tarjetaBloques(s)];
-    const der = [tarjetaLeyes(s)];
+    const der = [tarjetaEnCamino(s), tarjetaLeyes(s)].filter(Boolean);
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
     return h('div', { class: 'pila' }, izq, der);
   }
@@ -7804,10 +7911,40 @@ label.boton { cursor: pointer; }
           h('div', { class: 'cab' }, h('span', { class: 'ic' }, ley.emoji), h('span', { class: 'nom' }, ley.nombre)),
           h('div', { class: 'desc' }, ley.desc),
           ui.chipsEfectos(R.gob.describirEfectos(s, ley.ef || {}), { compacto: true, antes: h('span', { class: 'chip' }, ideoTxt(ley.ideo)) }),
+          ley.perm ? ui.chipsEfectos(R.gob.describirPerm(s, ley), { compacto: true, antes: h('span', { class: 'chip plazo' }, '⏳') }) : null,
           hecha ? h('span', { class: 'chip bien', style: { alignSelf: 'flex-start' } }, st && st.estado === 'dnu' ? '📜 Por decreto' : '✅ Es ley')
             : b ? h('div', { class: 'bloq' }, b) : ley.mayoria === 'dos_tercios' ? h('span', { class: 'chip', style: { alignSelf: 'flex-start' } }, '⚠️ Necesita 2/3') : null);
       })));
   }
+  // Corto y mediano plazo de una ley: lo que pasa al firmarla y lo que llega con el tiempo.
+  function plazos(s, ley, efectos) {
+    const perm = R.gob.describirPerm(s, ley);
+    if (!perm.length) return efectos.length ? ui.chipsEfectos(efectos) : null;
+    return h('div', { class: 'plazos' },
+      efectos.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⚡ Ahora'), ui.chipsEfectos(efectos)) : null,
+      h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⏳ En ' + R.gob.plazoTxt(ley.madura || 18)), ui.chipsEfectos(perm)));
+  }
+
+  // ⏳ Leyes que todavía no dieron todo: barra de cuánto falta.
+  function tarjetaEnCamino(s) {
+    const G = s.gob;
+    const porLey = {};
+    for (const m of G.madurando || []) porLey[m.ley] = Math.max(porLey[m.ley] || 0, R.eco.madurez(s, m));
+    const ids = Object.keys(porLey).filter((id) => R.LEY[id]);
+    if (!ids.length) return null;
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'titulo-seccion' }, '⏳ Tus leyes, en camino'),
+      h('p', { class: 'chico suave' }, 'Una fábrica o un empleo nuevo no aparecen el día que firmás: llegan de a poco.'),
+      h('div', { class: 'razones' }, ids.map((id) => {
+        const ley = R.LEY[id];
+        const k = porLey[id];
+        return h('div', { class: 'en-camino' },
+          h('div', { class: 'fila entre' }, h('b', null, ley.emoji + ' ' + ley.nombre), h('span', { class: 'chico', style: { fontWeight: 900 } }, Math.round(k * 100) + '%')),
+          h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(4, k * 100) + '%', background: 'var(--celeste)' } })),
+          ui.chipsEfectos(R.gob.describirPerm(s, ley).filter((x) => !R.GRUPOS.some((g) => g.emoji === x.emoji))));
+      })));
+  }
+
   const ideoTxt = (x) => (x <= -0.6 ? '🤲🤲' : x < -0.15 ? '🤲' : x <= 0.15 ? '⚖️' : x < 0.6 ? '💼' : '💼💼');
 
   // Hoja de una ley: porotos, negociación y votación.
@@ -7830,8 +7967,8 @@ label.boton { cursor: pointer; }
     ui.abrirCapa(h('div', { class: 'pila' },
       h('h2', null, ley.emoji + ' ' + ley.nombre),
       h('p', null, ley.desc + (ley.nota ? ' · ' + ley.nota : '')),
-      efectos.length ? ui.chipsEfectos(efectos) : null,
-      h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '🫘 Contamos los porotos'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
+      plazos(s, ley, efectos),
+      h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '🗳️ ¿Te alcanzan los votos?'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
       h('div', { class: 'etiqueta' }, 'Bloques'),
       h('div', { class: 'lista-elegir' }, Object.values(bloques).filter((b) => b.id !== 'YO').map((b) => {
         const info = R.partidoInfo(s, b.id);

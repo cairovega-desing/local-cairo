@@ -375,6 +375,13 @@ p { margin: 0; }
 .item-elegir .ic { font-size: 28px; text-align: center; }
 .item-elegir[disabled] { opacity: 0.45; cursor: not-allowed; }
 .motivo-voto { margin-top: 3px; font-weight: 800; line-height: 1.25; }
+.plazos { display: flex; flex-direction: column; gap: 6px; }
+.plazo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.plazo .cuando { font-weight: 900; font-size: 13px; min-width: 88px; }
+.chip.plazo { background: var(--cielo-claro); }
+.en-camino { display: flex; flex-direction: column; gap: 4px; padding: 6px 0; border-bottom: 1px dashed #d3deeb; }
+.en-camino:last-child { border-bottom: 0; }
+.en-camino .barrita { display: block; width: 100%; }
 
 /* ── Mapa ── */
 .mapa { width: 100%; max-width: 360px; max-height: 72vh; display: block; margin: 0 auto; overflow: visible; }
