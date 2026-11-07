@@ -34,11 +34,13 @@
     let maxX = 0;
     let maxY = 0;
     let minX = 1e9;
+    let minY = 0;
     fichas.forEach((f) => {
       const [x, y] = centro(f.hex[0], f.hex[1]);
       maxX = Math.max(maxX, x + W / 2 + M);
       minX = Math.min(minX, x - W / 2 - M);
       maxY = Math.max(maxY, y + RAD + M);
+      minY = Math.min(minY, y - RAD - M);
     });
     minX = Math.min(minX, 0);
     const defs = S('defs', null,
@@ -68,7 +70,7 @@
       g.push(S('text', { class: 'nom', x: cx, y: val ? cy - 2 : cy + 4, 'text-anchor': 'middle' }, f.abrev || R.ABREV[f.id] || f.id));
       if (val) g.push(S('text', { class: 'val', x: cx, y: cy + 11, 'text-anchor': 'middle' }, val));
     }
-    return S('svg', { class: 'mapa', viewBox: minX.toFixed(0) + ' 0 ' + (maxX - minX).toFixed(0) + ' ' + maxY.toFixed(0), role: 'group', 'aria-label': 'Mapa de provincias' }, defs, ...g);
+    return S('svg', { class: 'mapa', viewBox: minX.toFixed(0) + ' ' + minY.toFixed(0) + ' ' + (maxX - minX).toFixed(0) + ' ' + (maxY - minY).toFixed(0), role: 'group', 'aria-label': 'Mapa de provincias' }, defs, ...g);
   };
 
   // Escala de color de 0 a 100: blanco → color del partido.

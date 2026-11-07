@@ -547,6 +547,18 @@ p { margin: 0; }
 .acciones-prov { display: flex; flex-wrap: wrap; gap: 8px; }
 .acciones-prov .boton { flex: 1 1 140px; }
 
+/* ── Mundo ── */
+.bandera { display: inline-block; vertical-align: middle; border: 2px solid var(--tinta); border-radius: 4px; flex: none; }
+.paises { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pais-carta { text-align: left; border: var(--borde); border-radius: 14px; background: var(--papel); box-shadow: var(--sombra-chica); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; min-width: 0; }
+.pais-carta.anexado { background: #f6efdc; }
+.nombre-pais { font-size: 14px; line-height: 1.1; min-width: 0; }
+.frente { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.cuerda { position: relative; height: 22px; border: var(--borde); border-radius: 999px; background: #f7c6c3; }
+.cuerda > i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #74acdf, #bfe0f7); transition: width 1s cubic-bezier(.3,1.3,.5,1); }
+.cuerda .marcador { position: absolute; top: 50%; transform: translate(-50%, -50%); font-size: 22px; transition: left 1s cubic-bezier(.3,1.3,.5,1); filter: drop-shadow(0 2px 0 var(--tinta)); }
+@media (min-width: 900px) { .paises { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
 /* ── Escritorio: dos columnas ── */
 .columnas { display: grid; gap: 14px; }
 @media (min-width: 900px) {
@@ -2203,6 +2215,7 @@ p { margin: 0; }
     };
     gob.actualizarAprob(s);
     if (R.congreso) R.congreso.iniciar(s);
+    if (R.mundo) R.mundo.iniciar(s);
     s.gob.historia.push(R.eco.foto(s));
     R.diario(s, '🎖️', 'Asumís la Presidencia', 'gobierno');
     s.cola.push({ tipo: 'ministro' });
@@ -2297,6 +2310,7 @@ p { margin: 0; }
     { id: 'cgt', emoji: '✊', txt: 'Paro general permanente', si: (s) => s.gob.grupos.trabajadores.humor < 18, arreglo: 'Mesa con la CGT y salarios' },
     { id: 'barrios', emoji: '🔥', txt: 'Estallido en los barrios', si: (s) => s.gob.grupos.humildes.humor < 18, arreglo: 'Ayuda social y comida' },
     { id: 'deficit', emoji: '💸', txt: 'Déficit enorme', si: (s) => R.eco.resultado(s) < -6, arreglo: 'Recortá gastos o subí impuestos' },
+    { id: 'guerra', emoji: '⚔️', txt: 'Vamos perdiendo la guerra', si: (s) => !!(s.mundo && s.mundo.guerra && s.mundo.guerra.frente < 30), arreglo: 'Pedí la paz o conseguí aliados' },
   ];
   gob.llamas = function (s) {
     const out = [];
@@ -2336,6 +2350,7 @@ p { margin: 0; }
     defensa: { emoji: '🪖', nombre: 'Fuerzas Armadas', paso: 3 },
     infra: { emoji: '🛣️', nombre: 'Rutas', paso: 3 },
     ciencia: { emoji: '🔬', nombre: 'Ciencia', paso: 3 },
+    soberania: { emoji: '🏝️', nombre: 'Malvinas', paso: 4 },
   };
   const CALIDADES = ['salud', 'educacion', 'seguridad', 'defensa', 'infra', 'ciencia'];
   const MESES_SHOCK = { crec: 6, expo: 8, riesgo: 4 };
@@ -2346,6 +2361,8 @@ p { margin: 0; }
       if (!v) continue;
       if (k === 'calidad' && typeof v === 'object') {
         for (const [c, n] of Object.entries(v)) out.push({ k: c, v: n });
+      } else if (k === 'rel' && typeof v === 'object') {
+        for (const [c, n] of Object.entries(v)) out.push({ k: 'rel', v: n, sub: c });
       } else if (R.EF_GOB[k]) out.push({ k, v });
     }
     return out;
@@ -2355,7 +2372,9 @@ p { margin: 0; }
     const lista = gob.expandir(s, ef);
     const G = s.gob;
     const e = s.eco;
-    for (const { k, v } of lista) {
+    for (const { k, v, sub } of lista) {
+      if (k === 'rel') { if (s.mundo && s.mundo.paises[sub]) s.mundo.paises[sub].rel = R.clamp(s.mundo.paises[sub].rel + v, 0, 100); continue; }
+      if (k === 'soberania') { if (s.mundo) s.mundo.malvinas.soberania = R.clamp(s.mundo.malvinas.soberania + v, 0, 99); continue; }
       if (R.GRUPO[k]) G.grupos[k].humor = R.clamp(G.grupos[k].humor + v, 0, 100);
       else if (k === 'todos') R.GRUPOS.forEach((g) => (G.grupos[g.id].humor = R.clamp(G.grupos[g.id].humor + v, 0, 100)));
       else if (k === 'pc') G.pc = R.clamp(G.pc + v, 0, G.pcMax);
@@ -2380,8 +2399,8 @@ p { margin: 0; }
   };
 
   gob.describirAplicado = function (s, lista) {
-    return lista.map(({ k, v }) => {
-      const meta = R.EF_GOB[k];
+    return lista.map(({ k, v, sub }) => {
+      const meta = k === 'rel' ? { emoji: '🤝', nombre: R.PAIS[sub] ? R.PAIS[sub].nombre : sub, paso: 5 } : R.EF_GOB[k];
       if (!meta) return null;
       const sube = v > 0;
       return {
@@ -2577,7 +2596,8 @@ p { margin: 0; }
       if (ev) momentos.push(R.ev.instanciar(s, ev));
     }
 
-    // Elecciones y fin de mandato (las elecciones completas se agregan en otra vuelta)
+    // El mundo (guerra, resistencia) y las elecciones del mandato
+    if (R.mundo && R.mundo.mes) R.mundo.mes(s, momentos);
     if (R.gob.elecciones && R.gob.elecciones(s, momentos)) return;
 
     // Noticia del mes
@@ -3068,6 +3088,363 @@ p { margin: 0; }
   con.leyPresupuesto = function (s) {
     const def = -R.eco.resultado(s);
     return { id: 'presupuesto', nombre: 'Presupuesto ' + (R.anio(s.mes) + 1), emoji: '📒', ideo: R.clamp(s.partido.ideo * 0.5 - def * 0.15, -1, 1), polemica: R.clamp(0.15 + Math.max(0, def) * 0.12, 0, 1) };
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/datos/paises.js ──
+// Países del mundo (versión simple): poder militar, cuánto comercian, bloque y si son conquistables.
+// ideo: cómo piensa su gobierno (−1 … +1). expo: cuánto suben tus exportaciones con un tratado.
+// fichas: dónde aparecen en tu mapa si los anexás. tam: cuánto crece tu economía si los anexás.
+(function (R) {
+  'use strict';
+
+  R.PAISES = [
+    { id: 'BRA', nombre: 'Brasil', poder: 60, ideo: -0.2, rel: 50, bloque: 'mercosur', expo: 0.07, prestamo: 6, conquistable: true, tam: 1.0,
+      fichas: [{ id: 'BRA1', hex: [5, 0], abrev: 'BRA' }, { id: 'BRA2', hex: [5, 1], abrev: 'BRA' }, { id: 'BRA3', hex: [5, 2], abrev: 'BRA' }] },
+    { id: 'CHL', nombre: 'Chile', poder: 45, ideo: 0.2, rel: 45, bloque: 'pacifico', expo: 0.04, conquistable: true, tam: 0.4,
+      fichas: [{ id: 'CHL1', hex: [0, 1], abrev: 'CHI' }, { id: 'CHL2', hex: [0, 2], abrev: 'CHI' }, { id: 'CHL3', hex: [0, 4], abrev: 'CHI' }, { id: 'CHL4', hex: [0, 6], abrev: 'CHI' }] },
+    { id: 'URY', nombre: 'Uruguay', poder: 12, ideo: -0.1, rel: 65, bloque: 'mercosur', expo: 0.02, conquistable: true, tam: 0.08,
+      fichas: [{ id: 'URY1', hex: [4, 3], abrev: 'URU' }] },
+    { id: 'PRY', nombre: 'Paraguay', poder: 15, ideo: 0.5, rel: 55, bloque: 'mercosur', expo: 0.02, conquistable: true, tam: 0.07,
+      fichas: [{ id: 'PRY1', hex: [4, 0], abrev: 'PAR' }] },
+    { id: 'BOL', nombre: 'Bolivia', poder: 18, ideo: -0.5, rel: 50, bloque: null, expo: 0.02, conquistable: true, tam: 0.07,
+      fichas: [{ id: 'BOL1', hex: [1, -1], abrev: 'BOL' }, { id: 'BOL2', hex: [2, -1], abrev: 'BOL' }] },
+    { id: 'PER', nombre: 'Perú', poder: 30, ideo: 0.2, rel: 50, bloque: 'pacifico', expo: 0.02 },
+    { id: 'VEN', nombre: 'Venezuela', poder: 28, ideo: -0.9, rel: 35, bloque: 'oriental', expo: 0.01 },
+    { id: 'USA', nombre: 'Estados Unidos', poder: 100, ideo: 0.6, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 12, potencia: true },
+    { id: 'CHN', nombre: 'China', poder: 90, ideo: -0.6, rel: 50, bloque: 'oriental', expo: 0.08, prestamo: 10, potencia: true },
+    { id: 'RUS', nombre: 'Rusia', poder: 80, ideo: -0.3, rel: 35, bloque: 'oriental', expo: 0.01, potencia: true },
+    { id: 'GBR', nombre: 'Reino Unido', poder: 75, ideo: 0.4, rel: 15, bloque: 'otan', expo: 0.02, potencia: true },
+    { id: 'UE', nombre: 'Unión Europea', poder: 70, ideo: 0.0, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 8, potencia: true },
+  ];
+  R.PAIS = Object.fromEntries(R.PAISES.map((p) => [p.id, p]));
+  R.BLOQUES_MUNDO = {
+    mercosur: { nombre: 'Mercosur', emoji: '🤝' },
+    pacifico: { nombre: 'Pacífico', emoji: '🌊' },
+    otan: { nombre: 'OTAN', emoji: '🛡️' },
+    oriental: { nombre: 'Eje China-Rusia', emoji: '🐉' },
+  };
+
+  // Banderas simples dibujadas con SVG (las banderas emoji no se ven en Windows).
+  R.ui = R.ui || {};
+  R.ui.bandera = function (id, ancho) {
+    const S = R.svg;
+    const W = 60;
+    const H = 40;
+    const franjas = (cols, vertical) => cols.map((c, i) => vertical
+      ? S('rect', { x: (i * W) / cols.length, y: 0, width: W / cols.length + 0.5, height: H, fill: c })
+      : S('rect', { x: 0, y: (i * H) / cols.length, width: W, height: H / cols.length + 0.5, fill: c }));
+    const estrella = (cx, cy, r, color) => {
+      const p = [];
+      for (let i = 0; i < 10; i++) {
+        const a = -Math.PI / 2 + (i * Math.PI) / 5;
+        const rr = i % 2 ? r * 0.45 : r;
+        p.push((cx + Math.cos(a) * rr).toFixed(1) + ',' + (cy + Math.sin(a) * rr).toFixed(1));
+      }
+      return S('polygon', { points: p.join(' '), fill: color });
+    };
+    let partes = [];
+    switch (id) {
+      case 'ARG': partes = franjas(['#74acdf', '#ffffff', '#74acdf']).concat([S('circle', { cx: 30, cy: 20, r: 4.5, fill: '#f6b40e', stroke: '#a87800', 'stroke-width': 0.8 })]); break;
+      case 'BRA': partes = [S('rect', { width: W, height: H, fill: '#169b45' }), S('polygon', { points: '30,4 56,20 30,36 4,20', fill: '#fedd00' }), S('circle', { cx: 30, cy: 20, r: 8.5, fill: '#012169' })]; break;
+      case 'CHL': partes = [S('rect', { width: W, height: H, fill: '#d52b1e' }), S('rect', { width: W, height: 20, fill: '#ffffff' }), S('rect', { width: 20, height: 20, fill: '#0039a6' }), estrella(10, 10, 5, '#ffffff')]; break;
+      case 'URY': partes = franjas(['#ffffff', '#0038a8', '#ffffff', '#0038a8', '#ffffff', '#0038a8', '#ffffff', '#0038a8', '#ffffff']).concat([S('rect', { width: 24, height: 22, fill: '#ffffff' }), S('circle', { cx: 12, cy: 11, r: 6, fill: '#fcd116', stroke: '#7b3f00', 'stroke-width': 0.6 })]); break;
+      case 'PRY': partes = franjas(['#d52b1e', '#ffffff', '#0038a8']).concat([S('circle', { cx: 30, cy: 20, r: 4, fill: 'none', stroke: '#00843d', 'stroke-width': 1.2 })]); break;
+      case 'BOL': partes = franjas(['#d52b1e', '#f9e300', '#007934']); break;
+      case 'PER': partes = franjas(['#d91023', '#ffffff', '#d91023'], true); break;
+      case 'VEN': partes = franjas(['#ffcc00', '#00247d', '#cf142b']).concat([0, 1, 2, 3, 4, 5, 6, 7].map((i) => S('circle', { cx: 30 + Math.cos(Math.PI * (1 - i / 7)) * 9, cy: 22 - Math.sin(Math.PI * (1 - i / 7)) * 6, r: 1.2, fill: '#ffffff' }))); break;
+      case 'USA': partes = franjas(['#b22234', '#ffffff', '#b22234', '#ffffff', '#b22234', '#ffffff', '#b22234']).concat([S('rect', { width: 26, height: 21.5, fill: '#3c3b6e' })]).concat([0, 1, 2].flatMap((f) => [0, 1, 2, 3].map((c) => S('circle', { cx: 4 + c * 6, cy: 4 + f * 6.5, r: 1.1, fill: '#ffffff' })))); break;
+      case 'CHN': partes = [S('rect', { width: W, height: H, fill: '#de2910' }), estrella(12, 12, 7, '#ffde00'), estrella(23, 5, 2, '#ffde00'), estrella(26, 10, 2, '#ffde00'), estrella(26, 16, 2, '#ffde00'), estrella(23, 21, 2, '#ffde00')]; break;
+      case 'RUS': partes = franjas(['#ffffff', '#0039a6', '#d52b1e']); break;
+      case 'GBR': partes = [S('rect', { width: W, height: H, fill: '#012169' }), S('path', { d: 'M0 0 L60 40 M60 0 L0 40', stroke: '#ffffff', 'stroke-width': 8 }), S('path', { d: 'M0 0 L60 40 M60 0 L0 40', stroke: '#c8102e', 'stroke-width': 2.6 }),
+        S('path', { d: 'M30 0 V40 M0 20 H60', stroke: '#ffffff', 'stroke-width': 12 }), S('path', { d: 'M30 0 V40 M0 20 H60', stroke: '#c8102e', 'stroke-width': 7 })]; break;
+      case 'UE': partes = [S('rect', { width: W, height: H, fill: '#003399' })].concat(Array.from({ length: 12 }, (_, i) => estrella(30 + Math.cos((i * Math.PI) / 6) * 11, 20 + Math.sin((i * Math.PI) / 6) * 11, 2.2, '#ffcc00'))); break;
+      default: partes = [S('rect', { width: W, height: H, fill: '#ccc' })];
+    }
+    return S('svg', { viewBox: '0 0 60 40', width: ancho || 42, height: ((ancho || 42) * 2) / 3, class: 'bandera', role: 'img', 'aria-label': 'Bandera de ' + ((R.PAIS[id] && R.PAIS[id].nombre) || 'Argentina') }, ...partes);
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/mundo.js ──
+// El mundo: relaciones, tratados, préstamos, alianzas, guerra (frente tira y afloja), anexiones y Malvinas.
+(function (R) {
+  'use strict';
+
+  const mun = (R.mundo = {});
+
+  mun.iniciar = function (s) {
+    const paises = {};
+    for (const p of R.PAISES) {
+      const afin = 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo));
+      paises[p.id] = { rel: R.clamp(Math.round(p.rel + afin), 0, 100), tratado: false, alianza: false, sancion: false, anexado: false, enfr: {} };
+    }
+    s.mundo = { paises, guerra: null, malvinas: { soberania: 0, recuperadas: false }, poderExtra: 0, resistencia: 0 };
+  };
+
+  // ⚔️ Poder militar propio (sale de la calidad de Defensa, leyes y compras).
+  mun.poder = (s) => Math.round(15 + s.eco.calidad.defensa * 0.7 + (s.mundo.poderExtra || 0));
+
+  mun.aliados = (s) => R.PAISES.filter((p) => s.mundo.paises[p.id].alianza && !s.mundo.paises[p.id].anexado);
+
+  // Fuerza total en una guerra contra «enemigo»: tu poder + aliados que se suman; el enemigo + su bloque.
+  mun.fuerzas = function (s, enemigo) {
+    const E = R.PAIS[enemigo];
+    let yo = mun.poder(s);
+    const misAliados = [];
+    for (const a of mun.aliados(s)) {
+      if (a.id === enemigo || (E.bloque && a.bloque === E.bloque) || s.mundo.paises[a.id].rel < 50) continue;
+      yo += a.poder * 0.35;
+      misAliados.push(a.id);
+    }
+    let el = E.poder;
+    const susAliados = [];
+    if (E.bloque) {
+      for (const p of R.PAISES) {
+        if (p.id === enemigo || p.bloque !== E.bloque || s.mundo.paises[p.id].anexado || misAliados.includes(p.id)) continue;
+        el += p.poder * 0.35;
+        susAliados.push(p.id);
+      }
+    }
+    return { yo: Math.round(yo), el: Math.round(el), misAliados, susAliados, ratio: yo / Math.max(1, el) };
+  };
+
+  // ── Acciones con países ──
+  mun.ACCIONES = [
+    { id: 'visita', emoji: '✈️', nombre: 'Visita oficial', costo: { pc: 1 }, enfr: 4, si: (s, p, st) => !st.anexado && !mun.enGuerraCon(s, p.id),
+      hacer: (s, p, st) => { st.rel = R.clamp(st.rel + 10, 0, 100); return { txt: 'Foto con el gobierno de ' + p.nombre + ' 🤝', ef: {} }; } },
+    { id: 'tratado', emoji: '📦', nombre: 'Tratado comercial', costo: { pc: 2 }, req: 25, si: (s, p, st) => !st.tratado && !st.anexado && !st.sancion,
+      hacer: (s, p, st) => {
+        st.tratado = true;
+        s.gob.bonusExpo = (s.gob.bonusExpo || 0) + p.expo;
+        st.rel = R.clamp(st.rel + 5, 0, 100);
+        return { txt: '¡Tratado con ' + p.nombre + '! Más exportaciones 🚢', ef: { campo: 3, empresarios: 3, trabajadores: -2 } };
+      } },
+    { id: 'prestamo', emoji: '💵', nombre: 'Pedir un préstamo', costo: { pc: 1 }, req: 35, enfr: 18, si: (s, p, st) => !!p.prestamo && !st.anexado,
+      hacer: (s, p, st) => {
+        if (p.id === 'CHN') s.mundo.paises.USA.rel = R.clamp(s.mundo.paises.USA.rel - 5, 0, 100);
+        return { txt: p.nombre + ' te presta US$ ' + p.prestamo + ' mil M 💵', ef: { reservas: p.prestamo, deuda: p.prestamo * 0.25, riesgo: -40 } };
+      } },
+    { id: 'alianza', emoji: '🛡️', nombre: 'Alianza militar', costo: { pc: 3 }, req: 55, si: (s, p, st) => !st.alianza && !st.anexado,
+      hacer: (s, p, st) => {
+        st.alianza = true;
+        // Los rivales de su bloque se enojan.
+        for (const q of R.PAISES) {
+          if (q.id === p.id || !q.bloque || !p.bloque) continue;
+          const rivales = (p.bloque === 'otan' && q.bloque === 'oriental') || (p.bloque === 'oriental' && q.bloque === 'otan');
+          if (rivales) s.mundo.paises[q.id].rel = R.clamp(s.mundo.paises[q.id].rel - 12, 0, 100);
+        }
+        return { txt: '🛡️ Alianza militar con ' + p.nombre, ef: { media: 1 } };
+      } },
+    { id: 'sancion', emoji: '🚫', nombre: 'Sanciones', costo: { pc: 1 }, si: (s, p, st) => !st.sancion && !st.anexado,
+      hacer: (s, p, st) => {
+        st.sancion = true;
+        st.rel = R.clamp(st.rel - 30, 0, 100);
+        if (st.tratado) { st.tratado = false; s.gob.bonusExpo = (s.gob.bonusExpo || 0) - p.expo; }
+        return { txt: 'Sanciones a ' + p.nombre + ' 🚫', ef: p.id === 'GBR' ? { todos: 2 } : { empresarios: -2 } };
+      } },
+    { id: 'guerra', emoji: '⚔️', nombre: 'Declarar la guerra', costo: { pc: 5 }, si: (s, p, st) => p.conquistable && !st.anexado && !s.mundo.guerra,
+      hacer: (s, p) => mun.empezarGuerra(s, p.id, 'anexar') },
+  ];
+  mun.ACC = Object.fromEntries(mun.ACCIONES.map((a) => [a.id, a]));
+  mun.enGuerraCon = (s, id) => !!(s.mundo.guerra && s.mundo.guerra.pais === id);
+
+  mun.bloqueo = function (s, paisId, accId) {
+    const a = mun.ACC[accId];
+    const p = R.PAIS[paisId];
+    const st = s.mundo.paises[paisId];
+    if (a.si && !a.si(s, p, st)) return 'No aplica';
+    if (a.req && st.rel < a.req) return 'Necesitás mejor relación (' + a.req + ')';
+    if (a.enfr && st.enfr[accId] !== undefined && s.mes - st.enfr[accId] < a.enfr) return 'De nuevo en ' + (a.enfr - (s.mes - st.enfr[accId])) + ' meses';
+    if (a.costo.pc && s.gob.pc < a.costo.pc) return 'Falta ⭐';
+    return null;
+  };
+
+  mun.hacer = function (s, paisId, accId) {
+    const b = mun.bloqueo(s, paisId, accId);
+    if (b) return { error: b };
+    const a = mun.ACC[accId];
+    const p = R.PAIS[paisId];
+    const st = s.mundo.paises[paisId];
+    s.gob.pc -= a.costo.pc || 0;
+    st.enfr[accId] = s.mes;
+    const antes = s.gob.aprob;
+    const r = a.hacer(s, p, st);
+    const aplicado = R.gob.aplicarEfectos(s, r.ef || {});
+    R.diario(s, a.emoji, a.nombre + ': ' + p.nombre, 'mundo');
+    return { txt: r.txt, bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
+
+  // Comprar armamento.
+  mun.COMPRA = { costo: { pc: 1, gasto: 4 }, poder: 10, enfr: 12 };
+  mun.comprarArmas = function (s, proveedor) {
+    const k = 'armas';
+    if (s.gob.enfr[k] !== undefined && s.mes - s.gob.enfr[k] < mun.COMPRA.enfr) return { error: 'De nuevo en ' + (mun.COMPRA.enfr - (s.mes - s.gob.enfr[k])) + ' meses' };
+    if (s.gob.pc < 1) return { error: 'Falta ⭐' };
+    s.gob.pc -= 1;
+    s.gob.enfr[k] = s.mes;
+    s.mundo.poderExtra = (s.mundo.poderExtra || 0) + mun.COMPRA.poder;
+    s.mundo.paises[proveedor].rel = R.clamp(s.mundo.paises[proveedor].rel + 8, 0, 100);
+    const antes = s.gob.aprob;
+    const aplicado = R.gob.aplicarEfectos(s, { gastoExtra: mun.COMPRA.costo.gasto, defensa: 3 });
+    R.diario(s, '🛩️', 'Compraste aviones a ' + R.PAIS[proveedor].nombre, 'mundo');
+    return { txt: '🛩️ Llegan aviones de ' + R.PAIS[proveedor].nombre + ': poder militar ▲', bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
+
+  // ── Malvinas ──
+  mun.MALVINAS = [
+    { id: 'onu', emoji: '🇺🇳', nombre: 'Reclamo en la ONU', costo: { pc: 2 }, enfr: 6,
+      avance: (s) => 6 + Math.max(0, (s.mundo.paises.USA.rel - 50) / 10) + Math.max(0, (s.mundo.paises.CHN.rel - 50) / 10) },
+    { id: 'negociar', emoji: '🤝', nombre: 'Negociar con el Reino Unido', costo: { pc: 4 }, enfr: 6, req: 50,
+      avance: (s) => 10 + (s.mundo.paises.GBR.rel - 50) / 4 },
+  ];
+  mun.bloqueoMalvinas = function (s, id) {
+    const a = mun.MALVINAS.find((x) => x.id === id);
+    const M = s.mundo.malvinas;
+    if (M.recuperadas) return 'Ya son argentinas 🇦🇷';
+    if (a.req && s.mundo.paises.GBR.rel < a.req) return 'El Reino Unido no quiere hablar (relación ' + a.req + ')';
+    const k = 'mlv_' + id;
+    if (s.gob.enfr[k] !== undefined && s.mes - s.gob.enfr[k] < a.enfr) return 'De nuevo en ' + (a.enfr - (s.mes - s.gob.enfr[k])) + ' meses';
+    if (s.gob.pc < a.costo.pc) return 'Falta ⭐';
+    return null;
+  };
+  mun.malvinas = function (s, id) {
+    const b = mun.bloqueoMalvinas(s, id);
+    if (b) return { error: b };
+    const a = mun.MALVINAS.find((x) => x.id === id);
+    s.gob.pc -= a.costo.pc;
+    s.gob.enfr['mlv_' + id] = s.mes;
+    const M = s.mundo.malvinas;
+    const av = Math.round(R.clamp(a.avance(s), 2, 25));
+    M.soberania = Math.min(100, M.soberania + av);
+    if (id === 'negociar') s.mundo.paises.GBR.rel = R.clamp(s.mundo.paises.GBR.rel - 3, 0, 100);
+    const antes = s.gob.aprob;
+    let ef = { todos: 1 };
+    let txt = a.emoji + ' La soberanía avanza: ' + M.soberania + '%';
+    if (M.soberania >= 100) {
+      M.recuperadas = true;
+      ef = { todos: 15 };
+      txt = '🇦🇷 ¡LAS MALVINAS SON ARGENTINAS! Acuerdo histórico';
+      R.diario(s, '🇦🇷', '¡Recuperaste las Malvinas por la vía diplomática!', 'mundo');
+    }
+    const aplicado = R.gob.aplicarEfectos(s, ef);
+    return { txt, bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob, especial: M.recuperadas };
+  };
+
+  // ── Guerra ──
+  mun.empezarGuerra = function (s, paisId, objetivo) {
+    const W = { pais: paisId, objetivo, frente: 50, meses: 0 };
+    s.mundo.guerra = W;
+    for (const p of R.PAISES) {
+      const st = s.mundo.paises[p.id];
+      if (p.id === paisId) { st.rel = 0; st.alianza = false; if (st.tratado) { st.tratado = false; s.gob.bonusExpo = (s.gob.bonusExpo || 0) - p.expo; } continue; }
+      if (!st.alianza) st.rel = R.clamp(st.rel - 12, 0, 100);
+    }
+    R.diario(s, '⚔️', '¡Guerra contra ' + R.PAIS[paisId].nombre + '!', 'mundo');
+    return { txt: '⚔️ ¡Empezó la guerra contra ' + R.PAIS[paisId].nombre + '!', ef: { todos: 6, riesgo: 300, crec: -1.5 } };
+  };
+  mun.recuperarMalvinas = function (s) {
+    if (s.mundo.guerra || s.mundo.malvinas.recuperadas) return { error: 'No se puede ahora' };
+    if (s.gob.pc < 5) return { error: 'Falta ⭐' };
+    s.gob.pc -= 5;
+    const antes = s.gob.aprob;
+    const r = mun.empezarGuerra(s, 'GBR', 'malvinas');
+    const aplicado = R.gob.aplicarEfectos(s, r.ef);
+    return { txt: '⚓ La flota zarpa hacia Malvinas', bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
+
+  mun.ORDENES = [
+    { id: 'ofensiva', emoji: '⚔️', nombre: 'Ofensiva', desc: 'Avanzás fuerte', costo: { gasto: 3 } },
+    { id: 'defender', emoji: '🛡️', nombre: 'Defender', desc: 'Aguantás y gastás poco', costo: { gasto: 1 } },
+    { id: 'paz', emoji: '🕊️', nombre: 'Pedir la paz', desc: 'Termina la guerra', costo: {} },
+  ];
+
+  // Una orden de guerra (se da cada mes). Devuelve { txt, delta, fin?, aplicado }.
+  mun.orden = function (s, id) {
+    const W = s.mundo.guerra;
+    const F = mun.fuerzas(s, W.pais);
+    const P = R.PAIS[W.pais];
+    let delta = 0;
+    let ef = {};
+    W.meses++;
+    if (id === 'paz') return mun.terminarGuerra(s, W.frente >= 55 ? 'paz_buena' : 'paz_mala');
+    if (id === 'ofensiva') { delta = 15 * (F.ratio - 0.85) + R.gauss(s) * 7; ef = { gastoExtra: 3 }; }
+    else { delta = 6 * (F.ratio - 1.05) + R.gauss(s) * 4; ef = { gastoExtra: 1 }; }
+    W.frente = R.clamp(W.frente + delta, 0, 100);
+    ef.crec = -1;
+    ef.todos = W.meses <= 2 ? 2 : -2; // al principio patriotismo, después cansancio
+    if (delta < -6) ef.todos -= 2;
+    const aplicado = R.gob.aplicarEfectos(s, ef);
+    let txt = delta > 4 ? '¡Avanzamos en el frente! 🎖️' : delta < -4 ? 'Retrocedemos… ' + P.nombre + ' contraataca 😰' : 'El frente casi no se mueve';
+    if (W.frente >= 100) return Object.assign(mun.terminarGuerra(s, 'victoria'), { delta });
+    if (W.frente <= 0) return Object.assign(mun.terminarGuerra(s, 'derrota'), { delta });
+    return { txt, delta, aplicado, bueno: delta >= 0 };
+  };
+
+  mun.terminarGuerra = function (s, como) {
+    const W = s.mundo.guerra;
+    const P = R.PAIS[W.pais];
+    const st = s.mundo.paises[W.pais];
+    s.mundo.guerra = null;
+    let ef = {};
+    let txt = '';
+    if (como === 'victoria') {
+      if (W.objetivo === 'malvinas') {
+        s.mundo.malvinas.recuperadas = true;
+        s.mundo.malvinas.soberania = 100;
+        ef = { todos: 18, riesgo: 200 };
+        txt = '🇦🇷 ¡RECUPERAMOS LAS MALVINAS!';
+      } else {
+        st.anexado = true;
+        s.eco.pbi *= 1 + P.tam;
+        s.mundo.resistencia = (s.mundo.resistencia || 0) + 12;
+        for (const q of R.PAISES) if (q.id !== P.id && !s.mundo.paises[q.id].alianza) s.mundo.paises[q.id].rel = R.clamp(s.mundo.paises[q.id].rel - 15, 0, 100);
+        ef = { todos: 10, reservas: 4 + P.tam * 10, riesgo: 250 };
+        txt = '🏴 ¡Ganaste la guerra! ' + P.nombre + ' ahora es parte de la Argentina';
+      }
+    } else if (como === 'derrota') {
+      ef = { todos: -22, reservas: -8, deuda: 5, riesgo: 500, escandalo: 3 };
+      txt = '💀 Perdiste la guerra contra ' + P.nombre;
+      st.rel = 10;
+    } else if (como === 'paz_buena') {
+      ef = { todos: 4, reservas: 3 };
+      txt = '🕊️ Paz con ventaja: ' + P.nombre + ' paga una indemnización';
+      st.rel = 20;
+    } else {
+      ef = { todos: -6, reservas: -4 };
+      txt = '🕊️ Paz con derrota: pagás una indemnización a ' + P.nombre;
+      st.rel = 25;
+    }
+    R.diario(s, como === 'victoria' ? '🎖️' : '🕊️', txt, 'mundo');
+    const aplicado = R.gob.aplicarEfectos(s, ef);
+    return { txt, aplicado, fin: como, bueno: como === 'victoria' || como === 'paz_buena' };
+  };
+
+  // Cada mes: la guerra pide una orden, la resistencia de lo anexado y las relaciones se acomodan.
+  mun.mes = function (s, momentos) {
+    if (!s.mundo) return;
+    if (s.mundo.guerra) momentos.push({ tipo: 'guerra' });
+    if (s.mundo.resistencia > 0) {
+      s.mundo.resistencia--;
+      R.gob.aplicarEfectos(s, { todos: -0.4 });
+    }
+    for (const p of R.PAISES) {
+      const st = s.mundo.paises[p.id];
+      if (st.anexado) continue;
+      const meta = st.alianza ? 70 : R.clamp(p.rel + 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo)), 0, 100);
+      st.rel = R.clamp(st.rel + (meta - st.rel) * 0.02, 0, 100);
+    }
+  };
+
+  // Fichas extra para el mapa (países anexados).
+  mun.fichasMapa = function (s) {
+    if (!s.mundo) return [];
+    const out = [];
+    for (const p of R.PAISES) if (s.mundo.paises[p.id].anexado && p.fichas) for (const f of p.fichas) out.push({ id: f.id, hex: f.hex, abrev: f.abrev, nombre: p.nombre + ' (anexado)', pais: p.id });
+    return out;
   };
 })(globalThis.R = globalThis.R || {});
 
@@ -3771,6 +4148,156 @@ p { margin: 0; }
 
 </script>
 <script>
+// ── js/datos/eventos_mundo.js ──
+// Noticias del mundo (salen junto con las de gobierno). rel: { PAÍS: cambio de relación }, soberania: avance en Malvinas.
+(function (R) {
+  'use strict';
+  const rel = (id) => (s) => (s.mundo ? s.mundo.paises[id].rel : 50);
+  const enGuerra = (s) => !!(s.mundo && s.mundo.guerra);
+
+  R.ev.registrar([
+    {
+      id: 'm_tlc_eeuu', fase: 'gobierno', peso: 2, cuando: (s) => rel('USA')(s) >= 45 && !s.mundo.paises.USA.tratado, dibujo: '🦅 📦 🤝',
+      titular: 'Estados Unidos ofrece un tratado de libre comercio',
+      opciones: [
+        { txt: 'Firmar', ef: { empresarios: 6, campo: 4, trabajadores: -4, rel: { USA: 10, CHN: -8 } },
+          despues: (s) => { s.mundo.paises.USA.tratado = true; s.gob.bonusExpo = (s.gob.bonusExpo || 0) + R.PAIS.USA.expo; }, res: 'Tratado firmado: más exportaciones 🚢' },
+        { txt: 'Negociar con calma', ef: { rel: { USA: 3 } }, res: 'Seguimos conversando' },
+        { txt: 'Rechazar', ef: { trabajadores: 2, rel: { USA: -10 } }, res: '«No somos colonia», dicen algunos' },
+      ],
+    },
+    {
+      id: 'm_china_base', fase: 'gobierno', peso: 2, unaVez: true, dibujo: '🐉 📡 🏔️',
+      titular: 'China quiere una base espacial en la Patagonia',
+      opciones: [
+        { txt: 'Aceptar', ef: { reservas: 5, rel: { CHN: 15, USA: -15 } }, res: 'Antenas chinas en Neuquén 📡' },
+        { txt: 'Que sea civil y controlada', costo: { pc: 2 }, ef: { reservas: 2, rel: { CHN: 6, USA: -4 } }, res: 'Acuerdo con condiciones' },
+        { txt: 'Rechazar', ef: { rel: { CHN: -12, USA: 8 } }, res: 'Washington aplaude 👏' },
+      ],
+    },
+    {
+      id: 'm_china_soja', fase: 'gobierno', peso: 2, repite: 18, dibujo: '🌱 🚢 🐉',
+      titular: 'China quiere comprar toda la cosecha de soja',
+      opciones: [
+        { txt: 'Vender todo', ef: { reservas: 5, campo: 6, rel: { CHN: 6 } }, res: 'Barcos repletos rumbo a Shanghái 🚢' },
+        { txt: 'Exigir que inviertan acá', costo: { pc: 1 }, ef: { reservas: 3, empresarios: 3, crec: 0.4, rel: { CHN: 2 } }, res: 'Fábrica china en Rosario 🏭' },
+      ],
+    },
+    {
+      id: 'm_brasil_crisis', fase: 'gobierno', peso: 2, repite: 20, dibujo: '🦜 📉 💸',
+      titular: 'Brasil devalúa fuerte: sus productos inundan el mercado',
+      opciones: [
+        { txt: 'Proteger la industria', ef: { trabajadores: 4, empresarios: 2, media: -3, rel: { BRA: -8 } }, res: 'Aranceles a lo brasileño' },
+        { txt: 'Dejar entrar', ef: { media: 3, trabajadores: -5, expo: -0.03 }, res: 'Zapatillas baratas, fábricas cerradas' },
+        { txt: 'Negociar en el Mercosur', costo: { pc: 2 }, ef: { trabajadores: 2, rel: { BRA: 5 } }, res: 'Cupos acordados 🤝' },
+      ],
+    },
+    {
+      id: 'm_mercosur', fase: 'gobierno', peso: 2, repite: 24, dibujo: '🤝 🌎 💱',
+      titular: 'Cumbre del Mercosur: proponen una moneda común',
+      opciones: [
+        { txt: 'Apoyar la idea', ef: { rel: { BRA: 10, URY: 8, PRY: 8 }, riesgo: 40 }, res: 'El «sur» en camino 💱' },
+        { txt: 'Más comercio, sin moneda', ef: { rel: { BRA: 4, URY: 4 }, expo: 0.02 }, res: 'Bajan los aranceles entre vecinos' },
+        { txt: 'Salir del Mercosur', ef: { empresarios: 3, trabajadores: -4, rel: { BRA: -20, URY: -15, PRY: -15 }, expo: -0.04 }, res: 'Portazo regional 🚪' },
+      ],
+    },
+    {
+      id: 'm_pesca_malvinas', fase: 'gobierno', peso: 3, repite: 18, cuando: (s) => s.mundo && !s.mundo.malvinas.recuperadas, dibujo: '🎣 🏝️ 🚢',
+      titular: 'El Reino Unido vende licencias de pesca en Malvinas',
+      opciones: [
+        { txt: 'Protesta formal', costo: { pc: 1 }, ef: { todos: 1, soberania: 3, rel: { GBR: -5 } }, res: 'La ONU toma nota 📜' },
+        { txt: 'Sancionar a las pesqueras', ef: { todos: 3, rel: { GBR: -12, UE: -4 } }, res: 'Barcos piratas, afuera 🏴‍☠️' },
+        { txt: 'Proponer pesca conjunta', costo: { pc: 2 }, ef: { reservas: 2, soberania: 6, media: -2, rel: { GBR: 8 } }, res: 'Primer acuerdo en décadas 🤝' },
+      ],
+    },
+    {
+      id: 'm_onu_malvinas', fase: 'gobierno', peso: 3, repite: 24, cuando: (s) => s.mundo && s.mundo.malvinas.soberania >= 25 && !s.mundo.malvinas.recuperadas, dibujo: '🌐 🗳️ 🏝️',
+      titular: 'La ONU vota una resolución sobre Malvinas',
+      opciones: [
+        { txt: 'Hacer lobby con todos', costo: { pc: 3 }, ef: { soberania: 12, todos: 2 }, res: '¡Apoyo masivo en la ONU! 🌐' },
+        { txt: 'Pedir apoyo a China', ef: { soberania: 7, rel: { CHN: 5, USA: -6 } }, res: 'China vota con vos 🐉' },
+        { txt: 'Pedir apoyo a EE. UU.', ef: { soberania: 7, rel: { USA: 5, CHN: -6 } }, res: 'Washington se abstiene, algo es algo' },
+      ],
+    },
+    {
+      id: 'm_hielos', fase: 'gobierno', peso: 1, unaVez: true, dibujo: '🏔️ 🧊 🗺️',
+      titular: 'Chile publica un mapa que se queda con los Hielos Continentales',
+      opciones: [
+        { txt: 'Reclamo firme', ef: { todos: 2, rel: { CHL: -15 } }, res: 'Tensión en la cordillera' },
+        { txt: 'Comisión binacional', costo: { pc: 1 }, ef: { rel: { CHL: 5 } }, res: 'Lo arreglan los técnicos' },
+      ],
+    },
+    {
+      id: 'm_bolivia_gas', fase: 'gobierno', peso: 2, unaVez: true, dibujo: '🔥 🛢️ 🦙',
+      titular: 'Bolivia ofrece gas barato por 10 años',
+      opciones: [
+        { txt: 'Aceptar', ef: { media: 2, humildes: 2, rel: { BOL: 12 } }, despues: (s) => { s.eco.niveles.subsidios = Math.max(0.5, R.round(s.eco.niveles.subsidios - 0.1, 2)); s.eco.nivelesInicioMes.subsidios = s.eco.niveles.subsidios; }, res: 'Gas barato: bajan los subsidios sin tarifazo 🔥' },
+        { txt: 'Mejor Vaca Muerta', ef: { empresarios: 3, rel: { BOL: -8 } }, res: 'Energía argentina' },
+      ],
+    },
+    {
+      id: 'm_migrantes', fase: 'gobierno', peso: 2, repite: 24, dibujo: '🧳 🚌 🏠',
+      titular: 'Llegan miles de migrantes de Venezuela',
+      opciones: [
+        { txt: 'Recibirlos', ef: { media: 1, humildes: -2, crec: 0.3, rel: { VEN: -5, USA: 4 } }, res: 'Médicos e ingenieros que suman 🩺' },
+        { txt: 'Cerrar la frontera', ef: { media: 2, humildes: 2, rel: { VEN: 4, UE: -5 } }, res: 'Frontera cerrada 🚧' },
+      ],
+    },
+    {
+      id: 'm_potencias', fase: 'gobierno', peso: 1, repite: 30, desde: 12, dibujo: '🦅 ⚡ 🐉',
+      titular: 'Tensión entre EE. UU. y China: te piden elegir bando',
+      opciones: [
+        { txt: 'Con Estados Unidos', ef: { empresarios: 3, rel: { USA: 15, GBR: 6, CHN: -15, RUS: -10 } }, res: 'Alineamiento con Occidente 🦅' },
+        { txt: 'Con China', ef: { trabajadores: 2, rel: { CHN: 15, RUS: 8, USA: -15, GBR: -6 } }, res: 'Socio estratégico de Pekín 🐉' },
+        { txt: 'Neutralidad', costo: { pc: 1 }, ef: { rel: { USA: -2, CHN: -2 } }, res: 'Ni con unos ni con otros' },
+      ],
+    },
+    {
+      id: 'm_espia', fase: 'gobierno', peso: 1, unaVez: true, desde: 6, dibujo: '🕵️ 🐻 📡',
+      titular: 'Atrapan a un espía ruso en Buenos Aires',
+      opciones: [
+        { txt: 'Expulsar diplomáticos', ef: { media: 2, rel: { RUS: -15, USA: 6 } }, res: 'Fuera del país 🚪' },
+        { txt: 'Canjearlo en silencio', ef: { rel: { RUS: 4 }, escandalo: 1 }, res: 'Nadie se enteró… casi' },
+      ],
+    },
+    {
+      id: 'm_pastera', fase: 'gobierno', peso: 1, unaVez: true, dibujo: '🏭 🌊 🐟',
+      titular: 'Uruguay autoriza otra papelera sobre el río',
+      opciones: [
+        { txt: 'Cortar el puente', ef: { media: 2, rel: { URY: -15 } }, res: 'Bloqueo en Gualeguaychú 🌉' },
+        { txt: 'Control ambiental conjunto', costo: { pc: 1 }, ef: { rel: { URY: 6 } }, res: 'Monitoreo binacional 🔬' },
+      ],
+    },
+    // Guerra
+    {
+      id: 'm_guerra_onu', fase: 'gobierno', peso: 6, repite: 4, cuando: enGuerra, dibujo: '🌐 🕊️ ⚔️',
+      titular: 'La ONU pide un alto el fuego',
+      opciones: [
+        { txt: 'Seguir peleando', ef: { media: -3, rel: { UE: -6, USA: -4 } }, res: 'El mundo te mira con preocupación' },
+        { txt: 'Aceptar una tregua', ef: { todos: 2 }, despues: (s) => { if (s.mundo.guerra) R.mundo.terminarGuerra(s, s.mundo.guerra.frente >= 55 ? 'paz_buena' : 'paz_mala'); }, res: 'Se callaron las armas 🕊️' },
+      ],
+    },
+    {
+      id: 'm_guerra_heroe', fase: 'gobierno', peso: 4, repite: 6, cuando: enGuerra, dibujo: '🎖️ 🪖 ☀️',
+      titular: 'Un soldado se vuelve héroe nacional',
+      opciones: [
+        { txt: 'Condecorarlo', costo: { pc: 1 }, ef: { todos: 4 }, res: 'Todo el país lo aplaude 🎖️' },
+        { txt: 'Bajo perfil', ef: { todos: 1 }, res: 'Héroe anónimo' },
+      ],
+    },
+    {
+      id: 'm_insurgencia', fase: 'gobierno', peso: 5, repite: 6, cuando: (s) => s.mundo && s.mundo.resistencia > 0, dibujo: '🔥 🏴 🚧',
+      titular: 'Protestas contra la anexión en los territorios nuevos',
+      opciones: [
+        { txt: 'Inversión y autonomía', costo: { gasto: 2 }, ef: { todos: 1 }, despues: (s) => { s.mundo.resistencia = Math.max(0, s.mundo.resistencia - 6); }, res: 'Escuelas y rutas: baja la tensión 🏗️' },
+        { txt: 'Mano dura', ef: { media: -2, escandalo: 2 }, despues: (s) => { s.mundo.resistencia = Math.max(0, s.mundo.resistencia - 3); }, res: 'Orden… con miedo' },
+      ],
+    },
+  ]);
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
 // ── js/ui/dom.js ──
 // Ayudantes de interfaz: crear nodos, ventanas, avisos, chips de efectos y animaciones.
 (function (R) {
@@ -4169,11 +4696,13 @@ p { margin: 0; }
     let maxX = 0;
     let maxY = 0;
     let minX = 1e9;
+    let minY = 0;
     fichas.forEach((f) => {
       const [x, y] = centro(f.hex[0], f.hex[1]);
       maxX = Math.max(maxX, x + W / 2 + M);
       minX = Math.min(minX, x - W / 2 - M);
       maxY = Math.max(maxY, y + RAD + M);
+      minY = Math.min(minY, y - RAD - M);
     });
     minX = Math.min(minX, 0);
     const defs = S('defs', null,
@@ -4203,7 +4732,7 @@ p { margin: 0; }
       g.push(S('text', { class: 'nom', x: cx, y: val ? cy - 2 : cy + 4, 'text-anchor': 'middle' }, f.abrev || R.ABREV[f.id] || f.id));
       if (val) g.push(S('text', { class: 'val', x: cx, y: cy + 11, 'text-anchor': 'middle' }, val));
     }
-    return S('svg', { class: 'mapa', viewBox: minX.toFixed(0) + ' 0 ' + (maxX - minX).toFixed(0) + ' ' + maxY.toFixed(0), role: 'group', 'aria-label': 'Mapa de provincias' }, defs, ...g);
+    return S('svg', { class: 'mapa', viewBox: minX.toFixed(0) + ' ' + minY.toFixed(0) + ' ' + (maxX - minX).toFixed(0) + ' ' + (maxY - minY).toFixed(0), role: 'group', 'aria-label': 'Mapa de provincias' }, defs, ...g);
   };
 
   // Escala de color de 0 a 100: blanco → color del partido.
@@ -5965,6 +6494,248 @@ p { margin: 0; }
       })),
       con.bloqueoProv(s, id, con.ACC_PROV[2]) && s.mes - g.enfr < 3 ? h('p', { class: 'chico suave' }, '⏳ Ya hablaste hace poco con este gobernador.') : null);
   }
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/mundo.js ──
+// El mundo: tu poder, aliados, Malvinas, países y la guerra (frente tira y afloja).
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+  const mun = R.mundo;
+
+  const idx = ui.PESTANAS_GOB.findIndex((p) => p.id === 'diario');
+  ui.PESTANAS_GOB.splice(idx, 0, { id: 'mundo', emoji: '🌎', nombre: 'Mundo' });
+  ui.panelesGob.mundo = (s) => panelMundo(s);
+
+  const relCara = (r) => (r >= 70 ? '😊' : r >= 40 ? '😐' : r >= 20 ? '😠' : '🤬');
+  const relColor = (r) => (r >= 70 ? 'var(--bien)' : r >= 40 ? 'var(--sol)' : 'var(--mal)');
+
+  function panelMundo(s) {
+    const pc = ui.esPC();
+    const izq = [tarjetaPoder(s), s.mundo.guerra ? tarjetaGuerra(s) : null, tarjetaMalvinas(s)];
+    const der = [tarjetaPaises(s)];
+    if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
+    return h('div', { class: 'pila' }, izq, der);
+  }
+
+  function tarjetaPoder(s) {
+    const poder = mun.poder(s);
+    const aliados = mun.aliados(s);
+    const tratados = R.PAISES.filter((p) => s.mundo.paises[p.id].tratado);
+    const anexados = R.PAISES.filter((p) => s.mundo.paises[p.id].anexado);
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, R.ui.bandera('ARG', 34), ' Argentina en el mundo')),
+      h('div', { class: 'fila', style: { gap: '10px' } },
+        h('span', { style: { fontSize: '30px' } }, '⚔️'),
+        h('div', { style: { flex: 1 } }, h('div', { class: 'fila entre' }, h('b', null, 'Poder militar'), h('b', { class: 'numero' }, String(poder))),
+          h('div', { class: 'barra' }, h('i', { style: { width: Math.min(100, poder) + '%', background: 'var(--celeste)' } })))),
+      h('div', { class: 'fila envolver', style: { gap: '6px' } },
+        h('span', { class: 'chip' }, '🛡️ Aliados: ', aliados.length ? aliados.map((p) => R.ui.bandera(p.id, 20)) : 'ninguno'),
+        h('span', { class: 'chip' }, '📦 Tratados: ' + tratados.length),
+        anexados.length ? h('span', { class: 'chip sol' }, '🏴 Anexaste: ' + anexados.map((p) => p.nombre).join(', ')) : null),
+      h('p', { class: 'chico suave' }, 'El poder sube con más plata para 🪖 Defensa, el servicio militar y comprando aviones.'),
+      h('button', { class: 'boton sec ancho', onclick: () => elegirProveedor(s) }, '🛩️ Comprar aviones · ⭐1 · 💸4%'));
+  }
+
+  function elegirProveedor(s) {
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, '🛩️ ¿A quién le comprás?'),
+      h('p', { class: 'chico suave' }, 'Poder militar +' + mun.COMPRA.poder + ' · cuesta 4% del presupuesto · mejora la relación con el que te vende.'),
+      h('div', { class: 'lista-elegir' }, ['USA', 'CHN', 'RUS', 'UE'].map((id) => h('button', { class: 'item-elegir', onclick: () => {
+        const res = mun.comprarArmas(s, id);
+        ui.cerrarCapa();
+        if (res.error) { ui.aviso('🚫 ' + res.error, { tipo: 'mal' }); return; }
+        ui.mostrarResultado(s, res);
+      } }, R.ui.bandera(id, 36), h('b', null, R.PAIS[id].nombre), h('span', { class: 'chip' }, relCara(s.mundo.paises[id].rel)))))), { cerrable: true });
+  }
+
+  // Frente de batalla: barra tira y afloja entre las dos banderas.
+  ui.frente = function (s, W) {
+    const F = mun.fuerzas(s, W.pais);
+    return h('div', { class: 'pila', style: { gap: '6px' } },
+      h('div', { class: 'frente' },
+        R.ui.bandera('ARG', 40),
+        h('div', { class: 'cuerda' }, h('i', { style: { width: W.frente + '%' } }), h('b', { class: 'marcador', style: { left: W.frente + '%' } }, '⚔️')),
+        R.ui.bandera(W.pais, 40)),
+      h('div', { class: 'fila entre chico' },
+        h('span', null, '💪 Vos: ' + F.yo + (F.misAliados.length ? ' (con ' + F.misAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '')),
+        h('span', null, R.PAIS[W.pais].nombre + ': ' + F.el + (F.susAliados.length ? ' (+' + F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : ''))),
+      h('div', { class: 'chico suave' }, 'Llegá a la derecha para ganar. Si el frente llega a tu bandera, perdés.'));
+  };
+
+  function tarjetaGuerra(s) {
+    const W = s.mundo.guerra;
+    return h('section', { class: 'tarjeta pila', style: { background: '#fff5f4' } },
+      h('div', { class: 'titulo-seccion' }, '⚔️ Guerra con ' + R.PAIS[W.pais].nombre + ' · mes ' + (W.meses + 1)),
+      ui.frente(s, W),
+      h('p', { class: 'chico' }, 'Cada mes, al pasar, das una orden: atacar, defender o pedir la paz.'));
+  }
+
+  function tarjetaMalvinas(s) {
+    const M = s.mundo.malvinas;
+    const confirmar = ui.vista && ui.vista.confirmarMalvinas;
+    const F = mun.fuerzas(s, 'GBR');
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'titulo-seccion' }, '🏝️ Islas Malvinas'),
+      M.recuperadas ? h('div', { class: 'centro pila' }, R.ui.bandera('ARG', 90), h('b', { style: { fontFamily: 'var(--f-titulo)', fontSize: '24px', fontWeight: 400 } }, '¡Son argentinas!'))
+        : h('div', { class: 'pila', style: { gap: '8px' } },
+          h('div', { class: 'fila entre' }, h('b', null, 'Camino a la soberanía'), h('b', { class: 'numero' }, M.soberania + '%')),
+          h('div', { class: 'barra gorda' }, h('i', { style: { width: M.soberania + '%', background: 'repeating-linear-gradient(90deg, #74acdf 0 14px, #ffffff 14px 28px)' } })),
+          h('div', { class: 'lista-elegir' }, mun.MALVINAS.map((a) => {
+            const b = mun.bloqueoMalvinas(s, a.id);
+            return h('button', { class: 'item-elegir', disabled: b ? true : null, onclick: () => {
+              const res = mun.malvinas(s, a.id);
+              if (res.error) { ui.aviso('🚫 ' + res.error, { tipo: 'mal' }); return; }
+              if (res.especial) { ui.confeti(['#74acdf', '#ffffff', '#f6b40e']); R.son.genial(); }
+              ui.mostrarResultado(s, res);
+            } }, h('span', { class: 'ic' }, a.emoji), h('div', null, h('b', null, a.nombre), h('div', { class: 'chico suave' }, b || ('+' + Math.round(R.clamp(a.avance(s), 2, 25)) + '% de soberanía'))), h('span', { class: 'chip sol' }, '⭐ ' + a.costo.pc));
+          })),
+          !s.mundo.guerra ? (confirmar
+            ? h('div', { class: 'tarjeta plana pila', style: { background: 'var(--mal-claro)' } },
+              h('b', null, '⚓ ¿Recuperarlas por la fuerza?'),
+              h('div', { class: 'chico' }, '💪 Vos ' + F.yo + ' contra 🇬🇧 ' + F.el + ' (con ' + (F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') || 'nadie') + '). ' + (F.ratio >= 1.1 ? 'Tenés chances.' : F.ratio >= 0.8 ? 'Muy parejo y arriesgado.' : 'Es casi imposible: conseguí aliados fuertes.')),
+              h('div', { class: 'fila' },
+                h('button', { class: 'boton mini rojo', onclick: () => { ui.vista.confirmarMalvinas = false; const r = mun.recuperarMalvinas(s); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); ui.refrescar(); return; } R.son.tambor(); ui.mostrarResultado(s, r); } }, '⚔️ ¡A la guerra! · ⭐5'),
+                h('button', { class: 'boton mini sec', onclick: () => { ui.vista.confirmarMalvinas = false; ui.refrescar(); } }, 'Mejor no')))
+            : h('button', { class: 'boton sec ancho', onclick: () => { ui.vista = Object.assign({}, ui.vista, { confirmarMalvinas: true }); ui.refrescar(); } }, '⚓ Recuperarlas por la fuerza…')) : null));
+  }
+
+  function tarjetaPaises(s) {
+    return h('section', { class: 'pila' },
+      h('div', { class: 'titulo-seccion' }, '🌎 Países'),
+      h('div', { class: 'paises' }, R.PAISES.map((p) => {
+        const st = s.mundo.paises[p.id];
+        return h('button', { class: 'pais-carta toque' + (st.anexado ? ' anexado' : ''), onclick: () => verPais(s, p.id) },
+          h('div', { class: 'fila', style: { gap: '8px' } }, R.ui.bandera(p.id, 40), h('b', { class: 'nombre-pais' }, p.nombre)),
+          st.anexado ? h('span', { class: 'chip sol' }, '🏴 Anexado')
+            : h('div', { class: 'fila', style: { gap: '6px' } }, h('span', null, relCara(st.rel)), h('div', { class: 'barra', style: { flex: 1, height: '8px' } }, h('i', { style: { width: st.rel + '%', background: relColor(st.rel) } }))),
+          h('div', { class: 'fila envolver', style: { gap: '4px' } },
+            h('span', { class: 'chip', style: { fontSize: '11px' } }, '⚔️ ' + p.poder),
+            st.tratado ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '📦') : null,
+            st.alianza ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '🛡️') : null,
+            st.sancion ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '🚫') : null,
+            mun.enGuerraCon(s, p.id) ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '⚔️ guerra') : null));
+      })));
+  }
+
+  function verPais(s, id, confirmarGuerra) {
+    R.son.toque();
+    const p = R.PAIS[id];
+    const st = s.mundo.paises[id];
+    const F = mun.fuerzas(s, id);
+    const bloque = p.bloque ? R.BLOQUES_MUNDO[p.bloque] : null;
+    const efAcc = {
+      visita: { rel: { [id]: 10 } },
+      tratado: { expo: p.expo, campo: 3, empresarios: 3, trabajadores: -2 },
+      prestamo: p.prestamo ? { reservas: p.prestamo, deuda: p.prestamo * 0.25 } : {},
+      alianza: { rel: { [id]: 5 } },
+      sancion: { rel: { [id]: -30 } },
+      guerra: { todos: 6, riesgo: 300, crec: -1.5 },
+    };
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('div', { class: 'fila' }, R.ui.bandera(id, 72), h('div', null, h('h2', null, p.nombre), bloque ? h('span', { class: 'chip' }, bloque.emoji + ' ' + bloque.nombre) : null)),
+      st.anexado ? h('p', null, '🏴 Ahora es parte de la Argentina.') : h('div', { class: 'pila', style: { gap: '6px' } },
+        h('div', { class: 'fila entre' }, h('b', null, relCara(st.rel) + ' Relación'), h('b', { class: 'numero' }, Math.round(st.rel) + '/100')),
+        h('div', { class: 'barra' }, h('i', { style: { width: st.rel + '%', background: relColor(st.rel) } })),
+        h('div', { class: 'chico' }, '⚔️ Su poder: ' + p.poder + ' · el tuyo: ' + mun.poder(s))),
+      st.anexado ? null : h('div', { class: 'lista-elegir' }, mun.ACCIONES.filter((a) => !a.si || a.si(s, p, st) || a.id === 'guerra' && p.conquistable && !st.anexado).map((a) => {
+        const b = mun.bloqueo(s, id, a.id);
+        if (a.id === 'guerra' && confirmarGuerra && !b) {
+          return h('div', { class: 'tarjeta plana pila', style: { background: 'var(--mal-claro)' } },
+            h('b', null, '⚔️ ¿Seguro? Guerra contra ' + p.nombre),
+            h('div', { class: 'chico' }, '💪 Vos ' + F.yo + (F.misAliados.length ? ' (con ' + F.misAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '') + ' contra ' + F.el + (F.susAliados.length ? ' (con ' + F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '') + '. ' +
+              (F.ratio >= 1.3 ? 'Tenés todas las de ganar.' : F.ratio >= 1 ? 'Ventaja chica: puede salir mal.' : 'Te superan: es muy arriesgado.')),
+            h('div', { class: 'chico' }, 'Todo el mundo se va a enojar con vos. Si ganás, ' + p.nombre + ' pasa a ser parte del país.'),
+            h('div', { class: 'fila' },
+              h('button', { class: 'boton mini rojo', onclick: () => { const r = mun.hacer(s, id, 'guerra'); ui.cerrarCapa(); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; } R.son.tambor(); ui.temblor(); ui.mostrarResultado(s, r); } }, '⚔️ ¡A la guerra!'),
+              h('button', { class: 'boton mini sec', onclick: () => verPais(s, id, false) }, 'Mejor no')));
+        }
+        return h('button', { class: 'item-elegir', disabled: b ? true : null, onclick: () => {
+          if (a.id === 'guerra') return verPais(s, id, true);
+          const r = mun.hacer(s, id, a.id);
+          ui.cerrarCapa();
+          if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+          ui.mostrarResultado(s, r);
+        } },
+        h('span', { class: 'ic' }, a.emoji),
+        h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, a.nombre), ui.chipsEfectos(R.gob.describirEfectos(s, efAcc[a.id] || {}), { compacto: true }), b ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, b) : null),
+        h('span', { class: 'chip sol' }, '⭐ ' + (a.costo.pc || 0)));
+      }))), { cerrable: true });
+  }
+
+  // ── Momento: orden de guerra del mes ──
+  ui.momentos = ui.momentos || {};
+  ui.momentos.guerra = function (s, m, listo) {
+    const W = s.mundo.guerra;
+    if (!W) return listo();
+    const P = R.PAIS[W.pais];
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', { class: 'centro' }, '⚔️ Guerra con ' + P.nombre),
+      h('div', { class: 'centro chico suave' }, 'Mes ' + (W.meses + 1) + ' · ' + (W.objetivo === 'malvinas' ? 'Objetivo: recuperar Malvinas' : 'Objetivo: anexar ' + P.nombre)),
+      ui.frente(s, W),
+      h('div', { class: 'lista-elegir' }, mun.ORDENES.map((o) => h('button', { class: 'item-elegir', onclick: () => {
+        const antesFrente = W.frente;
+        const antes = s.gob.aprob;
+        const r = mun.orden(s, o.id);
+        R.guardar(s);
+        mostrarParte(s, W, antesFrente, r, antes, listo);
+      } }, h('span', { class: 'ic' }, o.emoji), h('div', null, h('b', null, o.nombre), h('div', { class: 'chico suave' }, o.desc)), h('span', { class: 'chip ' + (o.costo.gasto ? 'mal' : '') }, o.costo.gasto ? '💸 ' + o.costo.gasto + '%' : 'gratis'))))));
+  };
+
+  function mostrarParte(s, W, antesFrente, r, aprobAntes, listo) {
+    const fin = r.fin;
+    if (fin === 'victoria' || fin === 'paz_buena') { R.son.genial(); if (fin === 'victoria') ui.confeti(['#74acdf', '#ffffff', '#f6b40e']); }
+    else if (fin) { R.son.abucheo(); ui.temblor(); }
+    else if (r.delta >= 0) R.son.bien(); else R.son.mal();
+    const efectos = R.describirAplicado(s, r.aplicado || []);
+    const W2 = Object.assign({}, W, { frente: fin === 'victoria' ? 100 : fin === 'derrota' ? 0 : W.frente });
+    const cont = h('div', { class: 'resultado-grande' },
+      h('div', { class: 'em' }, fin === 'victoria' ? '🎖️' : fin === 'derrota' ? '💀' : fin ? '🕊️' : r.delta >= 0 ? '💪' : '😰'),
+      h('div', { class: 'txt' }, r.txt),
+      !fin || fin === 'victoria' || fin === 'derrota' ? ui.frente(s, Object.assign({}, W2, { frente: antesFrente })) : null,
+      efectos.length ? ui.chipsEfectos(efectos) : null,
+      h('div', { class: 'chico', style: { fontWeight: 900 } }, '👍 Aprobación: ' + R.fmt(aprobAntes, 1) + '% → ' + R.fmt(s.gob.aprob, 1) + '%'),
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶'));
+    ui.abrirCapa(cont);
+    // Animar el marcador desde donde estaba hasta donde quedó.
+    const marc = cont.querySelector('.marcador');
+    const barra = cont.querySelector('.cuerda > i');
+    if (marc && barra) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        marc.style.left = W2.frente + '%';
+        barra.style.width = W2.frente + '%';
+      }));
+    }
+  }
+
+  // Los países anexados aparecen en el mapa de provincias.
+  const mapaOriginal = R.ui.mapa;
+  R.ui.mapa = function (opts) {
+    const s = ui.s;
+    if (s && s.mundo && opts && !opts.sinAnexos) {
+      const extra = mun.fichasMapa(s);
+      if (extra.length) {
+        const colorDe = opts.colorDe;
+        opts = Object.assign({}, opts, {
+          extra: (opts.extra || []).concat(extra),
+          colorDe: (id, especial) => {
+            const f = extra.find((x) => x.id === id);
+            if (f) return '#d9c9a3';
+            if (id === 'MLV' && s.mundo.malvinas.recuperadas) return '#bfe0f7';
+            return colorDe ? colorDe(id, especial) : null;
+          },
+        });
+      }
+    }
+    if (s && s.mundo && s.mundo.malvinas.recuperadas && opts && opts.colorDe && !opts._mlv) {
+      const c = opts.colorDe;
+      opts = Object.assign({}, opts, { _mlv: true, colorDe: (id, esp) => (id === 'MLV' ? '#9fd0f5' : c(id, esp)) });
+    }
+    return mapaOriginal(opts);
+  };
 })(globalThis.R = globalThis.R || {});
 
 </script>

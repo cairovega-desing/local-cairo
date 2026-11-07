@@ -41,6 +41,7 @@
     };
     gob.actualizarAprob(s);
     if (R.congreso) R.congreso.iniciar(s);
+    if (R.mundo) R.mundo.iniciar(s);
     s.gob.historia.push(R.eco.foto(s));
     R.diario(s, '🎖️', 'Asumís la Presidencia', 'gobierno');
     s.cola.push({ tipo: 'ministro' });
@@ -135,6 +136,7 @@
     { id: 'cgt', emoji: '✊', txt: 'Paro general permanente', si: (s) => s.gob.grupos.trabajadores.humor < 18, arreglo: 'Mesa con la CGT y salarios' },
     { id: 'barrios', emoji: '🔥', txt: 'Estallido en los barrios', si: (s) => s.gob.grupos.humildes.humor < 18, arreglo: 'Ayuda social y comida' },
     { id: 'deficit', emoji: '💸', txt: 'Déficit enorme', si: (s) => R.eco.resultado(s) < -6, arreglo: 'Recortá gastos o subí impuestos' },
+    { id: 'guerra', emoji: '⚔️', txt: 'Vamos perdiendo la guerra', si: (s) => !!(s.mundo && s.mundo.guerra && s.mundo.guerra.frente < 30), arreglo: 'Pedí la paz o conseguí aliados' },
   ];
   gob.llamas = function (s) {
     const out = [];
@@ -174,6 +176,7 @@
     defensa: { emoji: '🪖', nombre: 'Fuerzas Armadas', paso: 3 },
     infra: { emoji: '🛣️', nombre: 'Rutas', paso: 3 },
     ciencia: { emoji: '🔬', nombre: 'Ciencia', paso: 3 },
+    soberania: { emoji: '🏝️', nombre: 'Malvinas', paso: 4 },
   };
   const CALIDADES = ['salud', 'educacion', 'seguridad', 'defensa', 'infra', 'ciencia'];
   const MESES_SHOCK = { crec: 6, expo: 8, riesgo: 4 };
@@ -184,6 +187,8 @@
       if (!v) continue;
       if (k === 'calidad' && typeof v === 'object') {
         for (const [c, n] of Object.entries(v)) out.push({ k: c, v: n });
+      } else if (k === 'rel' && typeof v === 'object') {
+        for (const [c, n] of Object.entries(v)) out.push({ k: 'rel', v: n, sub: c });
       } else if (R.EF_GOB[k]) out.push({ k, v });
     }
     return out;
@@ -193,7 +198,9 @@
     const lista = gob.expandir(s, ef);
     const G = s.gob;
     const e = s.eco;
-    for (const { k, v } of lista) {
+    for (const { k, v, sub } of lista) {
+      if (k === 'rel') { if (s.mundo && s.mundo.paises[sub]) s.mundo.paises[sub].rel = R.clamp(s.mundo.paises[sub].rel + v, 0, 100); continue; }
+      if (k === 'soberania') { if (s.mundo) s.mundo.malvinas.soberania = R.clamp(s.mundo.malvinas.soberania + v, 0, 99); continue; }
       if (R.GRUPO[k]) G.grupos[k].humor = R.clamp(G.grupos[k].humor + v, 0, 100);
       else if (k === 'todos') R.GRUPOS.forEach((g) => (G.grupos[g.id].humor = R.clamp(G.grupos[g.id].humor + v, 0, 100)));
       else if (k === 'pc') G.pc = R.clamp(G.pc + v, 0, G.pcMax);
@@ -218,8 +225,8 @@
   };
 
   gob.describirAplicado = function (s, lista) {
-    return lista.map(({ k, v }) => {
-      const meta = R.EF_GOB[k];
+    return lista.map(({ k, v, sub }) => {
+      const meta = k === 'rel' ? { emoji: '🤝', nombre: R.PAIS[sub] ? R.PAIS[sub].nombre : sub, paso: 5 } : R.EF_GOB[k];
       if (!meta) return null;
       const sube = v > 0;
       return {
@@ -415,7 +422,8 @@
       if (ev) momentos.push(R.ev.instanciar(s, ev));
     }
 
-    // Elecciones y fin de mandato (las elecciones completas se agregan en otra vuelta)
+    // El mundo (guerra, resistencia) y las elecciones del mandato
+    if (R.mundo && R.mundo.mes) R.mundo.mes(s, momentos);
     if (R.gob.elecciones && R.gob.elecciones(s, momentos)) return;
 
     // Noticia del mes

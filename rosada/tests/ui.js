@@ -55,7 +55,8 @@ fs.mkdirSync(OUT, { recursive: true });
         : /asume la Presidencia/.test(txt) ? 'asuncion'
         : /Resumen del mes/.test(txt) ? 'resumen'
         : /maneja la economía/.test(txt) ? 'ministro'
-        : /Presupuesto 20/.test(txt) ? 'presupuesto' : 'otra';
+        : /Presupuesto 20/.test(txt) ? 'presupuesto'
+        : /Guerra con/.test(txt) ? 'guerra' : 'otra';
       if (!capturados.has(tipo)) { capturados.add(tipo); await foto(tipo); }
       if (tipo === 'noticia') { await capa.locator('.opcion-noticia:not([disabled])').first().click(); continue; }
       if (tipo === 'debate') { await capa.locator('.estilos .boton').first().click(); continue; }
@@ -146,6 +147,19 @@ fs.mkdirSync(OUT, { recursive: true });
         await foto('provincias', true);
         const bp = page.locator('.acciones-prov .boton:not([disabled])');
         if (await bp.count()) await bp.first().click();
+        await page.click('.pestanas button:has-text("Inicio")');
+      }
+      if (mesesGob === 3) {
+        await page.evaluate(() => { window.R.ui.s.gob.pc = 20; });
+        await page.click('.pestanas button:has-text("Mundo")');
+        await foto('mundo', true);
+        await page.click('.pais-carta:has-text("Uruguay")');
+        await foto('pais');
+        await page.click('#capa .item-elegir:has-text("Declarar")');
+        await foto('pais-guerra');
+        await page.click('#capa .boton:has-text("A la guerra")');
+        await page.waitForTimeout(300);
+        await foto('mundo-guerra', true);
         await page.click('.pestanas button:has-text("Inicio")');
       }
       await page.click('#btn-pasar');

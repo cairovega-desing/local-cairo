@@ -534,6 +534,18 @@ p { margin: 0; }
 .acciones-prov { display: flex; flex-wrap: wrap; gap: 8px; }
 .acciones-prov .boton { flex: 1 1 140px; }
 
+/* ── Mundo ── */
+.bandera { display: inline-block; vertical-align: middle; border: 2px solid var(--tinta); border-radius: 4px; flex: none; }
+.paises { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pais-carta { text-align: left; border: var(--borde); border-radius: 14px; background: var(--papel); box-shadow: var(--sombra-chica); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; min-width: 0; }
+.pais-carta.anexado { background: #f6efdc; }
+.nombre-pais { font-size: 14px; line-height: 1.1; min-width: 0; }
+.frente { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.cuerda { position: relative; height: 22px; border: var(--borde); border-radius: 999px; background: #f7c6c3; }
+.cuerda > i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #74acdf, #bfe0f7); transition: width 1s cubic-bezier(.3,1.3,.5,1); }
+.cuerda .marcador { position: absolute; top: 50%; transform: translate(-50%, -50%); font-size: 22px; transition: left 1s cubic-bezier(.3,1.3,.5,1); filter: drop-shadow(0 2px 0 var(--tinta)); }
+@media (min-width: 900px) { .paises { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
 /* ── Escritorio: dos columnas ── */
 .columnas { display: grid; gap: 14px; }
 @media (min-width: 900px) {
