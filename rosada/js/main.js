@@ -16,6 +16,7 @@
 
   ui.continuar = function (s) {
     ui.s = s;
+    if (R.camp && R.camp.completarHistoria && R.camp.completarHistoria(s)) R.guardar(s);
     ui.vista = { tab: s.fase === 'gobierno' ? 'inicio' : 'acciones' };
     ui.render();
     window.scrollTo(0, 0);

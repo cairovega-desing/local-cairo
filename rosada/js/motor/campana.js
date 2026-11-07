@@ -249,6 +249,26 @@
     return { conocimiento: k, positiva: pos, negativa: neg, regular: Math.max(0, k - pos - neg), relevancia: c.relevancia ?? 5, diferencial: pos - neg };
   };
 
+  // Partidas viejas: los meses guardados antes del gráfico no tienen imagen. La estimamos
+  // entre el arranque del partido y hoy, siguiendo cómo te fue en la encuesta.
+  camp.completarHistoria = function (s) {
+    if (!s.camp || !s.encuestas || !s.encuestas.length || s.encuestas.every((e) => e.img)) return false;
+    const hoy = camp.imagen(s);
+    const inicio = { conocimiento: 6, positiva: 3.1, negativa: 2.2, regular: 0.7, relevancia: 5, diferencial: 0.9 };
+    const primero = s.encuestas[0];
+    const votoHoy = camp.votos(s).nac.YO;
+    const span = votoHoy - (primero.YO || 0);
+    for (const e of s.encuestas) {
+      if (e.img) continue;
+      let t = Math.abs(span) > 0.5 ? ((e.YO || 0) - (primero.YO || 0)) / span : (e.mes - primero.mes) / Math.max(1, s.mes - primero.mes);
+      t = R.clamp(t, 0, 1);
+      e.img = {};
+      for (const k of Object.keys(inicio)) e.img[k] = R.round(R.lerp(inicio[k], hoy[k], t), 1);
+      e.imgEstimada = true;
+    }
+    return true;
+  };
+
   camp.encuesta = function (s) {
     const v = camp.votos(s).nac;
     const e = { mes: s.mes, img: camp.imagen(s) };

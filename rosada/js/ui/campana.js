@@ -78,6 +78,7 @@
 
   function graficoImagen(s) {
     const S = R.svg;
+    R.camp.completarHistoria(s);
     const hoy = Object.assign({ mes: s.mes }, R.camp.imagen(s));
     const hist = s.encuestas.filter((e) => e.img && e.mes < s.mes).map((e) => Object.assign({ mes: e.mes }, e.img));
     const pts = hist.concat([hoy]).slice(-24);
@@ -143,7 +144,8 @@
           h('span', { class: 'nom' }, se.nom),
           Math.abs(d) >= 0.5 ? h('span', { class: 'delta ' + ((d > 0) !== !!se.malo ? 'sube' : 'baja') }, (d > 0 ? '▲' : '▼') + R.fmt(Math.abs(d))) : null);
       })),
-      pts.length === 1 ? h('p', { class: 'chico suave' }, 'Acá arranca tu historia: cada mes se suma un punto.') : null);
+      pts.length === 1 ? h('p', { class: 'chico suave' }, 'Acá arranca tu historia: cada mes se suma un punto.') : null,
+      s.encuestas.some((e) => e.imgEstimada) ? h('p', { class: 'chico suave' }, 'Los primeros meses son estimados (tu partida empezó con una versión anterior).') : null);
   }
 
   // ── Acciones ──
