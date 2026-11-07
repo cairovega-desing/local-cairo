@@ -4,6 +4,7 @@
 const path = require('path');
 const fs = require('fs');
 const { chromium } = require('playwright');
+const usarFuentes = require('./fuentes.js');
 
 const RAIZ = path.join(__dirname, '..');
 const OUT = process.argv[2] || path.join(RAIZ, 'tests', 'capturas');
@@ -18,7 +19,7 @@ fs.mkdirSync(OUT, { recursive: true });
   const errores = [];
   page.on('pageerror', (e) => errores.push('pageerror: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)/.test(m.text()) && !/ERR_/.test(m.text())) errores.push('console: ' + m.text()); });
-  await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+  await usarFuentes(page);
   await page.goto('file://' + path.join(RAIZ, 'dist', 'index.html'));
   await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
   await page.reload();

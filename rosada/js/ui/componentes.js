@@ -15,8 +15,8 @@
     return h('header', { class: 'barra-sup' },
       h('div', { class: 'quien' }, ui.escudo(s.partido), h('div', { style: { minWidth: 0 } },
         h('b', null, R.cap(R.MESES_CORTOS[R.mesDelAnio(s.mes)]) + ' ' + R.anio(s.mes)), h('small', null, s.partido.nombre))),
-      h('span', { class: 'recurso', id: 'rec-fondos', title: 'Fondos de campaña' }, '💰 ', h('span', { class: 'numero' }, R.fmt(c.fondos))),
-      h('span', { class: 'recurso', id: 'rec-agenda', title: 'Agenda del mes' }, '⏱️ ', ui.puntosAgenda(c.agendaMax - c.agenda, Math.max(c.agendaMax, c.agenda))),
+      h('span', { class: 'recurso', id: 'rec-fondos', title: 'Fondos de campaña' }, '💰', h('span', { class: 'numero' }, R.fmt(c.fondos))),
+      h('span', { class: 'recurso', id: 'rec-agenda', title: 'Agenda del mes' }, h('span', { class: 'ico' }, '⏱️'), ui.puntosAgenda(c.agendaMax - c.agenda, Math.max(c.agendaMax, c.agenda))),
       h('button', { class: 'boton mini sec', onclick: () => ui.menu(), 'aria-label': 'Menú' }, '☰'));
   };
 
