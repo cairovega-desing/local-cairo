@@ -55,7 +55,7 @@
       titular: 'Estalla un escándalo de corrupción en el gobierno',
       opciones: [
         { txt: 'Pedir juicio político', ef: { conocen: 4, confrontativo: 3, aprobRival: -2 }, azar: { p: 0.3, ef: { simpatia: -4 }, txt: 'Te acusan de golpista 😬' }, res: 'Todos hablan de tu pedido ⚖️' },
-        { txt: 'Pedir que investigue la Justicia', ef: { simpatia: 2, dialoguista: 2, aprobRival: -2 }, res: 'Quedás como alguien serio' },
+        { txt: 'Que investigue la Justicia', ef: { simpatia: 2, dialoguista: 2, aprobRival: -2 }, res: 'Quedás como alguien serio' },
       ],
     },
     {

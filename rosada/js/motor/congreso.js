@@ -354,6 +354,49 @@
   con.EF_PRESUPUESTO = { si: { pc: 2, riesgo: -50, todos: 1 }, no: { pc: -2, riesgo: 80, media: -2 } };
   con.efDnuCae = { pc: -2, media: -3, escandalo: 1 };
 
+  // ⚖️ Juicio político: la oposición necesita 2/3 en Diputados (acusar) y 2/3 en el Senado (destituir).
+  con.pApoyoJuicio = function (s, bloque) {
+    if (bloque === 'YO') return 0.02;
+    const G = s.gob;
+    const x = (50 - G.rel[bloque]) / 14 + G.escandalo / 8 - (G.aprob - 35) / 18 - 1.2 + (G.juicioFondos || 0) * -0.6;
+    return 1 / (1 + Math.exp(-x));
+  };
+  con.prediccionJuicio = function (s) {
+    const out = {};
+    for (const camara of ['diputados', 'senado']) {
+      const comp = R.composicion(s, camara);
+      let si = 0;
+      for (const [id, n] of Object.entries(comp)) si += n * con.pApoyoJuicio(s, id);
+      out[camara] = { si: Math.round(si), necesarios: Math.ceil((R.TOTAL_BANCAS[camara] * 2) / 3) };
+    }
+    return out;
+  };
+  con.votarJuicio = function (s) {
+    const res = { camaras: {}, aprobada: true };
+    for (const camara of ['diputados', 'senado']) {
+      const comp = R.composicion(s, camara);
+      const votos = [];
+      let si = 0;
+      for (const [id, n] of Object.entries(comp)) {
+        const p = con.pApoyoJuicio(s, id);
+        for (let i = 0; i < n; i++) { const v = R.rand(s) < p; if (v) si++; votos.push({ id, si: v }); }
+      }
+      const nec = Math.ceil((R.TOTAL_BANCAS[camara] * 2) / 3);
+      res.camaras[camara] = { si, no: R.TOTAL_BANCAS[camara] - si, necesarios: nec, pasa: si >= nec, votos };
+      if (si < nec) { res.aprobada = false; break; }
+    }
+    s.gob.juicioFondos = 0;
+    if (!res.aprobada) {
+      s.gob.escandalo = Math.max(0, s.gob.escandalo - 5);
+      res.aplicado = R.gob.aplicarEfectos(s, { pc: 2, todos: 2 });
+      R.diario(s, '⚖️', 'Sobreviviste al juicio político', 'ley');
+    } else {
+      res.aplicado = [];
+      R.diario(s, '⚖️', 'El Congreso te destituyó', 'fin');
+    }
+    return res;
+  };
+
   // Presupuesto anual: ¿lo aprueba el Congreso?
   con.leyPresupuesto = function (s) {
     const def = -R.eco.resultado(s);

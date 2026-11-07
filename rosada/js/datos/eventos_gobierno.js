@@ -190,7 +190,7 @@
       opciones: [
         { txt: 'Vacunación masiva', costo: { gasto: 1.5 }, ef: { salud: 5, humildes: 4, todos: 1 }, res: 'Se frenó el brote 💉' },
         { txt: 'Fumigar barrios', costo: { gasto: 0.5 }, ef: { humildes: 2 }, res: 'Algo ayudó' },
-        { txt: 'Que se ocupen las provincias', ef: { humildes: -5, jubilados: -3 }, res: 'Hospitales colapsados 😷', bueno: false },
+        { txt: 'Que se arreglen solos', ef: { humildes: -5, jubilados: -3 }, res: 'Hospitales colapsados 😷', bueno: false },
       ],
     },
     {
@@ -251,7 +251,7 @@
       titular: 'Incendios forestales en la Patagonia',
       opciones: [
         { txt: 'Aviones hidrantes', costo: { gasto: 1 }, ef: { media: 4 }, res: 'Fuego controlado 🚒' },
-        { txt: 'Que las provincias se arreglen', ef: { media: -4 }, res: 'Se quemaron miles de hectáreas', bueno: false },
+        { txt: 'Que se arreglen solos', ef: { media: -4 }, res: 'Se quemaron miles de hectáreas', bueno: false },
       ],
     },
     {
@@ -331,7 +331,7 @@
       titular: '¡Argentina juega la final del Mundial!',
       opciones: [
         { txt: 'Feriado nacional', ef: { todos: 4, crec: -0.2 }, azar: { p: 0.5, ef: { todos: 6 }, txt: '¡SOMOS CAMPEONES DEL MUNDO! 🏆🎉', bueno: true, flag: 'campeon' }, res: 'Perdimos en los penales… 😭' },
-        { txt: 'Ver el partido en la Rosada', ef: { todos: 1 }, azar: { p: 0.5, ef: { todos: 5 }, txt: '¡CAMPEONES! La gente te asocia con la alegría 🏆', bueno: true, flag: 'campeon' }, res: 'Perdimos la final 😢' },
+        { txt: 'Verlo en la Rosada', ef: { todos: 1 }, azar: { p: 0.5, ef: { todos: 5 }, txt: '¡CAMPEONES! La gente te asocia con la alegría 🏆', bueno: true, flag: 'campeon' }, res: 'Perdimos la final 😢' },
       ],
     },
     {

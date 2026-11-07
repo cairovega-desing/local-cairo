@@ -111,7 +111,8 @@
       w += g.peso;
     }
     const desgaste = Math.min(7, G.meses * 0.08);
-    G.aprob = R.clamp(tot / w + G.lunaMiel - desgaste - G.escandalo * 0.6, 2, 96);
+    const dif = { facil: 5, normal: 0, dificil: -5 }[s.dif] || 0;
+    G.aprob = R.clamp(tot / w + G.lunaMiel - desgaste - G.escandalo * 0.6 + dif, 2, 96);
     return G.aprob;
   };
 
@@ -416,6 +417,10 @@
       gob.terminar(s, momentos, 'helicoptero');
       return;
     }
+    if (G.escandalo >= 10 && (!G.juicioMes || s.mes - G.juicioMes > 12)) {
+      G.juicioMes = s.mes;
+      momentos.push({ tipo: 'juicio' });
+    }
     const nLlamas = G.llamas.length;
     if (nLlamas >= 6 && R.chance(s, 0.1 * (nLlamas - 5))) {
       const ev = R.ev.porId('g_estallido');
@@ -436,7 +441,7 @@
   gob.terminar = function (s, momentos, motivo) {
     s.fase = 'fin';
     s.fin = { motivo, mes: s.mes };
-    const txt = { helicoptero: 'Renunciaste y te fuiste en helicóptero 🚁', estallido: 'Estallido social: tuviste que renunciar', mandato: 'Terminaste tu mandato' }[motivo] || 'Fin';
+    const txt = { helicoptero: 'Renunciaste y te fuiste en helicóptero 🚁', estallido: 'Estallido social: tuviste que renunciar', mandato: 'Terminaste tu mandato', juicio: 'Te destituyó el Congreso' }[motivo] || 'Fin';
     R.diario(s, '🏁', txt, 'fin');
     momentos.push({ tipo: 'fin' });
   };

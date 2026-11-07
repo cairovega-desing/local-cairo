@@ -37,9 +37,8 @@
     ui.montar(h('main', { class: 'pila', style: { paddingTop: '16px' } },
       h('section', { class: 'tarjeta pila centro' },
         R.ui.avatar(s.lider.avatar, { size: 110, humor: 'feliz', banda: true }),
-        h('h2', null, s.lider.nombre + ', presidente electo'),
-        h('p', null, 'El gobierno se arma en la próxima versión del juego.')),
-      h('button', { class: 'boton ancho', onclick: () => ui.irPortada() }, '🏠 Portada')));
+        h('h2', null, '¡' + s.lider.nombre + ' ganó la elección!'),
+        h('p', null, 'Preparando la asunción…'))));
   };
 
   // Muestra de a uno los momentos pendientes (noticias, elecciones, debates…).

@@ -20,7 +20,7 @@
       titular: 'China quiere una base espacial en la Patagonia',
       opciones: [
         { txt: 'Aceptar', ef: { reservas: 5, rel: { CHN: 15, USA: -15 } }, res: 'Antenas chinas en Neuquén 📡' },
-        { txt: 'Que sea civil y controlada', costo: { pc: 2 }, ef: { reservas: 2, rel: { CHN: 6, USA: -4 } }, res: 'Acuerdo con condiciones' },
+        { txt: 'Solo uso civil', costo: { pc: 2 }, ef: { reservas: 2, rel: { CHN: 6, USA: -4 } }, res: 'Acuerdo con condiciones' },
         { txt: 'Rechazar', ef: { rel: { CHN: -12, USA: 8 } }, res: 'Washington aplaude 👏' },
       ],
     },
@@ -64,13 +64,13 @@
       titular: 'La ONU vota una resolución sobre Malvinas',
       opciones: [
         { txt: 'Hacer lobby con todos', costo: { pc: 3 }, ef: { soberania: 12, todos: 2 }, res: '¡Apoyo masivo en la ONU! 🌐' },
-        { txt: 'Pedir apoyo a China', ef: { soberania: 7, rel: { CHN: 5, USA: -6 } }, res: 'China vota con vos 🐉' },
-        { txt: 'Pedir apoyo a EE. UU.', ef: { soberania: 7, rel: { USA: 5, CHN: -6 } }, res: 'Washington se abstiene, algo es algo' },
+        { txt: 'Apoyo de China', ef: { soberania: 7, rel: { CHN: 5, USA: -6 } }, res: 'China vota con vos 🐉' },
+        { txt: 'Apoyo de EE. UU.', ef: { soberania: 7, rel: { USA: 5, CHN: -6 } }, res: 'Washington se abstiene, algo es algo' },
       ],
     },
     {
       id: 'm_hielos', fase: 'gobierno', peso: 1, unaVez: true, dibujo: '🏔️ 🧊 🗺️',
-      titular: 'Chile publica un mapa que se queda con los Hielos Continentales',
+      titular: 'Chile reclama los Hielos Continentales',
       opciones: [
         { txt: 'Reclamo firme', ef: { todos: 2, rel: { CHL: -15 } }, res: 'Tensión en la cordillera' },
         { txt: 'Comisión binacional', costo: { pc: 1 }, ef: { rel: { CHL: 5 } }, res: 'Lo arreglan los técnicos' },
@@ -94,7 +94,7 @@
     },
     {
       id: 'm_potencias', fase: 'gobierno', peso: 1, repite: 30, desde: 12, dibujo: '🦅 ⚡ 🐉',
-      titular: 'Tensión entre EE. UU. y China: te piden elegir bando',
+      titular: 'EE. UU. y China te piden elegir bando',
       opciones: [
         { txt: 'Con Estados Unidos', ef: { empresarios: 3, rel: { USA: 15, GBR: 6, CHN: -15, RUS: -10 } }, res: 'Alineamiento con Occidente 🦅' },
         { txt: 'Con China', ef: { trabajadores: 2, rel: { CHN: 15, RUS: 8, USA: -15, GBR: -6 } }, res: 'Socio estratégico de Pekín 🐉' },

@@ -136,7 +136,8 @@
     });
   }
 
-  ui.animarVotacion = function (s, titulo, res, alTerminar) {
+  ui.animarVotacion = function (s, titulo, res, alTerminar, opts) {
+    opts = opts || {};
     const cont = h('div', { class: 'pila' });
     const camaras = Object.keys(res.camaras);
     let i = 0;
@@ -150,7 +151,7 @@
       const svg = R.ui.hemiciclo(grupos, {});
       const siPor = {};
       for (const v of c.votos) if (v.si) siPor[v.id] = (siPor[v.id] || 0) + 1;
-      const cuenta = h('div', { class: 'conteo' }, h('span', { class: 'si' }, '✅ 0'), h('span', { class: 'no' }, '❌ 0'));
+      const cuenta = h('div', { class: 'conteo' + (opts.invertir ? ' invertido' : '') }, h('span', { class: 'si' }, '✅ 0'), h('span', { class: 'no' }, '❌ 0'));
       cont.appendChild(h('div', { class: 'tarjeta plana pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta centro' }, nombre === 'diputados' ? 'Diputados' : 'Senado'), svg, cuenta,
         h('div', { class: 'centro chico suave' }, 'Necesita ' + c.necesarios)));
       const puntos = Array.from(svg.querySelectorAll('circle'));
@@ -165,23 +166,24 @@
           const g = dot.getAttribute('data-g');
           usados[g] = (usados[g] || 0) + 1;
           const vota = usados[g] <= (siPor[g] || 0);
-          dot.setAttribute('fill', vota ? '#1c9a50' : '#d5383a');
+          dot.setAttribute('fill', (vota !== !!opts.invertir) ? '#1c9a50' : '#d5383a');
           if (vota) si++; else no++;
         }
-        cuenta.children[0].textContent = '✅ ' + si;
-        cuenta.children[1].textContent = '❌ ' + no;
+        cuenta.children[0].textContent = (opts.invertir ? '🔨 ' : '✅ ') + si;
+        cuenta.children[1].textContent = (opts.invertir ? '🛡️ ' : '❌ ') + no;
         R.son.tic();
         if (k < puntos.length) setTimeout(paso, 40);
         else {
-          cont.appendChild(h('div', { class: 'veredicto ' + (c.pasa ? 'gana' : 'pierde'), style: { fontSize: '24px', color: c.pasa ? 'var(--bien)' : 'var(--mal)' } },
-            c.pasa ? 'Aprobada en ' + (nombre === 'diputados' ? 'Diputados' : 'el Senado') : 'Rechazada en ' + (nombre === 'diputados' ? 'Diputados' : 'el Senado')));
+          const bien = opts.invertir ? !c.pasa : c.pasa;
+          cont.appendChild(h('div', { class: 'veredicto ' + (bien ? 'gana' : 'pierde'), style: { fontSize: '24px', color: bien ? 'var(--bien)' : 'var(--mal)' } },
+            (c.pasa ? 'Aprobado en ' : 'Rechazado en ') + (nombre === 'diputados' ? 'Diputados' : 'el Senado')));
           setTimeout(siguiente, lentos ? 700 : 0);
         }
       };
       paso();
     };
     const final = () => {
-      const ok = res.aprobada ?? res.aprobado;
+      const ok = opts.invertir ? !res.aprobada : res.aprobada;
       if (ok) { R.son.aplausos(); ui.confeti(['#1c9a50', '#ffffff', '#f6b40e']); } else R.son.abucheo();
       cont.appendChild(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, ok ? '🎉 ¡Seguir!' : 'Seguir'));
       const b = cont.querySelector('.boton');
@@ -216,6 +218,36 @@
       h('div', { class: 'fila envolver chico' }, h('span', null, 'Si se rechaza:'), ui.chipsEfectos(R.gob.describirEfectos(s, con.EF_PRESUPUESTO.no), { compacto: true })),
       h('button', { class: 'boton grande ancho', onclick: () => votarYa(false) }, '🗳️ Que voten'),
       h('button', { class: 'boton sec ancho', onclick: () => votarYa(true) }, '💸 Repartir fondos a provincias y votar (1,5%)')));
+  };
+
+  ui.momentos.juicio = function (s, m, listo) {
+    const pintar = () => {
+      const p = con.prediccionJuicio(s);
+      const cam = (nombre, c) => h('div', { class: 'fila entre' }, h('b', null, nombre),
+        h('span', { class: 'chip ' + (c.si >= c.necesarios ? 'mal' : 'bien') }, '🔨 ~' + c.si + ' de ' + c.necesarios + ' para destituirte'));
+      ui.abrirCapa(h('div', { class: 'pila' },
+        h('div', { class: 'dibujo-noticia' }, '⚖️ 🏛️ 🔨'),
+        h('h2', { class: 'titular' }, '¡La oposición pide tu juicio político!'),
+        h('p', { class: 'bajada' }, 'Por los escándalos. Necesitan 2/3 en las dos cámaras.'),
+        h('div', { class: 'tarjeta plana suave pila' }, cam('Diputados', p.diputados), cam('Senado', p.senado)),
+        h('button', { class: 'boton sec ancho', disabled: s.gob.juicioFondos ? true : null, onclick: () => { s.gob.juicioFondos = 1; R.gob.aplicarEfectos(s, { gastoExtra: 3 }); for (const pr of R.PROVINCIAS) s.gob.gobernadores[pr.id].rel = R.clamp(s.gob.gobernadores[pr.id].rel + 8, 0, 100); R.son.moneda(); pintar(); } }, '💸 Fondos a gobernadores · 3% del presupuesto'),
+        h('button', { class: 'boton grande ancho', onclick: () => {
+          const res = con.votarJuicio(s);
+          R.guardar(s);
+          ui.animarVotacion(s, 'Juicio político', res, () => {
+            if (res.aprobada) {
+              const mom = [];
+              R.gob.terminar(s, mom, 'juicio');
+              R.guardar(s);
+              listo();
+            } else {
+              ui.mostrarResultado(s, { txt: '🛡️ ¡Sobreviviste al juicio político!', bueno: true, aplicado: res.aplicado, aprobAntes: s.gob.aprob, aprobDespues: s.gob.aprob });
+              listo();
+            }
+          }, { invertir: true });
+        } }, '🗳️ Que voten')));
+    };
+    pintar();
   };
 
   ui.momentos.dnu_cae = function (s, m, listo) {

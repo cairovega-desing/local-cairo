@@ -75,6 +75,18 @@
       h('p', { class: 'chico suave centro' }, 'La partida se guarda sola en este dispositivo.')), { cerrable: true });
   };
 
+  // Guía corta de primeros pasos (se muestra una vez por dispositivo).
+  ui.guia = function (clave, titulo, pasos) {
+    if (R.pref('guia_' + clave)) return null;
+    const caja = h('section', { class: 'tarjeta pila guia' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '👋 ' + titulo),
+        h('button', { class: 'boton mini sec', onclick: () => { R.pref('guia_' + clave, true); caja.remove(); } }, '✕')),
+      h('div', { class: 'pasos-guia' }, pasos.map(([em, t, d], i) =>
+        h('div', { class: 'paso-guia' }, h('span', { class: 'num' }, String(i + 1)), h('span', { class: 'em' }, em), h('div', null, h('b', null, t), h('div', { class: 'chico' }, d))))),
+      h('button', { class: 'boton ancho', onclick: () => { R.pref('guia_' + clave, true); R.son.toque(); caja.remove(); } }, '¡Entendido!'));
+    return caja;
+  };
+
   ui.comoSeJuega = function () {
     const paso = (em, t, d) => h('div', { class: 'fila tarjeta plana suave', style: { alignItems: 'flex-start' } }, h('div', { style: { fontSize: '32px' } }, em), h('div', null, h('b', null, t), h('p', { class: 'chico' }, d)));
     ui.abrirCapa(h('div', { class: 'pila' },

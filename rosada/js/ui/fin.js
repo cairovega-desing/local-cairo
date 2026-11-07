@@ -29,6 +29,7 @@
       estallido: { em: '🔥', t: 'Estallido social', d: 'El país explotó y tuviste que renunciar.' },
       reeleccion: { em: '😔', t: 'Perdiste la reelección', d: 'El pueblo eligió otro camino.' },
       mandato: { em: '🏁', t: 'Terminaste tu mandato', d: 'Entregás la banda. La historia te juzgará.' },
+      juicio: { em: '⚖️', t: 'Te destituyó el Congreso', d: 'El juicio político salió. Demasiados escándalos.' },
     };
     const m = motivos[f.motivo] || { em: '🏁', t: 'Fin de la partida', d: '' };
     const filas = [];

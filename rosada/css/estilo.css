@@ -62,9 +62,9 @@ p { margin: 0; }
   max-width: 560px;
   margin: 0 auto;
   min-height: 100%;
-  padding-left: max(14px, env(safe-area-inset-left, 0px));
-  padding-right: max(14px, env(safe-area-inset-right, 0px));
-  padding-block: 10px 120px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 10px 150px;
 }
 .app.ancha { max-width: 1120px; }
 
@@ -215,7 +215,7 @@ p { margin: 0; }
   position: fixed;
   left: 0; right: 0; bottom: 0;
   z-index: 25;
-  padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+  padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
   background: linear-gradient(180deg, rgba(191, 224, 247, 0) 0%, var(--cielo) 30%);
   pointer-events: none;
 }
@@ -530,6 +530,7 @@ p { margin: 0; }
 .linea-necesaria { position: absolute; top: -5px; width: 4px; height: 32px; margin-left: -2px; background: var(--tinta); border-radius: 2px; }
 .conteo { display: flex; justify-content: center; gap: 18px; font-family: var(--f-titulo); font-size: 24px; }
 .conteo .si { color: var(--bien); } .conteo .no { color: var(--mal); }
+.conteo.invertido .si { color: var(--mal); } .conteo.invertido .no { color: var(--bien); }
 .accion.hecha { background: #f1fbf4; }
 .acciones-prov { display: flex; flex-wrap: wrap; gap: 8px; }
 .acciones-prov .boton { flex: 1 1 140px; }
@@ -558,6 +559,13 @@ p { margin: 0; }
 .legado { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 6px; }
 .estrellas { font-size: 38px; color: var(--sol); letter-spacing: 4px; text-shadow: 0 2px 0 var(--tinta); }
 .titulo-legado { font-family: var(--f-titulo); font-size: 24px; }
+
+/* ── Guía de primeros pasos ── */
+.guia { background: var(--sol-claro); margin-bottom: 12px; }
+.pasos-guia { display: flex; flex-direction: column; gap: 8px; }
+.paso-guia { display: grid; grid-template-columns: 26px 30px minmax(0, 1fr); gap: 8px; align-items: center; }
+.paso-guia .num { width: 24px; height: 24px; border-radius: 50%; background: var(--tinta); color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 900; }
+.paso-guia .em { font-size: 24px; }
 
 /* ── Escritorio: dos columnas ── */
 .columnas { display: grid; gap: 14px; }

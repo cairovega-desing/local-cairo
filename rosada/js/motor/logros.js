@@ -37,6 +37,7 @@
     { id: 'oposicion', emoji: '🔄', nombre: 'Ganaste desde la oposición', si: (s) => s.fase === 'gobierno' && !!s.flags.vinoDeOposicion },
     { id: 'hiper', emoji: '💸', nombre: 'Hiperinflación (más de 1000 %)', malo: true, si: (s) => enGob(s) && s.eco.inflAnual > 1000 },
     { id: 'helicoptero', emoji: '🚁', nombre: 'Te fuiste en helicóptero', malo: true, si: (s) => s.fin && (s.fin.motivo === 'helicoptero' || s.fin.motivo === 'estallido') },
+    { id: 'juicio', emoji: '🛡️', nombre: 'Sobreviviste a un juicio político', si: (s) => s.diario.some((d) => d.txt === 'Sobreviviste al juicio político') },
   ];
 
   const CLAVE = 'logros';
@@ -75,7 +76,7 @@
     const anex = s.mundo ? R.PAISES.filter((x) => s.mundo.paises[x.id].anexado).length : 0;
     const malvinas = s.mundo && s.mundo.malvinas.recuperadas;
     p += anex * 4 + (malvinas ? 15 : 0);
-    if (s.fin && (s.fin.motivo === 'helicoptero' || s.fin.motivo === 'estallido')) p -= 25;
+    if (s.fin && ['helicoptero', 'estallido', 'juicio'].includes(s.fin.motivo)) p -= 25;
     const puntos = Math.round(R.clamp(p, 0, 100));
     const estrellas = puntos >= 85 ? 5 : puntos >= 68 ? 4 : puntos >= 50 ? 3 : puntos >= 32 ? 2 : 1;
     let titulo = ['Un desastre nacional', 'Una gestión olvidable', 'Una gestión correcta', 'Una gran presidencia', 'Prócer de la Patria'][estrellas - 1];

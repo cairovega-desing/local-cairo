@@ -22,7 +22,13 @@
       diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Lo que pasó'), ui.historial(s, 60)),
     };
     Object.assign(paneles, ui.panelesGob);
-    const scroll = ui.montar(h('div', null, barraGobierno(s), paneles[tab](s)), pc);
+    const guia = tab === 'inicio' ? ui.guia('gobierno', 'Cómo gobernar', [
+      ['👥', 'Mirá a la gente', 'Tocá cada cara para ver qué le importa y por qué está contenta o enojada.'],
+      ['💰', 'La economía va en %', 'Más plata a un área contenta a alguien, pero sube el déficit. Déficit pagado con emisión = inflación.'],
+      ['⭐', 'Gastá capital político', 'En acciones, leyes, gobernadores y el mundo. Se recarga cada mes según tu aprobación.'],
+      ['🔥', 'Cuidado con la crisis', 'Cada problema grave suma una llamita. Con 6 o más puede haber un estallido.'],
+    ]) : null;
+    const scroll = ui.montar(h('div', null, barraGobierno(s), guia, paneles[tab](s)), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
     ui.navInferior(ui.PESTANAS_GOB, tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
       h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() }, '▶ Pasar el mes',
@@ -74,13 +80,17 @@
   }
 
   function proximaEleccionGob(s) {
-    const m = s.mes;
-    const fechas = [
-      { mes: R.gob.MES_MEDIO_TERMINO, nombre: 'Elecciones de medio término', emoji: '🗳️' },
-      { mes: R.gob.MES_PRESIDENCIAL, nombre: 'Elecciones presidenciales', emoji: '🏆' },
-    ].concat(s.gob.mandato > 1 ? [{ mes: R.gob.MES_PRESIDENCIAL + 24, nombre: 'Medio término', emoji: '🗳️' }, { mes: R.gob.MES_PRESIDENCIAL + 48, nombre: 'Fin del mandato', emoji: '🏁' }] : []);
-    const f = fechas.find((x) => x.mes >= m);
-    return f ? Object.assign({ faltan: f.mes - m }, f) : null;
+    const y0 = R.anio(s.mes);
+    for (let y = y0; y <= y0 + 4; y++) {
+      const m = R.mesNum(y, 9);
+      if (m < s.mes) continue;
+      if (y % 4 === 1) return { faltan: m - s.mes, nombre: 'Elecciones de medio término', emoji: '🗳️' };
+      if (y % 4 === 3) {
+        const fin = s.gob.mandato >= 2 && !s.gob.leyes.re_reeleccion;
+        return { faltan: m - s.mes, nombre: fin ? 'Fin de tu mandato' : 'Elecciones presidenciales', emoji: fin ? '🏁' : '🏆' };
+      }
+    }
+    return null;
   }
 
   function verLlamas(s) {

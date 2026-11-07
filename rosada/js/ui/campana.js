@@ -26,7 +26,12 @@
     const cuerpo = pc
       ? h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, resumen(s), tarjetaEncuesta(s)), h('div', { class: 'pila' }, contenido))
       : h('div', { class: 'pila' }, contenido);
-    const scroll = ui.montar(h('div', null, ui.barraCampana(s), cuerpo), pc);
+    const guia = tab === 'acciones' && s.mes <= 2 && !s.gobRival ? ui.guia('campana', 'Cómo hacer campaña', [
+      ['🎯', 'Usá tus acciones del mes', 'Cada carta muestra qué te da: 👁️ que te conozcan, ❤️ caer bien, 🏴 militancia.'],
+      ['🗺️', 'Hacé actos donde te quieren', 'Las provincias grandes pesan más: Buenos Aires es casi 4 de cada 10 votos.'],
+      ['▶', 'Pasá el mes', 'Llegan noticias, se mueve la encuesta y se acercan las PASO de agosto.'],
+    ]) : null;
+    const scroll = ui.montar(h('div', null, ui.barraCampana(s), guia, cuerpo), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
     const b = R.turno.botonPasar(s);
     ui.navInferior(PESTANAS.filter((p) => !(pc && p.soloCelu)), tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
