@@ -38,6 +38,7 @@
         agendaMax: D.agenda,
         conocen: 6,
         simpatia: 52,
+        relevancia: 5,
         militancia: 8,
         presencia: {},
         visitas: {},

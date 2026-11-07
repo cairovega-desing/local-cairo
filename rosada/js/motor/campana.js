@@ -49,7 +49,7 @@
         return { conocen: R.round(4 * (1 - s.camp.conocen / 125), 1) };
       },
       riesgos: (s) => [
-        { p: R.round(0.14 + 0.05 * s.partido.estilo, 3), bueno: true, txt: 'Se hace viral', ef: { conocen: 8, simpatia: 2 } },
+        { p: R.round(0.14 + 0.05 * s.partido.estilo, 3), bueno: true, txt: 'Se hace viral', ef: { conocen: 8, simpatia: 2, relevancia: 6 } },
         { p: R.round(0.1 + 0.05 * s.partido.estilo, 3), bueno: false, txt: 'Metés la pata', ef: { simpatia: -3 } },
       ],
       hacer(s) {
@@ -64,10 +64,10 @@
     {
       id: 'entrevista', emoji: '🎙️', nombre: 'Entrevista', desc: 'Gratis, pero arriesgada', costo: 0, max: 1, azar: true,
       calc() {
-        return { conocen: 1.5, simpatia: 1.5 };
+        return { conocen: 1.5, simpatia: 1.5, relevancia: 3 };
       },
       riesgos: (s) => [
-        { p: R.round(0.35 - 0.05 * s.partido.estilo, 3), bueno: true, txt: 'La rompés', ef: { conocen: 2.5, simpatia: 4 } },
+        { p: R.round(0.35 - 0.05 * s.partido.estilo, 3), bueno: true, txt: 'La rompés', ef: { conocen: 2.5, simpatia: 4, relevancia: 6 } },
         { p: R.round(0.2 + 0.1 * s.partido.estilo, 3), bueno: false, txt: 'Te comen', ef: { conocen: 2, simpatia: -3 } },
       ],
       hacer(s) {
@@ -211,7 +211,9 @@
       const know = R.clamp(c.conocen + pres * 0.45, 0, 100) / 100;
       const like = R.clamp(c.simpatia + pres * 0.12, 0, 100) / 100;
       const af = camp.afinidad(s, p);
-      let yo = 100 * know * Math.pow(like, 1.6) * af * 0.58 * dif.mult;
+      // Voto útil: si sos relevante, la gente siente que votarte «sirve».
+      const util = 0.88 + 0.24 * ((c.relevancia ?? 30) / 100);
+      let yo = 100 * know * Math.pow(like, 1.6) * af * 0.58 * dif.mult * util;
       yo += c.bonusVotos;
       if (ali) yo += ali.votos * (ali.region === p.region ? 2.2 : 0.75);
       if (opts.extraYo) yo += opts.extraYo;
@@ -238,9 +240,18 @@
   };
 
   // Encuesta: tus números con un poquito de error (como en la vida real), ordenados.
+  // Imagen como la miden las consultoras: positiva + negativa + regular + no te conoce = 100.
+  camp.imagen = function (s) {
+    const c = s.camp;
+    const k = c.conocen;
+    const pos = (k * c.simpatia) / 100;
+    const neg = ((k * (100 - c.simpatia)) / 100) * 0.75;
+    return { conocimiento: k, positiva: pos, negativa: neg, regular: Math.max(0, k - pos - neg), relevancia: c.relevancia ?? 5, diferencial: pos - neg };
+  };
+
   camp.encuesta = function (s) {
     const v = camp.votos(s).nac;
-    const e = { mes: s.mes };
+    const e = { mes: s.mes, img: camp.imagen(s) };
     for (const k in v) e[k] = R.round(v[k], 1);
     return e;
   };
@@ -252,6 +263,9 @@
     c.fondos += Math.round((7 + c.militancia * 0.12) * (dif.mult > 1 ? 1.2 : 1));
     if (c.conocen > 5) c.conocen = Math.max(5, c.conocen - 0.5);
     c.simpatia += (50 - c.simpatia) * 0.06;
+    // La relevancia se apaga si no hacés ruido; el piso depende de cuánto medís.
+    const piso = 3 + camp.votos(s).nac.YO * 1.3;
+    c.relevancia = R.clamp((c.relevancia ?? 5) + (piso - (c.relevancia ?? 5)) * 0.18, 0, 100);
     for (const id in c.presencia) c.presencia[id] *= 0.96;
     for (const id of R.RIVALES) {
       s.rivales[id] = s.rivales[id] * 0.94 + R.gauss(s) * 0.45;

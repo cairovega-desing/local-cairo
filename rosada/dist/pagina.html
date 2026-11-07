@@ -621,6 +621,21 @@ label.boton { cursor: pointer; }
 .riesgo .txt { color: var(--tinta); }
 .riesgo .ef { font-size: 12px; padding: 1px 6px 1px 4px; }
 
+/* ── Gráfico de imagen (campaña) ── */
+.grafico-imagen { display: flex; flex-direction: column; gap: 7px; padding: 10px 12px; border-radius: 14px; background: var(--papel-2); border: 2px solid var(--tinta); }
+.fila-grafico { display: grid; grid-template-columns: minmax(0, 1fr) auto 50px; column-gap: 8px; row-gap: 3px; align-items: center; }
+.fila-grafico .nom { font-size: 14px; font-weight: 900; display: flex; align-items: center; gap: 5px; min-width: 0; }
+.fila-grafico .em { font-size: 16px; }
+.fila-grafico .val { text-align: right; font-size: 16px; font-family: var(--f-titulo); font-weight: 400; }
+.fila-grafico .delta { font-size: 12px; font-weight: 900; color: var(--meh); }
+.fila-grafico .delta.sube { color: var(--bien); }
+.fila-grafico .delta.baja { color: var(--mal); }
+.pista-grafico { grid-column: 1 / -1; height: 14px; border-radius: 5px; border: 2px solid var(--tinta); overflow: hidden;
+  background: var(--papel) repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), #d6e0ec calc(25% - 1px) 25%); }
+.pista-grafico > i { display: block; height: 100%; transition: width 0.7s cubic-bezier(.2,.9,.2,1); border-right: 2px solid var(--tinta); }
+.fila-militancia { display: grid; grid-template-columns: auto minmax(0, 1fr) 40px; gap: 8px; align-items: center; font-size: 13px; font-weight: 900; }
+.fila-militancia b { text-align: right; }
+
 /* ── Escritorio: dos columnas ── */
 .columnas { display: grid; gap: 14px; }
 @media (min-width: 900px) {
@@ -990,6 +1005,7 @@ label.boton { cursor: pointer; }
         agendaMax: D.agenda,
         conocen: 6,
         simpatia: 52,
+        relevancia: 5,
         militancia: 8,
         presencia: {},
         visitas: {},
@@ -1078,8 +1094,9 @@ label.boton { cursor: pointer; }
 
   // paso = cuánto vale una flecha. inverso = subir es malo para vos.
   R.EF_META = {
-    conocen: { emoji: '👁️', nombre: 'Te conocen', paso: 3 },
-    simpatia: { emoji: '❤️', nombre: 'Les caés bien', paso: 2 },
+    conocen: { emoji: '👁️', nombre: 'Conocimiento', paso: 3 },
+    simpatia: { emoji: '❤️', nombre: 'Imagen', paso: 2 },
+    relevancia: { emoji: '📣', nombre: 'Relevancia', paso: 4 },
     militancia: { emoji: '🏴', nombre: 'Militancia', paso: 4 },
     fondos: { emoji: '💰', nombre: 'Fondos', paso: 15, numero: true },
     sucio: { emoji: '⚠️', nombre: 'Riesgo de escándalo', paso: 1, inverso: true },
@@ -1112,7 +1129,7 @@ label.boton { cursor: pointer; }
     let simp = (ef.simpatia || 0) + simpatiaIdeologica(s, ef);
     // Rendimientos decrecientes: cuanto más alto estás, más cuesta seguir subiendo.
     if (simp > 0 && s.camp) simp *= R.clamp(1 - (s.camp.simpatia - 50) / 40, 0.2, 1);
-    for (const k of ['conocen', 'militancia', 'fondos', 'sucio', 'agenda']) {
+    for (const k of ['conocen', 'relevancia', 'militancia', 'fondos', 'sucio', 'agenda']) {
       if (!ef[k]) continue;
       let v = ef[k];
       if (k === 'conocen' && v > 0 && s.camp) v *= R.clamp(1 - (s.camp.conocen - 40) / 80, 0.3, 1);
@@ -1144,8 +1161,15 @@ label.boton { cursor: pointer; }
     const c = s.camp;
     for (const { k, v, sub } of lista) {
       switch (k) {
-        case 'conocen': c.conocen = R.clamp(c.conocen + v, 0, 100); break;
-        case 'simpatia': c.simpatia = R.clamp(c.simpatia + v, 0, 100); break;
+        case 'conocen':
+          c.conocen = R.clamp(c.conocen + v, 0, 100);
+          if (v > 0) c.relevancia = R.clamp((c.relevancia || 0) + v * 0.8, 0, 100); // si te conocen más, hablan más de vos
+          break;
+        case 'simpatia':
+          c.simpatia = R.clamp(c.simpatia + v, 0, 100);
+          c.relevancia = R.clamp((c.relevancia || 0) + Math.abs(v) * 0.4, 0, 100); // la polémica también da relevancia
+          break;
+        case 'relevancia': c.relevancia = R.clamp((c.relevancia || 0) + v, 0, 100); break;
         case 'militancia': c.militancia = R.clamp(c.militancia + v, 0, 100); break;
         case 'fondos': c.fondos = Math.max(0, c.fondos + v); break;
         case 'sucio': c.sucio = Math.max(0, c.sucio + v); break;
@@ -1153,7 +1177,10 @@ label.boton { cursor: pointer; }
         case 'presencia':
           provinciasDe(sub).forEach((id) => { c.presencia[id] = R.clamp(c.presencia[id] + v, 0, 100); });
           break;
-        case 'rival': if (s.rivales[sub] !== undefined) s.rivales[sub] += v; break;
+        case 'rival':
+          if (s.rivales[sub] !== undefined) s.rivales[sub] += v;
+          c.relevancia = R.clamp((c.relevancia || 0) + Math.abs(v) * 0.7, 0, 100);
+          break;
         case 'votos': c.bonusVotos += v; break;
         case 'aprobRival': if (s.gobRival) s.gobRival.aprob = R.clamp(s.gobRival.aprob + v, 10, 85); break;
       }
@@ -1255,7 +1282,7 @@ label.boton { cursor: pointer; }
         return { conocen: R.round(4 * (1 - s.camp.conocen / 125), 1) };
       },
       riesgos: (s) => [
-        { p: R.round(0.14 + 0.05 * s.partido.estilo, 3), bueno: true, txt: 'Se hace viral', ef: { conocen: 8, simpatia: 2 } },
+        { p: R.round(0.14 + 0.05 * s.partido.estilo, 3), bueno: true, txt: 'Se hace viral', ef: { conocen: 8, simpatia: 2, relevancia: 6 } },
         { p: R.round(0.1 + 0.05 * s.partido.estilo, 3), bueno: false, txt: 'Metés la pata', ef: { simpatia: -3 } },
       ],
       hacer(s) {
@@ -1270,10 +1297,10 @@ label.boton { cursor: pointer; }
     {
       id: 'entrevista', emoji: '🎙️', nombre: 'Entrevista', desc: 'Gratis, pero arriesgada', costo: 0, max: 1, azar: true,
       calc() {
-        return { conocen: 1.5, simpatia: 1.5 };
+        return { conocen: 1.5, simpatia: 1.5, relevancia: 3 };
       },
       riesgos: (s) => [
-        { p: R.round(0.35 - 0.05 * s.partido.estilo, 3), bueno: true, txt: 'La rompés', ef: { conocen: 2.5, simpatia: 4 } },
+        { p: R.round(0.35 - 0.05 * s.partido.estilo, 3), bueno: true, txt: 'La rompés', ef: { conocen: 2.5, simpatia: 4, relevancia: 6 } },
         { p: R.round(0.2 + 0.1 * s.partido.estilo, 3), bueno: false, txt: 'Te comen', ef: { conocen: 2, simpatia: -3 } },
       ],
       hacer(s) {
@@ -1417,7 +1444,9 @@ label.boton { cursor: pointer; }
       const know = R.clamp(c.conocen + pres * 0.45, 0, 100) / 100;
       const like = R.clamp(c.simpatia + pres * 0.12, 0, 100) / 100;
       const af = camp.afinidad(s, p);
-      let yo = 100 * know * Math.pow(like, 1.6) * af * 0.58 * dif.mult;
+      // Voto útil: si sos relevante, la gente siente que votarte «sirve».
+      const util = 0.88 + 0.24 * ((c.relevancia ?? 30) / 100);
+      let yo = 100 * know * Math.pow(like, 1.6) * af * 0.58 * dif.mult * util;
       yo += c.bonusVotos;
       if (ali) yo += ali.votos * (ali.region === p.region ? 2.2 : 0.75);
       if (opts.extraYo) yo += opts.extraYo;
@@ -1444,9 +1473,18 @@ label.boton { cursor: pointer; }
   };
 
   // Encuesta: tus números con un poquito de error (como en la vida real), ordenados.
+  // Imagen como la miden las consultoras: positiva + negativa + regular + no te conoce = 100.
+  camp.imagen = function (s) {
+    const c = s.camp;
+    const k = c.conocen;
+    const pos = (k * c.simpatia) / 100;
+    const neg = ((k * (100 - c.simpatia)) / 100) * 0.75;
+    return { conocimiento: k, positiva: pos, negativa: neg, regular: Math.max(0, k - pos - neg), relevancia: c.relevancia ?? 5, diferencial: pos - neg };
+  };
+
   camp.encuesta = function (s) {
     const v = camp.votos(s).nac;
-    const e = { mes: s.mes };
+    const e = { mes: s.mes, img: camp.imagen(s) };
     for (const k in v) e[k] = R.round(v[k], 1);
     return e;
   };
@@ -1458,6 +1496,9 @@ label.boton { cursor: pointer; }
     c.fondos += Math.round((7 + c.militancia * 0.12) * (dif.mult > 1 ? 1.2 : 1));
     if (c.conocen > 5) c.conocen = Math.max(5, c.conocen - 0.5);
     c.simpatia += (50 - c.simpatia) * 0.06;
+    // La relevancia se apaga si no hacés ruido; el piso depende de cuánto medís.
+    const piso = 3 + camp.votos(s).nac.YO * 1.3;
+    c.relevancia = R.clamp((c.relevancia ?? 5) + (piso - (c.relevancia ?? 5)) * 0.18, 0, 100);
     for (const id in c.presencia) c.presencia[id] *= 0.96;
     for (const id of R.RIVALES) {
       s.rivales[id] = s.rivales[id] * 0.94 + R.gauss(s) * 0.45;
@@ -1985,7 +2026,7 @@ label.boton { cursor: pointer; }
 
   deb.terminar = function (s, d) {
     const p = d.puntos;
-    const ef = { simpatia: R.round(p * 2.6, 1), conocen: 3, rival: { [d.rival]: -R.round(Math.max(0, p) * 1.1, 1) } };
+    const ef = { simpatia: R.round(p * 2.6, 1), conocen: 3, relevancia: 8, rival: { [d.rival]: -R.round(Math.max(0, p) * 1.1, 1) } };
     if (p < 0) ef.rival[d.rival] = R.round(-p * 0.6, 1);
     const aplicado = R.aplicarEfectos(s, ef);
     const veredicto = p >= 2 ? '¡Ganaste el debate por paliza!' : p > 0 ? 'Ganaste el debate' : p === 0 ? 'Empate técnico' : 'Perdiste el debate';
@@ -6291,7 +6332,7 @@ label.boton { cursor: pointer; }
       ui.escudo(s.partido, true),
       h('h2', { style: { marginTop: '10px' } }, '¡Nace ' + s.partido.nombre + '!'),
       h('div', { class: 'mis-numeros' },
-        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '👁️'), h('div', { class: 'val' }, R.fmt(s.camp.conocen) + '%'), h('div', { class: 'nom' }, 'te conoce')),
+        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '👁️'), h('div', { class: 'val' }, R.fmt(s.camp.conocen) + '%'), h('div', { class: 'nom' }, 'conocimiento')),
         h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗳️'), h('div', { class: 'val' }, R.fmt(R.camp.votos(s).nac.YO, 1) + '%'), h('div', { class: 'nom' }, 'te vota')),
         h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗓️'), h('div', { class: 'val' }, R.turno.cal(s).paso - s.mes), h('div', { class: 'nom' }, 'meses a las PASO'))),
       h('p', null, 'Arrancás de abajo. Cada mes tenés ', h('b', null, s.camp.agendaMax + ' acciones'), '. ¡A recorrer el país!'),
@@ -6604,7 +6645,7 @@ label.boton { cursor: pointer; }
       ? h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, resumen(s), tarjetaEncuesta(s)), h('div', { class: 'pila' }, contenido))
       : h('div', { class: 'pila' }, contenido);
     const guia = tab === 'acciones' && s.mes <= 2 && !s.gobRival ? ui.guia('campana', 'Cómo hacer campaña', [
-      ['🎯', 'Usá tus acciones del mes', 'Cada carta muestra qué te da: 👁️ que te conozcan, ❤️ caer bien, 🏴 militancia.'],
+      ['🎯', 'Usá tus acciones del mes', 'Cada carta muestra qué te da: 👁️ conocimiento, ❤️ imagen, 📣 relevancia, 🏴 militancia.'],
       ['🗺️', 'Hacé actos donde te quieren', 'Las provincias grandes pesan más: Buenos Aires es casi 4 de cada 10 votos.'],
       ['▶', 'Pasá el mes', 'Llegan noticias, se mueve la encuesta y se acercan las PASO de agosto.'],
     ]) : null;
@@ -6624,10 +6665,8 @@ label.boton { cursor: pointer; }
     const ant = s.encuestas.length >= 2 ? s.encuestas[s.encuestas.length - 2] : null;
     const dif = ant ? enc.YO - ant.YO : 0;
     const puesto = ['YO'].concat(R.RIVALES).sort((a, b) => enc[b] - enc[a]).indexOf('YO') + 1;
-    const numero = (em, nom, val, color) => h('div', { class: 'mi-numero' },
-      h('div', { class: 'em' }, em), h('div', { class: 'val numero' }, R.fmt(val) + '%'),
-      h('div', { class: 'barra', style: { height: '8px', margin: '3px 6px' } }, h('i', { style: { width: val + '%', background: color } })),
-      h('div', { class: 'nom' }, nom));
+    const img = R.camp.imagen(s);
+    const imgAnt = ant && ant.img ? ant.img : null;
     return h('section', { class: 'tarjeta pila' },
       prox ? h('div', { class: 'cuenta-regresiva' },
         h('div', { class: 'num' }, prox.faltan ? prox.faltan : prox.emoji),
@@ -6638,15 +6677,40 @@ label.boton { cursor: pointer; }
         h('div', { class: 'pila', style: { alignItems: 'flex-end', gap: '6px' } },
           h('span', { class: 'chip ' + (puesto <= 2 ? 'sol' : '') }, puesto === 1 ? '🥇 Primero' : puesto === 2 ? '🥈 Segundo' : '#' + puesto + ' en la encuesta'),
           Math.abs(dif) >= 0.05 ? h('span', { class: 'chip ' + (dif > 0 ? 'bien' : 'mal') }, (dif > 0 ? '▲ ' : '▼ ') + R.fmt(Math.abs(dif), 1) + ' este mes') : null)),
-      h('div', { class: 'mis-numeros' },
-        numero('👁️', 'Te conocen', c.conocen, 'var(--celeste)'),
-        numero('❤️', 'Les caés bien', c.simpatia, '#ff7b8a'),
-        numero('🏴', 'Militancia', c.militancia, s.partido.color)),
+      graficoImagen(img, imgAnt),
+      h('div', { class: 'fila-militancia' }, h('span', null, '🏴 Militancia y fiscales'),
+        h('div', { class: 'barra', style: { height: '10px' } }, h('i', { style: { width: c.militancia + '%', background: s.partido.color } })),
+        h('b', { class: 'numero' }, R.fmt(c.militancia) + '%')),
       c.militancia < 30 && s.mes >= 4 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, '⚠️ Con poca militancia no tenés fiscales: te pueden robar votos.') : null,
       s.gobRival ? h('div', { class: 'fila envolver', style: { gap: '6px' } },
         h('span', { class: 'chip' }, '🏛️ Gobierna ' + R.elec.nombre(s, s.gobRival.partido) + ' (' + R.PARTIDOS[s.gobRival.partido].sigla + ')'),
         h('span', { class: 'chip ' + (s.gobRival.aprob < 40 ? 'bien' : s.gobRival.aprob > 55 ? 'mal' : '') }, '👍 ' + Math.round(s.gobRival.aprob) + '% de aprobación'),
         h('span', { class: 'chip' }, '🏛️ ' + (R.composicion(s, 'diputados').YO || 0) + ' diputados tuyos')) : null);
+  }
+
+  // Gráfico de imagen como el de las consultoras: conocimiento, positiva, negativa y relevancia.
+  function graficoImagen(img, ant) {
+    const filas = [
+      { k: 'conocimiento', em: '👁️', nom: 'Conocimiento', color: 'var(--celeste)', ayuda: 'Cuánta gente sabe quién sos' },
+      { k: 'positiva', em: '👍', nom: 'Imagen positiva', color: 'var(--bien)', ayuda: 'Te conocen y les gustás' },
+      { k: 'negativa', em: '👎', nom: 'Imagen negativa', color: 'var(--mal)', ayuda: 'Te conocen y no les gustás' },
+      { k: 'relevancia', em: '📣', nom: 'Relevancia', color: 'var(--sol)', ayuda: 'Cuánto se habla de vos (se apaga si no hacés ruido)' },
+    ];
+    const dif = img.diferencial;
+    return h('div', { class: 'grafico-imagen', role: 'figure', 'aria-label': 'Imagen del candidato' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'etiqueta' }, '📊 Tu imagen'),
+        h('span', { class: 'chip ' + (dif >= 0 ? 'bien' : 'mal'), title: 'Imagen positiva menos negativa' }, 'Diferencial ' + R.signo(dif, 0))),
+      filas.map((f) => {
+        const v = img[f.k];
+        const d = ant ? v - ant[f.k] : 0;
+        const malo = f.k === 'negativa';
+        return h('div', { class: 'fila-grafico', title: f.ayuda },
+          h('span', { class: 'nom' }, h('span', { class: 'em' }, f.em), f.nom),
+          h('span', { class: 'delta ' + (Math.abs(d) < 0.5 ? '' : (d > 0) !== malo ? 'sube' : 'baja') }, Math.abs(d) < 0.5 ? '' : (d > 0 ? '▲' : '▼') + R.fmt(Math.abs(d))),
+          h('b', { class: 'numero val' }, R.fmt(v) + '%'),
+          h('div', { class: 'pista-grafico' }, h('i', { style: { width: R.clamp(v, 0, 100) + '%', background: f.color } })));
+      }),
+      h('p', { class: 'chico suave' }, 'Positiva + negativa + regular + «no te conoce» = 100 %. La relevancia baja si no hacés ruido.'));
   }
 
   // ── Acciones ──

@@ -192,7 +192,7 @@
       ui.escudo(s.partido, true),
       h('h2', { style: { marginTop: '10px' } }, '¡Nace ' + s.partido.nombre + '!'),
       h('div', { class: 'mis-numeros' },
-        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '👁️'), h('div', { class: 'val' }, R.fmt(s.camp.conocen) + '%'), h('div', { class: 'nom' }, 'te conoce')),
+        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '👁️'), h('div', { class: 'val' }, R.fmt(s.camp.conocen) + '%'), h('div', { class: 'nom' }, 'conocimiento')),
         h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗳️'), h('div', { class: 'val' }, R.fmt(R.camp.votos(s).nac.YO, 1) + '%'), h('div', { class: 'nom' }, 'te vota')),
         h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗓️'), h('div', { class: 'val' }, R.turno.cal(s).paso - s.mes), h('div', { class: 'nom' }, 'meses a las PASO'))),
       h('p', null, 'Arrancás de abajo. Cada mes tenés ', h('b', null, s.camp.agendaMax + ' acciones'), '. ¡A recorrer el país!'),

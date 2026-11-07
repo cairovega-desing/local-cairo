@@ -5,8 +5,9 @@
 
   // paso = cuánto vale una flecha. inverso = subir es malo para vos.
   R.EF_META = {
-    conocen: { emoji: '👁️', nombre: 'Te conocen', paso: 3 },
-    simpatia: { emoji: '❤️', nombre: 'Les caés bien', paso: 2 },
+    conocen: { emoji: '👁️', nombre: 'Conocimiento', paso: 3 },
+    simpatia: { emoji: '❤️', nombre: 'Imagen', paso: 2 },
+    relevancia: { emoji: '📣', nombre: 'Relevancia', paso: 4 },
     militancia: { emoji: '🏴', nombre: 'Militancia', paso: 4 },
     fondos: { emoji: '💰', nombre: 'Fondos', paso: 15, numero: true },
     sucio: { emoji: '⚠️', nombre: 'Riesgo de escándalo', paso: 1, inverso: true },
@@ -39,7 +40,7 @@
     let simp = (ef.simpatia || 0) + simpatiaIdeologica(s, ef);
     // Rendimientos decrecientes: cuanto más alto estás, más cuesta seguir subiendo.
     if (simp > 0 && s.camp) simp *= R.clamp(1 - (s.camp.simpatia - 50) / 40, 0.2, 1);
-    for (const k of ['conocen', 'militancia', 'fondos', 'sucio', 'agenda']) {
+    for (const k of ['conocen', 'relevancia', 'militancia', 'fondos', 'sucio', 'agenda']) {
       if (!ef[k]) continue;
       let v = ef[k];
       if (k === 'conocen' && v > 0 && s.camp) v *= R.clamp(1 - (s.camp.conocen - 40) / 80, 0.3, 1);
@@ -71,8 +72,15 @@
     const c = s.camp;
     for (const { k, v, sub } of lista) {
       switch (k) {
-        case 'conocen': c.conocen = R.clamp(c.conocen + v, 0, 100); break;
-        case 'simpatia': c.simpatia = R.clamp(c.simpatia + v, 0, 100); break;
+        case 'conocen':
+          c.conocen = R.clamp(c.conocen + v, 0, 100);
+          if (v > 0) c.relevancia = R.clamp((c.relevancia || 0) + v * 0.8, 0, 100); // si te conocen más, hablan más de vos
+          break;
+        case 'simpatia':
+          c.simpatia = R.clamp(c.simpatia + v, 0, 100);
+          c.relevancia = R.clamp((c.relevancia || 0) + Math.abs(v) * 0.4, 0, 100); // la polémica también da relevancia
+          break;
+        case 'relevancia': c.relevancia = R.clamp((c.relevancia || 0) + v, 0, 100); break;
         case 'militancia': c.militancia = R.clamp(c.militancia + v, 0, 100); break;
         case 'fondos': c.fondos = Math.max(0, c.fondos + v); break;
         case 'sucio': c.sucio = Math.max(0, c.sucio + v); break;
@@ -80,7 +88,10 @@
         case 'presencia':
           provinciasDe(sub).forEach((id) => { c.presencia[id] = R.clamp(c.presencia[id] + v, 0, 100); });
           break;
-        case 'rival': if (s.rivales[sub] !== undefined) s.rivales[sub] += v; break;
+        case 'rival':
+          if (s.rivales[sub] !== undefined) s.rivales[sub] += v;
+          c.relevancia = R.clamp((c.relevancia || 0) + Math.abs(v) * 0.7, 0, 100);
+          break;
         case 'votos': c.bonusVotos += v; break;
         case 'aprobRival': if (s.gobRival) s.gobRival.aprob = R.clamp(s.gobRival.aprob + v, 10, 85); break;
       }

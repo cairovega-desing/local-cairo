@@ -27,7 +27,7 @@
       ? h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, resumen(s), tarjetaEncuesta(s)), h('div', { class: 'pila' }, contenido))
       : h('div', { class: 'pila' }, contenido);
     const guia = tab === 'acciones' && s.mes <= 2 && !s.gobRival ? ui.guia('campana', 'Cómo hacer campaña', [
-      ['🎯', 'Usá tus acciones del mes', 'Cada carta muestra qué te da: 👁️ que te conozcan, ❤️ caer bien, 🏴 militancia.'],
+      ['🎯', 'Usá tus acciones del mes', 'Cada carta muestra qué te da: 👁️ conocimiento, ❤️ imagen, 📣 relevancia, 🏴 militancia.'],
       ['🗺️', 'Hacé actos donde te quieren', 'Las provincias grandes pesan más: Buenos Aires es casi 4 de cada 10 votos.'],
       ['▶', 'Pasá el mes', 'Llegan noticias, se mueve la encuesta y se acercan las PASO de agosto.'],
     ]) : null;
@@ -47,10 +47,8 @@
     const ant = s.encuestas.length >= 2 ? s.encuestas[s.encuestas.length - 2] : null;
     const dif = ant ? enc.YO - ant.YO : 0;
     const puesto = ['YO'].concat(R.RIVALES).sort((a, b) => enc[b] - enc[a]).indexOf('YO') + 1;
-    const numero = (em, nom, val, color) => h('div', { class: 'mi-numero' },
-      h('div', { class: 'em' }, em), h('div', { class: 'val numero' }, R.fmt(val) + '%'),
-      h('div', { class: 'barra', style: { height: '8px', margin: '3px 6px' } }, h('i', { style: { width: val + '%', background: color } })),
-      h('div', { class: 'nom' }, nom));
+    const img = R.camp.imagen(s);
+    const imgAnt = ant && ant.img ? ant.img : null;
     return h('section', { class: 'tarjeta pila' },
       prox ? h('div', { class: 'cuenta-regresiva' },
         h('div', { class: 'num' }, prox.faltan ? prox.faltan : prox.emoji),
@@ -61,15 +59,40 @@
         h('div', { class: 'pila', style: { alignItems: 'flex-end', gap: '6px' } },
           h('span', { class: 'chip ' + (puesto <= 2 ? 'sol' : '') }, puesto === 1 ? '🥇 Primero' : puesto === 2 ? '🥈 Segundo' : '#' + puesto + ' en la encuesta'),
           Math.abs(dif) >= 0.05 ? h('span', { class: 'chip ' + (dif > 0 ? 'bien' : 'mal') }, (dif > 0 ? '▲ ' : '▼ ') + R.fmt(Math.abs(dif), 1) + ' este mes') : null)),
-      h('div', { class: 'mis-numeros' },
-        numero('👁️', 'Te conocen', c.conocen, 'var(--celeste)'),
-        numero('❤️', 'Les caés bien', c.simpatia, '#ff7b8a'),
-        numero('🏴', 'Militancia', c.militancia, s.partido.color)),
+      graficoImagen(img, imgAnt),
+      h('div', { class: 'fila-militancia' }, h('span', null, '🏴 Militancia y fiscales'),
+        h('div', { class: 'barra', style: { height: '10px' } }, h('i', { style: { width: c.militancia + '%', background: s.partido.color } })),
+        h('b', { class: 'numero' }, R.fmt(c.militancia) + '%')),
       c.militancia < 30 && s.mes >= 4 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, '⚠️ Con poca militancia no tenés fiscales: te pueden robar votos.') : null,
       s.gobRival ? h('div', { class: 'fila envolver', style: { gap: '6px' } },
         h('span', { class: 'chip' }, '🏛️ Gobierna ' + R.elec.nombre(s, s.gobRival.partido) + ' (' + R.PARTIDOS[s.gobRival.partido].sigla + ')'),
         h('span', { class: 'chip ' + (s.gobRival.aprob < 40 ? 'bien' : s.gobRival.aprob > 55 ? 'mal' : '') }, '👍 ' + Math.round(s.gobRival.aprob) + '% de aprobación'),
         h('span', { class: 'chip' }, '🏛️ ' + (R.composicion(s, 'diputados').YO || 0) + ' diputados tuyos')) : null);
+  }
+
+  // Gráfico de imagen como el de las consultoras: conocimiento, positiva, negativa y relevancia.
+  function graficoImagen(img, ant) {
+    const filas = [
+      { k: 'conocimiento', em: '👁️', nom: 'Conocimiento', color: 'var(--celeste)', ayuda: 'Cuánta gente sabe quién sos' },
+      { k: 'positiva', em: '👍', nom: 'Imagen positiva', color: 'var(--bien)', ayuda: 'Te conocen y les gustás' },
+      { k: 'negativa', em: '👎', nom: 'Imagen negativa', color: 'var(--mal)', ayuda: 'Te conocen y no les gustás' },
+      { k: 'relevancia', em: '📣', nom: 'Relevancia', color: 'var(--sol)', ayuda: 'Cuánto se habla de vos (se apaga si no hacés ruido)' },
+    ];
+    const dif = img.diferencial;
+    return h('div', { class: 'grafico-imagen', role: 'figure', 'aria-label': 'Imagen del candidato' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'etiqueta' }, '📊 Tu imagen'),
+        h('span', { class: 'chip ' + (dif >= 0 ? 'bien' : 'mal'), title: 'Imagen positiva menos negativa' }, 'Diferencial ' + R.signo(dif, 0))),
+      filas.map((f) => {
+        const v = img[f.k];
+        const d = ant ? v - ant[f.k] : 0;
+        const malo = f.k === 'negativa';
+        return h('div', { class: 'fila-grafico', title: f.ayuda },
+          h('span', { class: 'nom' }, h('span', { class: 'em' }, f.em), f.nom),
+          h('span', { class: 'delta ' + (Math.abs(d) < 0.5 ? '' : (d > 0) !== malo ? 'sube' : 'baja') }, Math.abs(d) < 0.5 ? '' : (d > 0 ? '▲' : '▼') + R.fmt(Math.abs(d))),
+          h('b', { class: 'numero val' }, R.fmt(v) + '%'),
+          h('div', { class: 'pista-grafico' }, h('i', { style: { width: R.clamp(v, 0, 100) + '%', background: f.color } })));
+      }),
+      h('p', { class: 'chico suave' }, 'Positiva + negativa + regular + «no te conoce» = 100 %. La relevancia baja si no hacés ruido.'));
   }
 
   // ── Acciones ──

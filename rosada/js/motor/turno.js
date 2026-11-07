@@ -165,7 +165,7 @@
 
   deb.terminar = function (s, d) {
     const p = d.puntos;
-    const ef = { simpatia: R.round(p * 2.6, 1), conocen: 3, rival: { [d.rival]: -R.round(Math.max(0, p) * 1.1, 1) } };
+    const ef = { simpatia: R.round(p * 2.6, 1), conocen: 3, relevancia: 8, rival: { [d.rival]: -R.round(Math.max(0, p) * 1.1, 1) } };
     if (p < 0) ef.rival[d.rival] = R.round(-p * 0.6, 1);
     const aplicado = R.aplicarEfectos(s, ef);
     const veredicto = p >= 2 ? '¡Ganaste el debate por paliza!' : p > 0 ? 'Ganaste el debate' : p === 0 ? 'Empate técnico' : 'Perdiste el debate';

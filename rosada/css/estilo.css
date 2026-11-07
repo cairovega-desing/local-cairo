@@ -613,6 +613,21 @@ label.boton { cursor: pointer; }
 .riesgo .txt { color: var(--tinta); }
 .riesgo .ef { font-size: 12px; padding: 1px 6px 1px 4px; }
 
+/* ── Gráfico de imagen (campaña) ── */
+.grafico-imagen { display: flex; flex-direction: column; gap: 7px; padding: 10px 12px; border-radius: 14px; background: var(--papel-2); border: 2px solid var(--tinta); }
+.fila-grafico { display: grid; grid-template-columns: minmax(0, 1fr) auto 50px; column-gap: 8px; row-gap: 3px; align-items: center; }
+.fila-grafico .nom { font-size: 14px; font-weight: 900; display: flex; align-items: center; gap: 5px; min-width: 0; }
+.fila-grafico .em { font-size: 16px; }
+.fila-grafico .val { text-align: right; font-size: 16px; font-family: var(--f-titulo); font-weight: 400; }
+.fila-grafico .delta { font-size: 12px; font-weight: 900; color: var(--meh); }
+.fila-grafico .delta.sube { color: var(--bien); }
+.fila-grafico .delta.baja { color: var(--mal); }
+.pista-grafico { grid-column: 1 / -1; height: 14px; border-radius: 5px; border: 2px solid var(--tinta); overflow: hidden;
+  background: var(--papel) repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), #d6e0ec calc(25% - 1px) 25%); }
+.pista-grafico > i { display: block; height: 100%; transition: width 0.7s cubic-bezier(.2,.9,.2,1); border-right: 2px solid var(--tinta); }
+.fila-militancia { display: grid; grid-template-columns: auto minmax(0, 1fr) 40px; gap: 8px; align-items: center; font-size: 13px; font-weight: 900; }
+.fila-militancia b { text-align: right; }
+
 /* ── Escritorio: dos columnas ── */
 .columnas { display: grid; gap: 14px; }
 @media (min-width: 900px) {
