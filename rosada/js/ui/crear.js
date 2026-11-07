@@ -63,35 +63,48 @@
     return { sigla: b.sigla || '?', nombre: b.nombre, bandera: b.bandera, color: R.BANDERA.principal(b.bandera), simbolo: R.BANDERA.simbolo(b.bandera) };
   }
 
-  // Editor de bandera: diseño, colores, emblema y sigla.
+  // Editor de bandera compacto: diseño, colores (una sola paleta), emblema o una imagen propia.
   function pasoColor() {
     const b = ui.borrador;
     const B = b.bandera;
     const cambiar = (fn) => { fn(); R.son.toque(); pintar(); };
     const patron = R.BANDERA.PATRONES.find((p) => p.id === B.patron) || R.BANDERA.PATRONES[0];
-    const nombresColor = patron.id === 'triangulo' ? ['Arriba', 'Abajo', 'Triángulo'] : patron.id === 'disco' ? ['Fondo', 'Disco'] : patron.id === 'v3' ? ['Izquierda', 'Centro', 'Derecha'] : patron.n === 1 ? ['Fondo'] : ['Arriba', patron.n === 3 ? 'Centro' : 'Abajo', 'Abajo'];
+    const nombres = patron.id === 'triangulo' ? ['Arriba', 'Abajo', 'Triángulo'] : patron.id === 'disco' ? ['Fondo', 'Disco'] : patron.id === 'v3' ? ['Izq.', 'Centro', 'Der.'] : patron.n === 1 ? ['Fondo'] : patron.n === 2 ? ['Arriba', 'Abajo'] : ['Arriba', 'Centro', 'Abajo'];
+    if ((b.slot || 0) >= patron.n) b.slot = 0;
+    const slot = b.slot || 0;
     const emblemaVista = (e) => {
-      if (e === 'ninguno') return h('span', { style: { fontSize: '13px', fontWeight: 900 } }, 'Sin');
-      if (e === 'sol' || e === 'estrella' || e === 'estrellas') return R.ui.banderaPartido({ patron: 'liso', colores: ['#74acdf'], emblema: e }, { ancho: 36, sinBorde: true });
+      if (e === 'ninguno') return h('span', { style: { fontSize: '11px', fontWeight: 900 } }, 'Sin');
+      if (e === 'sol' || e === 'estrella' || e === 'estrellas') return R.ui.banderaPartido({ patron: 'liso', colores: ['#74acdf'], emblema: e }, { ancho: 32, sinBorde: true });
       return e;
     };
+    const archivo = h('input', { type: 'file', accept: 'image/*', id: 'in-imagen', class: 'oculto-visual',
+      onchange: (e) => {
+        const f = e.target.files && e.target.files[0];
+        R.BANDERA.leerImagen(f, (url, color) => { B.imagen = url; B.colorImagen = color; R.son.bien(); pintar(); },
+          (msg) => { R.son.mal(); ui.aviso('🚫 ' + msg, { tipo: 'mal' }); });
+      } });
+    const subir = h('label', { class: 'boton mini sec', for: 'in-imagen' }, B.imagen ? '🖼️ Cambiar' : '📷 Tu imagen', archivo);
+    if (B.imagen) {
+      return h('section', { class: 'tarjeta pila editor-bandera' },
+        h('div', { class: 'fila entre' }, h('h2', null, 'Tu bandera'), subir),
+        h('p', { class: 'chico suave' }, 'Usás tu propia imagen como bandera. Se recorta en forma de bandera.'),
+        h('button', { class: 'boton sec', onclick: () => cambiar(() => { delete B.imagen; delete B.colorImagen; }) }, '✕ Quitar la imagen y diseñarla'));
+    }
     return h('section', { class: 'tarjeta pila editor-bandera' },
       h('div', { class: 'fila entre' }, h('h2', null, 'Tu bandera'),
-        h('button', { class: 'boton mini sec', onclick: () => cambiar(() => { b.bandera = R.BANDERA.azar(); }) }, '🎲 Al azar')),
-      h('div', { class: 'etiqueta' }, 'Diseño'),
+        h('div', { class: 'fila', style: { gap: '6px' } }, subir,
+          h('button', { class: 'boton mini sec', 'aria-label': 'Bandera al azar', onclick: () => cambiar(() => { b.bandera = R.BANDERA.azar(); }) }, '🎲'))),
       h('div', { class: 'patrones' }, R.BANDERA.PATRONES.map((p) =>
-        h('button', { class: 'opcion' + (B.patron === p.id ? ' elegida' : ''), 'aria-label': 'Diseño ' + p.nombre, onclick: () => cambiar(() => { B.patron = p.id; }) },
-          R.ui.banderaPartido({ patron: p.id, colores: B.colores, emblema: 'ninguno' }, { ancho: 54 }), p.nombre))),
-      h('div', { class: 'etiqueta' }, 'Colores'),
-      Array.from({ length: patron.n }, (_, i) => h('div', { class: 'fila-color' },
-        h('span', { class: 'chico', style: { fontWeight: 900 } }, nombresColor[i] || 'Color ' + (i + 1)),
-        h('div', { class: 'paleta' }, R.BANDERA.COLORES.map((col) =>
-          h('button', { class: (B.colores[i] === col.c ? 'elegida' : ''), style: { background: col.c }, title: col.n, 'aria-label': nombresColor[i] + ': ' + col.n,
-            onclick: () => cambiar(() => { B.colores[i] = col.c; }) }))))),
-      h('div', { class: 'etiqueta' }, 'Emblema'),
+        h('button', { class: 'opcion' + (B.patron === p.id ? ' elegida' : ''), title: p.nombre, 'aria-label': 'Diseño ' + p.nombre, onclick: () => cambiar(() => { B.patron = p.id; }) },
+          R.ui.banderaPartido({ patron: p.id, colores: B.colores, emblema: 'ninguno' }, { ancho: 40 })))),
+      h('div', { class: 'slots' }, Array.from({ length: patron.n }, (_, i) =>
+        h('button', { class: 'slot' + (slot === i ? ' elegido' : ''), onclick: () => cambiar(() => { b.slot = i; }) },
+          h('i', { style: { background: B.colores[i] || B.colores[0] } }), nombres[i]))),
+      h('div', { class: 'paleta' }, R.BANDERA.COLORES.map((col) =>
+        h('button', { class: (B.colores[slot] === col.c ? 'elegida' : ''), style: { background: col.c }, title: col.n, 'aria-label': nombres[slot] + ': ' + col.n,
+          onclick: () => cambiar(() => { B.colores[slot] = col.c; }) }))),
       h('div', { class: 'emblemas' }, R.BANDERA.EMBLEMAS.map((e) =>
-        h('button', { class: B.emblema === e ? 'elegida' : '', 'aria-label': 'Emblema ' + e, onclick: () => cambiar(() => { B.emblema = e; }) }, emblemaVista(e)))),
-      h('button', { class: 'boton sec', onclick: () => cambiar(() => { B.sigla = !B.sigla; }) }, B.sigla ? '✅ Con la sigla en la bandera' : '⬜ Sin sigla en la bandera'));
+        h('button', { class: B.emblema === e ? 'elegida' : '', 'aria-label': 'Emblema ' + e, onclick: () => cambiar(() => { B.emblema = e; }) }, emblemaVista(e)))));
   }
 
   function pasoIdeas() {

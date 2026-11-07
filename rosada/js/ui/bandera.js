@@ -29,8 +29,42 @@
   };
   R.BANDERA.claro = (hex) => lum(hex) > 0.62;
   // Color «de marca»: el primero que no sea blanco.
-  R.BANDERA.principal = (b) => (b.colores || []).slice(0, P[b.patron] ? P[b.patron].n : 1).find((c) => lum(c) < 0.9) || b.colores[0];
-  R.BANDERA.simbolo = (b) => ({ sol: '☀️', estrella: '⭐', estrellas: '✨', ninguno: '🏳️' })[b.emblema] || b.emblema;
+  R.BANDERA.principal = (b) => (b.imagen && b.colorImagen) || (b.colores || []).slice(0, P[b.patron] ? P[b.patron].n : 1).find((c) => lum(c) < 0.9) || b.colores[0];
+  R.BANDERA.simbolo = (b) => (b.imagen ? '🖼️' : ({ sol: '☀️', estrella: '⭐', estrellas: '✨', ninguno: '🏳️' })[b.emblema] || b.emblema);
+
+  // Imagen propia para la bandera: se recorta a 3:2, se achica y se guarda como JPEG liviano.
+  R.BANDERA.leerImagen = function (archivo, listo, error) {
+    if (!archivo || !/^image\//.test(archivo.type)) return error('Elegí un archivo de imagen');
+    const fr = new FileReader();
+    fr.onerror = () => error('No pude leer el archivo');
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => error('No pude abrir esa imagen');
+      img.onload = () => {
+        const W = 240;
+        const H = 160;
+        const c = document.createElement('canvas');
+        c.width = W;
+        c.height = H;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, W, H);
+        const k = Math.max(W / img.width, H / img.height);
+        ctx.drawImage(img, (W - img.width * k) / 2, (H - img.height * k) / 2, img.width * k, img.height * k);
+        // Color principal: el promedio de lo que no es casi blanco.
+        const d = ctx.getImageData(0, 0, W, H).data;
+        let r = 0, g = 0, bl = 0, n = 0;
+        for (let i = 0; i < d.length; i += 16) {
+          if (d[i] + d[i + 1] + d[i + 2] > 690) continue;
+          r += d[i]; g += d[i + 1]; bl += d[i + 2]; n++;
+        }
+        const hex = n ? '#' + [r, g, bl].map((v) => Math.round(v / n).toString(16).padStart(2, '0')).join('') : '#5d6b82';
+        listo(c.toDataURL('image/jpeg', 0.82), hex);
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(archivo);
+  };
   R.BANDERA.azar = function () {
     const pick = (a) => a[Math.floor(Math.random() * a.length)];
     const patron = pick(R.BANDERA.PATRONES).id;
@@ -38,7 +72,7 @@
     const c0 = pick(cols);
     let c1 = pick(cols.filter((c) => c !== c0));
     if (Math.random() < 0.5) c1 = '#ffffff' === c0 ? pick(cols) : '#ffffff';
-    return { patron, colores: [c0, c1, patron === 'h3' || patron === 'v3' ? c0 : pick(cols)], emblema: pick(R.BANDERA.EMBLEMAS), sigla: Math.random() < 0.5 };
+    return { patron, colores: [c0, c1, patron === 'h3' || patron === 'v3' ? c0 : pick(cols)], emblema: pick(R.BANDERA.EMBLEMAS), sigla: false };
   };
   // Bandera por defecto para partidos viejos (antes de existir el editor).
   R.BANDERA.de = (p) => p.bandera || { patron: 'liso', colores: [p.color || '#5d6b82'], emblema: p.simbolo || 'ninguno', sigla: true };
@@ -89,24 +123,22 @@
       default: fondo.push(S('rect', { width: W, height: H, fill: c(0) }));
     }
     const contraste = R.BANDERA.claro(colorCentro) ? '#13284a' : '#ffffff';
-    const sigla = b.sigla && opts.sigla ? String(opts.sigla).slice(0, 5) : '';
+    // Letras adentro solo en una bandera lisa sin emblema (como la del PRO): grandes y centradas.
+    const sigla = b.sigla && opts.sigla && b.patron === 'liso' && b.emblema === 'ninguno' && !b.imagen ? String(opts.sigla).slice(0, 5) : '';
     const emb = [];
-    const [cx, cy0] = centro;
-    const conSigla = sigla && b.emblema !== 'ninguno';
-    const cy = conSigla && b.patron !== 'h2' ? cy0 - 5 : cy0;
+    const [cx, cy] = centro;
     const tam = b.patron === 'triangulo' || b.patron === 'diagonal' ? 10 : 12;
-    if (b.emblema === 'sol') emb.push(...sol(S, cx, cy, tam * 0.8));
+    if (b.imagen) {
+      fondo.length = 0;
+      fondo.push(S('rect', { width: W, height: H, fill: '#ffffff' }), S('image', { href: b.imagen, x: 0, y: 0, width: W, height: H, preserveAspectRatio: 'xMidYMid slice' }));
+    } else if (b.emblema === 'sol') emb.push(...sol(S, cx, cy, tam * 0.8));
     else if (b.emblema === 'estrella') emb.push(estrella(S, cx, cy, tam, contraste === '#ffffff' ? '#ffffff' : '#f6b40e'));
     else if (b.emblema === 'estrellas') [-14, 0, 14].forEach((dx) => emb.push(estrella(S, cx + dx * (tam / 12), cy, tam * 0.55, contraste === '#ffffff' ? '#ffffff' : '#f6b40e')));
     else if (b.emblema && b.emblema !== 'ninguno') emb.push(S('text', { x: cx, y: cy + tam * 0.62, 'text-anchor': 'middle', style: `font-size:${tam * 1.75}px` }, b.emblema));
     if (sigla) {
-      const soloSigla = b.emblema === 'ninguno';
-      const y = soloSigla ? cy0 + 8 : b.patron === 'h2' ? 51 : cy0 + 20;
-      const colorSigla = b.patron === 'h2' && !soloSigla ? (R.BANDERA.claro(c(1)) ? '#13284a' : '#ffffff') : contraste;
       emb.push(S('text', {
-        x: soloSigla ? 45 : b.patron === 'h2' ? 45 : cx, y, 'text-anchor': 'middle',
-        style: `font-family: var(--f-titulo); font-size:${soloSigla ? Math.min(24, 120 / Math.max(2, sigla.length)) : 11}px; letter-spacing: 0.5px`,
-        fill: colorSigla, stroke: colorSigla === '#ffffff' ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.35)', 'stroke-width': 0.6,
+        x: 45, y: 38, 'text-anchor': 'middle', fill: contraste,
+        style: `font-family: var(--f-titulo); font-size:${Math.min(24, 110 / Math.max(2, sigla.length))}px; letter-spacing: 0.5px`,
       }, sigla));
     }
     const ancho = opts.ancho || 60;

@@ -18,7 +18,7 @@
     },
     PL: {
       id: 'PL', sigla: 'LLA', nombre: 'La Libertad Avanza', color: '#6c3fb5', simbolo: '🦁', ideo: 0.9, base: 34,
-      bandera: { patron: 'liso', colores: ['#6c3fb5'], emblema: '🦁', sigla: true },
+      bandera: { patron: 'liso', colores: ['#6c3fb5'], emblema: '🦁' },
       candidato: { nombre: 'Tomás Kessler', avatar: { piel: 0, pelo: 4, colorPelo: 1, anteojos: 0, barba: 0, ropa: 3 } },
       debate: 'ataque',
       fuerte: { CBA: 0.25, MZA: 0.25, SLU: 0.15, SJU: 0.15, SAL: 0.15, TUC: 0.1, CABA: 0.1, ERI: 0.1, CHA: 0.05 },
@@ -33,14 +33,14 @@
     },
     UCF: {
       id: 'UCF', sigla: 'UCR', nombre: 'Unión Cívica Radical', color: '#d6453d', simbolo: '🎩', ideo: 0.05, base: 7,
-      bandera: { patron: 'h2', colores: ['#d32f2f', '#ffffff'], emblema: 'ninguno', sigla: true },
+      bandera: { patron: 'h2', colores: ['#d32f2f', '#ffffff'], emblema: 'ninguno' },
       candidato: { nombre: 'Elena Cabral', avatar: { piel: 1, pelo: 3, colorPelo: 5, anteojos: 2, barba: 0, ropa: 1 } },
       debate: 'datos',
       fuerte: { COR: 0.55, MZA: 0.25, JUJ: 0.35, CHA: 0.25, SFE: 0.1, CAT: 0.1 },
     },
     FT: {
       id: 'FT', sigla: 'FIT', nombre: 'Frente de Izquierda', color: '#a51c30', simbolo: '✊', ideo: -1, base: 4,
-      bandera: { patron: 'liso', colores: ['#c62828'], emblema: '✊', sigla: true },
+      bandera: { patron: 'liso', colores: ['#c62828'], emblema: '✊' },
       candidato: { nombre: 'Nicolás Ferro', avatar: { piel: 1, pelo: 5, colorPelo: 0, anteojos: 1, barba: 2, ropa: 4 } },
       debate: 'ataque',
       fuerte: { NQN: 0.4, JUJ: 0.35, CABA: 0.2, SAL: 0.15, SFE: 0.05 },
