@@ -142,7 +142,7 @@ fs.mkdirSync(OUT, { recursive: true });
           } else if (await capaAbierta()) await page.locator('#capa .cerrar').click();
         }
         // Provincias: tocar Córdoba y mandarle algo
-        await page.click('.pestanas button:has-text("Provincias")');
+        await page.click('.pestanas button:has-text("Mapa")');
         await page.click('polygon[data-id="CBA"]');
         await foto('provincias', true);
         const bp = page.locator('.acciones-prov .boton:not([disabled])');

@@ -226,7 +226,9 @@ p { margin: 0; }
 .pestanas button {
   flex: 1; border: 0; background: transparent; border-radius: 11px; padding: 6px 2px; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 12px; font-weight: 900; color: var(--tinta-suave);
+  min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+@media (max-width: 420px) { .pestanas button { font-size: 11px; letter-spacing: -0.2px; } }
 .pestanas button .ic { font-size: 19px; line-height: 1.1; }
 .pestanas button.activa { background: var(--sol-claro); color: var(--tinta); box-shadow: inset 0 0 0 2px var(--tinta); }
 

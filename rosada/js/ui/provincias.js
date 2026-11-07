@@ -6,7 +6,7 @@
   const con = R.congreso;
 
   const idx = ui.PESTANAS_GOB.findIndex((p) => p.id === 'diario');
-  ui.PESTANAS_GOB.splice(idx, 0, { id: 'provincias', emoji: '🗺️', nombre: 'Provincias' });
+  ui.PESTANAS_GOB.splice(idx, 0, { id: 'provincias', emoji: '🗺️', nombre: 'Mapa' });
   ui.panelesGob.provincias = (s) => panelProvincias(s, ui.vista && ui.vista.provSel);
 
   const relTxt = (r) => (r >= 70 ? '😊 Aliado' : r >= 40 ? '😐 Ni fu ni fa' : '😠 Enojado');

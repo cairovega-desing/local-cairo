@@ -375,3 +375,25 @@ Cada vuelta: **hacer → probar automáticamente → mirar capturas en celular y
 - Toda decisión muestra a quién afecta antes y después.
 - 2000 partidas simuladas sin NaN ni valores fuera de rango.
 - Hay al menos 150 noticias, 20 leyes, 12 países y 30 logros.
+
+---
+
+## 14. Estado (noviembre 2026)
+
+| Vuelta | Estado |
+|---|---|
+| 0 · Plan | ✅ |
+| 1 · Crear partido, campaña, PASO, generales, ballotage, debate, noche electoral, bancas | ✅ |
+| 2 · Gobierno: presupuesto en %, impuestos, déficit, la gente con caras y frases, aprobación, crisis, resumen con «¿Por qué?» | ✅ |
+| 3 · Congreso (leyes, porotos, negociar, decretos, presupuesto anual), gobernadores, medio término y reelección | ✅ |
+| 4 · Mundo: 12 países, tratados, préstamos, alianzas, guerra con frente, anexión, Malvinas | ✅ |
+| 5 · Logros, legado con título, oposición si perdés | ✅ |
+| 6 · Guía de primeros pasos, juicio político, 150 noticias, prueba de textos cortos | ✅ |
+
+**Criterios de terminado:** se juega de punta a punta en celu y PC sin errores de consola (Playwright); 2000 campañas y 100 gobiernos
+de dos mandatos simulados sin NaN; 150 noticias, 23 leyes, 12 países y 32 logros; ningún titular pasa de 9 palabras ni opción de 4.
+
+**Lo que falta probar de verdad:** jugar con personas reales y ajustar el balance según lo que digan.
+
+**Ideas para más adelante:** música, avatar del rival en cada noticia, resumen del año, más eventos encadenados (historias de varios meses),
+gabinete completo, modo «gobernador de provincia», multijugador por turnos.

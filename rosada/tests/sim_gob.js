@@ -84,16 +84,20 @@ function jugar(semilla, est, meses) {
 if (require.main === module) {
   const N = +process.argv[2] || 60;
   const MESES = +process.argv[3] || 48;
-  for (const est of Object.keys(ESTRATEGIAS)) {
+  const SOLO = process.argv[4];
+  for (const est of Object.keys(ESTRATEGIAS).filter((e) => !SOLO || e === SOLO)) {
     const fin = { helicoptero: 0, estallido: 0 };
     const cortes = [6, 12, 24, 47].map(() => []);
+    const finales = [];
     for (let i = 0; i < N; i++) {
       const { s, serie } = jugar(500 + i, est, MESES);
       if (s.fin) fin[s.fin.motivo] = (fin[s.fin.motivo] || 0) + 1;
+      if (s.fin && R.legado(s)) finales.push(R.legado(s));
       [6, 12, 24, 47].forEach((m, k) => { if (serie[m]) cortes[k].push(serie[m]); });
     }
     console.log(`\n▶ ${est} (${N} partidas) · terminan antes: ${JSON.stringify(fin)}`);
     const cuenta = (arr) => arr.reduce((a, x) => ((a[x] = (a[x] || 0) + 1), a), {});
+    if (finales.length) console.log('  legados:', finales.map((x) => x.estrellas + '★ «' + x.titulo + '»').slice(0, 6).join(' · '));
     console.log('  presupuestos aprobados:', JSON.stringify(cuenta(stats.presupuestos)), '· leyes aprobadas:', JSON.stringify(cuenta(stats.leyes)), '· elecciones:', JSON.stringify(cuenta(stats.elecciones)));
     stats.presupuestos = []; stats.elecciones = []; stats.leyes = [];
     [6, 12, 24, 47].forEach((m, k) => {

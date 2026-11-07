@@ -94,7 +94,9 @@
       paso('🗓️', 'Cada turno es un mes', 'Hacé tus acciones y tocá «Pasar el mes».'),
       paso('📰', 'Llegan noticias', 'Elegí qué hacer. Cada opción muestra a quién le pega: ▲ sube, ▼ baja.'),
       paso('🗳️', 'Ganá la elección', 'PASO en agosto, generales en octubre y, si hace falta, ballotage.'),
-      paso('🏛️', 'Gobernás', 'Economía, Congreso, provincias y el mundo. Que la gente esté contenta.'),
+      paso('🏛️', 'Gobernás', 'Cada mes ves cómo le fue a la gente y por qué. Tocá caras y tarjetas para entender.'),
+      paso('💰', 'Economía en %', 'Subís o bajás cada área del gasto. La balanza muestra si te alcanza la plata.'),
+      paso('📜', 'Congreso y mundo', 'Leyes con conteo de votos, gobernadores, alianzas, guerras y Malvinas.'),
       h('button', { class: 'boton ancho', onclick: () => ui.cerrarCapa() }, '¡Entendido!')), { cerrable: true });
   };
 })(globalThis.R = globalThis.R || {});

@@ -60,9 +60,9 @@
           h('button', { class: 'boton mini sec', disabled: valor <= 0 ? true : null, 'aria-label': 'Bajar ' + titulo, onclick: () => { set(valor - 1); } }, '− Bajar'),
           h('button', { class: 'boton mini sec', disabled: valor >= n - 1 ? true : null, 'aria-label': 'Subir ' + titulo, onclick: () => { set(valor + 1); } }, '+ Subir')),
         h('div', { class: 'fila envolver chico', style: { gap: '6px' } },
-          h('span', { class: 'suave' }, 'Si bajás:'), ui.chipsEfectos(efMenos, { compacto: true })),
+          h('span', { class: 'suave' }, 'Si bajás:'), ui.chipsEfectos(efMenos)),
         h('div', { class: 'fila envolver chico', style: { gap: '6px' } },
-          h('span', { class: 'suave' }, 'Si subís:'), ui.chipsEfectos(efMas, { compacto: true })),
+          h('span', { class: 'suave' }, 'Si subís:'), ui.chipsEfectos(efMas)),
         nota ? h('p', { class: 'chico suave' }, nota) : null);
     };
     const D = (ef) => R.gob.describirEfectos(s, ef);
@@ -123,7 +123,7 @@
         h('button', { class: 'boton mini sec', disabled: nivel >= R.eco.NIVEL_MAX ? true : null, 'aria-label': 'Más plata para ' + a.nombre, onclick: () => cambiar(0.1) }, '+')),
       h('div', { class: 'fila envolver', style: { gap: '6px' } },
         h('span', { class: 'chico suave' }, '+10 % te da:'),
-        ui.chipsEfectos(a.gana.map(([em, nom, f]) => ({ emoji: em, nombre: nom, sube: f > 0, bueno: (f > 0) !== (nom === 'Pobreza'), flechas: Math.abs(f) })), { compacto: true }),
+        ui.chipsEfectos(a.gana.map(([em, nom, f]) => ({ emoji: em, nombre: nom, sube: f > 0, bueno: (f > 0) !== (nom === 'Pobreza'), flechas: Math.abs(f) }))),
         h('span', { class: 'chip mal' }, '💸 ' + R.fmt(costoPaso, 2) + '% PBI')),
       pend ? h('div', { class: 'chico', style: { color: 'var(--sol-osc)', fontWeight: 900 } }, '⏳ Cambiado este mes: la gente reacciona a fin de mes') : null);
   }
