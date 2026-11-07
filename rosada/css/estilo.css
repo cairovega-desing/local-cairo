@@ -525,6 +525,15 @@ p { margin: 0; }
 .nivel .barra > i { border-radius: 999px; }
 .marca-hoy { position: absolute; top: -5px; width: 4px; height: 22px; margin-left: -2px; background: var(--tinta); border-radius: 2px; }
 
+/* ── Congreso ── */
+.porotos { position: relative; }
+.linea-necesaria { position: absolute; top: -5px; width: 4px; height: 32px; margin-left: -2px; background: var(--tinta); border-radius: 2px; }
+.conteo { display: flex; justify-content: center; gap: 18px; font-family: var(--f-titulo); font-size: 24px; }
+.conteo .si { color: var(--bien); } .conteo .no { color: var(--mal); }
+.accion.hecha { background: #f1fbf4; }
+.acciones-prov { display: flex; flex-wrap: wrap; gap: 8px; }
+.acciones-prov .boton { flex: 1 1 140px; }
+
 /* ── Escritorio: dos columnas ── */
 .columnas { display: grid; gap: 14px; }
 @media (min-width: 900px) {

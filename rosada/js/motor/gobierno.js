@@ -40,6 +40,7 @@
       leyes: {}, enfr: {}, meses: 0, crisisMeses: 0, escandalo: 0, historia: [], llamas: [],
     };
     gob.actualizarAprob(s);
+    if (R.congreso) R.congreso.iniciar(s);
     s.gob.historia.push(R.eco.foto(s));
     R.diario(s, '🎖️', 'Asumís la Presidencia', 'gobierno');
     s.cola.push({ tipo: 'ministro' });

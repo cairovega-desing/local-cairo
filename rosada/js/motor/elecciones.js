@@ -56,10 +56,11 @@
     const ruido = {};
     for (const p of R.PROVINCIAS) for (const id of R.RIVALES) ruido[p.id + id] = R.gauss(s);
     const swing = R.gauss(s) * 1.2;
-    const r = R.camp.votos(s, { ruido, extraYo: swing });
-    // Fiscales: con poca militancia «te roban» parte de los votos en las mesas.
+    const gobierno = s.fase === 'gobierno' && R.elec.votosGobierno;
+    const r = (gobierno ? R.elec.votosGobierno : R.camp.votos)(s, { ruido, extraYo: swing });
+    // Fiscales: con poca militancia «te roban» parte de los votos en las mesas (gobernando tenés el aparato).
     const mil = s.camp.militancia;
-    const perdida = mil < 45 ? ((45 - mil) / 45) * 0.08 : 0;
+    const perdida = !gobierno && mil < 45 ? ((45 - mil) / 45) * 0.08 : 0;
     let perdidos = 0;
     for (const p of R.PROVINCIAS) {
       const v = r.prov[p.id];
@@ -165,8 +166,9 @@
         let wa = Math.exp(-1.6 * da);
         let wb = Math.exp(-1.6 * db);
         // Al que no conocen mucho le tienen miedo; al que cae bien, lo votan.
-        if (A === 'YO') wa *= 0.45 + 0.6 * (s.camp.simpatia / 100);
-        if (B === 'YO') wb *= 0.45 + 0.6 * (s.camp.simpatia / 100);
+        const simp = s.fase === 'gobierno' && s.gob ? s.gob.aprob : s.camp.simpatia;
+        if (A === 'YO') wa *= 0.45 + 0.6 * (simp / 100);
+        if (B === 'YO') wb *= 0.45 + 0.6 * (simp / 100);
         // Si ninguno de los dos se parece a lo que votaron, muchos votan en blanco.
         const vota = 0.92 - 0.25 * Math.min(da, db);
         va += (v[k] * vota * wa) / (wa + wb);
@@ -183,6 +185,22 @@
       ganadores: ganadoresPorProvincia(prov), ganador: lista[0].id, perdidos: c.perdidos,
     };
     s.elecciones.ballotage = res;
+    return res;
+  };
+
+  // Elección de medio término: solo Congreso.
+  elec.legislativa = function (s) {
+    const anio = R.anio(s.mes);
+    const c = elec.contar(s);
+    const lista = ordenar(c.nac);
+    const bancas = elec.bancas(s, c.prov, anio);
+    elec.renovarCongreso(s, anio, bancas);
+    const res = {
+      tipo: 'legislativa', titulo: 'Medio término ' + anio, anio, lista, prov: c.prov,
+      ganadores: ganadoresPorProvincia(c.prov), perdidos: 0, bancas, ganador: lista[0].id,
+    };
+    s.elecciones.legislativa = res;
+    R.diario(s, '🗳️', 'Medio término: ' + (res.ganador === 'YO' ? 'ganaste con ' : 'sacaste ') + R.pct(lista.find((x) => x.id === 'YO').v), 'eleccion');
     return res;
   };
 

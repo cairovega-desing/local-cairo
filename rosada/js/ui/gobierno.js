@@ -22,7 +22,7 @@
       diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Lo que pasó'), ui.historial(s, 60)),
     };
     Object.assign(paneles, ui.panelesGob);
-    const scroll = ui.montar(h('div', null, barraGobierno(s), paneles[tab]()), pc);
+    const scroll = ui.montar(h('div', null, barraGobierno(s), paneles[tab](s)), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
     ui.navInferior(ui.PESTANAS_GOB, tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
       h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() }, '▶ Pasar el mes',

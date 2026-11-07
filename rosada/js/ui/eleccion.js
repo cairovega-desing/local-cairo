@@ -83,21 +83,25 @@
       const puesto = res.lista.indexOf(yo) + 1;
       let txt;
       let gana = true;
+      const gobernando = !!s.gob;
       if (clave === 'paso') {
         gana = res.pasa;
         txt = res.pasa ? (puesto === 1 ? '¡Ganaste las PASO! 🥇' : '¡Pasaste a las generales! Saliste ' + puesto + '.º') : 'Quedaste afuera… no llegaste al 1,5 %';
+      } else if (clave === 'legislativa') {
+        gana = res.ganador === 'YO';
+        txt = gana ? '¡Ganaste el medio término con ' + R.fmt(yo.v, 1) + '%! 🗳️' : 'Perdiste el medio término: sacaste ' + R.fmt(yo.v, 1) + '%';
       } else if (clave === 'general') {
-        if (res.ganador === 'YO') txt = '¡GANASTE EN PRIMERA VUELTA! 🏆';
+        if (res.ganador === 'YO') txt = gobernando ? '¡REELECTO/A EN PRIMERA VUELTA! 🏆' : '¡GANASTE EN PRIMERA VUELTA! 🏆';
         else if (res.ballotage && res.ballotage.includes('YO')) txt = '¡Vamos al ballotage contra ' + R.elec.nombre(s, res.ballotage.find((x) => x !== 'YO')) + '! ⚔️';
-        else { gana = false; txt = 'Perdiste. Saliste ' + puesto + '.º'; }
+        else { gana = false; txt = (gobernando ? 'Perdiste la reelección. ' : 'Perdiste. ') + 'Saliste ' + puesto + '.º'; }
       } else {
         gana = res.ganador === 'YO';
-        txt = gana ? '¡GANASTE EL BALLOTAGE! 🏆' : 'Perdiste el ballotage por ' + R.fmt(res.lista[0].v - res.lista[1].v, 1) + ' puntos';
+        txt = gana ? (gobernando ? '¡REELECTO/A EN EL BALLOTAGE! 🏆' : '¡GANASTE EL BALLOTAGE! 🏆') : 'Perdiste el ballotage por ' + R.fmt(res.lista[0].v - res.lista[1].v, 1) + ' puntos';
       }
       veredicto.replaceChildren(h('div', { class: 'veredicto ' + (gana ? 'gana' : 'pierde') }, txt));
       if (gana) {
         R.son.aplausos();
-        if ((clave === 'general' && res.ganador === 'YO') || clave === 'ballotage') { ui.confeti(); R.son.genial(); }
+        if ((clave === 'general' && res.ganador === 'YO') || clave === 'ballotage' || clave === 'legislativa') { ui.confeti(); R.son.genial(); }
       } else R.son.abucheo();
 
       const extras = [];

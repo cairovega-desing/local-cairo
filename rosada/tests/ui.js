@@ -44,7 +44,7 @@ fs.mkdirSync(OUT, { recursive: true });
   const capaAbierta = () => page.locator('#capa:not([hidden])').count();
   let pasos = 0;
   let mesesGob = 0;
-  while (pasos++ < 400) {
+  while (pasos++ < 1500) {
     if (errores.length > 5) break;
     if (await capaAbierta()) {
       const capa = page.locator('#capa');
@@ -54,10 +54,18 @@ fs.mkdirSync(OUT, { recursive: true });
         : (await capa.locator('.noche').count()) ? 'eleccion'
         : /asume la Presidencia/.test(txt) ? 'asuncion'
         : /Resumen del mes/.test(txt) ? 'resumen'
-        : /maneja la economía/.test(txt) ? 'ministro' : 'otra';
+        : /maneja la economía/.test(txt) ? 'ministro'
+        : /Presupuesto 20/.test(txt) ? 'presupuesto' : 'otra';
       if (!capturados.has(tipo)) { capturados.add(tipo); await foto(tipo); }
       if (tipo === 'noticia') { await capa.locator('.opcion-noticia:not([disabled])').first().click(); continue; }
       if (tipo === 'debate') { await capa.locator('.estilos .boton').first().click(); continue; }
+      if (tipo === 'presupuesto' && (await capa.locator('text=Que voten').count())) {
+        await capa.locator('text=Que voten').click();
+        await capa.locator('.boton:has-text("eguir")').waitFor({ timeout: 20000 });
+        await foto('presupuesto-votado');
+        await capa.locator('.boton:has-text("eguir")').click();
+        continue;
+      }
       if (tipo === 'eleccion') {
         const saltar = capa.locator('text=Ver resultado');
         if (await saltar.count()) await saltar.click();
@@ -113,6 +121,32 @@ fs.mkdirSync(OUT, { recursive: true });
         await page.click('#capa .cerrar');
         const acc = page.locator('.accion:not([disabled])');
         if (await acc.count()) { await acc.first().click(); await foto('accion-gob'); }
+        // Congreso: abrir una ley, negociar y votar
+        await page.click('.pestanas button:has-text("Congreso")');
+        await foto('congreso', true);
+        const leyes = page.locator('.accion:not([disabled])');
+        if (await leyes.count()) {
+          await leyes.nth(2).click();
+          await foto('ley');
+          const neg = page.locator('#capa .item-elegir .boton:not([disabled])');
+          if (await neg.count()) await neg.first().click();
+          const votar = page.locator('#capa .boton:has-text("Votar"):not([disabled])');
+          if (await votar.count()) {
+            await votar.click();
+            await page.waitForTimeout(2500);
+            await foto('votacion');
+            const seguir = page.locator('#capa .boton:has-text("eguir")');
+            await seguir.waitFor({ timeout: 15000 });
+            await seguir.click();
+          } else if (await capaAbierta()) await page.locator('#capa .cerrar').click();
+        }
+        // Provincias: tocar Córdoba y mandarle algo
+        await page.click('.pestanas button:has-text("Provincias")');
+        await page.click('polygon[data-id="CBA"]');
+        await foto('provincias', true);
+        const bp = page.locator('.acciones-prov .boton:not([disabled])');
+        if (await bp.count()) await bp.first().click();
+        await page.click('.pestanas button:has-text("Inicio")');
       }
       await page.click('#btn-pasar');
     } else break;

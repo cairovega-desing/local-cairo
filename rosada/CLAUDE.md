@@ -28,6 +28,9 @@ Inspirado en «¿Quién quiere gobernar?» (qqg.netlify.app), pero rehecho para 
 | `js/motor/elecciones.js` | PASO, generales (45 % o 40+10), ballotage, D'Hondt, Senado por grupos, Congreso por tandas |
 | `js/motor/eventos.js` | motor de noticias (`R.ev.elegir/datos/resolver`) |
 | `js/motor/turno.js` | qué pasa al «Pasar el mes» y el debate (piedra-papel-tijera de estilos) |
+| `js/motor/economia.js` | presupuesto por áreas (niveles 0,5–1,6 sobre una base en % del PBI), impuestos, retenciones, simulación mensual y causas |
+| `js/motor/gobierno.js` | la gente (humor por grupo y sus razones), aprobación, ⭐ capital político, 🔥 llamas de crisis, acciones, medidas, resumen y frases |
+| `js/motor/congreso.js` | bloques, relación, apoyo a cada ley (`R.congreso.apoyo`), votación, decretos, gobernadores, votos en el gobierno y elecciones del mandato |
 | `js/ui/` | pantallas, mapa de fichas hexagonales, hemiciclo, avatar SVG, sonidos WebAudio |
 | `js/main.js` | ruteo de pantallas y la **cola de momentos** (`s.cola`: noticias, elecciones, debates, asunción) |
 
@@ -51,4 +54,4 @@ Mirar las capturas y criticar: texto de más, cosas tapadas, botones chicos, efe
 - `[hidden]` siempre con `display:none !important` en el CSS.
 
 ## Estado y plan
-Ver `PLAN.md` (diseño completo y vueltas). Hecho: Vuelta 0 (plan), Vuelta 1 (crear partido, campaña, PASO, generales, ballotage, debate, noche electoral, Congreso) y Vuelta 2 (gobierno: presupuesto en % por área, impuestos, déficit, la gente con caras y frases, aprobación, crisis, resumen del mes con «¿Por qué?», 40 noticias). `tests/sim_gob.js` simula gobiernos con 4 estrategias.
+Ver `PLAN.md` (diseño completo y vueltas). Hecho: Vuelta 0 (plan), Vuelta 1 (crear partido, campaña, PASO, generales, ballotage, debate, noche electoral, Congreso) y Vuelta 2 (gobierno: presupuesto en % por área, impuestos, déficit, la gente con caras y frases, aprobación, crisis, resumen del mes con «¿Por qué?», 40 noticias). `tests/sim_gob.js` simula gobiernos con 4 estrategias. Vuelta 3: Congreso (24 leyes, porotos por bloque, negociar, decreto, votación animada, presupuesto anual), gobernadores en el mapa, medio término y reelección (`js/motor/congreso.js`, `R.gob.elecciones`).

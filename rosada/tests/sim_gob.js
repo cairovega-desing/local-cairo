@@ -49,6 +49,7 @@ function decidir(s, inst, modo) {
   return mejor.i;
 }
 
+const stats = { presupuestos: [], elecciones: [], leyes: [] };
 function jugar(semilla, est, meses) {
   const s = nuevoGobierno(semilla, ((semilla % 5) - 2) / 2);
   R.gob.elegirMinistro(s, ['ortodoxo', 'heterodoxo', 'pragmatico'][semilla % 3]);
@@ -59,6 +60,20 @@ function jugar(semilla, est, meses) {
     while (s.cola.length) {
       const m = s.cola.shift();
       if (m.tipo === 'noticia') R.ev.resolver(s, m, decidir(s, m, est === 'quieto' ? 'primera' : 'mejor'));
+      if (m.tipo === 'presupuesto') { const v = R.congreso.votarPresupuesto(s, est === 'equilibrado'); stats.presupuestos.push(v.ok); }
+      if (m.tipo === 'dnu_cae') R.gob.aplicarEfectos(s, R.congreso.efDnuCae);
+      if (m.tipo === 'eleccion') stats.elecciones.push(m.clave + ':' + (s.elecciones[m.clave].ganador === 'YO' ? 'gana' : s.elecciones[m.clave].ballotage && s.elecciones[m.clave].ballotage.includes('YO') ? 'ballotage' : 'pierde'));
+      if (m.tipo === 'ministro') R.gob.elegirMinistro(s, 'pragmatico');
+    }
+    // Leyes: el equilibrado manda una ley afín cuando tiene ⭐ y votos.
+    if (est === 'equilibrado' && s.gob.pc >= 6) {
+      const ley = R.LEYES.find((l) => !R.congreso.bloqueoLey(s, l) && Math.abs(l.ideo - s.partido.ideo) < 0.6 && l.polemica < 0.7);
+      if (ley) {
+        const p = R.congreso.porotos(s, ley);
+        if (p.diputados.si < p.diputados.necesarios) { const b = p.diputados.bloques.find((x) => x.postura !== 'si' && x.id !== 'YO'); if (b) R.congreso.negociar(s, ley, b.id); }
+        const r = R.congreso.votar(s, ley);
+        stats.leyes.push(r.aprobada);
+      }
     }
     chequear(s, est + ' mes ' + s.mes);
     serie.push(R.eco.foto(s));
@@ -78,6 +93,9 @@ if (require.main === module) {
       [6, 12, 24, 47].forEach((m, k) => { if (serie[m]) cortes[k].push(serie[m]); });
     }
     console.log(`\n▶ ${est} (${N} partidas) · terminan antes: ${JSON.stringify(fin)}`);
+    const cuenta = (arr) => arr.reduce((a, x) => ((a[x] = (a[x] || 0) + 1), a), {});
+    console.log('  presupuestos aprobados:', JSON.stringify(cuenta(stats.presupuestos)), '· leyes aprobadas:', JSON.stringify(cuenta(stats.leyes)), '· elecciones:', JSON.stringify(cuenta(stats.elecciones)));
+    stats.presupuestos = []; stats.elecciones = []; stats.leyes = [];
     [6, 12, 24, 47].forEach((m, k) => {
       const c = cortes[k];
       if (!c.length) return;

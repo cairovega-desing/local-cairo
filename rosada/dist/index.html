@@ -538,6 +538,15 @@ p { margin: 0; }
 .nivel .barra > i { border-radius: 999px; }
 .marca-hoy { position: absolute; top: -5px; width: 4px; height: 22px; margin-left: -2px; background: var(--tinta); border-radius: 2px; }
 
+/* ── Congreso ── */
+.porotos { position: relative; }
+.linea-necesaria { position: absolute; top: -5px; width: 4px; height: 32px; margin-left: -2px; background: var(--tinta); border-radius: 2px; }
+.conteo { display: flex; justify-content: center; gap: 18px; font-family: var(--f-titulo); font-size: 24px; }
+.conteo .si { color: var(--bien); } .conteo .no { color: var(--mal); }
+.accion.hecha { background: #f1fbf4; }
+.acciones-prov { display: flex; flex-wrap: wrap; gap: 8px; }
+.acciones-prov .boton { flex: 1 1 140px; }
+
 /* ── Escritorio: dos columnas ── */
 .columnas { display: grid; gap: 14px; }
 @media (min-width: 900px) {
@@ -1415,10 +1424,11 @@ p { margin: 0; }
     const ruido = {};
     for (const p of R.PROVINCIAS) for (const id of R.RIVALES) ruido[p.id + id] = R.gauss(s);
     const swing = R.gauss(s) * 1.2;
-    const r = R.camp.votos(s, { ruido, extraYo: swing });
-    // Fiscales: con poca militancia «te roban» parte de los votos en las mesas.
+    const gobierno = s.fase === 'gobierno' && R.elec.votosGobierno;
+    const r = (gobierno ? R.elec.votosGobierno : R.camp.votos)(s, { ruido, extraYo: swing });
+    // Fiscales: con poca militancia «te roban» parte de los votos en las mesas (gobernando tenés el aparato).
     const mil = s.camp.militancia;
-    const perdida = mil < 45 ? ((45 - mil) / 45) * 0.08 : 0;
+    const perdida = !gobierno && mil < 45 ? ((45 - mil) / 45) * 0.08 : 0;
     let perdidos = 0;
     for (const p of R.PROVINCIAS) {
       const v = r.prov[p.id];
@@ -1524,8 +1534,9 @@ p { margin: 0; }
         let wa = Math.exp(-1.6 * da);
         let wb = Math.exp(-1.6 * db);
         // Al que no conocen mucho le tienen miedo; al que cae bien, lo votan.
-        if (A === 'YO') wa *= 0.45 + 0.6 * (s.camp.simpatia / 100);
-        if (B === 'YO') wb *= 0.45 + 0.6 * (s.camp.simpatia / 100);
+        const simp = s.fase === 'gobierno' && s.gob ? s.gob.aprob : s.camp.simpatia;
+        if (A === 'YO') wa *= 0.45 + 0.6 * (simp / 100);
+        if (B === 'YO') wb *= 0.45 + 0.6 * (simp / 100);
         // Si ninguno de los dos se parece a lo que votaron, muchos votan en blanco.
         const vota = 0.92 - 0.25 * Math.min(da, db);
         va += (v[k] * vota * wa) / (wa + wb);
@@ -1542,6 +1553,22 @@ p { margin: 0; }
       ganadores: ganadoresPorProvincia(prov), ganador: lista[0].id, perdidos: c.perdidos,
     };
     s.elecciones.ballotage = res;
+    return res;
+  };
+
+  // Elección de medio término: solo Congreso.
+  elec.legislativa = function (s) {
+    const anio = R.anio(s.mes);
+    const c = elec.contar(s);
+    const lista = ordenar(c.nac);
+    const bancas = elec.bancas(s, c.prov, anio);
+    elec.renovarCongreso(s, anio, bancas);
+    const res = {
+      tipo: 'legislativa', titulo: 'Medio término ' + anio, anio, lista, prov: c.prov,
+      ganadores: ganadoresPorProvincia(c.prov), perdidos: 0, bancas, ganador: lista[0].id,
+    };
+    s.elecciones.legislativa = res;
+    R.diario(s, '🗳️', 'Medio término: ' + (res.ganador === 'YO' ? 'ganaste con ' : 'sacaste ') + R.pct(lista.find((x) => x.id === 'YO').v), 'eleccion');
     return res;
   };
 
@@ -1949,7 +1976,8 @@ p { margin: 0; }
   eco.recaudacion = (s) => {
     const e = s.eco;
     const evasion = 1 - 0.012 * Math.max(0, e.desempleo - 8) - 0.002 * Math.max(0, e.inflAnual - 60) / 10;
-    return eco.IMPUESTOS[e.impuestos].recauda * Math.max(0.8, evasion) + eco.RETENCIONES[e.retenciones].recauda * eco.factorExpo(s);
+    const extra = s.gob && s.gob.bonusRecauda ? s.gob.bonusRecauda : 0;
+    return eco.IMPUESTOS[e.impuestos].recauda * Math.max(0.8, evasion) + extra + eco.RETENCIONES[e.retenciones].recauda * eco.factorExpo(s);
   };
   eco.resultado = (s) => eco.recaudacion(s) - eco.gastoTotal(s.eco); // + superávit, − déficit (% PBI anual)
   eco.participacion = (e, id) => (eco.gastoArea(e, id) / eco.gastoPrimario(e)) * 100; // % del presupuesto
@@ -2174,6 +2202,7 @@ p { margin: 0; }
       leyes: {}, enfr: {}, meses: 0, crisisMeses: 0, escandalo: 0, historia: [], llamas: [],
     };
     gob.actualizarAprob(s);
+    if (R.congreso) R.congreso.iniciar(s);
     s.gob.historia.push(R.eco.foto(s));
     R.diario(s, '🎖️', 'Asumís la Presidencia', 'gobierno');
     s.cola.push({ tipo: 'ministro' });
@@ -2591,6 +2620,454 @@ p { margin: 0; }
       out.push({ grupo: g.id, d, txt: banco[Math.floor(R.rand(s) * banco.length)], bueno: (mejorD || d) >= 0, peso: Math.abs(d) + Math.abs(mejorD) * 0.5 });
     }
     return out.sort((a, b) => b.peso - a.peso).slice(0, max || 3);
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/datos/leyes.js ──
+// Leyes que podés mandar al Congreso. ideo: −1 (Estado presente) … +1 (mercado). polemica: 0 … 1.
+// ef: efecto inmediato (con las claves de gobierno). perm: efecto que queda para siempre.
+// mayoria: 'simple' (mitad + 1 de cada cámara) o 'dos_tercios'. dnu: se puede sacar por decreto.
+(function (R) {
+  'use strict';
+
+  const subirNivel = (area, d) => (s) => {
+    s.eco.niveles[area] = R.clamp(R.round(s.eco.niveles[area] + d, 2), R.eco.NIVEL_MIN, R.eco.NIVEL_MAX);
+    s.eco.nivelesInicioMes[area] = s.eco.niveles[area];
+  };
+
+  R.LEYES = [
+    { id: 'reforma_laboral', emoji: '📋', nombre: 'Reforma laboral', desc: 'Contratar y despedir más fácil', ideo: 0.7, polemica: 0.6, dnu: true,
+      ef: { trabajadores: -10, empresarios: 10 }, perm: { bonusEmpleo: 1.0, bonusCrec: 0.3, bonusGrupo: { trabajadores: -4, empresarios: 5 } } },
+    { id: 'salario_minimo', emoji: '💵', nombre: 'Suba del salario mínimo', desc: 'Que nadie gane menos de lo justo', ideo: -0.5, polemica: 0.3, dnu: true,
+      ef: { trabajadores: 9, humildes: 4, empresarios: -6, inflacion: 0.3 }, perm: { bonusGrupo: { trabajadores: 3 } } },
+    { id: 'reforma_previsional', emoji: '👴', nombre: 'Reforma jubilatoria', desc: 'Se jubilan más tarde', ideo: 0.6, polemica: 0.75,
+      ef: { jubilados: -9, media: -3, empresarios: 4, riesgo: -100 }, hacer: subirNivel('jubilaciones', -0.1), nota: 'Baja el gasto en jubilaciones sin que se note de golpe' },
+    { id: 'inversiones', emoji: '🏭', nombre: 'Ley de grandes inversiones', desc: 'Beneficios para invertir', ideo: 0.5, polemica: 0.35, dnu: true,
+      ef: { empresarios: 8, riesgo: -60 }, perm: { bonusCrec: 0.5, bonusExpo: 0.05 } },
+    { id: 'bcra', emoji: '🏦', nombre: 'Banco Central independiente', desc: 'Nadie lo usa para imprimir', ideo: 0.4, polemica: 0.3,
+      ef: { empresarios: 5, riesgo: -80 }, nota: 'Baja la inflación todos los meses' },
+    { id: 'dolarizacion', emoji: '💵', nombre: 'Dolarización', desc: 'Chau peso, hola dólar', ideo: 0.9, polemica: 0.9,
+      requiere: (s) => s.eco.reservas >= 35, requiereTxt: 'Necesitás US$ 35 mil M de reservas',
+      ef: { media: 5, trabajadores: -6, humildes: -4, campo: 3, riesgo: -150 },
+      hacer: (s) => { s.eco.cepo = false; s.eco.brecha = 0; s.eco.financiamiento = 2; s.eco.reservas -= 20; },
+      nota: 'La inflación baja muchísimo, pero ya no podés emitir nunca más' },
+    { id: 'universidades', emoji: '🎓', nombre: 'Financiamiento universitario', desc: 'Más plata para las universidades', ideo: -0.4, polemica: 0.3,
+      ef: { media: 7 }, hacer: subirNivel('educacion', 0.15) },
+    { id: 'seguridad', emoji: '👮', nombre: 'Ley de seguridad', desc: 'Más policías y cárceles', ideo: 0.4, polemica: 0.3, dnu: true,
+      ef: { media: 5 }, perm: { bonusCalidad: { seguridad: 12 } } },
+    { id: 'imputabilidad', emoji: '⚖️', nombre: 'Bajar la edad de imputabilidad', desc: 'Menores que delinquen, a juicio', ideo: 0.6, polemica: 0.6,
+      ef: { media: 6, humildes: -5 }, perm: { bonusCalidad: { seguridad: 5 } } },
+    { id: 'servicio_militar', emoji: '🪖', nombre: 'Servicio militar obligatorio', desc: 'Los jóvenes, a los cuarteles', ideo: 0.5, polemica: 0.8,
+      ef: { media: -4, humildes: -3 }, perm: { bonusCalidad: { defensa: 20 } }, nota: 'Mucho más poder militar' },
+    { id: 'ciencia', emoji: '🔬', nombre: 'Ley de ciencia', desc: 'Más plata para investigar', ideo: -0.2, polemica: 0.1,
+      ef: { media: 3 }, hacer: subirNivel('ciencia', 0.3) },
+    { id: 'retenciones_cero', emoji: '🌾', nombre: 'Retenciones cero', desc: 'El campo no paga más retenciones', ideo: 0.7, polemica: 0.5,
+      ef: { campo: 15, humildes: -2 }, hacer: (s) => { s.eco.retenciones = 0; s.eco.retencionesInicioMes = 0; } },
+    { id: 'fortunas', emoji: '💰', nombre: 'Impuesto a las grandes fortunas', desc: 'Que paguen los que más tienen', ideo: -0.8, polemica: 0.6,
+      ef: { empresarios: -10, humildes: 5, trabajadores: 3 }, perm: { bonusRecauda: 0.4 } },
+    { id: 'privatizar', emoji: '🏷️', nombre: 'Privatizar empresas públicas', desc: 'Vender empresas del Estado', ideo: 0.8, polemica: 0.7,
+      ef: { reservas: 6, trabajadores: -6, empresarios: 6, riesgo: -60 } },
+    { id: 'estatizar', emoji: '⛽', nombre: 'Estatizar la energía', desc: 'Petróleo y luz, del Estado', ideo: -0.8, polemica: 0.7,
+      ef: { trabajadores: 5, empresarios: -10, riesgo: 120 }, perm: { bonusExpo: -0.03, bonusGrupo: { trabajadores: 2 } } },
+    { id: 'alquileres', emoji: '🏠', nombre: 'Ley de alquileres', desc: 'Contratos largos y con tope', ideo: -0.3, polemica: 0.4, dnu: true,
+      ef: { media: 4, empresarios: -2 } },
+    { id: 'litio', emoji: '🔋', nombre: 'Ley del litio', desc: 'Reglas claras para la minería', ideo: 0.2, polemica: 0.3,
+      ef: { empresarios: 4 }, perm: { bonusExpo: 0.06 } },
+    { id: 'humedales', emoji: '🌱', nombre: 'Ley de humedales', desc: 'Proteger ríos y lagunas', ideo: -0.3, polemica: 0.4,
+      ef: { media: 4, campo: -8 } },
+    { id: 'boleta_unica', emoji: '🗳️', nombre: 'Boleta única', desc: 'Votar más fácil y sin trampa', ideo: 0, polemica: 0.1,
+      ef: { media: 3, escandalo: -1 } },
+    { id: 'ficha_limpia', emoji: '🧼', nombre: 'Ficha limpia', desc: 'Condenados no pueden ser candidatos', ideo: 0.2, polemica: 0.3,
+      ef: { media: 5, escandalo: -2 } },
+    { id: 'vivienda', emoji: '🏘️', nombre: 'Plan nacional de vivienda', desc: 'Casas para los que no tienen', ideo: -0.4, polemica: 0.2,
+      costo: { gasto: 3 }, ef: { humildes: 8, trabajadores: 4, infra: 5 } },
+    { id: 'fmi', emoji: '🌐', nombre: 'Acuerdo con el FMI', desc: 'Dólares a cambio de ajuste', ideo: 0.5, polemica: 0.6,
+      requiere: (s) => s.eco.reservas < 22, requiereTxt: 'Solo si las reservas están bajas',
+      ef: { reservas: 20, deuda: 6, riesgo: -250, humildes: -5, trabajadores: -5, empresarios: 5 } },
+    { id: 're_reeleccion', emoji: '👑', nombre: 'Reforma constitucional', desc: 'Poder ser reelecto otra vez', ideo: 0, polemica: 1, mayoria: 'dos_tercios',
+      requiere: (s) => s.gob.mandato >= 2, requiereTxt: 'Solo en tu segundo mandato',
+      ef: { media: -6, escandalo: 3 }, nota: 'Te deja buscar un tercer mandato' },
+  ];
+  R.LEY = Object.fromEntries(R.LEYES.map((l) => [l.id, l]));
+
+  // Gobernadores al empezar (ficticios). El resto se define con los resultados de 2027.
+  R.GOBERNADORES_INICIALES = {
+    JUJ: 'UCF', SAL: 'PROV', FOR: 'MNP', CAT: 'MNP', TUC: 'MNP', CHA: 'UCF', MIS: 'PROV', LRJ: 'MNP', SGO: 'MNP', SFE: 'UCF',
+    COR: 'UCF', SJU: 'PROV', SLU: 'PROV', CBA: 'PROV', ERI: 'AR', MZA: 'UCF', LPA: 'MNP', BUE: 'MNP', CABA: 'AR', NQN: 'PROV',
+    RNE: 'PROV', CHU: 'PROV', SCR: 'MNP', TDF: 'MNP',
+  };
+  R.PEDIDOS = {
+    obras: { emoji: '🏗️', txt: 'una ruta nueva' },
+    fondos: { emoji: '💸', txt: 'fondos para sueldos' },
+    visita: { emoji: '🤝', txt: 'que lo visites' },
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/congreso.js ──
+// Congreso (leyes, porotos, negociación, decretos), gobernadores y elecciones durante el gobierno.
+(function (R) {
+  'use strict';
+
+  const con = (R.congreso = {});
+  const BLOQUES = ['MNP', 'PL', 'AR', 'UCF', 'FT', 'PROV'];
+  con.BLOQUES = BLOQUES;
+  const ideoDe = (s, id) => (id === 'YO' ? s.partido.ideo : R.PARTIDOS[id].ideo);
+
+  con.iniciar = function (s) {
+    const G = s.gob;
+    G.rel = {};
+    for (const b of BLOQUES) G.rel[b] = R.clamp(Math.round(68 - 45 * Math.abs(ideoDe(s, b) - s.partido.ideo) - 8 * s.partido.estilo), 10, 85);
+    G.negocia = {}; // ley → { bloque: puntos }
+    G.leyesEstado = {}; // ley → { estado: 'aprobada'|'rechazada'|'dnu', mes }
+    G.gobernadores = {};
+    const v = s.elecciones.general ? s.elecciones.general.prov : null;
+    for (const p of R.PROVINCIAS) {
+      let partido = R.GOBERNADORES_INICIALES[p.id];
+      if (v && v[p.id] && v[p.id].YO >= 36 && Object.keys(v[p.id]).every((k) => k === 'YO' || v[p.id][k] <= v[p.id].YO)) partido = 'YO';
+      G.gobernadores[p.id] = con.nuevoGobernador(s, p.id, partido);
+    }
+  };
+
+  const NOMBRES = ['Héctor', 'Miriam', 'Oscar', 'Gladys', 'Raúl', 'Silvia', 'Walter', 'Norma', 'Daniel', 'Liliana', 'Jorge', 'Beatriz', 'Ricardo', 'Graciela', 'Sergio', 'Adriana'];
+  const APELLIDOS = ['Zamora', 'Insaurralde', 'Bustos', 'Saá', 'Herrera', 'Lescano', 'Bordón', 'Cáceres', 'Funes', 'Gómez', 'Orellana', 'Vera', 'Ponce', 'Albornoz', 'Lucero', 'Arce'];
+  con.nuevoGobernador = function (s, prov, partido) {
+    const nombre = R.pick(s, NOMBRES) + ' ' + R.pick(s, APELLIDOS);
+    const rel = partido === 'YO' ? 90 : R.clamp(Math.round(70 - 35 * Math.abs(ideoDe(s, partido) - s.partido.ideo)), 25, 80);
+    return {
+      partido, nombre, rel, pide: R.pick(s, Object.keys(R.PEDIDOS)), enfr: -99,
+      avatar: { piel: R.randInt(s, 0, 4), pelo: R.randInt(s, 0, 5), colorPelo: R.randInt(s, 0, 5), anteojos: R.randInt(s, 0, 2), barba: R.randInt(s, 0, 2), ropa: R.randInt(s, 0, 4) },
+    };
+  };
+
+  // Cuánto te bancan los gobernadores de cada partido (promedio ponderado por población).
+  con.relGobernadores = function (s, partido) {
+    let tot = 0;
+    let w = 0;
+    for (const p of R.PROVINCIAS) {
+      const g = s.gob.gobernadores[p.id];
+      if (g.partido !== partido) continue;
+      tot += g.rel * p.dip;
+      w += p.dip;
+    }
+    return w ? tot / w : 50;
+  };
+
+  con.mayoria = function (s) {
+    if (!s.gob || !s.gob.rel) return false;
+    const d = R.composicion(s, 'diputados');
+    const se = R.composicion(s, 'senado');
+    return (d.YO || 0) >= 129 && (se.YO || 0) >= 37;
+  };
+
+  con.necesarios = (ley, camara) => {
+    const total = R.TOTAL_BANCAS[camara];
+    return ley && ley.mayoria === 'dos_tercios' ? Math.ceil((total * 2) / 3) : Math.floor(total / 2) + 1;
+  };
+
+  // Probabilidad de que un bloque vote a favor (0 … 1).
+  con.apoyo = function (s, ley, bloque) {
+    if (bloque === 'YO') return 0.98;
+    const G = s.gob;
+    const ideo = ideoDe(s, bloque);
+    const neg = (G.negocia[ley.id] && G.negocia[ley.id][bloque]) || 0;
+    const relGob = con.relGobernadores(s, bloque);
+    let x = 1.7 * (0.5 - Math.abs(ley.ideo - ideo)) + (G.rel[bloque] - 50) / 35 + (G.aprob - 45) / 45 - ley.polemica * 0.7 + neg;
+    x += (relGob - 50) / (bloque === 'PROV' ? 30 : 70);
+    if (ley.mayoria === 'dos_tercios') x -= 0.5;
+    return 1 / (1 + Math.exp(-x * 2.2));
+  };
+
+  // Porotos esperados por cámara: { camara: { si, no, necesarios, bloques: [{id, n, p, postura}] } }
+  con.porotos = function (s, ley) {
+    const out = {};
+    for (const camara of ['diputados', 'senado']) {
+      const comp = R.composicion(s, camara);
+      let si = 0;
+      const bloques = [];
+      for (const [id, n] of Object.entries(comp)) {
+        if (!n) continue;
+        const p = con.apoyo(s, ley, id);
+        si += n * p;
+        bloques.push({ id, n, p, postura: p > 0.7 ? 'si' : p < 0.3 ? 'no' : 'duda' });
+      }
+      bloques.sort((a, b) => b.n - a.n);
+      out[camara] = { si: Math.round(si), total: R.TOTAL_BANCAS[camara], necesarios: con.necesarios(ley, camara), bloques };
+    }
+    return out;
+  };
+
+  con.bloqueoLey = function (s, ley) {
+    const st = s.gob.leyesEstado[ley.id];
+    if (st && (st.estado === 'aprobada' || st.estado === 'dnu')) return 'Ya es ley';
+    if (st && st.estado === 'rechazada' && s.mes - st.mes < 6) return 'Rechazada: de nuevo en ' + (6 - (s.mes - st.mes)) + ' meses';
+    if (ley.requiere && !ley.requiere(s)) return ley.requiereTxt || 'No se puede todavía';
+    return null;
+  };
+  con.COSTO_PRESENTAR = 2;
+
+  // Negociar con un bloque: cuesta ⭐ según su tamaño.
+  con.costoNegociar = (s, bloque) => {
+    const n = (R.composicion(s, 'diputados')[bloque] || 0) + (R.composicion(s, 'senado')[bloque] || 0) * 2;
+    return R.clamp(1 + Math.round(n / 35), 1, 4);
+  };
+  con.negociar = function (s, ley, bloque) {
+    const G = s.gob;
+    const c = con.costoNegociar(s, bloque);
+    if (G.pc < c) return { error: 'Falta capital político ⭐' };
+    G.pc -= c;
+    G.negocia[ley.id] = G.negocia[ley.id] || {};
+    G.negocia[ley.id][bloque] = (G.negocia[ley.id][bloque] || 0) + 0.9;
+    G.rel[bloque] = R.clamp(G.rel[bloque] + 3, 0, 100);
+    return { ok: true, costo: c };
+  };
+  // Fondos a las provincias: sube la relación con todos los gobernadores.
+  con.fondosGobernadores = function (s, ley) {
+    const G = s.gob;
+    R.gob.aplicarEfectos(s, { gastoExtra: 1.5 });
+    G.negocia[ley.id] = G.negocia[ley.id] || {};
+    for (const b of BLOQUES) G.negocia[ley.id][b] = (G.negocia[ley.id][b] || 0) + (b === 'PROV' ? 1.0 : 0.3);
+    for (const p of R.PROVINCIAS) G.gobernadores[p.id].rel = R.clamp(G.gobernadores[p.id].rel + 5, 0, 100);
+    return { ok: true };
+  };
+
+  // Conteo real: cada banca vota según la probabilidad de su bloque (sin consecuencias).
+  con.contarVotos = function (s, ley) {
+    const res = { camaras: {}, aprobada: true };
+    for (const camara of ['diputados', 'senado']) {
+      const comp = R.composicion(s, camara);
+      const votos = [];
+      let si = 0;
+      for (const [id, n] of Object.entries(comp)) {
+        const p = con.apoyo(s, ley, id);
+        for (let i = 0; i < n; i++) {
+          const v = R.rand(s) < p;
+          if (v) si++;
+          votos.push({ id, si: v });
+        }
+      }
+      const nec = con.necesarios(ley, camara);
+      const pasa = si >= nec;
+      res.camaras[camara] = { si, no: R.TOTAL_BANCAS[camara] - si, necesarios: nec, pasa, votos };
+      if (!pasa) { res.aprobada = false; break; } // si no pasa Diputados, el Senado no la trata
+    }
+    return res;
+  };
+
+  // Votar una ley: cuesta ⭐ y, si sale, se promulga.
+  con.votar = function (s, ley) {
+    const G = s.gob;
+    G.pc = Math.max(0, G.pc - con.COSTO_PRESENTAR);
+    const res = con.contarVotos(s, ley);
+    if (res.aprobada) res.aplicado = con.promulgar(s, ley, 'aprobada');
+    else {
+      G.leyesEstado[ley.id] = { estado: 'rechazada', mes: s.mes };
+      res.aplicado = R.gob.aplicarEfectos(s, { pc: -1 });
+      R.diario(s, '❌', 'El Congreso rechazó: ' + ley.nombre, 'ley');
+    }
+    delete G.negocia[ley.id];
+    return res;
+  };
+
+  con.promulgar = function (s, ley, como) {
+    const G = s.gob;
+    G.leyesEstado[ley.id] = { estado: como, mes: s.mes };
+    G.leyes[ley.id] = true;
+    const ef = Object.assign({}, ley.ef || {});
+    if (ley.costo && ley.costo.gasto) ef.gastoExtra = ley.costo.gasto;
+    if (ley.perm) {
+      const p = ley.perm;
+      if (p.bonusEmpleo) G.bonusEmpleo = (G.bonusEmpleo || 0) + p.bonusEmpleo;
+      if (p.bonusCrec) G.bonusCrec = (G.bonusCrec || 0) + p.bonusCrec;
+      if (p.bonusExpo) G.bonusExpo = (G.bonusExpo || 0) + p.bonusExpo;
+      if (p.bonusRecauda) G.bonusRecauda = (G.bonusRecauda || 0) + p.bonusRecauda;
+      if (p.bonusCalidad) { G.bonusCalidad = G.bonusCalidad || {}; for (const [k, v] of Object.entries(p.bonusCalidad)) G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) + v; }
+      if (p.bonusGrupo) { G.bonusGrupo = G.bonusGrupo || {}; for (const [k, v] of Object.entries(p.bonusGrupo)) G.bonusGrupo[k] = (G.bonusGrupo[k] || 0) + v; }
+    }
+    if (ley.hacer) ley.hacer(s);
+    // Los bloques que piensan parecido se acercan; los otros se alejan un poco.
+    for (const b of BLOQUES) G.rel[b] = R.clamp(G.rel[b] + (Math.abs(ley.ideo - ideoDe(s, b)) < 0.5 ? 2 : -2), 0, 100);
+    R.diario(s, ley.emoji, (como === 'dnu' ? 'Decreto: ' : 'Nueva ley: ') + ley.nombre, 'ley');
+    return R.gob.aplicarEfectos(s, ef);
+  };
+
+  // Decreto (DNU): sin Congreso, pero cuesta y puede caerse.
+  con.COSTO_DNU = 4;
+  con.dnu = function (s, ley) {
+    const G = s.gob;
+    if (!ley.dnu) return { error: 'Esta ley no se puede sacar por decreto' };
+    if (G.pc < con.COSTO_DNU) return { error: 'Falta capital político ⭐' };
+    G.pc -= con.COSTO_DNU;
+    const aplicado = con.promulgar(s, ley, 'dnu').concat(R.gob.aplicarEfectos(s, { media: -4, escandalo: 1 }));
+    G.dnuPendientes = (G.dnuPendientes || []).concat([{ ley: ley.id, mes: s.mes }]);
+    return { ok: true, aplicado };
+  };
+
+  // ── Gobernadores ──
+  con.ACC_PROV = [
+    { id: 'obras', emoji: '🏗️', nombre: 'Obra pública', costo: { gasto: 1 }, rel: 15, ef: { infra: 1, trabajadores: 1 } },
+    { id: 'fondos', emoji: '💸', nombre: 'Mandar fondos', costo: { gasto: 0.8 }, rel: 20, ef: {} },
+    { id: 'visita', emoji: '🤝', nombre: 'Visitarlo', costo: { pc: 1 }, rel: 8, ef: {} },
+  ];
+  con.bloqueoProv = function (s, provId, acc) {
+    const g = s.gob.gobernadores[provId];
+    if (s.mes - g.enfr < 3) return 'De nuevo en ' + (3 - (s.mes - g.enfr)) + (3 - (s.mes - g.enfr) === 1 ? ' mes' : ' meses');
+    if (acc.costo.pc && s.gob.pc < acc.costo.pc) return 'Falta ⭐';
+    return null;
+  };
+  con.accionProvincia = function (s, provId, accId) {
+    const acc = con.ACC_PROV.find((a) => a.id === accId);
+    const g = s.gob.gobernadores[provId];
+    const b = con.bloqueoProv(s, provId, acc);
+    if (b) return { error: b };
+    const pedido = g.pide === accId;
+    const subir = acc.rel * (pedido ? 1.6 : 1);
+    g.rel = R.clamp(g.rel + subir, 0, 100);
+    g.enfr = s.mes;
+    if (pedido) g.pide = R.pick(s, Object.keys(R.PEDIDOS).filter((k) => k !== accId));
+    s.camp.presencia[provId] = R.clamp((s.camp.presencia[provId] || 0) + (accId === 'visita' ? 12 : 6), 0, 100);
+    const ef = Object.assign({}, acc.ef);
+    if (acc.costo.gasto) ef.gastoExtra = acc.costo.gasto;
+    if (acc.costo.pc) ef.pc = -acc.costo.pc;
+    const aplicado = R.gob.aplicarEfectos(s, ef);
+    R.diario(s, acc.emoji, acc.nombre + ' en ' + R.PROV[provId].corto, 'provincia');
+    return { ok: true, txt: (pedido ? '¡Justo lo que pedía! ' : '') + g.nombre + ' te agradece', subir: Math.round(subir), aplicado, bueno: true };
+  };
+
+  // Cada mes los gobernadores se olvidan un poco de los favores.
+  con.mes = function (s) {
+    const G = s.gob;
+    if (!G.gobernadores) return;
+    for (const p of R.PROVINCIAS) {
+      const g = G.gobernadores[p.id];
+      const meta = g.partido === 'YO' ? 85 : 45 + G.aprob * 0.2;
+      g.rel = R.clamp(g.rel + (meta - g.rel) * 0.03, 0, 100);
+    }
+    for (const b of BLOQUES) G.rel[b] = R.clamp(G.rel[b] + ((40 + G.aprob * 0.25) - G.rel[b]) * 0.02, 0, 100);
+  };
+
+  // ── Votos durante el gobierno: tu aprobación manda ──
+  R.elec.votosGobierno = function (s, opts) {
+    opts = opts || {};
+    const G = s.gob;
+    const nac = { YO: 0 };
+    R.RIVALES.forEach((id) => (nac[id] = 0));
+    const prov = {};
+    // El opositor más fuerte junta el voto enojado.
+    const opositor = R.RIVALES.slice().sort((a, b) => R.PARTIDOS[b].base - R.PARTIDOS[a].base)[0];
+    for (const p of R.PROVINCIAS) {
+      const af = R.camp.afinidad(s, p);
+      const gob = G.gobernadores ? G.gobernadores[p.id] : null;
+      let yo = (6 + 0.62 * G.aprob) * Math.sqrt(af);
+      if (gob && gob.partido === 'YO') yo *= 1.12;
+      else if (gob && gob.rel > 70) yo *= 1.04;
+      yo += (s.camp.presencia[p.id] || 0) * 0.06 + (opts.extraYo || 0);
+      yo = R.clamp(yo, 3, 80);
+      const ws = {};
+      let tot = 0;
+      for (const id of R.RIVALES) {
+        const r = R.PARTIDOS[id];
+        let w = Math.max(0.3, r.base + s.rivales[id]);
+        w *= 1 + (r.fuerte[p.id] || 0);
+        w *= R.clamp(1 + 0.7 * (0.5 - Math.abs(p.lean - r.ideo)), 0.45, 1.4);
+        if (id === opositor) w *= 1 + Math.max(0, 50 - G.aprob) / 60;
+        if (opts.ruido) w *= Math.max(0.2, 1 + opts.ruido[p.id + id] * 0.06);
+        ws[id] = w;
+        tot += w;
+      }
+      const res = { YO: yo };
+      for (const id of R.RIVALES) res[id] = ((100 - yo) * ws[id]) / tot;
+      prov[p.id] = res;
+      for (const k in res) nac[k] += (res[k] * p.padron) / 100;
+    }
+    return { nac, prov };
+  };
+
+  // Gobernadores nuevos según quién ganó en cada provincia.
+  con.renovarGobernadores = function (s, prov) {
+    const G = s.gob;
+    const cambios = [];
+    for (const p of R.PROVINCIAS) {
+      const v = prov[p.id];
+      const gana = Object.keys(v).reduce((a, b) => (v[a] > v[b] ? a : b));
+      if (gana !== G.gobernadores[p.id].partido) {
+        G.gobernadores[p.id] = con.nuevoGobernador(s, p.id, gana);
+        cambios.push(p.id);
+      }
+    }
+    return cambios;
+  };
+
+  // Gancho que llama gobierno.pasarMes después de avanzar el mes. Devuelve true si cortó el mes.
+  R.gob.elecciones = function (s, momentos) {
+    const G = s.gob;
+    con.mes(s);
+    const anio = R.anio(s.mes);
+    const m = R.mesDelAnio(s.mes);
+    // Presupuesto anual: lo vota el Congreso cada noviembre.
+    if (m === 10) momentos.push({ tipo: 'presupuesto' });
+    // Decretos que el Congreso puede voltear (a los 3 meses).
+    if (G.dnuPendientes && G.dnuPendientes.length) {
+      const vence = G.dnuPendientes.filter((d) => s.mes - d.mes >= 3);
+      G.dnuPendientes = G.dnuPendientes.filter((d) => s.mes - d.mes < 3);
+      for (const d of vence) {
+        const ley = R.LEY[d.ley];
+        const p = con.porotos(s, ley);
+        if (p.diputados.si < p.diputados.total / 2 - 30 && R.chance(s, 0.5)) momentos.push({ tipo: 'dnu_cae', ley: d.ley });
+      }
+    }
+    if (m !== 10 && m !== 11) return false;
+    const esMedio = anio % 4 === 1; // 2029, 2033
+    const esPresi = anio % 4 === 3; // 2031, 2035
+    if (m === 10 && esMedio) {
+      R.elec.legislativa(s);
+      momentos.push({ tipo: 'eleccion', clave: 'legislativa' });
+      return false;
+    }
+    if (m === 10 && esPresi) {
+      if (G.mandato >= 2 && !G.leyes.re_reeleccion) {
+        R.gob.terminar(s, momentos, 'mandato');
+        return true;
+      }
+      const res = R.elec.general(s);
+      con.renovarGobernadores(s, res.prov);
+      momentos.push({ tipo: 'eleccion', clave: 'general' });
+      if (res.ganador === 'YO') { G.mandato++; G.lunaMiel = 8; R.diario(s, '🏆', '¡Reelecto/a!', 'eleccion'); }
+      else if (res.ballotage && res.ballotage.includes('YO')) { G.ballotage = res.ballotage; }
+      else { R.gob.terminar(s, momentos, 'reeleccion'); return true; }
+      return false;
+    }
+    if (m === 11 && G.ballotage) {
+      const res = R.elec.ballotage(s, G.ballotage);
+      G.ballotage = null;
+      momentos.push({ tipo: 'eleccion', clave: 'ballotage' });
+      if (res.ganador === 'YO') { G.mandato++; G.lunaMiel = 8; R.diario(s, '🏆', '¡Reelecto/a en el ballotage!', 'eleccion'); }
+      else { R.gob.terminar(s, momentos, 'reeleccion'); return true; }
+    }
+    return false;
+  };
+
+  // Votar el presupuesto anual (no cuesta ⭐). Devuelve { ley, res, ok, aplicado }.
+  con.votarPresupuesto = function (s, conFondos) {
+    const ley = con.leyPresupuesto(s);
+    if (conFondos) con.fondosGobernadores(s, ley);
+    const res = con.contarVotos(s, ley);
+    delete s.gob.negocia.presupuesto;
+    const ok = res.aprobada;
+    const aplicado = R.gob.aplicarEfectos(s, ok ? con.EF_PRESUPUESTO.si : con.EF_PRESUPUESTO.no);
+    R.diario(s, '📒', ley.nombre + (ok ? ': aprobado' : ': rechazado'), 'ley');
+    return { ley, res, ok, aplicado };
+  };
+  con.EF_PRESUPUESTO = { si: { pc: 2, riesgo: -50, todos: 1 }, no: { pc: -2, riesgo: 80, media: -2 } };
+  con.efDnuCae = { pc: -2, media: -3, escandalo: 1 };
+
+  // Presupuesto anual: ¿lo aprueba el Congreso?
+  con.leyPresupuesto = function (s) {
+    const def = -R.eco.resultado(s);
+    return { id: 'presupuesto', nombre: 'Presupuesto ' + (R.anio(s.mes) + 1), emoji: '📒', ideo: R.clamp(s.partido.ideo * 0.5 - def * 0.15, -1, 1), polemica: R.clamp(0.15 + Math.max(0, def) * 0.12, 0, 1) };
   };
 })(globalThis.R = globalThis.R || {});
 
@@ -4269,21 +4746,25 @@ p { margin: 0; }
       const puesto = res.lista.indexOf(yo) + 1;
       let txt;
       let gana = true;
+      const gobernando = !!s.gob;
       if (clave === 'paso') {
         gana = res.pasa;
         txt = res.pasa ? (puesto === 1 ? '¡Ganaste las PASO! 🥇' : '¡Pasaste a las generales! Saliste ' + puesto + '.º') : 'Quedaste afuera… no llegaste al 1,5 %';
+      } else if (clave === 'legislativa') {
+        gana = res.ganador === 'YO';
+        txt = gana ? '¡Ganaste el medio término con ' + R.fmt(yo.v, 1) + '%! 🗳️' : 'Perdiste el medio término: sacaste ' + R.fmt(yo.v, 1) + '%';
       } else if (clave === 'general') {
-        if (res.ganador === 'YO') txt = '¡GANASTE EN PRIMERA VUELTA! 🏆';
+        if (res.ganador === 'YO') txt = gobernando ? '¡REELECTO/A EN PRIMERA VUELTA! 🏆' : '¡GANASTE EN PRIMERA VUELTA! 🏆';
         else if (res.ballotage && res.ballotage.includes('YO')) txt = '¡Vamos al ballotage contra ' + R.elec.nombre(s, res.ballotage.find((x) => x !== 'YO')) + '! ⚔️';
-        else { gana = false; txt = 'Perdiste. Saliste ' + puesto + '.º'; }
+        else { gana = false; txt = (gobernando ? 'Perdiste la reelección. ' : 'Perdiste. ') + 'Saliste ' + puesto + '.º'; }
       } else {
         gana = res.ganador === 'YO';
-        txt = gana ? '¡GANASTE EL BALLOTAGE! 🏆' : 'Perdiste el ballotage por ' + R.fmt(res.lista[0].v - res.lista[1].v, 1) + ' puntos';
+        txt = gana ? (gobernando ? '¡REELECTO/A EN EL BALLOTAGE! 🏆' : '¡GANASTE EL BALLOTAGE! 🏆') : 'Perdiste el ballotage por ' + R.fmt(res.lista[0].v - res.lista[1].v, 1) + ' puntos';
       }
       veredicto.replaceChildren(h('div', { class: 'veredicto ' + (gana ? 'gana' : 'pierde') }, txt));
       if (gana) {
         R.son.aplausos();
-        if ((clave === 'general' && res.ganador === 'YO') || clave === 'ballotage') { ui.confeti(); R.son.genial(); }
+        if ((clave === 'general' && res.ganador === 'YO') || clave === 'ballotage' || clave === 'legislativa') { ui.confeti(); R.son.genial(); }
       } else R.son.abucheo();
 
       const extras = [];
@@ -4677,7 +5158,7 @@ p { margin: 0; }
       diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Lo que pasó'), ui.historial(s, 60)),
     };
     Object.assign(paneles, ui.panelesGob);
-    const scroll = ui.montar(h('div', null, barraGobierno(s), paneles[tab]()), pc);
+    const scroll = ui.montar(h('div', null, barraGobierno(s), paneles[tab](s)), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
     ui.navInferior(ui.PESTANAS_GOB, tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
       h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() }, '▶ Pasar el mes',
@@ -5150,6 +5631,339 @@ p { margin: 0; }
     };
     pintar();
     return caja;
+  }
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/congreso.js ──
+// Congreso: hemiciclos, bloques, leyes, «contamos los porotos» y votación banca por banca.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+  const con = R.congreso;
+
+  ui.PESTANAS_GOB.splice(2, 0, { id: 'congreso', emoji: '🏛️', nombre: 'Congreso' });
+  ui.panelesGob.congreso = (s) => panelCongreso(s);
+
+  const POSTURA = { si: ['✅', 'A favor', 'bien'], duda: ['🤔', 'Dudan', 'sol'], no: ['❌', 'En contra', 'mal'] };
+
+  function panelCongreso(s) {
+    const pc = ui.esPC();
+    const izq = [tarjetaCamaras(s), tarjetaBloques(s)];
+    const der = [tarjetaLeyes(s)];
+    if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
+    return h('div', { class: 'pila' }, izq, der);
+  }
+
+  function tarjetaCamaras(s) {
+    const dip = R.composicion(s, 'diputados');
+    const sen = R.composicion(s, 'senado');
+    const camara = (nombre, comp, total, nec) => h('div', { class: 'pila', style: { gap: '2px' } },
+      h('div', { class: 'etiqueta centro' }, nombre),
+      R.ui.hemiciclo(R.ui.gruposCamara(s, comp), { centro: comp.YO || 0, sub: 'tuyas de ' + total, resaltar: 'YO' }),
+      h('div', { class: 'centro chico' }, (comp.YO || 0) >= nec ? '✅ Mayoría propia' : 'Mayoría: ' + nec));
+    const mayoria = con.mayoria(s);
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🏛️ El Congreso'), mayoria ? h('span', { class: 'chip bien' }, '+1 ⭐ por mes') : null),
+      h('div', { class: 'bancas-ganadas' }, camara('Diputados', dip, 257, 129), camara('Senado', sen, 72, 37)),
+      h('div', { class: 'leyenda' }, R.ui.gruposCamara(s, dip).map((g) => {
+        const p = R.partidoInfo(s, g.id);
+        return h('span', { class: 'chip', style: { background: ui.aclarar(p.color, 0.55) } }, p.simbolo + ' ' + p.sigla + ' ' + g.n + '/' + (sen[g.id] || 0));
+      })),
+      h('p', { class: 'chico suave centro' }, 'Diputados / Senadores de cada bloque'));
+  }
+
+  function tarjetaBloques(s) {
+    const G = s.gob;
+    const dip = R.composicion(s, 'diputados');
+    const sen = R.composicion(s, 'senado');
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'titulo-seccion' }, '🤝 Cómo te llevás con cada bloque'),
+      h('div', { class: 'razones' }, con.BLOQUES.filter((b) => (dip[b] || 0) + (sen[b] || 0) > 0).map((b) => {
+        const p = R.partidoInfo(s, b);
+        const r = G.rel[b];
+        return h('div', { class: 'razon', style: { gridTemplateColumns: '30px minmax(0,1fr) 80px 70px' } },
+          ui.miniEscudo(p), h('span', null, h('b', null, p.sigla), h('span', { class: 'chico suave' }, ' ' + (dip[b] || 0) + ' + ' + (sen[b] || 0))),
+          h('span', { class: 'barrita' }, h('i', { style: { width: r + '%', background: r >= 60 ? 'var(--bien)' : r >= 35 ? 'var(--sol)' : 'var(--mal)' } })),
+          h('span', { class: 'chico', style: { fontWeight: 900, textAlign: 'right' } }, r >= 60 ? '😊 Aliado' : r >= 35 ? '😐 Neutral' : '😠 Opositor'));
+      })),
+      h('p', { class: 'chico suave' }, 'Mejora si negociás, si les gusta tu ley o si tu aprobación sube. Los gobernadores también mueven a sus legisladores.'));
+  }
+
+  function tarjetaLeyes(s) {
+    const G = s.gob;
+    const leyes = R.LEYES.slice().sort((a, b) => (G.leyes[a.id] ? 1 : 0) - (G.leyes[b.id] ? 1 : 0));
+    return h('section', { class: 'pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📜 Leyes'), h('span', { class: 'chip sol' }, '⭐ ' + G.pc)),
+      h('p', { class: 'chico suave' }, 'Mandar una ley cuesta ⭐ ' + con.COSTO_PRESENTAR + '. Antes de votar ves cuántos votos tenés.'),
+      h('div', { class: 'acciones' }, leyes.map((ley) => {
+        const st = G.leyesEstado[ley.id];
+        const b = con.bloqueoLey(s, ley);
+        const hecha = G.leyes[ley.id];
+        return h('button', { class: 'accion' + (hecha ? ' hecha' : ''), disabled: b ? true : null, onclick: () => abrirLey(s, ley) },
+          h('div', { class: 'cab' }, h('span', { class: 'ic' }, ley.emoji), h('span', { class: 'nom' }, ley.nombre)),
+          h('div', { class: 'desc' }, ley.desc),
+          ui.chipsEfectos(R.gob.describirEfectos(s, ley.ef || {}), { compacto: true, antes: h('span', { class: 'chip' }, ideoTxt(ley.ideo)) }),
+          hecha ? h('span', { class: 'chip bien', style: { alignSelf: 'flex-start' } }, st && st.estado === 'dnu' ? '📜 Por decreto' : '✅ Es ley')
+            : b ? h('div', { class: 'bloq' }, b) : ley.mayoria === 'dos_tercios' ? h('span', { class: 'chip', style: { alignSelf: 'flex-start' } }, '⚠️ Necesita 2/3') : null);
+      })));
+  }
+  const ideoTxt = (x) => (x <= -0.6 ? '🤲🤲' : x < -0.15 ? '🤲' : x <= 0.15 ? '⚖️' : x < 0.6 ? '💼' : '💼💼');
+
+  // Hoja de una ley: porotos, negociación y votación.
+  function abrirLey(s, ley) {
+    R.son.toque();
+    const G = s.gob;
+    const p = con.porotos(s, ley);
+    const camara = (nombre, c) => {
+      const falta = c.necesarios - c.si;
+      return h('div', { class: 'pila', style: { gap: '6px' } },
+        h('div', { class: 'fila entre' }, h('b', null, nombre), h('span', { class: 'chip ' + (falta <= 0 ? 'bien' : 'mal') }, falta <= 0 ? '✅ Te alcanza' : 'Te faltan ' + falta)),
+        h('div', { class: 'porotos' },
+          h('div', { class: 'barra gorda' }, h('i', { style: { width: (c.si / c.total) * 100 + '%', background: falta <= 0 ? 'var(--bien)' : 'var(--sol)' } })),
+          h('b', { class: 'linea-necesaria', style: { left: (c.necesarios / c.total) * 100 + '%' }, title: 'Votos necesarios' })),
+        h('div', { class: 'chico suave' }, '~' + c.si + ' a favor de ' + c.total + ' · necesitás ' + c.necesarios));
+    };
+    const bloques = {};
+    for (const cam of ['diputados', 'senado']) for (const b of p[cam].bloques) bloques[b.id] = bloques[b.id] || b;
+    const efectos = R.gob.describirEfectos(s, Object.assign({}, ley.ef || {}, ley.costo && ley.costo.gasto ? { gastoExtra: ley.costo.gasto } : {}));
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, ley.emoji + ' ' + ley.nombre),
+      h('p', null, ley.desc + (ley.nota ? ' · ' + ley.nota : '')),
+      efectos.length ? ui.chipsEfectos(efectos) : null,
+      h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '🫘 Contamos los porotos'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
+      h('div', { class: 'etiqueta' }, 'Bloques'),
+      h('div', { class: 'lista-elegir' }, Object.values(bloques).filter((b) => b.id !== 'YO').map((b) => {
+        const info = R.partidoInfo(s, b.id);
+        const [em, txt, cls] = POSTURA[b.postura];
+        const costo = con.costoNegociar(s, b.id);
+        return h('div', { class: 'item-elegir', style: { cursor: 'default', gridTemplateColumns: '34px minmax(0,1fr) auto' } },
+          ui.miniEscudo(info),
+          h('div', null, h('b', null, info.sigla), ' ', h('span', { class: 'chip ' + cls }, em + ' ' + txt)),
+          b.postura === 'si' ? h('span', { class: 'chico suave' }, Math.round(b.p * 100) + '%')
+            : h('button', { class: 'boton mini sec', disabled: G.pc < costo ? true : null, onclick: () => {
+              const r = con.negociar(s, ley, b.id);
+              if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+              R.son.moneda(); R.guardar(s); ui.aviso('🤝 Negociaste con ' + info.sigla + ' (⭐ −' + r.costo + ')', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley);
+            } }, '🤝 ⭐' + costo));
+      })),
+      h('button', { class: 'boton sec ancho', onclick: () => { con.fondosGobernadores(s, ley); R.son.moneda(); R.guardar(s); ui.aviso('💸 Fondos a las provincias: los gobernadores empujan', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley); } }, '💸 Fondos a las provincias · 1,5% del presupuesto'),
+      h('div', { class: 'fila' },
+        h('button', { class: 'boton grande', style: { flex: 1 }, disabled: G.pc < con.COSTO_PRESENTAR ? true : null, onclick: () => votar(s, ley) }, '🗳️ Votar · ⭐' + con.COSTO_PRESENTAR),
+        ley.dnu ? h('button', { class: 'boton sec', disabled: G.pc < con.COSTO_DNU ? true : null, title: 'Sin pasar por el Congreso, pero a la clase media no le gusta', onclick: () => decreto(s, ley) }, '📜 Decreto · ⭐' + con.COSTO_DNU) : null),
+      G.pc < con.COSTO_PRESENTAR ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'No tenés ⭐ suficientes: pasá el mes para juntar más.') : null), { cerrable: true });
+  }
+
+  function decreto(s, ley) {
+    const antes = s.gob.aprob;
+    const r = con.dnu(s, ley);
+    if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+    ui.cerrarCapa();
+    ui.mostrarResultado(s, { txt: '📜 Firmaste el decreto: ' + ley.nombre, bueno: true, aplicado: r.aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob });
+  }
+
+  // Votación animada: los puntitos se ponen verdes o rojos uno por uno.
+  function votar(s, ley) {
+    const antes = s.gob.aprob;
+    const res = con.votar(s, ley);
+    R.guardar(s);
+    ui.animarVotacion(s, ley.emoji + ' ' + ley.nombre, res, () => {
+      if (res.aprobada) ui.mostrarResultado(s, { txt: '✅ ¡Es ley! ' + ley.nombre, bueno: true, aplicado: res.aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob });
+      else ui.mostrarResultado(s, { txt: '❌ Rechazada: ' + ley.nombre, bueno: false, aplicado: res.aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob });
+    });
+  }
+
+  ui.animarVotacion = function (s, titulo, res, alTerminar) {
+    const cont = h('div', { class: 'pila' });
+    const camaras = Object.keys(res.camaras);
+    let i = 0;
+    const lentos = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const siguiente = () => {
+      if (i >= camaras.length) return final();
+      const nombre = camaras[i++];
+      const c = res.camaras[nombre];
+      const comp = R.composicion(s, nombre);
+      const grupos = R.ui.gruposCamara(s, comp);
+      const svg = R.ui.hemiciclo(grupos, {});
+      const siPor = {};
+      for (const v of c.votos) if (v.si) siPor[v.id] = (siPor[v.id] || 0) + 1;
+      const cuenta = h('div', { class: 'conteo' }, h('span', { class: 'si' }, '✅ 0'), h('span', { class: 'no' }, '❌ 0'));
+      cont.appendChild(h('div', { class: 'tarjeta plana pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta centro' }, nombre === 'diputados' ? 'Diputados' : 'Senado'), svg, cuenta,
+        h('div', { class: 'centro chico suave' }, 'Necesita ' + c.necesarios)));
+      const puntos = Array.from(svg.querySelectorAll('circle'));
+      const usados = {};
+      let si = 0;
+      let no = 0;
+      let k = 0;
+      const porPaso = Math.max(1, Math.ceil(puntos.length / (lentos ? 45 : 1)));
+      const paso = () => {
+        for (let n = 0; n < porPaso && k < puntos.length; n++, k++) {
+          const dot = puntos[k];
+          const g = dot.getAttribute('data-g');
+          usados[g] = (usados[g] || 0) + 1;
+          const vota = usados[g] <= (siPor[g] || 0);
+          dot.setAttribute('fill', vota ? '#1c9a50' : '#d5383a');
+          if (vota) si++; else no++;
+        }
+        cuenta.children[0].textContent = '✅ ' + si;
+        cuenta.children[1].textContent = '❌ ' + no;
+        R.son.tic();
+        if (k < puntos.length) setTimeout(paso, 40);
+        else {
+          cont.appendChild(h('div', { class: 'veredicto ' + (c.pasa ? 'gana' : 'pierde'), style: { fontSize: '24px', color: c.pasa ? 'var(--bien)' : 'var(--mal)' } },
+            c.pasa ? 'Aprobada en ' + (nombre === 'diputados' ? 'Diputados' : 'el Senado') : 'Rechazada en ' + (nombre === 'diputados' ? 'Diputados' : 'el Senado')));
+          setTimeout(siguiente, lentos ? 700 : 0);
+        }
+      };
+      paso();
+    };
+    const final = () => {
+      const ok = res.aprobada ?? res.aprobado;
+      if (ok) { R.son.aplausos(); ui.confeti(['#1c9a50', '#ffffff', '#f6b40e']); } else R.son.abucheo();
+      cont.appendChild(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, ok ? '🎉 ¡Seguir!' : 'Seguir'));
+      const b = cont.querySelector('.boton');
+      if (b) b.focus({ preventScroll: true });
+    };
+    ui.abrirCapa(h('div', { class: 'pila' }, h('h2', { class: 'centro' }, '🗳️ ' + titulo), cont), { sinFoco: true });
+    siguiente();
+  };
+
+  // ── Momentos: presupuesto anual y decreto que se cae ──
+  ui.momentos = ui.momentos || {};
+  ui.momentos.presupuesto = function (s, m, listo) {
+    const ley = con.leyPresupuesto(s);
+    const p = con.porotos(s, ley);
+    const def = -R.eco.resultado(s);
+    const votarYa = (conFondos) => {
+      const antes = s.gob.aprob;
+      const v = con.votarPresupuesto(s, conFondos);
+      R.guardar(s);
+      ui.animarVotacion(s, ley.nombre, v.res, () => {
+        ui.mostrarResultado(s, { txt: v.ok ? '📒 Presupuesto aprobado: los mercados se calman' : '📒 Presupuesto rechazado: gobernás con el del año pasado', bueno: v.ok, aplicado: v.aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob });
+        listo();
+      });
+    };
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, '📒 ' + ley.nombre),
+      h('p', null, 'Cada noviembre el Congreso vota tu presupuesto. ' + (def > 1 ? 'Con mucho déficit cuesta más que lo aprueben.' : 'Con las cuentas ordenadas es más fácil.')),
+      h('div', { class: 'tarjeta plana suave pila' },
+        h('div', { class: 'fila entre' }, h('b', null, 'Diputados'), h('span', { class: 'chip ' + (p.diputados.si >= p.diputados.necesarios ? 'bien' : 'mal') }, '~' + p.diputados.si + ' de ' + p.diputados.necesarios)),
+        h('div', { class: 'fila entre' }, h('b', null, 'Senado'), h('span', { class: 'chip ' + (p.senado.si >= p.senado.necesarios ? 'bien' : 'mal') }, '~' + p.senado.si + ' de ' + p.senado.necesarios))),
+      h('div', { class: 'fila envolver chico' }, h('span', null, 'Si se aprueba:'), ui.chipsEfectos(R.gob.describirEfectos(s, con.EF_PRESUPUESTO.si), { compacto: true })),
+      h('div', { class: 'fila envolver chico' }, h('span', null, 'Si se rechaza:'), ui.chipsEfectos(R.gob.describirEfectos(s, con.EF_PRESUPUESTO.no), { compacto: true })),
+      h('button', { class: 'boton grande ancho', onclick: () => votarYa(false) }, '🗳️ Que voten'),
+      h('button', { class: 'boton sec ancho', onclick: () => votarYa(true) }, '💸 Repartir fondos a provincias y votar (1,5%)')));
+  };
+
+  ui.momentos.dnu_cae = function (s, m, listo) {
+    const ley = R.LEY[m.ley];
+    const aplicado = R.gob.aplicarEfectos(s, con.efDnuCae);
+    R.diario(s, '⚖️', 'La Justicia cuestiona tu decreto: ' + ley.nombre, 'ley');
+    ui.abrirCapa(h('div', { class: 'resultado-grande' },
+      h('div', { class: 'em' }, '⚖️'),
+      h('div', { class: 'txt' }, 'La oposición y los jueces cuestionan tu decreto de ' + ley.nombre.toLowerCase()),
+      ui.chipsEfectos(R.describirAplicado(s, aplicado)),
+      h('p', { class: 'chico suave' }, 'El decreto sigue vigente, pero te costó caro.'),
+      h('button', { class: 'boton grande ancho', onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶')));
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/provincias.js ──
+// Provincias: mapa con los gobernadores, cómo te llevás con cada uno y qué te piden.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+  const con = R.congreso;
+
+  const idx = ui.PESTANAS_GOB.findIndex((p) => p.id === 'diario');
+  ui.PESTANAS_GOB.splice(idx, 0, { id: 'provincias', emoji: '🗺️', nombre: 'Provincias' });
+  ui.panelesGob.provincias = (s) => panelProvincias(s, ui.vista && ui.vista.provSel);
+
+  const relTxt = (r) => (r >= 70 ? '😊 Aliado' : r >= 40 ? '😐 Ni fu ni fa' : '😠 Enojado');
+
+  function panelProvincias(s, sel) {
+    const G = s.gob;
+    const info = h('div', { class: 'pila' });
+    const pintarInfo = (id) => {
+      if (!id || !R.PROV[id]) {
+        info.replaceChildren(h('p', { class: 'centro suave chico' }, '👆 Tocá una provincia para hablar con su gobernador'));
+        return;
+      }
+      info.replaceChildren(fichaProvincia(s, id, () => ui.refrescar()));
+    };
+    const mapa = R.ui.mapa({
+      sinMalvinas: false,
+      sel,
+      colorDe: (id) => {
+        if (!R.PROV[id]) return null;
+        const g = G.gobernadores[id];
+        const p = R.partidoInfo(s, g.partido);
+        return ui.aclarar(p.color, g.partido === 'YO' ? 0.1 : 0.45);
+      },
+      valorDe: (id) => (R.PROV[id] ? (G.gobernadores[id].rel >= 70 ? '😊' : G.gobernadores[id].rel >= 40 ? '😐' : '😠') : null),
+      alTocar: (id) => { R.son.toque(); ui.vista = Object.assign({}, ui.vista, { provSel: id }); ui.refrescar(); },
+    });
+    pintarInfo(sel);
+    const cuenta = {};
+    for (const p of R.PROVINCIAS) cuenta[G.gobernadores[p.id].partido] = (cuenta[G.gobernadores[p.id].partido] || 0) + 1;
+    const aliados = R.PROVINCIAS.filter((p) => G.gobernadores[p.id].rel >= 70).length;
+    const pedidos = R.PROVINCIAS.filter((p) => G.gobernadores[p.id].rel < 40).length;
+    const pc = ui.esPC();
+    const izq = h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'titulo-seccion' }, '🗺️ Gobernadores'),
+      h('div', { class: 'fila envolver', style: { gap: '6px' } },
+        h('span', { class: 'chip bien' }, '😊 ' + aliados + ' aliados'),
+        h('span', { class: 'chip mal' }, '😠 ' + pedidos + ' enojados')),
+      mapa,
+      h('div', { class: 'leyenda' }, Object.entries(cuenta).sort((a, b) => b[1] - a[1]).map(([id, n]) => {
+        const p = R.partidoInfo(s, id);
+        return h('span', { class: 'chip', style: { background: ui.aclarar(p.color, id === 'YO' ? 0.1 : 0.45) } }, p.simbolo + ' ' + p.sigla + ' ' + n);
+      })));
+    const der = h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '🤝 Hablá con un gobernador'), info,
+      h('p', { class: 'chico suave' }, 'Un gobernador contento hace que sus diputados y senadores te voten las leyes. Si le das justo lo que pide, rinde más.'));
+    if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
+    return h('div', { class: 'pila' }, izq, der);
+  }
+
+  function fichaProvincia(s, id, alHacer) {
+    const G = s.gob;
+    const g = G.gobernadores[id];
+    const p = R.partidoInfo(s, g.partido);
+    const pide = R.PEDIDOS[g.pide];
+    const voto = s.elecciones.general && s.elecciones.general.prov[id] ? s.elecciones.general.prov[id].YO : null;
+    return h('div', { class: 'tarjeta plana suave pila', style: { gap: '8px' } },
+      h('div', { class: 'fila' },
+        R.ui.avatar(g.avatar, { size: 64, humor: g.rel >= 70 ? 'feliz' : g.rel >= 40 ? 'normal' : 'enojado', fondo: ui.aclarar(p.color, 0.6) }),
+        h('div', { style: { minWidth: 0 } },
+          h('b', { style: { fontFamily: 'var(--f-titulo)', fontWeight: 400, fontSize: '20px' } }, R.PROV[id].nombre),
+          h('div', { class: 'chico' }, 'Gobernador/a ' + g.nombre),
+          h('span', { class: 'chip', style: { background: ui.aclarar(p.color, 0.5) } }, p.simbolo + ' ' + p.sigla))),
+      h('div', { class: 'fila entre' }, h('span', { class: 'chico', style: { fontWeight: 900 } }, relTxt(g.rel)),
+        h('div', { class: 'barra', style: { flex: 1, maxWidth: '60%' } }, h('i', { style: { width: g.rel + '%', background: g.rel >= 70 ? 'var(--bien)' : g.rel >= 40 ? 'var(--sol)' : 'var(--mal)' } }))),
+      h('div', { class: 'fila envolver', style: { gap: '6px' } },
+        h('span', { class: 'chip sol' }, '🙏 Pide: ' + pide.emoji + ' ' + pide.txt),
+        voto !== null ? h('span', { class: 'chip' }, '🗳️ Te votó el ' + R.fmt(voto) + '%') : null,
+        h('span', { class: 'chip' }, '🏛️ ' + R.PROV[id].dip + ' diputados')),
+      h('div', { class: 'acciones-prov' }, con.ACC_PROV.map((a) => {
+        const b = con.bloqueoProv(s, id, a);
+        const justo = g.pide === a.id;
+        return h('button', { class: 'boton mini ' + (justo ? '' : 'sec'), disabled: b ? true : null, onclick: () => {
+          const r = con.accionProvincia(s, id, a.id);
+          if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+          R.son.bien();
+          R.guardar(s);
+          const ef = R.describirAplicado(s, r.aplicado);
+          ef.unshift({ emoji: '❤️', nombre: g.nombre, sube: true, bueno: true, flechas: Math.min(3, Math.ceil(r.subir / 8)) });
+          ui.aviso(a.emoji + ' ' + r.txt, { tipo: 'bien', efectos: ef });
+          alHacer();
+        } }, (justo ? '🙏 ' : '') + a.emoji + ' ' + a.nombre + ' · ' + (a.costo.pc ? '⭐' + a.costo.pc : '💸' + R.fmt(a.costo.gasto, 1) + '%'));
+      })),
+      con.bloqueoProv(s, id, con.ACC_PROV[2]) && s.mes - g.enfr < 3 ? h('p', { class: 'chico suave' }, '⏳ Ya hablaste hace poco con este gobernador.') : null);
   }
 })(globalThis.R = globalThis.R || {});
 

@@ -103,7 +103,8 @@
   eco.recaudacion = (s) => {
     const e = s.eco;
     const evasion = 1 - 0.012 * Math.max(0, e.desempleo - 8) - 0.002 * Math.max(0, e.inflAnual - 60) / 10;
-    return eco.IMPUESTOS[e.impuestos].recauda * Math.max(0.8, evasion) + eco.RETENCIONES[e.retenciones].recauda * eco.factorExpo(s);
+    const extra = s.gob && s.gob.bonusRecauda ? s.gob.bonusRecauda : 0;
+    return eco.IMPUESTOS[e.impuestos].recauda * Math.max(0.8, evasion) + extra + eco.RETENCIONES[e.retenciones].recauda * eco.factorExpo(s);
   };
   eco.resultado = (s) => eco.recaudacion(s) - eco.gastoTotal(s.eco); // + superávit, − déficit (% PBI anual)
   eco.participacion = (e, id) => (eco.gastoArea(e, id) / eco.gastoPrimario(e)) * 100; // % del presupuesto
