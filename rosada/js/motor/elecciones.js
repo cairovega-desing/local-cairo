@@ -9,8 +9,8 @@
     return {
       dip: { 2025: Object.assign({}, R.CONGRESO_INICIAL.diputados) },
       sen: {
-        2023: { MNP: 10, PL: 6, AR: 2, UCF: 4, PROV: 2 },
-        2025: { MNP: 10, PL: 7, AR: 2, UCF: 3, PROV: 2 },
+        2023: { MNP: 11, PL: 4, AR: 3, UCF: 4, PROV: 2 }, // grupo B (se renueva en 2029)
+        2025: { PL: 12, MNP: 8, PROV: 2, AR: 1, UCF: 1 }, // grupo C (se renueva en 2031)
       },
     };
   };

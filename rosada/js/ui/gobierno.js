@@ -233,7 +233,7 @@
           h('div', { class: 'cab' }, h('span', { class: 'ic' }, a.emoji), h('span', { class: 'nom' }, a.nombre)),
           h('div', { class: 'desc' }, a.desc),
           ui.chipsEfectos(R.gob.describirEfectos(s, ef), { compacto: true, antes: h('span', { class: 'chip sol' }, '⭐ ' + a.pc) }),
-          a.azar ? h('span', { class: 'chip', style: { alignSelf: 'flex-start', fontSize: '12px' } }, '🎲 ' + Math.round(a.azar.p * 100) + '% de que salga mal') : null,
+          a.azar ? ui.riesgos(s, [{ p: a.azar.p, bueno: false, txt: 'Puede salir mal', ef: a.azar.ef }]) : null,
           b ? h('div', { class: 'bloq' }, b) : null);
       })));
   }

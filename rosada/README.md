@@ -15,8 +15,8 @@ La partida se guarda sola en el dispositivo.
 
 | Parte | Qué hacés |
 |---|---|
-| 🏴 Crear partido | Nombre, color, símbolo, ideas (Estado ↔ mercado, dialoguista ↔ confrontativo) y tu candidato/a con avatar. |
-| 🎯 Campaña | 3 acciones por mes (actos por provincia, tele, redes, figuras, alianzas…), noticias, encuesta y mapa. |
+| 🏴 Crear partido | Nombre, **bandera** (diseño, colores, emblema y sigla), ideas (Estado ↔ mercado, dialoguista ↔ confrontativo) y tu candidato/a con avatar. |
+| 🎯 Campaña | Contra los partidos reales (LLA, peronismo, PRO, UCR, FIT). 3 acciones por mes, noticias, encuesta y **mapa real** de las provincias. Cada riesgo muestra su % y qué pasa si sale mal. |
 | 🗳️ Elecciones | PASO, generales (45 % o 40 + 10), debate tipo piedra-papel-tijera, ballotage, noche electoral animada y bancas. |
 | 🏛️ Gobierno | Presupuesto por área **en % del gasto**, impuestos, retenciones, déficit (emitir o deuda), 6 grupos de gente con cara, aprobación y crisis. |
 | 📜 Congreso | 23 leyes, «contamos los porotos», negociar con bloques, decretos, presupuesto anual, votación banca por banca y juicio político. |

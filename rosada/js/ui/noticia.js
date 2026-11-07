@@ -48,7 +48,7 @@
         return h('button', { class: 'opcion-noticia', disabled: o.bloqueo ? true : null, onclick: () => elegir(o) },
           h('div', { class: 'cab' }, h('span', { class: 'txt' }, o.txt), h('span', { class: 'fila', style: { gap: '4px' } }, ui.costoChips(o.costo), h('span', { class: 'tecla solo-pc' }, String(idx + 1)))),
           efectos.length ? ui.chipsEfectos(efectos) : h('span', { class: 'chico suave' }, 'Sin efectos grandes'),
-          o.azar ? h('span', { class: 'chip', style: { alignSelf: 'flex-start' } }, '🎲 ' + Math.round(o.azar.p * 100) + (o.azar.bueno ? '% de que salga mejor' : '% de que salga mal')) : null,
+          o.azar ? ui.riesgos(s, [{ p: o.azar.p, bueno: o.azar.bueno, txt: o.azar.bueno ? 'Puede salir mejor' : 'Puede salir mal', ef: o.azar.ef }]) : null,
           o.bloqueo ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, '🚫 ' + o.bloqueo) : null);
       }))), { clase: 'diario-hoja' });
   };

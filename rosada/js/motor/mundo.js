@@ -190,6 +190,17 @@
     { id: 'paz', emoji: '🕊️', nombre: 'Pedir la paz', desc: 'Termina la guerra', costo: {} },
   ];
 
+  // Probabilidad de retroceder con cada orden (la misma cuenta que mun.orden).
+  const fi = (z) => 1 / (1 + Math.exp(-1.702 * z)); // aproximación de la normal acumulada
+  mun.probRetroceso = function (s, id) {
+    const W = s.mundo.guerra;
+    if (!W || id === 'paz') return 0;
+    const F = mun.fuerzas(s, W.pais);
+    const media = id === 'ofensiva' ? 15 * (F.ratio - 0.85) : 6 * (F.ratio - 1.05);
+    const desvio = id === 'ofensiva' ? 7 : 4;
+    return R.clamp(fi(-media / desvio), 0.01, 0.99);
+  };
+
   // Una orden de guerra (se da cada mes). Devuelve { txt, delta, fin?, aplicado }.
   mun.orden = function (s, id) {
     const W = s.mundo.guerra;

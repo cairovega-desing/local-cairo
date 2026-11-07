@@ -13,8 +13,7 @@
       paso: 0,
       nombre: nombre.nombre,
       sigla: nombre.sigla,
-      color: R.COLORES_PARTIDO[Math.floor(Math.random() * R.COLORES_PARTIDO.length)],
-      simbolo: R.SIMBOLOS_PARTIDO[Math.floor(Math.random() * R.SIMBOLOS_PARTIDO.length)],
+      bandera: R.BANDERA.azar(),
       ideo: 0,
       estilo: 0,
       lider: R.nombreLiderAzar(),
@@ -31,7 +30,7 @@
     const nodo = h('main', { class: 'pila', style: { paddingTop: '8px' } },
       h('div', { class: 'progreso-pasos', 'aria-label': 'Paso ' + (b.paso + 1) + ' de 4' }, [0, 1, 2, 3].map((i) => h('i', { class: i <= b.paso ? 'hecho' : '' }))),
       h('div', { class: 'fila', style: { justifyContent: 'center', padding: '6px 0 10px' } },
-        ui.escudo({ color: b.color, simbolo: b.simbolo, sigla: b.sigla || '?' }, true)),
+        ui.escudo(infoBorrador(b), true)),
       pasos[b.paso](),
       h('div', { class: 'fila', style: { marginTop: '6px' } },
         h('button', { class: 'boton sec', onclick: () => { R.son.toque(); if (b.paso === 0) ui.irPortada(); else { b.paso--; pintar(); } } }, b.paso === 0 ? '✕' : '◀'),
@@ -60,18 +59,39 @@
       h('button', { class: 'boton sec', onclick: () => { const n = R.nombrePartidoAzar(); b.nombre = n.nombre; b.sigla = n.sigla; R.son.toque(); pintar(); } }, '🎲 Inventame uno'));
   }
 
+  function infoBorrador(b) {
+    return { sigla: b.sigla || '?', nombre: b.nombre, bandera: b.bandera, color: R.BANDERA.principal(b.bandera), simbolo: R.BANDERA.simbolo(b.bandera) };
+  }
+
+  // Editor de bandera: diseño, colores, emblema y sigla.
   function pasoColor() {
     const b = ui.borrador;
-    return h('section', { class: 'tarjeta pila' },
-      h('h2', null, 'Color y símbolo'),
-      h('div', { class: 'etiqueta' }, 'Color'),
-      h('div', { class: 'grilla-opciones' }, R.COLORES_PARTIDO.map((c) =>
-        h('button', { class: 'opcion-redonda' + (b.color === c ? ' elegida' : ''), style: { background: c }, 'aria-label': 'Color ' + c,
-          onclick: () => { b.color = c; R.son.toque(); pintar(); } }))),
-      h('div', { class: 'etiqueta' }, 'Símbolo'),
-      h('div', { class: 'grilla-opciones' }, R.SIMBOLOS_PARTIDO.map((sym) =>
-        h('button', { class: 'opcion-redonda' + (b.simbolo === sym ? ' elegida' : ''), 'aria-label': 'Símbolo ' + sym,
-          onclick: () => { b.simbolo = sym; R.son.toque(); pintar(); } }, sym))));
+    const B = b.bandera;
+    const cambiar = (fn) => { fn(); R.son.toque(); pintar(); };
+    const patron = R.BANDERA.PATRONES.find((p) => p.id === B.patron) || R.BANDERA.PATRONES[0];
+    const nombresColor = patron.id === 'triangulo' ? ['Arriba', 'Abajo', 'Triángulo'] : patron.id === 'disco' ? ['Fondo', 'Disco'] : patron.id === 'v3' ? ['Izquierda', 'Centro', 'Derecha'] : patron.n === 1 ? ['Fondo'] : ['Arriba', patron.n === 3 ? 'Centro' : 'Abajo', 'Abajo'];
+    const emblemaVista = (e) => {
+      if (e === 'ninguno') return h('span', { style: { fontSize: '13px', fontWeight: 900 } }, 'Sin');
+      if (e === 'sol' || e === 'estrella' || e === 'estrellas') return R.ui.banderaPartido({ patron: 'liso', colores: ['#74acdf'], emblema: e }, { ancho: 36, sinBorde: true });
+      return e;
+    };
+    return h('section', { class: 'tarjeta pila editor-bandera' },
+      h('div', { class: 'fila entre' }, h('h2', null, 'Tu bandera'),
+        h('button', { class: 'boton mini sec', onclick: () => cambiar(() => { b.bandera = R.BANDERA.azar(); }) }, '🎲 Al azar')),
+      h('div', { class: 'etiqueta' }, 'Diseño'),
+      h('div', { class: 'patrones' }, R.BANDERA.PATRONES.map((p) =>
+        h('button', { class: 'opcion' + (B.patron === p.id ? ' elegida' : ''), 'aria-label': 'Diseño ' + p.nombre, onclick: () => cambiar(() => { B.patron = p.id; }) },
+          R.ui.banderaPartido({ patron: p.id, colores: B.colores, emblema: 'ninguno' }, { ancho: 54 }), p.nombre))),
+      h('div', { class: 'etiqueta' }, 'Colores'),
+      Array.from({ length: patron.n }, (_, i) => h('div', { class: 'fila-color' },
+        h('span', { class: 'chico', style: { fontWeight: 900 } }, nombresColor[i] || 'Color ' + (i + 1)),
+        h('div', { class: 'paleta' }, R.BANDERA.COLORES.map((col) =>
+          h('button', { class: (B.colores[i] === col.c ? 'elegida' : ''), style: { background: col.c }, title: col.n, 'aria-label': nombresColor[i] + ': ' + col.n,
+            onclick: () => cambiar(() => { B.colores[i] = col.c; }) }))))),
+      h('div', { class: 'etiqueta' }, 'Emblema'),
+      h('div', { class: 'emblemas' }, R.BANDERA.EMBLEMAS.map((e) =>
+        h('button', { class: B.emblema === e ? 'elegida' : '', 'aria-label': 'Emblema ' + e, onclick: () => cambiar(() => { B.emblema = e; }) }, emblemaVista(e)))),
+      h('button', { class: 'boton sec', onclick: () => cambiar(() => { B.sigla = !B.sigla; }) }, B.sigla ? '✅ Con la sigla en la bandera' : '⬜ Sin sigla en la bandera'));
   }
 
   function pasoIdeas() {
@@ -108,11 +128,12 @@
 
   function pasoCandidato() {
     const b = ui.borrador;
-    const vista = h('div', { id: 'vista-avatar' }, R.ui.avatar(b.avatar, { size: 104, humor: 'feliz', fondo: ui.aclarar(b.color, 0.65) }));
+    const fondoAv = ui.aclarar(R.BANDERA.principal(b.bandera), 0.65);
+    const vista = h('div', { id: 'vista-avatar' }, R.ui.avatar(b.avatar, { size: 104, humor: 'feliz', fondo: fondoAv }));
     const ciclo = (clave, etiqueta, n) => h('button', { class: 'boton mini sec', onclick: () => {
       b.avatar[clave] = ((b.avatar[clave] || 0) + 1) % n;
       R.son.toque();
-      vista.replaceChildren(R.ui.avatar(b.avatar, { size: 104, humor: 'feliz', fondo: ui.aclarar(b.color, 0.65) }));
+      vista.replaceChildren(R.ui.avatar(b.avatar, { size: 104, humor: 'feliz', fondo: fondoAv }));
     } }, etiqueta);
     return h('section', { class: 'tarjeta pila' },
       h('h2', null, 'Tu candidato/a'),
@@ -133,8 +154,8 @@
 
   function refrescarEscudo() {
     const b = ui.borrador;
-    const viejo = document.querySelector('.escudo.grande');
-    if (viejo) viejo.replaceWith(ui.escudo({ color: b.color, simbolo: b.simbolo, sigla: b.sigla || '?' }, true));
+    const viejo = document.querySelector('.escudo-bandera.grande');
+    if (viejo) viejo.replaceWith(ui.escudo(infoBorrador(b), true));
   }
   function refrescarBoton() {
     const btn = document.querySelector('main .boton.grande');
@@ -145,13 +166,13 @@
     const b = ui.borrador;
     const s = R.nuevaPartida({
       dificultad: b.dificultad,
-      partido: { nombre: b.nombre.trim(), sigla: b.sigla.trim(), color: b.color, simbolo: b.simbolo, ideo: b.ideo / 2, estilo: b.estilo / 2 },
+      partido: { nombre: b.nombre.trim(), sigla: b.sigla.trim(), color: R.BANDERA.principal(b.bandera), simbolo: R.BANDERA.simbolo(b.bandera), bandera: b.bandera, ideo: b.ideo / 2, estilo: b.estilo / 2 },
       lider: { nombre: b.lider.trim(), avatar: b.avatar },
     });
     ui.s = s;
     R.guardar(s);
     R.son.genial();
-    ui.confeti([b.color, '#f6b40e', '#ffffff', '#6cb4ea']);
+    ui.confeti([R.BANDERA.principal(b.bandera)].concat(b.bandera.colores, ['#f6b40e']));
     ui.vista = { tab: 'acciones' };
     ui.render();
     ui.abrirCapa(h('div', { class: 'pila centro' },

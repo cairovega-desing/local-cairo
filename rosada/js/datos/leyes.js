@@ -64,11 +64,11 @@
   ];
   R.LEY = Object.fromEntries(R.LEYES.map((l) => [l.id, l]));
 
-  // Gobernadores al empezar (ficticios). El resto se define con los resultados de 2027.
+  // Partido de cada gobernación al empezar (como en 2026). Las personas son inventadas.
   R.GOBERNADORES_INICIALES = {
-    JUJ: 'UCF', SAL: 'PROV', FOR: 'MNP', CAT: 'MNP', TUC: 'MNP', CHA: 'UCF', MIS: 'PROV', LRJ: 'MNP', SGO: 'MNP', SFE: 'UCF',
+    JUJ: 'PROV', SAL: 'PROV', FOR: 'MNP', CAT: 'MNP', TUC: 'MNP', CHA: 'UCF', MIS: 'PROV', LRJ: 'MNP', SGO: 'MNP', SFE: 'PROV',
     COR: 'UCF', SJU: 'PROV', SLU: 'PROV', CBA: 'PROV', ERI: 'AR', MZA: 'UCF', LPA: 'MNP', BUE: 'MNP', CABA: 'AR', NQN: 'PROV',
-    RNE: 'PROV', CHU: 'PROV', SCR: 'MNP', TDF: 'MNP',
+    RNE: 'PROV', CHU: 'PROV', SCR: 'PROV', TDF: 'MNP',
   };
   R.PEDIDOS = {
     obras: { emoji: '🏗️', txt: 'una ruta nueva' },

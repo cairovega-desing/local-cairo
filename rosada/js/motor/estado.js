@@ -27,6 +27,7 @@
         sigla: cfg.partido.sigla,
         color: cfg.partido.color,
         simbolo: cfg.partido.simbolo,
+        bandera: cfg.partido.bandera || null,
         ideo: R.clamp(cfg.partido.ideo ?? 0, -1, 1),
         estilo: R.clamp(cfg.partido.estilo ?? 0, -1, 1),
       },

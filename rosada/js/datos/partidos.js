@@ -2,51 +2,60 @@
 (function (R) {
   'use strict';
 
+  // Partidos reales de la Argentina (escenario 2027, tras las legislativas de 2025).
+  // Los ids internos son históricos: MNP = peronismo, PL = La Libertad Avanza, AR = PRO, UCF = UCR,
+  // FT = Frente de Izquierda, PROV = Provincias Unidas (bloque de gobernadores, no tiene candidato presidencial).
+  // Los candidatos y gobernadores son personajes inventados: los partidos son reales, las personas no.
   // ideo: −1 Estado presente … +1 mercado libre. base: intención de voto nacional al empezar.
-  // fuerte: bonus por provincia. debate: estilo preferido en los debates.
+  // fuerte: bonus por provincia. debate: estilo preferido en los debates. bandera: cómo se dibuja su bandera.
   R.PARTIDOS = {
     MNP: {
-      id: 'MNP', sigla: 'MNP', nombre: 'Movimiento Nacional Popular', color: '#2f7fd0', simbolo: '✌️', ideo: -0.55, base: 31,
+      id: 'MNP', sigla: 'PJ', nombre: 'Peronismo (Fuerza Patria)', color: '#2f7fd0', simbolo: '✌️', ideo: -0.55, base: 30,
+      bandera: { patron: 'h3', colores: ['#2f7fd0', '#ffffff', '#2f7fd0'], emblema: '✌️' },
       candidato: { nombre: 'Ramón Arrieta', avatar: { piel: 2, pelo: 1, colorPelo: 4, anteojos: 0, barba: 1, ropa: 0 } },
       debate: 'emocion',
-      fuerte: { FOR: 0.35, SGO: 0.4, LRJ: 0.3, CAT: 0.2, BUE: 0.15, TUC: 0.25, SCR: 0.25, CHA: 0.15, MIS: 0.1 },
+      fuerte: { FOR: 0.4, SGO: 0.4, LRJ: 0.35, CAT: 0.2, BUE: 0.15, TUC: 0.2, SCR: 0.15, LPA: 0.15, TDF: 0.15, CHA: 0.1 },
     },
     PL: {
-      id: 'PL', sigla: 'PL', nombre: 'Partido de la Libertad', color: '#7c3fc4', simbolo: '⚡', ideo: 0.9, base: 30,
+      id: 'PL', sigla: 'LLA', nombre: 'La Libertad Avanza', color: '#6c3fb5', simbolo: '🦁', ideo: 0.9, base: 34,
+      bandera: { patron: 'liso', colores: ['#6c3fb5'], emblema: '🦁', sigla: true },
       candidato: { nombre: 'Tomás Kessler', avatar: { piel: 0, pelo: 4, colorPelo: 1, anteojos: 0, barba: 0, ropa: 3 } },
       debate: 'ataque',
-      fuerte: { CBA: 0.25, MZA: 0.2, SLU: 0.15, SJU: 0.15, SAL: 0.1, TUC: 0.1, CABA: 0.05 },
+      fuerte: { CBA: 0.25, MZA: 0.25, SLU: 0.15, SJU: 0.15, SAL: 0.15, TUC: 0.1, CABA: 0.1, ERI: 0.1, CHA: 0.05 },
       oficialismo: true,
     },
     AR: {
-      id: 'AR', sigla: 'AR', nombre: 'Alianza Republicana', color: '#f0b90b', simbolo: '🏛️', ideo: 0.45, base: 15,
+      id: 'AR', sigla: 'PRO', nombre: 'PRO', color: '#f0b90b', simbolo: '🟡', ideo: 0.5, base: 9,
+      bandera: { patron: 'liso', colores: ['#f5c400'], emblema: 'ninguno', sigla: true },
       candidato: { nombre: 'Valeria Montes', avatar: { piel: 0, pelo: 2, colorPelo: 3, anteojos: 1, barba: 0, ropa: 2 } },
       debate: 'datos',
-      fuerte: { CABA: 0.5, CBA: 0.15, ERI: 0.2, SFE: 0.1, MZA: 0.15 },
+      fuerte: { CABA: 0.6, ERI: 0.25, CBA: 0.05 },
     },
     UCF: {
-      id: 'UCF', sigla: 'UCF', nombre: 'Unión Cívica Federal', color: '#d6453d', simbolo: '📜', ideo: 0.05, base: 9,
+      id: 'UCF', sigla: 'UCR', nombre: 'Unión Cívica Radical', color: '#d6453d', simbolo: '🎩', ideo: 0.05, base: 7,
+      bandera: { patron: 'h2', colores: ['#d32f2f', '#ffffff'], emblema: 'ninguno', sigla: true },
       candidato: { nombre: 'Elena Cabral', avatar: { piel: 1, pelo: 3, colorPelo: 5, anteojos: 2, barba: 0, ropa: 1 } },
       debate: 'datos',
-      fuerte: { COR: 0.6, JUJ: 0.45, MZA: 0.3, CHU: 0.15, SFE: 0.15, CAT: 0.1 },
+      fuerte: { COR: 0.55, MZA: 0.25, JUJ: 0.35, CHA: 0.25, SFE: 0.1, CAT: 0.1 },
     },
     FT: {
-      id: 'FT', sigla: 'FT', nombre: 'Frente de Trabajadores', color: '#a51c30', simbolo: '✊', ideo: -1, base: 4,
+      id: 'FT', sigla: 'FIT', nombre: 'Frente de Izquierda', color: '#a51c30', simbolo: '✊', ideo: -1, base: 4,
+      bandera: { patron: 'liso', colores: ['#c62828'], emblema: '✊', sigla: true },
       candidato: { nombre: 'Nicolás Ferro', avatar: { piel: 1, pelo: 5, colorPelo: 0, anteojos: 1, barba: 2, ropa: 4 } },
       debate: 'ataque',
-      fuerte: { NQN: 0.45, JUJ: 0.35, CABA: 0.2, SFE: 0.1, SAL: 0.1 },
+      fuerte: { NQN: 0.4, JUJ: 0.35, CABA: 0.2, SAL: 0.15, SFE: 0.05 },
     },
     PROV: {
-      id: 'PROV', sigla: 'Prov.', nombre: 'Partidos provinciales', color: '#8a96a8', simbolo: '🗺️', ideo: 0.1, base: 0,
+      id: 'PROV', sigla: 'PU', nombre: 'Provincias Unidas', color: '#13a89e', simbolo: '🗺️', ideo: 0.15, base: 0,
+      bandera: { patron: 'h2', colores: ['#13a89e', '#ffffff'], emblema: '🗺️' },
       noCompite: true,
     },
   };
   R.RIVALES = ['MNP', 'PL', 'AR', 'UCF', 'FT'];
 
-  // Bancas que NO se renuevan en 2027 (elegidas en 2025 y 2023).
+  // Bancas que NO se renuevan en 2027 (Diputados elegidos en 2025; aproximado a la composición real).
   R.CONGRESO_INICIAL = {
-    diputados: { PL: 52, MNP: 47, AR: 11, UCF: 10, FT: 3, PROV: 4 }, // 127
-    senado: { MNP: 20, PL: 13, AR: 4, UCF: 7, PROV: 4 }, // 48 (grupos B y C)
+    diputados: { PL: 60, MNP: 44, PROV: 12, AR: 4, UCF: 4, FT: 3 }, // 127
   };
 
   // Figuras para sumar a la campaña. ideo: a qué votante le gusta (−1 izq, +1 der, 0 a todos).
@@ -101,7 +110,7 @@
 
   // Datos del partido del jugador como «partido» para el Congreso y las elecciones.
   R.partidoInfo = function (s, id) {
-    if (id === 'YO') return { id: 'YO', sigla: s.partido.sigla, nombre: s.partido.nombre, color: s.partido.color, simbolo: s.partido.simbolo, ideo: s.partido.ideo };
+    if (id === 'YO') return { id: 'YO', sigla: s.partido.sigla, nombre: s.partido.nombre, color: s.partido.color, simbolo: s.partido.simbolo, ideo: s.partido.ideo, bandera: s.partido.bandera };
     return R.PARTIDOS[id];
   };
 })(globalThis.R = globalThis.R || {});

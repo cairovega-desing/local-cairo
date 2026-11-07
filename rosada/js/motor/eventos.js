@@ -65,7 +65,7 @@
           txt: texto(s, o.txt, vars),
           costo,
           ef,
-          azar: o.azar ? { p: resolverValor(s, o.azar.p, vars), bueno: !!o.azar.bueno } : null,
+          azar: o.azar ? { p: resolverValor(s, o.azar.p, vars), bueno: !!o.azar.bueno, ef: resolverValor(s, o.azar.ef, vars) || {} } : null,
           bloqueo: ev.bloqueoOpcion(s, costo, o, vars),
         };
       }),

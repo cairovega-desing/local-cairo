@@ -41,7 +41,7 @@
         h('div', { class: 'tarjeta' }, h('div', null, '🏴'), 'Fundá tu partido'),
         h('div', { class: 'tarjeta' }, h('div', null, '🗳️'), 'Ganá la elección'),
         h('div', { class: 'tarjeta' }, h('div', null, '🏛️'), 'Gobernás el país')),
-      h('p', { class: 'chico suave' }, 'Partidos y personajes ficticios. La partida se guarda en este dispositivo.'));
+      h('p', { class: 'chico suave' }, 'Partidos reales, candidatos y personajes inventados. Es un juego: no predice nada.'));
     ui.montar(nodo);
   };
 

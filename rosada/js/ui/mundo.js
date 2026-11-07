@@ -181,7 +181,11 @@
         const r = mun.orden(s, o.id);
         R.guardar(s);
         mostrarParte(s, W, antesFrente, r, antes, listo);
-      } }, h('span', { class: 'ic' }, o.emoji), h('div', null, h('b', null, o.nombre), h('div', { class: 'chico suave' }, o.desc)), h('span', { class: 'chip ' + (o.costo.gasto ? 'mal' : '') }, o.costo.gasto ? '💸 ' + o.costo.gasto + '%' : 'gratis'))))));
+      } }, h('span', { class: 'ic' }, o.emoji),
+        h('div', { class: 'pila', style: { gap: '4px' } }, h('b', null, o.nombre), h('div', { class: 'chico suave' }, o.desc),
+          o.id !== 'paz' ? h('div', { class: 'riesgo malo' }, h('span', { class: 'pct' }, '🎲 ' + Math.round(mun.probRetroceso(s, o.id) * 100) + '%'), h('span', { class: 'txt' }, 'de retroceder:'), h('span', { class: 'ef mal' }, '⚔️ frente ◀'), h('span', { class: 'ef mal' }, '👥 ▼'))
+            : h('div', { class: 'riesgo ' + (W.frente >= 55 ? 'bueno' : 'malo') }, h('span', { class: 'txt' }, W.frente >= 55 ? 'Ganás una indemnización' : 'Pagás una indemnización'))),
+        h('span', { class: 'chip ' + (o.costo.gasto ? 'mal' : '') }, o.costo.gasto ? '💸 ' + o.costo.gasto + '%' : 'gratis'))))));
   };
 
   function mostrarParte(s, W, antesFrente, r, aprobAntes, listo) {
@@ -210,29 +214,4 @@
     }
   }
 
-  // Los países anexados aparecen en el mapa de provincias.
-  const mapaOriginal = R.ui.mapa;
-  R.ui.mapa = function (opts) {
-    const s = ui.s;
-    if (s && s.mundo && opts && !opts.sinAnexos) {
-      const extra = mun.fichasMapa(s);
-      if (extra.length) {
-        const colorDe = opts.colorDe;
-        opts = Object.assign({}, opts, {
-          extra: (opts.extra || []).concat(extra),
-          colorDe: (id, especial) => {
-            const f = extra.find((x) => x.id === id);
-            if (f) return '#d9c9a3';
-            if (id === 'MLV' && s.mundo.malvinas.recuperadas) return '#bfe0f7';
-            return colorDe ? colorDe(id, especial) : null;
-          },
-        });
-      }
-    }
-    if (s && s.mundo && s.mundo.malvinas.recuperadas && opts && opts.colorDe && !opts._mlv) {
-      const c = opts.colorDe;
-      opts = Object.assign({}, opts, { _mlv: true, colorDe: (id, esp) => (id === 'MLV' ? '#9fd0f5' : c(id, esp)) });
-    }
-    return mapaOriginal(opts);
-  };
 })(globalThis.R = globalThis.R || {});

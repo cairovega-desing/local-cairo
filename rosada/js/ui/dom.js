@@ -150,12 +150,14 @@
     requestAnimationFrame(paso);
   };
 
-  // Escudo del partido: círculo de color con símbolo y sigla.
+  // Bandera del partido (tu diseño o la de cada rival) con la sigla abajo.
   ui.escudo = function (p, grande) {
-    return h('div', { class: 'escudo' + (grande ? ' grande' : ''), style: { background: p.color } },
-      h('span', null, p.simbolo), h('span', { class: 'sig' }, p.sigla));
+    const b = R.BANDERA.de(p);
+    return h('div', { class: 'escudo-bandera' + (grande ? ' grande' : '') },
+      R.ui.banderaPartido(b, { ancho: grande ? 132 : 46, sigla: p.sigla }),
+      grande ? h('span', { class: 'sig' }, p.sigla) : null);
   };
-  ui.miniEscudo = (p) => h('div', { class: 'mini-escudo', style: { background: p.color }, title: p.nombre }, p.simbolo);
+  ui.miniEscudo = (p) => h('div', { class: 'mini-bandera', title: p.nombre }, R.ui.banderaPartido(R.BANDERA.de(p), { ancho: 30, sigla: p.sigla }));
 
   // Mezcla un color con blanco (0 = color, 1 = blanco).
   ui.aclarar = function (hex, k) {

@@ -90,7 +90,7 @@ fs.mkdirSync(OUT, { recursive: true });
         await acciones.nth(i).click();
         if (await capaAbierta()) {
           if (!capturados.has('elegir')) { capturados.add('elegir'); await foto('elegir'); }
-          const hex = page.locator('#capa polygon.hex');
+          const hex = page.locator('#capa .prov');
           if (await hex.count()) {
             await hex.nth(17).click();
             const b = page.locator('#capa .boton:has-text("Hacer el acto")');
@@ -143,7 +143,7 @@ fs.mkdirSync(OUT, { recursive: true });
         }
         // Provincias: tocar Córdoba y mandarle algo
         await page.click('.pestanas button:has-text("Mapa")');
-        await page.click('polygon[data-id="CBA"]');
+        await page.click('path[data-id="CBA"]');
         await foto('provincias', true);
         const bp = page.locator('.acciones-prov .boton:not([disabled])');
         if (await bp.count()) await bp.first().click();

@@ -1,76 +1,88 @@
-// Mapa de fichas hexagonales con la forma de la Argentina (fácil de tocar en el celu).
+// Mapa real de la Argentina (formas de Natural Earth en js/datos/mapa_geo.js): provincias, Malvinas y vecinos.
+// opts: { colorDe(id), valorDe(id), alTocar(id), sel, sinMalvinas, sinVecinos }
 (function (R) {
   'use strict';
 
   R.ABREV = {
     JUJ: 'JUJ', SAL: 'SAL', FOR: 'FOR', CAT: 'CAT', TUC: 'TUC', CHA: 'CHA', MIS: 'MIS', LRJ: 'LR', SGO: 'SDE', SFE: 'SF',
     COR: 'CTES', SJU: 'SJ', SLU: 'SL', CBA: 'CBA', ERI: 'ER', MZA: 'MZA', LPA: 'LP', BUE: 'BA', CABA: 'CABA', NQN: 'NQN',
-    RNE: 'RN', CHU: 'CHU', SCR: 'SC', TDF: 'TDF', MLV: 'MLV',
+    RNE: 'RN', CHU: 'CHU', SCR: 'SC', TDF: 'TDF', MLV: 'Malvinas',
   };
+  // Ajustes a mano de dónde va el nombre (en px del mapa).
+  const AJUSTE = { SAL: [16, -12], CAT: [-5, 8], JUJ: [-2, 0], BUE: [4, 6], SFE: [0, 4], ERI: [1, 3], COR: [2, 0], MIS: [1, 2], TUC: [-1, 2], LRJ: [-2, 0], SCR: [4, 0], TDF: [8, -2], CHU: [0, -2] };
+  const NOMBRE_PAIS = { CHL: 'Chile', BOL: 'Bolivia', PRY: 'Paraguay', BRA: 'Brasil', URY: 'Uruguay', PER: 'Perú' };
 
-  const RAD = 27;
-  const W = Math.sqrt(3) * RAD;
-  const M = 6;
-
-  function centro(col, fila) {
-    return [M + W / 2 + col * W + (fila % 2 ? W / 2 : 0), M + RAD + fila * 1.5 * RAD];
-  }
-  function puntos(cx, cy, r) {
-    const p = [];
-    for (let i = 0; i < 6; i++) {
-      const a = ((60 * i - 30) * Math.PI) / 180;
-      p.push((cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1));
-    }
-    return p.join(' ');
-  }
-
-  // opts: { colorDe(id), valorDe(id), alTocar(id), sel, sinMalvinas, extra: [{id, hex, nombre, color}] }
+  R.ui = R.ui || {};
   R.ui.mapa = function (opts) {
     opts = opts || {};
     const S = R.svg;
-    const fichas = R.PROVINCIAS.map((p) => ({ id: p.id, hex: p.hex, nombre: p.nombre }));
-    if (!opts.sinMalvinas) fichas.push({ id: 'MLV', hex: R.MALVINAS.hex, nombre: R.MALVINAS.nombre, especial: true });
-    (opts.extra || []).forEach((e) => fichas.push(e));
-    let maxX = 0;
-    let maxY = 0;
-    let minX = 1e9;
-    let minY = 0;
-    fichas.forEach((f) => {
-      const [x, y] = centro(f.hex[0], f.hex[1]);
-      maxX = Math.max(maxX, x + W / 2 + M);
-      minX = Math.min(minX, x - W / 2 - M);
-      maxY = Math.max(maxY, y + RAD + M);
-      minY = Math.min(minY, y - RAD - M);
-    });
-    minX = Math.min(minX, 0);
+    const G = R.GEO;
+    const s = R.ui.s;
+    const anexados = s && s.mundo ? R.PAISES.filter((p) => s.mundo.paises[p.id].anexado).map((p) => p.id) : [];
+    const malvinasNuestras = !!(s && s.mundo && s.mundo.malvinas.recuperadas);
+    const partes = [];
+    const textos = [];
+    const tocable = (el, id, nombre) => {
+      if (!opts.alTocar) return el;
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', nombre);
+      el.addEventListener('click', () => opts.alTocar(id));
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opts.alTocar(id); } });
+      return el;
+    };
     const defs = S('defs', null,
-      S('pattern', { id: 'rayas-mlv', width: 8, height: 8, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' },
-        S('rect', { width: 8, height: 8, fill: '#ffffff' }), S('rect', { width: 4, height: 8, fill: '#9ccbf0' })));
-    const g = [];
-    // Línea de mar hasta Malvinas
-    if (!opts.sinMalvinas) {
-      const [x1, y1] = centro(1, 8);
-      const [x2, y2] = centro(R.MALVINAS.hex[0], R.MALVINAS.hex[1]);
-      g.push(S('path', { class: 'mar', d: 'M' + (x1 + 18) + ' ' + (y1 - 6) + ' Q' + (x1 + 40) + ' ' + (y2 + 10) + ' ' + (x2 - 22) + ' ' + y2 }));
-    }
-    for (const f of fichas) {
-      const [cx, cy] = centro(f.hex[0], f.hex[1]);
-      const color = f.especial && !(opts.colorDe && opts.colorDe(f.id, true)) ? 'url(#rayas-mlv)' : (opts.colorDe ? opts.colorDe(f.id) : '#ffffff') || '#ffffff';
-      const val = opts.valorDe ? opts.valorDe(f.id) : null;
-      const pol = S('polygon', {
-        class: 'hex' + (opts.sel === f.id ? ' sel' : ''), points: puntos(cx, cy, RAD - 1.5), fill: color,
-        'data-id': f.id, tabindex: opts.alTocar ? 0 : null, role: opts.alTocar ? 'button' : null, 'aria-label': f.nombre,
-      });
-      if (opts.alTocar) {
-        pol.addEventListener('click', () => opts.alTocar(f.id));
-        pol.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opts.alTocar(f.id); } });
+      S('pattern', { id: 'rayas-mlv', width: 6, height: 6, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' },
+        S('rect', { width: 6, height: 6, fill: '#ffffff' }), S('rect', { width: 3, height: 6, fill: '#9ccbf0' })));
+
+    // Países vecinos (de fondo; si los anexaste, se pintan).
+    if (!opts.sinVecinos) {
+      for (const [id, p] of Object.entries(G.paises)) {
+        const anexado = anexados.includes(id);
+        const el = S('path', { class: 'vecino' + (anexado ? ' anexado' : ''), d: p.d, fill: anexado ? (opts.colorDe && opts.colorDe(id)) || '#e6d3a3' : '#e9eef5' });
+        el.appendChild(S('title', null, NOMBRE_PAIS[id] + (anexado ? ' (anexado)' : '')));
+        partes.push(anexado ? tocable(el, id, NOMBRE_PAIS[id]) : el);
+        textos.push(S('text', { class: 'pais' + (anexado ? ' anexado' : ''), x: p.c[0], y: p.c[1], 'text-anchor': 'middle' }, anexado ? '🏴 ' + NOMBRE_PAIS[id] : NOMBRE_PAIS[id]));
       }
-      pol.appendChild(S('title', null, f.nombre));
-      g.push(pol);
-      g.push(S('text', { class: 'nom', x: cx, y: val ? cy - 2 : cy + 4, 'text-anchor': 'middle' }, f.abrev || R.ABREV[f.id] || f.id));
-      if (val) g.push(S('text', { class: 'val', x: cx, y: cy + 11, 'text-anchor': 'middle' }, val));
     }
-    return S('svg', { class: 'mapa', viewBox: minX.toFixed(0) + ' ' + minY.toFixed(0) + ' ' + (maxX - minX).toFixed(0) + ' ' + (maxY - minY).toFixed(0), role: 'group', 'aria-label': 'Mapa de provincias' }, defs, ...g);
+
+    // Provincias.
+    for (const prov of R.PROVINCIAS) {
+      const g = G.prov[prov.id];
+      if (!g) continue;
+      const color = (opts.colorDe && opts.colorDe(prov.id)) || '#ffffff';
+      const el = S('path', { class: 'prov' + (opts.sel === prov.id ? ' sel' : ''), d: g.d, fill: color, 'data-id': prov.id });
+      el.appendChild(S('title', null, prov.nombre));
+      partes.push(tocable(el, prov.id, prov.nombre));
+      const val = opts.valorDe ? opts.valorDe(prov.id) : null;
+      if (prov.id === 'CABA') {
+        // Muy chiquita: un círculo para tocar y el nombre afuera.
+        const [cx, cy] = g.c;
+        const circ = S('circle', { class: 'prov caba' + (opts.sel === 'CABA' ? ' sel' : ''), cx, cy, r: 4.5, fill: color, 'data-id': 'CABA' });
+        circ.appendChild(S('title', null, prov.nombre));
+        partes.push(tocable(circ, 'CABA', prov.nombre));
+        textos.push(S('line', { x1: cx + 4, y1: cy - 2, x2: cx + 13, y2: cy - 9, class: 'guia-txt' }));
+        textos.push(S('text', { class: 'nom', x: cx + 14, y: cy - 10, 'text-anchor': 'start' }, 'CABA' + (val ? ' ' + val : '')));
+        continue;
+      }
+      const [ax, ay] = AJUSTE[prov.id] || [0, 0];
+      const x = g.c[0] + ax;
+      const y = g.c[1] + ay;
+      const chica = g.w < 24 || g.h < 20;
+      textos.push(S('text', { class: 'nom' + (chica ? ' chica' : ''), x, y: val ? y - 1 : y + 3, 'text-anchor': 'middle' }, R.ABREV[prov.id]));
+      if (val) textos.push(S('text', { class: 'val' + (chica ? ' chica' : ''), x, y: y + 8, 'text-anchor': 'middle' }, val));
+    }
+
+    // Malvinas.
+    if (!opts.sinMalvinas && G.malvinas) {
+      const c = opts.colorDe && opts.colorDe('MLV', true);
+      const el = S('path', { class: 'prov mlv', d: G.malvinas.d, fill: c || (malvinasNuestras ? '#9fd0f5' : 'url(#rayas-mlv)'), 'data-id': 'MLV' });
+      el.appendChild(S('title', null, 'Islas Malvinas'));
+      partes.push(tocable(el, 'MLV', 'Islas Malvinas'));
+      textos.push(S('text', { class: 'nom chica', x: G.malvinas.c[0], y: G.malvinas.c[1] + 13, 'text-anchor': 'middle' }, 'Malvinas'));
+    }
+
+    return S('svg', { class: 'mapa', viewBox: '0 0 ' + G.w + ' ' + G.h, role: 'group', 'aria-label': 'Mapa de la Argentina' }, defs, ...partes, ...textos);
   };
 
   // Escala de color de 0 a 100: blanco → color del partido.

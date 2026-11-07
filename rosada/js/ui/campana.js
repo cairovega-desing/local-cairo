@@ -91,7 +91,7 @@
       h('div', { class: 'desc' }, a.desc),
       prev ? ui.chipsEfectos(prev, { compacto: true, antes: chipCosto })
         : h('div', { class: 'efectos' }, chipCosto, h('span', { class: 'chip' }, a.elegir === 'provincia' ? '📍 Elegís dónde' : '👆 Elegís')),
-      a.azar ? h('span', { class: 'chip', style: { alignSelf: 'flex-start', fontSize: '12px' } }, '🎲 tiene riesgo') : null,
+      a.riesgos && (!a.elegir || a.elegir === 'rival') ? ui.riesgos(s, a.riesgos(s)) : null,
       bloq && bloq !== 'Sin agenda este mes' ? h('div', { class: 'bloq' }, bloq) : null);
   }
 
@@ -100,9 +100,9 @@
     if (!a.elegir) return hacer(s, a.id);
     if (a.elegir === 'provincia') return elegirProvincia(s, a);
     const items = {
-      plata: () => a.opciones.map((o) => ({ id: o.id, emoji: o.emoji, nombre: o.nombre, ef: o.ef, costo: 0, nota: o.riesgo ? '⚠️ riesgo de escándalo' : null })),
-      figura: () => R.FIGURAS.filter((f) => !s.camp.figuras.includes(f.id)).map((f) => ({ id: f.id, emoji: f.emoji, nombre: f.nombre, ef: a.calc(s, f.id), costo: f.costo, nota: f.riesgo ? '🎲 puede armar polémica' : null })),
-      rival: () => R.RIVALES.map((id) => ({ id, emoji: R.PARTIDOS[id].simbolo, nombre: R.elec.nombre(s, id) + ' · ' + R.PARTIDOS[id].sigla, ef: a.calc(s, id), costo: a.costo, nota: '🎲 25% de que te salga mal' })),
+      plata: () => a.opciones.map((o) => ({ id: o.id, emoji: o.emoji, nombre: o.nombre, ef: o.ef, costo: 0, riesgos: o.riesgos })),
+      figura: () => R.FIGURAS.filter((f) => !s.camp.figuras.includes(f.id)).map((f) => ({ id: f.id, emoji: f.emoji, nombre: f.nombre, ef: a.calc(s, f.id), costo: f.costo, riesgos: a.riesgos(s, f.id) })),
+      rival: () => R.RIVALES.map((id) => ({ id, emoji: R.PARTIDOS[id].simbolo, nombre: R.elec.nombre(s, id) + ' · ' + R.PARTIDOS[id].sigla, ef: a.calc(s, id), costo: a.costo, riesgos: a.riesgos(s, id) })),
       aliado: () => R.ALIADOS.map((x) => ({ id: x.id, emoji: x.emoji, nombre: x.nombre, ef: a.calc(s, x.id), costo: 0, nota: R.REGIONES[x.region].emoji + ' fuerte en ' + R.REGIONES[x.region].nombre })),
     }[a.elegir]();
     ui.abrirCapa(h('div', { class: 'pila' },
@@ -113,7 +113,7 @@
         onclick: () => { ui.cerrarCapa(); hacer(s, a.id, it.id); },
       },
       h('span', { class: 'ic' }, it.emoji),
-      h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, it.nombre), ui.chipsEfectos(R.describirEfectos(s, it.ef), { compacto: true }), it.nota ? h('span', { class: 'chico suave' }, it.nota) : null),
+      h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, it.nombre), ui.chipsEfectos(R.describirEfectos(s, it.ef), { compacto: true }), ui.riesgos(s, it.riesgos), it.nota ? h('span', { class: 'chico suave' }, it.nota) : null),
       h('span', { class: 'chip ' + (it.costo ? 'sol' : '') }, it.costo ? '💰 ' + it.costo : 'gratis'))))), { cerrable: true });
   }
 
@@ -135,6 +135,7 @@
           h('span', { class: 'chip ' + (af > 1.1 ? 'bien' : af < 0.85 ? 'mal' : '') }, af > 1.1 ? '💚 Les gustan tus ideas' : af < 0.85 ? '💔 Piensan distinto' : '🤝 Afinidad media'),
           vis ? h('span', { class: 'chip' }, '🎤 ' + vis + (vis === 1 ? ' visita' : ' visitas') + ' · rinde menos') : null),
         ui.chipsEfectos(R.describirEfectos(s, a.calc(s, id))),
+        ui.riesgos(s, a.riesgos(s, id)),
         h('button', { class: 'boton ancho', onclick: () => { ui.cerrarCapa(); hacer(s, a.id, id); }, disabled: R.camp.bloqueo(s, a, id) ? true : null }, '🎤 Hacer el acto · 💰 ' + a.costo)));
     };
     const mapa = R.ui.mapa({

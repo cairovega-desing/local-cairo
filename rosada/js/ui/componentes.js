@@ -75,6 +75,21 @@
       h('p', { class: 'chico suave centro' }, 'La partida se guarda sola en este dispositivo.')), { cerrable: true });
   };
 
+  // Riesgos a la vista: «🎲 25% Te comen: ❤️▼▼» (y la suerte: «🍀 15% Plaza llena: 📍▲»).
+  ui.riesgos = function (s, lista) {
+    lista = (lista || []).filter((r) => r && r.p > 0);
+    if (!lista.length) return null;
+    return h('div', { class: 'riesgos' }, lista.map((r) => {
+      const todos = R.describirEfectosFase(s, r.ef || {});
+      const efs = todos.filter((e) => (r.bueno ? e.bueno : !e.bueno));
+      return h('div', { class: 'riesgo ' + (r.bueno ? 'bueno' : 'malo') },
+        h('span', { class: 'pct' }, (r.bueno ? '🍀 ' : '🎲 ') + Math.round(r.p * 100) + '%'),
+        h('span', { class: 'txt' }, r.txt + ':'),
+        ui.chipsEfectos(efs.length ? efs : todos, { compacto: true }),
+        r.nota ? h('span', { class: 'chico suave' }, r.nota) : null);
+    }));
+  };
+
   // Guía corta de primeros pasos (se muestra una vez por dispositivo).
   ui.guia = function (clave, titulo, pasos) {
     if (R.pref('guia_' + clave)) return null;

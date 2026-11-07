@@ -25,10 +25,11 @@
           militancia: 1,
         };
       },
+      riesgos: (s, provId) => [{ p: 0.15, bueno: true, txt: 'Plaza llena', ef: { presencia: { [provId || 'todas']: 8 } } }],
       hacer(s, provId) {
         const ef = this.calc(s, provId);
         s.camp.visitas[provId] = (s.camp.visitas[provId] || 0) + 1;
-        const lleno = R.chance(s, 0.15);
+        const lleno = R.chance(s, this.riesgos(s, provId)[0].p);
         if (lleno) ef.presencia[provId] += 8;
         return { ef, txt: lleno ? '¡Plaza llena en ' + R.PROV[provId].corto + '! 🙌' : 'Acto en ' + R.PROV[provId].corto, bueno: true };
       },
@@ -47,20 +48,16 @@
       calc(s) {
         return { conocen: R.round(4 * (1 - s.camp.conocen / 125), 1) };
       },
+      riesgos: (s) => [
+        { p: R.round(0.14 + 0.05 * s.partido.estilo, 3), bueno: true, txt: 'Se hace viral', ef: { conocen: 8, simpatia: 2 } },
+        { p: R.round(0.1 + 0.05 * s.partido.estilo, 3), bueno: false, txt: 'Metés la pata', ef: { simpatia: -3 } },
+      ],
       hacer(s) {
         const ef = this.calc(s);
+        const [bien, mal] = this.riesgos(s);
         const r = R.rand(s);
-        const pBien = 0.14 + 0.05 * s.partido.estilo;
-        const pMal = 0.1 + 0.05 * s.partido.estilo;
-        if (r < pBien) {
-          ef.conocen += 8;
-          ef.simpatia = 2;
-          return { ef, txt: '¡Se hizo viral! 🔥', bueno: true, especial: true };
-        }
-        if (r > 1 - pMal) {
-          ef.simpatia = -3;
-          return { ef, txt: 'Un posteo tuyo cae mal 😬', bueno: false };
-        }
+        if (r < bien.p) return { ef: R.sumarEfectos(ef, bien.ef), txt: '¡Se hizo viral! 🔥', bueno: true, especial: true };
+        if (r > 1 - mal.p) return { ef: R.sumarEfectos(ef, mal.ef), txt: 'Un posteo tuyo cae mal 😬', bueno: false };
         return { ef, txt: 'Buen alcance en redes', bueno: true };
       },
     },
@@ -69,12 +66,15 @@
       calc() {
         return { conocen: 1.5, simpatia: 1.5 };
       },
+      riesgos: (s) => [
+        { p: R.round(0.35 - 0.05 * s.partido.estilo, 3), bueno: true, txt: 'La rompés', ef: { conocen: 2.5, simpatia: 4 } },
+        { p: R.round(0.2 + 0.1 * s.partido.estilo, 3), bueno: false, txt: 'Te comen', ef: { conocen: 2, simpatia: -3 } },
+      ],
       hacer(s) {
+        const [bien, mal] = this.riesgos(s);
         const r = R.rand(s);
-        const pMal = 0.2 + 0.1 * s.partido.estilo;
-        const pBien = 0.35 - 0.05 * s.partido.estilo;
-        if (r < pMal) return { ef: { conocen: 2, simpatia: -3 }, txt: 'Te comieron en la entrevista 😓', bueno: false };
-        if (r > 1 - pBien) return { ef: { conocen: 2.5, simpatia: 4 }, txt: '¡La rompiste en la entrevista! 👏', bueno: true, especial: true };
+        if (r < mal.p) return { ef: mal.ef, txt: 'Te comieron en la entrevista 😓', bueno: false };
+        if (r > 1 - bien.p) return { ef: bien.ef, txt: '¡La rompiste en la entrevista! 👏', bueno: true, especial: true };
         return { ef: this.calc(s), txt: 'Entrevista correcta', bueno: true };
       },
     },
@@ -91,7 +91,8 @@
       id: 'plata', emoji: '💵', nombre: 'Juntar plata', desc: 'Rifas o empresarios', costo: 0, elegir: 'plata',
       opciones: [
         { id: 'rifa', emoji: '🎟️', nombre: 'Rifas y aportes chicos', ef: { fondos: 18 } },
-        { id: 'empresas', emoji: '💼', nombre: 'Cena con empresarios', ef: { fondos: 45, sucio: 1, ideoIzq: 1.5 }, riesgo: true },
+        { id: 'empresas', emoji: '💼', nombre: 'Cena con empresarios', ef: { fondos: 45, sucio: 1, ideoIzq: 1.5 }, riesgo: true,
+          riesgos: [{ p: 0.5, bueno: false, txt: 'Si se filtra', ef: { simpatia: -8 } }] },
       ],
       calc(s, op) {
         const o = this.opciones.find((x) => x.id === op) || this.opciones[0];
@@ -115,11 +116,16 @@
         if (f.region) ef.presencia = { [f.region]: 10 };
         return ef;
       },
+      riesgos: (s, id) => {
+        const f = R.FIGURAS.find((x) => x.id === id);
+        return f && f.riesgo ? [{ p: 0.25, bueno: false, txt: 'Arma polémica', ef: { simpatia: -5 } }] : [];
+      },
       hacer(s, id) {
         const f = R.FIGURAS.find((x) => x.id === id);
         s.camp.figuras.push(id);
         const ef = this.calc(s, id);
-        if (f.riesgo && R.chance(s, 0.25)) {
+        const rg = this.riesgos(s, id);
+        if (rg.length && R.chance(s, rg[0].p)) {
           ef.simpatia -= 5;
           return { ef, txt: f.emoji + ' Se suma… y arma polémica 🙃', bueno: false };
         }
@@ -131,10 +137,11 @@
       calc(s, id) {
         return { rival: { [id]: -R.round(2 * (1 + 0.3 * s.partido.estilo), 1) }, simpatia: -0.5 };
       },
+      riesgos: (s, id) => [{ p: R.round(0.25 - 0.08 * s.partido.estilo, 3), bueno: false, txt: 'Te sale el tiro por la culata', ef: { rival: { [id || 'MNP']: -0.5 }, simpatia: -4 } }],
       hacer(s, id) {
-        const pMal = 0.25 - 0.08 * s.partido.estilo;
-        if (R.chance(s, pMal)) {
-          return { ef: { rival: { [id]: -0.5 }, simpatia: -4 }, txt: 'Te salió el tiro por la culata 🤦', bueno: false };
+        const mal = this.riesgos(s, id)[0];
+        if (R.chance(s, mal.p)) {
+          return { ef: mal.ef, txt: 'Te salió el tiro por la culata 🤦', bueno: false };
         }
         return { ef: this.calc(s, id), txt: 'Golpe certero contra ' + R.PARTIDOS[id].sigla + ' 🥊', bueno: true };
       },
