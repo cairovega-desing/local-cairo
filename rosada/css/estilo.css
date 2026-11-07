@@ -614,17 +614,20 @@ label.boton { cursor: pointer; }
 .riesgo .ef { font-size: 12px; padding: 1px 6px 1px 4px; }
 
 /* ── Gráfico de imagen (campaña) ── */
-.grafico-imagen { display: flex; flex-direction: column; gap: 7px; padding: 10px 12px; border-radius: 14px; background: var(--papel-2); border: 2px solid var(--tinta); }
-.fila-grafico { display: grid; grid-template-columns: minmax(0, 1fr) auto 50px; column-gap: 8px; row-gap: 3px; align-items: center; }
-.fila-grafico .nom { font-size: 14px; font-weight: 900; display: flex; align-items: center; gap: 5px; min-width: 0; }
-.fila-grafico .em { font-size: 16px; }
-.fila-grafico .val { text-align: right; font-size: 16px; font-family: var(--f-titulo); font-weight: 400; }
-.fila-grafico .delta { font-size: 12px; font-weight: 900; color: var(--meh); }
-.fila-grafico .delta.sube { color: var(--bien); }
-.fila-grafico .delta.baja { color: var(--mal); }
-.pista-grafico { grid-column: 1 / -1; height: 14px; border-radius: 5px; border: 2px solid var(--tinta); overflow: hidden;
-  background: var(--papel) repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), #d6e0ec calc(25% - 1px) 25%); }
-.pista-grafico > i { display: block; height: 100%; transition: width 0.7s cubic-bezier(.2,.9,.2,1); border-right: 2px solid var(--tinta); }
+.grafico-imagen { display: flex; flex-direction: column; gap: 6px; padding: 10px 10px 8px; border-radius: 14px; background: var(--papel); border: 2px solid var(--tinta); }
+.linea-imagen { width: 100%; height: auto; display: block; overflow: visible; }
+.linea-imagen text { font-family: var(--f-texto); font-weight: 800; }
+.linea-imagen .eje { font-size: 9px; fill: var(--tinta-suave); }
+.linea-imagen .eje.hoy { fill: var(--tinta); font-weight: 900; }
+.linea-imagen .eje.marca { font-size: 8.5px; fill: var(--tinta); font-weight: 900; }
+.linea-imagen .fin-linea { font-size: 11px; font-weight: 900; paint-order: stroke; stroke: #ffffff; stroke-width: 3px; }
+.leyenda-imagen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 10px; }
+.leyenda-imagen .item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 900; min-width: 0; }
+.leyenda-imagen .item i { width: 16px; height: 4px; border-radius: 2px; flex: none; }
+.leyenda-imagen .nom { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.leyenda-imagen .delta { font-size: 11px; color: var(--meh); }
+.leyenda-imagen .delta.sube { color: var(--bien); }
+.leyenda-imagen .delta.baja { color: var(--mal); }
 .fila-militancia { display: grid; grid-template-columns: auto minmax(0, 1fr) 40px; gap: 8px; align-items: center; font-size: 13px; font-weight: 900; }
 .fila-militancia b { text-align: right; }
 
