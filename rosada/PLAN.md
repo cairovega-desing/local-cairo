@@ -120,7 +120,7 @@ Logo grande, sol, botón **Jugar**, **Continuar** (si hay partida), **Cómo se j
 
 | Acción | Costo | Qué hace (se muestra con iconos) |
 |---|---|---|
-| 🎤 Acto en una provincia | 💰10 · ⏱️1 | Elegís en el mapa: sube mucho tu apoyo ahí y un poco «te conocen». Rinde más donde tus ideas pegan. |
+| 🎤 Acto en una provincia | 💰10 · ⏱️1 | Elegís en el mapa: sube cuánto te conocen y te quieren **solo en esa provincia**; al país le llega según lo que pesa en el padrón. Rinde según la afinidad (al cuadrado: donde piensan distinto rinde un tercio) y cada visita repetida rinde menos. |
 | 📺 Publicidad en TV | 💰25 · ⏱️1 | Te conocen ▲▲ en todo el país. |
 | 📱 Campaña en redes | 💰5 · ⏱️1 | Te conocen ▲ (jóvenes). 🎲 Chance de video viral (▲▲▲) o de metida de pata (▼). |
 | 🎙️ Entrevista / stream | gratis · ⏱️1 | Les caés bien ▲ o ▼ (🎲, depende de tu estilo). |
@@ -389,6 +389,8 @@ Cada vuelta: **hacer → probar automáticamente → mirar capturas en celular y
 | 4 · Mundo: 12 países, tratados, préstamos, alianzas, guerra con frente, anexión, Malvinas | ✅ |
 | 5 · Logros, legado con título, oposición si perdés | ✅ |
 | 6 · Guía de primeros pasos, juicio político, 150 noticias, prueba de textos cortos | ✅ |
+| 7 · Pedidos al probarlo: mapa real, bandera de partido (con imagen), partidos reales, riesgos con % y efecto, gráfico de imagen mes a mes, todo sin deslizar en el celu | ✅ |
+| 8 · Acto local: panel que salta al tocar la provincia y entra en la pantalla, efecto según afinidad, imagen del país = promedio de las provincias por padrón; Tierra del Fuego vuelve a dibujarse | ✅ |
 
 **Criterios de terminado:** se juega de punta a punta en celu y PC sin errores de consola (Playwright); 2000 campañas y 100 gobiernos
 de dos mandatos simulados sin NaN; 150 noticias, 23 leyes, 12 países y 32 logros; ningún titular pasa de 9 palabras ni opción de 4.

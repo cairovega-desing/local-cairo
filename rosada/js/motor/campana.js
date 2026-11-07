@@ -8,22 +8,58 @@
   camp.afinidad = (s, prov) => R.clamp(1 + 0.6 * (0.55 - Math.abs(prov.lean - s.partido.ideo)), 0.6, 1.35);
   const cercania = (a, b) => 1 - Math.abs(a - b) / 2; // 0 … 1
 
+  // ── Actos en provincias ──
+  // El apoyo local («presencia») sube cuánto te conocen (×0,45) y cuánto te quieren (×0,12) en esa provincia.
+  const ACTO_BASE = 30;
+  const PRES_CONOCEN = 0.45;
+  const PRES_SIMPATIA = 0.12;
+  // Cuánto rinde un acto: donde piensan como vos rinde mucho más (afinidad al cuadrado: 0,36 … 1,8)
+  // y cada visita repetida rinde menos.
+  camp.rindeActo = (s, provId) => {
+    const af = camp.afinidad(s, R.PROV[provId]);
+    return af * af * Math.pow(0.62, s.camp.visitas[provId] || 0);
+  };
+  // Qué le pasa a esa provincia (y al país) si hacés el acto, sin tocar la partida.
+  camp.previaActo = function (s, provId) {
+    const c = s.camp;
+    const sube = Math.round(ACTO_BASE * camp.rindeActo(s, provId));
+    const antes = camp.votos(s);
+    const pres0 = c.presencia[provId] || 0;
+    const pres1 = R.clamp(pres0 + sube, 0, 100);
+    c.presencia[provId] = pres1;
+    const despues = camp.votos(s);
+    c.presencia[provId] = pres0;
+    const loc = (pres) => ({
+      conocen: R.clamp(c.conocen + pres * PRES_CONOCEN, 0, 100),
+      simpatia: R.clamp(c.simpatia + pres * PRES_SIMPATIA, 0, 100),
+    });
+    return {
+      sube: pres1 - pres0,
+      antes: { prov: antes.prov[provId].YO, nac: antes.nac.YO, ...loc(pres0) },
+      despues: { prov: despues.prov[provId].YO, nac: despues.nac.YO, ...loc(pres1) },
+    };
+  };
+  // La provincia donde un acto te suma más votos en todo el país.
+  camp.mejorActo = function (s) {
+    let mejor = null;
+    let max = -1;
+    for (const p of R.PROVINCIAS) {
+      const pr = camp.previaActo(s, p.id);
+      const g = pr.despues.nac - pr.antes.nac;
+      if (g > max) { max = g; mejor = p.id; }
+    }
+    return mejor;
+  };
+
   // ── Acciones ──
   // Cada acción: costo (fondos), elegir (qué hay que elegir antes), max por mes, preview y hacer.
   camp.ACCIONES = [
     {
       id: 'acto', emoji: '🎤', nombre: 'Acto', desc: 'Subís fuerte en una provincia', costo: 10, elegir: 'provincia',
+      // Solo le llega a la gente de esa provincia: sube cuánto te conocen y te quieren AHÍ.
+      // Al país le llega en proporción a lo que pesa la provincia en el padrón.
       calc(s, provId) {
-        const p = R.PROV[provId];
-        const vis = s.camp.visitas[provId] || 0;
-        const af = camp.afinidad(s, p);
-        const rinde = Math.pow(0.62, vis);
-        return {
-          presencia: { [provId]: Math.round(30 * af * rinde) },
-          conocen: R.round((0.5 + p.padron * 0.07) * rinde + 0.3, 1),
-          simpatia: R.round(0.6 * af * rinde, 1),
-          militancia: 1,
-        };
+        return { presencia: { [provId]: Math.round(ACTO_BASE * camp.rindeActo(s, provId)) }, militancia: 1 };
       },
       riesgos: (s, provId) => [{ p: 0.15, bueno: true, txt: 'Plaza llena', ef: { presencia: { [provId || 'todas']: 8 } } }],
       hacer(s, provId) {
@@ -187,11 +223,17 @@
     s.camp.agenda -= 1;
     s.camp.usadasMes[accId] = (s.camp.usadasMes[accId] || 0) + 1;
     s.stats.acciones++;
-    const antes = camp.votos(s).nac.YO;
+    const antes = camp.votos(s);
     res.aplicado = R.aplicarEfectos(s, res.ef);
     res.costo = costo;
-    res.votosAntes = antes;
-    res.votosDespues = camp.votos(s).nac.YO;
+    const despues = camp.votos(s);
+    res.votosAntes = antes.nac.YO;
+    res.votosDespues = despues.nac.YO;
+    if (acc.elegir === 'provincia' && antes.prov[arg]) {
+      res.prov = arg;
+      res.provAntes = antes.prov[arg].YO;
+      res.provDespues = despues.prov[arg].YO;
+    }
     return res;
   };
 
@@ -208,8 +250,8 @@
     const prov = {};
     for (const p of R.PROVINCIAS) {
       const pres = c.presencia[p.id] || 0;
-      const know = R.clamp(c.conocen + pres * 0.45, 0, 100) / 100;
-      const like = R.clamp(c.simpatia + pres * 0.12, 0, 100) / 100;
+      const know = R.clamp(c.conocen + pres * PRES_CONOCEN, 0, 100) / 100;
+      const like = R.clamp(c.simpatia + pres * PRES_SIMPATIA, 0, 100) / 100;
       const af = camp.afinidad(s, p);
       // Voto útil: si sos relevante, la gente siente que votarte «sirve».
       const util = 0.88 + 0.24 * ((c.relevancia ?? 30) / 100);
@@ -241,11 +283,26 @@
 
   // Encuesta: tus números con un poquito de error (como en la vida real), ordenados.
   // Imagen como la miden las consultoras: positiva + negativa + regular + no te conoce = 100.
+  // Se mide provincia por provincia (con el apoyo local de los actos) y se promedia por padrón:
+  // un acto en Buenos Aires mueve el número del país mucho más que uno en Catamarca.
   camp.imagen = function (s) {
     const c = s.camp;
-    const k = c.conocen;
-    const pos = (k * c.simpatia) / 100;
-    const neg = ((k * (100 - c.simpatia)) / 100) * 0.75;
+    let k = 0;
+    let pos = 0;
+    let neg = 0;
+    let peso = 0;
+    for (const p of R.PROVINCIAS) {
+      const pres = (c.presencia && c.presencia[p.id]) || 0;
+      const kp = R.clamp(c.conocen + pres * PRES_CONOCEN, 0, 100);
+      const sp = R.clamp(c.simpatia + pres * PRES_SIMPATIA, 0, 100);
+      k += kp * p.padron;
+      pos += ((kp * sp) / 100) * p.padron;
+      neg += ((kp * (100 - sp)) / 100) * 0.75 * p.padron;
+      peso += p.padron;
+    }
+    k /= peso;
+    pos /= peso;
+    neg /= peso;
     return { conocimiento: k, positiva: pos, negativa: neg, regular: Math.max(0, k - pos - neg), relevancia: c.relevancia ?? 5, diferencial: pos - neg };
   };
 

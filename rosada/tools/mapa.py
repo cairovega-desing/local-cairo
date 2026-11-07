@@ -173,7 +173,9 @@ def main():
                 fin = k + 1
                 break
     topo = json.loads(texto[i:fin])
-    arcos = [dp(a, TOL) for a in decodificar_arcos(topo)]  # simplificar arcos mantiene los bordes compartidos
+    # Simplificar arcos mantiene los bordes compartidos. Los arcos cerrados (islas como Tierra del Fuego)
+    # van con dp_anillo: con dp común el inicio y el fin coinciden y el anillo se aplasta.
+    arcos = [dp_anillo(a, TOL) if len(a) > 3 and a[0] == a[-1] else dp(a, TOL) for a in decodificar_arcos(topo)]
     prov = {}
     for g in topo['objects']['arg']['geometries']:
         pid = IDS[g['id']]

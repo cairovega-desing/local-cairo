@@ -24,7 +24,7 @@ Inspirado en «¿Quién quiere gobernar?» (qqg.netlify.app), pero rehecho para 
 | `js/datos/` | provincias (padrón, diputados, grupo de Senado, inclinación, posición en el mapa hexagonal), partidos rivales ficticios, grupos sociales, noticias |
 | `js/motor/estado.js` | crear partida, guardar/cargar |
 | `js/motor/efectos.js` | aplicar y **describir** efectos (icono + flechas). `R.describirAplicado` para mostrar lo que realmente se aplicó |
-| `js/motor/campana.js` | acciones de campaña, voto por provincia (`R.camp.votos`), paso del mes |
+| `js/motor/campana.js` | acciones de campaña, voto por provincia (`R.camp.votos`), paso del mes. El acto es **local**: sube `presencia` de la provincia (×afinidad², `rindeActo`), `previaActo` muestra provincia y país, `mejorActo` marca la ⭐. La imagen del país (`camp.imagen`) es el promedio de las provincias por padrón |
 | `js/motor/elecciones.js` | PASO, generales (45 % o 40+10), ballotage, D'Hondt, Senado por grupos, Congreso por tandas |
 | `js/motor/eventos.js` | motor de noticias (`R.ev.elegir/datos/resolver`) |
 | `js/motor/turno.js` | qué pasa al «Pasar el mes» y el debate (piedra-papel-tijera de estilos) |
@@ -57,6 +57,7 @@ Mirar las capturas y criticar: texto de más, cosas tapadas, botones chicos, efe
 - Todo azar se muestra con su % y su efecto (`riesgos(s, arg)` en las acciones de campaña, `azar` en noticias y acciones; `ui.riesgos`).
 - Nunca `alert/confirm/prompt` (no andan en la página publicada): confirmaciones dentro del juego.
 - `[hidden]` siempre con `display:none !important` en el CSS.
+- Las hojas con mapa para elegir (como «¿Dónde es el acto?», `.hoja-acto`) **entran enteras en la pantalla**: el mapa es flexible y se achica para dejarle lugar al panel. Probarlas en 360×640 con letra +30 %.
 - **Nada puede deslizarse de costado** y las pantallas cortas no se mueven: `.app` tiene `overflow-x: clip`, sin `min-height`/`height: 100%`; la barra de arriba es una grilla con `minmax(0, 1fr)`. El usuario tiene la letra del celu grande: probar con `tests/responsive.js 1.3` (fuentes reales de npm `@fontsource/lilita-one` y `@fontsource/nunito`).
 
 ## Estado y plan

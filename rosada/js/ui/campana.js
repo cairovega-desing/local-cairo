@@ -193,36 +193,68 @@
       h('span', { class: 'chip ' + (it.costo ? 'sol' : '') }, it.costo ? '💰 ' + it.costo : 'gratis'))))), { cerrable: true });
   }
 
-  function elegirProvincia(s, a, sel) {
-    const votos = R.camp.votos(s).prov;
-    const detalle = h('div', { class: 'pila' });
-    const pintarDetalle = (id) => {
-      if (!id || !R.PROV[id]) {
-        detalle.replaceChildren(h('p', { class: 'centro suave' }, '👆 Tocá una provincia'));
-        return;
-      }
+  // ¿Dónde hacés el acto? Entra entero en la pantalla: mapa arriba (se achica solo) y,
+  // al tocar una provincia, salta el panel con lo que le pasa a esa provincia y al país.
+  function elegirProvincia(s, a) {
+    const c = s.camp;
+    const mejor = R.camp.mejorActo(s);
+    const panel = h('div', { class: 'acto-panel', hidden: true });
+    const pista = h('p', { class: 'chico suave acto-pista' }, '💚 Más verde = más afín a vos, rinde más · ⭐ suma más votos');
+    const pintar = (id) => {
       const p = R.PROV[id];
-      const vis = s.camp.visitas[id] || 0;
+      const pr = R.camp.previaActo(s, id);
       const af = R.camp.afinidad(s, p);
-      detalle.replaceChildren(h('div', { class: 'tarjeta plana suave pila', style: { gap: '8px' } },
-        h('div', { class: 'fila entre' }, h('b', { style: { fontFamily: 'var(--f-titulo)', fontSize: '20px', fontWeight: 400 } }, p.nombre),
-          h('span', { class: 'chip' }, '👥 ' + R.fmt(p.padron, 1) + '% del país')),
-        h('div', { class: 'fila envolver' },
-          h('span', { class: 'chip ' + (af > 1.1 ? 'bien' : af < 0.85 ? 'mal' : '') }, af > 1.1 ? '💚 Les gustan tus ideas' : af < 0.85 ? '💔 Piensan distinto' : '🤝 Afinidad media'),
-          vis ? h('span', { class: 'chip' }, '🎤 ' + vis + (vis === 1 ? ' visita' : ' visitas') + ' · rinde menos') : null),
-        ui.chipsEfectos(R.describirEfectos(s, a.calc(s, id))),
+      const vis = c.visitas[id] || 0;
+      const [clAf, txAf] = af >= 1.15 ? ['bien', '💚 Afín a vos'] : af <= 0.85 ? ['mal', '💔 Poco afín'] : ['', '🤝 Medio afín'];
+      const pesa = p.padron / 100;
+      // Tablita: qué sube en la provincia y qué le llega al país (según lo que pesa en el padrón).
+      const flechas = (v, paso) => (v < 0.25 ? '≈' : '▲'.repeat(Math.min(3, Math.max(1, Math.ceil(v / paso - 0.15)))));
+      const num = (v) => R.fmt(v, v < 10 ? 1 : 0);
+      const celda = (txt) => h('span', { class: 'fl' + (txt === '≈' ? ' nada' : '') }, txt);
+      const fila = (nombre, dK, dS, antes, despues) => [
+        h('span', { class: 'quien' }, nombre), celda(flechas(dK, 7)), celda(flechas(dS, 2)),
+        h('span', { class: 'voto' }, num(antes) + ' → ', h('b', { class: despues - antes >= 0.05 ? 'sube' : '' }, num(despues) + '%')),
+      ];
+      const dK = pr.despues.conocen - pr.antes.conocen;
+      const dS = pr.despues.simpatia - pr.antes.simpatia;
+      const bloq = R.camp.bloqueo(s, a, id);
+      pista.hidden = true;
+      panel.replaceChildren(
+        h('div', { class: 'acto-cab' },
+          h('div', { class: 'acto-nombre' }, h('b', null, p.nombre),
+            vis || pr.sube <= 0 ? h('small', null, pr.sube <= 0 ? '📍 Ya está a full' : '🎤 ' + (vis + 1) + '.ª vez: rinde menos') : null),
+          h('span', { class: 'chip ' + clAf }, txAf)),
+        h('div', { class: 'acto-tabla' },
+          h('span'), h('span', { class: 'col', title: 'Conocimiento' }, '👁️'), h('span', { class: 'col', title: 'Imagen' }, '❤️'), h('span', { class: 'col' }, '🗳️ Te votan'),
+          ...fila('📍 ' + p.corto, dK, dS, pr.antes.prov, pr.despues.prov),
+          ...fila('🇦🇷 País', dK * pesa, dS * pesa, pr.antes.nac, pr.despues.nac)),
         ui.riesgos(s, a.riesgos(s, id)),
-        h('button', { class: 'boton ancho', onclick: () => { ui.cerrarCapa(); hacer(s, a.id, id); }, disabled: R.camp.bloqueo(s, a, id) ? true : null }, '🎤 Hacer el acto · 💰 ' + a.costo)));
+        h('button', { class: 'boton ancho', disabled: bloq ? true : null, title: bloq || null, onclick: () => { ui.cerrarCapa(); hacer(s, a.id, id); } },
+          '🎤 Hacer el acto · ' + (bloq === 'No te alcanza la plata' ? '💸 Te falta plata' : '💰 ' + a.costo)));
+      panel.hidden = false;
+      panel.classList.remove('salta');
+      void panel.offsetWidth; // reinicia la animación
+      panel.classList.add('salta');
     };
     const mapa = R.ui.mapa({
       sinMalvinas: true,
-      sel,
-      colorDe: (id) => R.ui.colorEscala(s.partido.color, Math.min(100, votos[id].YO * 2.2)),
-      valorDe: (id) => R.fmt(votos[id].YO, 0) + '%',
-      alTocar: (id) => { R.son.toque(); elegirProvincia(s, a, id); },
+      sinVecinos: true,
+      recorte: true,
+      // Más verde = piensan como vos (y no fuiste tanto): el acto rinde más.
+      colorDe: (id) => R.ui.colorEscala('#1c9a50', R.clamp((R.camp.rindeActo(s, id) / 1.8) * 85, 5, 85)),
+      valorDe: (id) => (id === mejor ? '⭐' : null),
+      alTocar: (id) => {
+        if (!R.PROV[id]) return;
+        R.son.toque();
+        R.ui.marcarMapa(mapa, id);
+        pintar(id);
+      },
     });
-    pintarDetalle(sel);
-    ui.abrirCapa(h('div', { class: 'pila' }, h('h2', null, '🎤 ¿Dónde hacés el acto?'), h('p', { class: 'chico suave' }, 'Más color = más te votan. Las grandes pesan más.'), mapa, detalle), { cerrable: true, sinFoco: true });
+    ui.abrirCapa(h('div', { class: 'acto-elegir' },
+      h('h2', null, '🎤 ¿Dónde es el acto?'),
+      pista,
+      h('div', { class: 'acto-cuerpo' }, h('div', { class: 'acto-mapa' }, mapa), panel)),
+    { cerrable: true, sinFoco: true, clase: 'hoja-acto' });
   }
 
   function hacer(s, id, arg) {
@@ -235,9 +267,14 @@
     R.guardar(s);
     const efectos = R.describirAplicado(s, res.aplicado);
     if (res.costo) efectos.unshift({ k: 'fondos', emoji: '💰', nombre: 'Fondos', v: -res.costo, sube: false, bueno: false, flechas: 1, numero: true });
-    const dv = res.votosDespues - res.votosAntes;
-    const extra = h('div', { class: 'chico', style: { fontWeight: 900 } }, '🗳️ Te votaría: ' + R.fmt(res.votosAntes, 1) + '% → ',
-      h('span', { style: { color: dv >= 0 ? 'var(--bien)' : 'var(--mal)' } }, R.fmt(res.votosDespues, 1) + '% ' + (dv >= 0.05 ? '▲' : dv <= -0.05 ? '▼' : '')));
+    const linea = (txt, a0, a1) => {
+      const dv = a1 - a0;
+      return h('div', { class: 'chico', style: { fontWeight: 900 } }, txt + R.fmt(a0, 1) + '% → ',
+        h('span', { style: { color: dv >= 0 ? 'var(--bien)' : 'var(--mal)' } }, R.fmt(a1, 1) + '% ' + (dv >= 0.05 ? '▲' : dv <= -0.05 ? '▼' : '')));
+    };
+    const extra = res.prov
+      ? h('div', null, linea('🗳️ En ' + R.PROV[res.prov].corto + ': ', res.provAntes, res.provDespues), linea('🇦🇷 En el país: ', res.votosAntes, res.votosDespues))
+      : linea('🗳️ Te votaría: ', res.votosAntes, res.votosDespues);
     ui.aviso(res.txt, { tipo: res.especial ? 'especial' : res.bueno ? 'bien' : 'mal', efectos, extra });
     if (res.especial) R.son.genial();
     else if (res.bueno) R.son.bien();

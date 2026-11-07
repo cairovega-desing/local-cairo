@@ -1,5 +1,5 @@
 // Mapa real de la Argentina (formas de Natural Earth en js/datos/mapa_geo.js): provincias, Malvinas y vecinos.
-// opts: { colorDe(id), valorDe(id), alTocar(id), sel, sinMalvinas, sinVecinos }
+// opts: { colorDe(id), valorDe(id), alTocar(id), sel, sinMalvinas, sinVecinos, recorte (solo la Argentina, más grande) }
 (function (R) {
   'use strict';
 
@@ -61,6 +61,12 @@
         const circ = S('circle', { class: 'prov caba' + (opts.sel === 'CABA' ? ' sel' : ''), cx, cy, r: 4.5, fill: color, 'data-id': 'CABA' });
         circ.appendChild(S('title', null, prov.nombre));
         partes.push(tocable(circ, 'CABA', prov.nombre));
+        // Zona de toque más grande (invisible): con el dedo, el círculo solo es muy chico.
+        if (opts.alTocar) {
+          const zona = S('circle', { class: 'toque', cx, cy, r: 9, fill: 'rgba(0,0,0,0)', 'aria-hidden': 'true' });
+          zona.addEventListener('click', () => opts.alTocar('CABA'));
+          partes.push(zona);
+        }
         textos.push(S('line', { x1: cx + 4, y1: cy - 2, x2: cx + 13, y2: cy - 9, class: 'guia-txt' }));
         textos.push(S('text', { class: 'nom', x: cx + 14, y: cy - 10, 'text-anchor': 'start' }, 'CABA' + (val ? ' ' + val : '')));
         continue;
@@ -82,7 +88,35 @@
       textos.push(S('text', { class: 'nom chica', x: G.malvinas.c[0], y: G.malvinas.c[1] + 13, 'text-anchor': 'middle' }, 'Malvinas'));
     }
 
-    return S('svg', { class: 'mapa', viewBox: '0 0 ' + G.w + ' ' + G.h, role: 'group', 'aria-label': 'Mapa de la Argentina' }, defs, ...partes, ...textos);
+    const vb = opts.recorte ? cajaProvincias() : [0, 0, G.w, G.h];
+    return S('svg', { class: 'mapa', viewBox: vb.join(' '), role: 'group', 'aria-label': 'Mapa de la Argentina' },
+      defs, S('g', { class: 'formas' }, ...partes), S('g', { class: 'textos' }, ...textos));
+  };
+
+  // Recuadro de las 24 provincias (sin vecinos ni mar de más), con un margen.
+  let caja = null;
+  function cajaProvincias() {
+    if (caja) return caja;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const g of Object.values(R.GEO.prov)) {
+      const n = g.d.match(/-?[\d.]+/g) || [];
+      for (let i = 0; i + 1 < n.length; i += 2) {
+        x0 = Math.min(x0, +n[i]); x1 = Math.max(x1, +n[i]);
+        y0 = Math.min(y0, +n[i + 1]); y1 = Math.max(y1, +n[i + 1]);
+      }
+    }
+    const m = 4;
+    caja = [x0 - m, y0 - m, x1 - x0 + 2 * m, y1 - y0 + 2 * m].map((v) => Math.round(v * 10) / 10);
+    return caja;
+  }
+
+  // Marca una provincia elegida (borde dorado) y la trae adelante para que el borde no quede tapado.
+  R.ui.marcarMapa = function (svg, id) {
+    svg.querySelectorAll('.prov.sel').forEach((e) => e.classList.remove('sel'));
+    const formas = svg.querySelector('.formas');
+    svg.querySelectorAll('.prov[data-id="' + id + '"]').forEach((e) => { e.classList.add('sel'); formas.appendChild(e); });
+    const zona = formas.querySelector('.toque');
+    if (zona) formas.appendChild(zona);
   };
 
   // Escala de color de 0 a 100: blanco → color del partido.

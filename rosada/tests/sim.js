@@ -30,7 +30,6 @@ function chequear(s, donde) {
   }
 }
 
-const GRANDES = ['BUE', 'CBA', 'SFE', 'CABA', 'MZA', 'TUC', 'ERI', 'SAL'];
 
 // Estrategias de campaña.
 const ESTRATEGIAS = {
@@ -53,7 +52,7 @@ const ESTRATEGIAS = {
     if (fig && c.fondos > 50 && R.chance(s, 0.5)) return ['figura', fig.id];
     if (!c.alianza && s.mes >= 4) return ['alianza', R.ALIADOS.slice().sort((a, b) => Math.abs(a.ideo - s.partido.ideo) - Math.abs(b.ideo - s.partido.ideo))[0].id];
     if (c.fondos < 15) return R.chance(s, 0.5) ? ['plata', 'rifa'] : ['entrevista'];
-    const prov = GRANDES.slice().sort((a, b) => c.visitas[a] - c.visitas[b] || R.PROV[b].padron - R.PROV[a].padron)[0];
+    const prov = R.camp.mejorActo(s); // la que el juego marca con ⭐
     if (c.fondos >= 10) return ['acto', prov];
     return usar('entrevista') ? ['entrevista'] : ['plata', 'rifa'];
   },
