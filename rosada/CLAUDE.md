@@ -30,7 +30,7 @@ Inspirado en «¿Quién quiere gobernar?» (qqg.netlify.app), pero rehecho para 
 | `js/motor/turno.js` | qué pasa al «Pasar el mes» y el debate (piedra-papel-tijera de estilos) |
 | `js/motor/economia.js` | presupuesto por áreas (niveles 0,5–1,6 sobre una base en % del PBI), impuestos, retenciones, simulación mensual y causas |
 | `js/motor/gobierno.js` | la gente (humor por grupo y sus razones), aprobación, ⭐ capital político, 🔥 llamas de crisis, acciones, medidas, resumen y frases |
-| `js/motor/congreso.js` | bloques, relación, apoyo a cada ley (`R.congreso.apoyo`), votación, decretos, gobernadores, votos en el gobierno y elecciones del mandato |
+| `js/motor/congreso.js` | bloques, relación, apoyo a cada ley (`R.congreso.apoyo` = suma de `factores`: idea, relación, encuestas, polémica, negociación, gobernadores), motivo en palabras (`motivos`), votación, decretos, gobernadores, votos en el gobierno y elecciones del mandato. La idea es **direccional** (`distancia`): una ley que va para el lado de un bloque, aunque sea tibia, le gusta (LLA vota leyes de mercado; el FIT, las del Estado) |
 | `js/ui/` | pantallas, mapa real (`mapa.js` + `js/datos/mapa_geo.js`), banderas de partido (`bandera.js`), hemiciclo, avatar SVG, sonidos WebAudio |
 | `tools/mapa.py` | genera `js/datos/mapa_geo.js` con las 24 provincias, Malvinas y vecinos (Natural Earth vía npm `datamaps` y `world-atlas`) |
 | `js/main.js` | ruteo de pantallas y la **cola de momentos** (`s.cola`: noticias, elecciones, debates, asunción) |

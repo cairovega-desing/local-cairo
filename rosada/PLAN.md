@@ -391,6 +391,7 @@ Cada vuelta: **hacer → probar automáticamente → mirar capturas en celular y
 | 6 · Guía de primeros pasos, juicio político, 150 noticias, prueba de textos cortos | ✅ |
 | 7 · Pedidos al probarlo: mapa real, bandera de partido (con imagen), partidos reales, riesgos con % y efecto, gráfico de imagen mes a mes, todo sin deslizar en el celu | ✅ |
 | 8 · Acto local: panel que salta al tocar la provincia y entra en la pantalla, efecto según afinidad, imagen del país = promedio de las provincias por padrón; Tierra del Fuego vuelve a dibujarse | ✅ |
+| 9 · Congreso coherente: cada bloque vota según si la ley va para su lado (no por distancia pura), su bandera la empuja aunque esté peleado con vos, y se ve el motivo de cada voto | ✅ |
 
 **Criterios de terminado:** se juega de punta a punta en celu y PC sin errores de consola (Playwright); 2000 campañas y 100 gobiernos
 de dos mandatos simulados sin NaN; 150 noticias, 23 leyes, 12 países y 32 logros; ningún titular pasa de 9 palabras ni opción de 4.

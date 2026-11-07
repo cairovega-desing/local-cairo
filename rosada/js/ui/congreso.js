@@ -100,9 +100,17 @@
         const info = R.partidoInfo(s, b.id);
         const [em, txt, cls] = POSTURA[b.postura];
         const costo = con.costoNegociar(s, b.id);
+        // Por qué vota así (lo que más pesa): «💡 Le gusta la idea · 😠 Está peleado con vos».
+        const m = con.motivos(s, ley, b.id);
+        const minuscula = (x) => x.replace(/ (\p{Lu})/u, (_, c) => ' ' + c.toLowerCase());
+        const pero = m.pro && m.contra ? m.pro + ', pero ' + minuscula(m.contra) : null;
+        // A favor: lo que los convence. Dudan: las dos cosas. En contra: lo que los frena
+        // (y si la idea les gusta pero igual votan en contra, también se dice).
+        const motivo = b.postura === 'si' ? m.pro : b.postura === 'duda' ? pero || m.contra || m.pro : m.proK === 'idea' && pero ? pero : m.contra;
         return h('div', { class: 'item-elegir', style: { cursor: 'default', gridTemplateColumns: '34px minmax(0,1fr) auto' } },
           ui.miniEscudo(info),
-          h('div', null, h('b', null, info.sigla), ' ', h('span', { class: 'chip ' + cls }, em + ' ' + txt)),
+          h('div', { style: { minWidth: 0 } }, h('b', null, info.sigla), ' ', h('span', { class: 'chip ' + cls }, em + ' ' + txt),
+            motivo ? h('div', { class: 'chico suave motivo-voto' }, motivo) : null),
           b.postura === 'si' ? h('span', { class: 'chico suave' }, Math.round(b.p * 100) + '%')
             : h('button', { class: 'boton mini sec', disabled: G.pc < costo ? true : null, onclick: () => {
               const r = con.negociar(s, ley, b.id);
@@ -112,8 +120,8 @@
       })),
       h('button', { class: 'boton sec ancho', onclick: () => { con.fondosGobernadores(s, ley); R.son.moneda(); R.guardar(s); ui.aviso('💸 Fondos a las provincias: los gobernadores empujan', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley); } }, '💸 Fondos a las provincias · 1,5% del presupuesto'),
       h('div', { class: 'fila' },
-        h('button', { class: 'boton grande', style: { flex: 1 }, disabled: G.pc < con.COSTO_PRESENTAR ? true : null, onclick: () => votar(s, ley) }, '🗳️ Votar · ⭐' + con.COSTO_PRESENTAR),
-        ley.dnu ? h('button', { class: 'boton sec', disabled: G.pc < con.COSTO_DNU ? true : null, title: 'Sin pasar por el Congreso, pero a la clase media no le gusta', onclick: () => decreto(s, ley) }, '📜 Decreto · ⭐' + con.COSTO_DNU) : null),
+        h('button', { class: 'boton grande', style: { flex: '1.3 1 0' }, disabled: G.pc < con.COSTO_PRESENTAR ? true : null, onclick: () => votar(s, ley) }, '🗳️ Votar · ⭐' + con.COSTO_PRESENTAR),
+        ley.dnu ? h('button', { class: 'boton sec', style: { flex: '1 1 0' }, disabled: G.pc < con.COSTO_DNU ? true : null, title: 'Sin pasar por el Congreso, pero a la clase media no le gusta', onclick: () => decreto(s, ley) }, '📜 Decreto · ⭐' + con.COSTO_DNU) : null),
       G.pc < con.COSTO_PRESENTAR ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'No tenés ⭐ suficientes: pasá el mes para juntar más.') : null), { cerrable: true });
   }
 

@@ -374,6 +374,7 @@ p { margin: 0; }
 .item-elegir:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
 .item-elegir .ic { font-size: 28px; text-align: center; }
 .item-elegir[disabled] { opacity: 0.45; cursor: not-allowed; }
+.motivo-voto { margin-top: 3px; font-weight: 800; line-height: 1.25; }
 
 /* ── Mapa ── */
 .mapa { width: 100%; max-width: 360px; max-height: 72vh; display: block; margin: 0 auto; overflow: visible; }

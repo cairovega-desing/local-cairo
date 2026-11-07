@@ -58,17 +58,57 @@
     return ley && ley.mayoria === 'dos_tercios' ? Math.ceil((total * 2) / 3) : Math.floor(total / 2) + 1;
   };
 
+  // Qué tan lejos queda una ley de lo que piensa un bloque. Si la ley va para su lado pero no tan lejos,
+  // la ven como un paso en la dirección correcta («no es todo lo que queremos, pero va»): cuenta mucho menos.
+  // Así la LLA vota leyes de mercado aunque sean tibias, y la izquierda vota las del Estado presente.
+  con.distancia = (leyIdeo, ideo) => {
+    const d = Math.abs(leyIdeo - ideo);
+    const suLado = leyIdeo * ideo > 0 && Math.abs(leyIdeo) >= 0.15 && Math.abs(leyIdeo) <= Math.abs(ideo);
+    return suLado ? d * 0.3 : d;
+  };
+
+  // Por qué vota cada bloque como vota: cada factor suma (a favor) o resta (en contra).
+  con.factores = function (s, ley, bloque) {
+    const G = s.gob;
+    const dist = con.distancia(ley.ideo, ideoDe(s, bloque));
+    // Si la idea es suya («es nuestra bandera»), la empujan aunque estén peleados con vos: votar en contra
+    // de lo que siempre pidieron les cuesta caro. Y la polémica tampoco los asusta tanto.
+    const suya = Math.abs(ley.ideo) >= 0.15 ? R.clamp(1 - dist / 0.5, 0, 1) : 0; // las leyes neutras no son bandera de nadie
+    let relacion = (G.rel[bloque] - 50) / 35;
+    if (relacion < 0) relacion *= 1 - 0.55 * suya;
+    return {
+      idea: 1.7 * (0.5 - dist) + 0.5 * suya,
+      relacion,
+      aprob: (G.aprob - 45) / 45,
+      polemica: -ley.polemica * 0.7 * (1 - 0.7 * suya),
+      negocia: (G.negocia[ley.id] && G.negocia[ley.id][bloque]) || 0,
+      gobernadores: (con.relGobernadores(s, bloque) - 50) / (bloque === 'PROV' ? 30 : 70),
+      dosTercios: ley.mayoria === 'dos_tercios' ? -0.5 : 0,
+    };
+  };
+
   // Probabilidad de que un bloque vote a favor (0 … 1).
   con.apoyo = function (s, ley, bloque) {
     if (bloque === 'YO') return 0.98;
-    const G = s.gob;
-    const ideo = ideoDe(s, bloque);
-    const neg = (G.negocia[ley.id] && G.negocia[ley.id][bloque]) || 0;
-    const relGob = con.relGobernadores(s, bloque);
-    let x = 1.7 * (0.5 - Math.abs(ley.ideo - ideo)) + (G.rel[bloque] - 50) / 35 + (G.aprob - 45) / 45 - ley.polemica * 0.7 + neg;
-    x += (relGob - 50) / (bloque === 'PROV' ? 30 : 70);
-    if (ley.mayoria === 'dos_tercios') x -= 0.5;
+    const x = R.sum(Object.values(con.factores(s, ley, bloque)));
     return 1 / (1 + Math.exp(-x * 2.2));
+  };
+
+  // El motivo principal, en palabras: { pro: '💡 Le gusta la idea', contra: '😠 Está peleado con vos', proK, contraK }.
+  const MOTIVOS = {
+    idea: ['💡 Le gusta la idea', '🙅 No le gusta la idea'],
+    relacion: ['🤝 Se lleva bien con vos', '😠 Está peleado con vos'],
+    aprob: ['👍 Te va bien en encuestas', '👎 Te va mal en encuestas'],
+    polemica: [null, '🔥 Es muy polémica'],
+    negocia: ['🤝 Ya negociaron', null],
+    gobernadores: ['🗺️ Sus gobernadores te bancan', '🗺️ Sus gobernadores, enojados'],
+    dosTercios: [null, '⚠️ Necesita 2/3'],
+  };
+  con.motivos = function (s, ley, bloque) {
+    const f = Object.entries(con.factores(s, ley, bloque)).filter(([, v]) => Math.abs(v) >= 0.15);
+    const pro = f.filter(([k, v]) => v > 0 && MOTIVOS[k][0]).sort((a, b) => b[1] - a[1])[0];
+    const contra = f.filter(([k, v]) => v < 0 && MOTIVOS[k][1]).sort((a, b) => a[1] - b[1])[0];
+    return { pro: pro ? MOTIVOS[pro[0]][0] : null, contra: contra ? MOTIVOS[contra[0]][1] : null, proK: pro && pro[0], contraK: contra && contra[0] };
   };
 
   // Porotos esperados por cámara: { camara: { si, no, necesarios, bloques: [{id, n, p, postura}] } }
@@ -179,7 +219,7 @@
     }
     if (ley.hacer) ley.hacer(s);
     // Los bloques que piensan parecido se acercan; los otros se alejan un poco.
-    for (const b of BLOQUES) G.rel[b] = R.clamp(G.rel[b] + (Math.abs(ley.ideo - ideoDe(s, b)) < 0.5 ? 2 : -2), 0, 100);
+    for (const b of BLOQUES) G.rel[b] = R.clamp(G.rel[b] + (con.distancia(ley.ideo, ideoDe(s, b)) < 0.5 ? 2 : -2), 0, 100);
     R.diario(s, ley.emoji, (como === 'dnu' ? 'Decreto: ' : 'Nueva ley: ') + ley.nombre, 'ley');
     return R.gob.aplicarEfectos(s, ef);
   };

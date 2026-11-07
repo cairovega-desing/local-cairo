@@ -387,6 +387,7 @@ p { margin: 0; }
 .item-elegir:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
 .item-elegir .ic { font-size: 28px; text-align: center; }
 .item-elegir[disabled] { opacity: 0.45; cursor: not-allowed; }
+.motivo-voto { margin-top: 3px; font-weight: 800; line-height: 1.25; }
 
 /* ── Mapa ── */
 .mapa { width: 100%; max-width: 360px; max-height: 72vh; display: block; margin: 0 auto; overflow: visible; }
@@ -3096,17 +3097,57 @@ label.boton { cursor: pointer; }
     return ley && ley.mayoria === 'dos_tercios' ? Math.ceil((total * 2) / 3) : Math.floor(total / 2) + 1;
   };
 
+  // Qué tan lejos queda una ley de lo que piensa un bloque. Si la ley va para su lado pero no tan lejos,
+  // la ven como un paso en la dirección correcta («no es todo lo que queremos, pero va»): cuenta mucho menos.
+  // Así la LLA vota leyes de mercado aunque sean tibias, y la izquierda vota las del Estado presente.
+  con.distancia = (leyIdeo, ideo) => {
+    const d = Math.abs(leyIdeo - ideo);
+    const suLado = leyIdeo * ideo > 0 && Math.abs(leyIdeo) >= 0.15 && Math.abs(leyIdeo) <= Math.abs(ideo);
+    return suLado ? d * 0.3 : d;
+  };
+
+  // Por qué vota cada bloque como vota: cada factor suma (a favor) o resta (en contra).
+  con.factores = function (s, ley, bloque) {
+    const G = s.gob;
+    const dist = con.distancia(ley.ideo, ideoDe(s, bloque));
+    // Si la idea es suya («es nuestra bandera»), la empujan aunque estén peleados con vos: votar en contra
+    // de lo que siempre pidieron les cuesta caro. Y la polémica tampoco los asusta tanto.
+    const suya = Math.abs(ley.ideo) >= 0.15 ? R.clamp(1 - dist / 0.5, 0, 1) : 0; // las leyes neutras no son bandera de nadie
+    let relacion = (G.rel[bloque] - 50) / 35;
+    if (relacion < 0) relacion *= 1 - 0.55 * suya;
+    return {
+      idea: 1.7 * (0.5 - dist) + 0.5 * suya,
+      relacion,
+      aprob: (G.aprob - 45) / 45,
+      polemica: -ley.polemica * 0.7 * (1 - 0.7 * suya),
+      negocia: (G.negocia[ley.id] && G.negocia[ley.id][bloque]) || 0,
+      gobernadores: (con.relGobernadores(s, bloque) - 50) / (bloque === 'PROV' ? 30 : 70),
+      dosTercios: ley.mayoria === 'dos_tercios' ? -0.5 : 0,
+    };
+  };
+
   // Probabilidad de que un bloque vote a favor (0 … 1).
   con.apoyo = function (s, ley, bloque) {
     if (bloque === 'YO') return 0.98;
-    const G = s.gob;
-    const ideo = ideoDe(s, bloque);
-    const neg = (G.negocia[ley.id] && G.negocia[ley.id][bloque]) || 0;
-    const relGob = con.relGobernadores(s, bloque);
-    let x = 1.7 * (0.5 - Math.abs(ley.ideo - ideo)) + (G.rel[bloque] - 50) / 35 + (G.aprob - 45) / 45 - ley.polemica * 0.7 + neg;
-    x += (relGob - 50) / (bloque === 'PROV' ? 30 : 70);
-    if (ley.mayoria === 'dos_tercios') x -= 0.5;
+    const x = R.sum(Object.values(con.factores(s, ley, bloque)));
     return 1 / (1 + Math.exp(-x * 2.2));
+  };
+
+  // El motivo principal, en palabras: { pro: '💡 Le gusta la idea', contra: '😠 Está peleado con vos', proK, contraK }.
+  const MOTIVOS = {
+    idea: ['💡 Le gusta la idea', '🙅 No le gusta la idea'],
+    relacion: ['🤝 Se lleva bien con vos', '😠 Está peleado con vos'],
+    aprob: ['👍 Te va bien en encuestas', '👎 Te va mal en encuestas'],
+    polemica: [null, '🔥 Es muy polémica'],
+    negocia: ['🤝 Ya negociaron', null],
+    gobernadores: ['🗺️ Sus gobernadores te bancan', '🗺️ Sus gobernadores, enojados'],
+    dosTercios: [null, '⚠️ Necesita 2/3'],
+  };
+  con.motivos = function (s, ley, bloque) {
+    const f = Object.entries(con.factores(s, ley, bloque)).filter(([, v]) => Math.abs(v) >= 0.15);
+    const pro = f.filter(([k, v]) => v > 0 && MOTIVOS[k][0]).sort((a, b) => b[1] - a[1])[0];
+    const contra = f.filter(([k, v]) => v < 0 && MOTIVOS[k][1]).sort((a, b) => a[1] - b[1])[0];
+    return { pro: pro ? MOTIVOS[pro[0]][0] : null, contra: contra ? MOTIVOS[contra[0]][1] : null, proK: pro && pro[0], contraK: contra && contra[0] };
   };
 
   // Porotos esperados por cámara: { camara: { si, no, necesarios, bloques: [{id, n, p, postura}] } }
@@ -3217,7 +3258,7 @@ label.boton { cursor: pointer; }
     }
     if (ley.hacer) ley.hacer(s);
     // Los bloques que piensan parecido se acercan; los otros se alejan un poco.
-    for (const b of BLOQUES) G.rel[b] = R.clamp(G.rel[b] + (Math.abs(ley.ideo - ideoDe(s, b)) < 0.5 ? 2 : -2), 0, 100);
+    for (const b of BLOQUES) G.rel[b] = R.clamp(G.rel[b] + (con.distancia(ley.ideo, ideoDe(s, b)) < 0.5 ? 2 : -2), 0, 100);
     R.diario(s, ley.emoji, (como === 'dnu' ? 'Decreto: ' : 'Nueva ley: ') + ley.nombre, 'ley');
     return R.gob.aplicarEfectos(s, ef);
   };
@@ -7796,9 +7837,17 @@ label.boton { cursor: pointer; }
         const info = R.partidoInfo(s, b.id);
         const [em, txt, cls] = POSTURA[b.postura];
         const costo = con.costoNegociar(s, b.id);
+        // Por qué vota así (lo que más pesa): «💡 Le gusta la idea · 😠 Está peleado con vos».
+        const m = con.motivos(s, ley, b.id);
+        const minuscula = (x) => x.replace(/ (\p{Lu})/u, (_, c) => ' ' + c.toLowerCase());
+        const pero = m.pro && m.contra ? m.pro + ', pero ' + minuscula(m.contra) : null;
+        // A favor: lo que los convence. Dudan: las dos cosas. En contra: lo que los frena
+        // (y si la idea les gusta pero igual votan en contra, también se dice).
+        const motivo = b.postura === 'si' ? m.pro : b.postura === 'duda' ? pero || m.contra || m.pro : m.proK === 'idea' && pero ? pero : m.contra;
         return h('div', { class: 'item-elegir', style: { cursor: 'default', gridTemplateColumns: '34px minmax(0,1fr) auto' } },
           ui.miniEscudo(info),
-          h('div', null, h('b', null, info.sigla), ' ', h('span', { class: 'chip ' + cls }, em + ' ' + txt)),
+          h('div', { style: { minWidth: 0 } }, h('b', null, info.sigla), ' ', h('span', { class: 'chip ' + cls }, em + ' ' + txt),
+            motivo ? h('div', { class: 'chico suave motivo-voto' }, motivo) : null),
           b.postura === 'si' ? h('span', { class: 'chico suave' }, Math.round(b.p * 100) + '%')
             : h('button', { class: 'boton mini sec', disabled: G.pc < costo ? true : null, onclick: () => {
               const r = con.negociar(s, ley, b.id);
@@ -7808,8 +7857,8 @@ label.boton { cursor: pointer; }
       })),
       h('button', { class: 'boton sec ancho', onclick: () => { con.fondosGobernadores(s, ley); R.son.moneda(); R.guardar(s); ui.aviso('💸 Fondos a las provincias: los gobernadores empujan', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley); } }, '💸 Fondos a las provincias · 1,5% del presupuesto'),
       h('div', { class: 'fila' },
-        h('button', { class: 'boton grande', style: { flex: 1 }, disabled: G.pc < con.COSTO_PRESENTAR ? true : null, onclick: () => votar(s, ley) }, '🗳️ Votar · ⭐' + con.COSTO_PRESENTAR),
-        ley.dnu ? h('button', { class: 'boton sec', disabled: G.pc < con.COSTO_DNU ? true : null, title: 'Sin pasar por el Congreso, pero a la clase media no le gusta', onclick: () => decreto(s, ley) }, '📜 Decreto · ⭐' + con.COSTO_DNU) : null),
+        h('button', { class: 'boton grande', style: { flex: '1.3 1 0' }, disabled: G.pc < con.COSTO_PRESENTAR ? true : null, onclick: () => votar(s, ley) }, '🗳️ Votar · ⭐' + con.COSTO_PRESENTAR),
+        ley.dnu ? h('button', { class: 'boton sec', style: { flex: '1 1 0' }, disabled: G.pc < con.COSTO_DNU ? true : null, title: 'Sin pasar por el Congreso, pero a la clase media no le gusta', onclick: () => decreto(s, ley) }, '📜 Decreto · ⭐' + con.COSTO_DNU) : null),
       G.pc < con.COSTO_PRESENTAR ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'No tenés ⭐ suficientes: pasá el mes para juntar más.') : null), { cerrable: true });
   }
 

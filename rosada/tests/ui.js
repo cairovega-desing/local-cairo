@@ -93,7 +93,9 @@ fs.mkdirSync(OUT, { recursive: true });
           if (!capturados.has('elegir')) { capturados.add('elegir'); await foto('elegir'); }
           const hex = page.locator('#capa .prov');
           if (await hex.count()) {
-            await hex.nth(17).click();
+            // Como un jugador atento: va a la provincia marcada con ⭐ (la que más votos suma).
+            const mejor = await page.evaluate(() => window.R.camp.mejorActo(window.R.ui.s));
+            await page.locator('#capa path.prov[data-id="' + mejor + '"]').click({ force: true });
             const b = page.locator('#capa .boton:has-text("Hacer el acto")');
             if (await b.isEnabled()) await b.click(); else await page.locator('#capa .cerrar').click();
           } else {
