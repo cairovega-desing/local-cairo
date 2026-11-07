@@ -1,0 +1,105 @@
+// Recorre el juego con Playwright como si fuera un jugador y saca capturas.
+// Uso: node rosada/tests/ui.js [carpeta-capturas] [celu|pc] [meses-de-gobierno]
+'use strict';
+const path = require('path');
+const fs = require('fs');
+const { chromium } = require('playwright');
+
+const RAIZ = path.join(__dirname, '..');
+const OUT = process.argv[2] || path.join(RAIZ, 'tests', 'capturas');
+const MODO = process.argv[3] || 'celu';
+const MESES_GOB = +(process.argv[4] || 6);
+fs.mkdirSync(OUT, { recursive: true });
+
+(async () => {
+  const browser = await chromium.launch();
+  const ctx = await browser.newContext(MODO === 'pc' ? { viewport: { width: 1280, height: 820 } } : { viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+  const page = await ctx.newPage();
+  const errores = [];
+  page.on('pageerror', (e) => errores.push('pageerror: ' + e.message));
+  page.on('console', (m) => { if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)/.test(m.text()) && !/ERR_/.test(m.text())) errores.push('console: ' + m.text()); });
+  await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+  await page.goto('file://' + path.join(RAIZ, 'dist', 'index.html'));
+  await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+  await page.reload();
+  let n = 0;
+  const foto = async (nombre, full) => { await page.waitForTimeout(250); await page.screenshot({ path: path.join(OUT, MODO + '-' + String(++n).padStart(2, '0') + '-' + nombre + '.png'), fullPage: !!full }); };
+
+  await foto('portada', true);
+  await page.click('text=Nueva partida');
+  await foto('crear-1');
+  await page.click('text=Siguiente');
+  await foto('crear-2');
+  await page.click('text=Siguiente');
+  await page.locator('#rg-ideo').fill('1');
+  await foto('crear-3', true);
+  await page.click('text=Siguiente');
+  await foto('crear-4', true);
+  await page.click('text=Fundar el partido');
+  await foto('intro');
+  await page.click('.capa .boton');
+  await foto('campana', true);
+
+  const capturados = new Set();
+  const capaAbierta = () => page.locator('#capa:not([hidden])').count();
+  let pasos = 0;
+  let mesesGob = 0;
+  while (pasos++ < 400) {
+    if (errores.length > 5) break;
+    if (await capaAbierta()) {
+      const capa = page.locator('#capa');
+      const txt = await capa.innerText();
+      const tipo = (await capa.locator('.opcion-noticia').count()) ? 'noticia'
+        : (await capa.locator('.estilos').count()) ? 'debate'
+        : (await capa.locator('.noche').count()) ? 'eleccion'
+        : /asume la Presidencia/.test(txt) ? 'asuncion' : 'otra';
+      if (!capturados.has(tipo)) { capturados.add(tipo); await foto(tipo); }
+      if (tipo === 'noticia') { await capa.locator('.opcion-noticia:not([disabled])').first().click(); continue; }
+      if (tipo === 'debate') { await capa.locator('.estilos .boton').first().click(); continue; }
+      if (tipo === 'eleccion') {
+        const saltar = capa.locator('text=Ver resultado');
+        if (await saltar.count()) await saltar.click();
+        await page.waitForTimeout(400);
+        await foto('eleccion-fin', true);
+      }
+      const botones = capa.locator('.boton:not(.cerrar):not([disabled])');
+      const k = await botones.count();
+      if (k) await botones.nth(k - 1).click();
+      else await page.keyboard.press('Escape');
+      continue;
+    }
+    const fase = await page.evaluate(() => window.R.ui.s && window.R.ui.s.fase);
+    if (fase === 'campana') {
+      const acciones = page.locator('.accion:not([disabled])');
+      const agenda = await page.evaluate(() => window.R.ui.s.camp.agenda);
+      if (agenda > 0 && (await acciones.count())) {
+        const i = Math.floor(Math.random() * Math.min(3, await acciones.count()));
+        await acciones.nth(i).click();
+        if (await capaAbierta()) {
+          if (!capturados.has('elegir')) { capturados.add('elegir'); await foto('elegir'); }
+          const hex = page.locator('#capa polygon.hex');
+          if (await hex.count()) {
+            await hex.nth(17).click();
+            const b = page.locator('#capa .boton:has-text("Hacer el acto")');
+            if (await b.isEnabled()) await b.click(); else await page.locator('#capa .cerrar').click();
+          } else {
+            const it = page.locator('#capa .item-elegir:not([disabled])');
+            if (await it.count()) await it.first().click(); else await page.locator('#capa .cerrar').click();
+          }
+        }
+        continue;
+      }
+      if (!capturados.has('campana-tarde')) { capturados.add('campana-tarde'); await foto('campana-tarde', true); }
+      await page.click('#btn-pasar');
+    } else if (fase === 'gobierno') {
+      if (mesesGob++ >= MESES_GOB) break;
+      if (mesesGob === 1) await foto('gobierno', true);
+      await page.click('#btn-pasar');
+    } else break;
+  }
+  await foto('final', true);
+  const estado = await page.evaluate(() => ({ fase: window.R.ui.s && window.R.ui.s.fase, mes: window.R.ui.s && window.R.ui.s.mes }));
+  console.log('Estado final:', JSON.stringify(estado), '· capturas en', OUT);
+  if (errores.length) { console.log('❌ Errores:\n' + errores.join('\n')); process.exitCode = 1; } else console.log('✅ Sin errores de consola');
+  await browser.close();
+})();

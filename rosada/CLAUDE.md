@@ -1,0 +1,54 @@
+# CLAUDE.md — «Camino a la Rosada»
+
+Juego web de estrategia política argentina (celular y PC). Fundás un partido, hacés campaña, ganás la elección y gobernás mes a mes.
+Inspirado en «¿Quién quiere gobernar?» (qqg.netlify.app), pero rehecho para que sea **visual, simple y se entienda qué le pasa a la gente**.
+
+## El usuario
+- Habla español rioplatense, escribe rápido. Responder en español, simple y directo.
+- Pidió: basado en decisiones, **poco texto**, Congreso (senadores/diputados), noticias con opciones de distinto costo,
+  economía en **% del gasto** (subís un área y ves qué ganás y cuánto te come del presupuesto anual), alianzas con otros países y conquista.
+- Remarcó: el original tiene acciones largas y engorrosas y **no se ve cómo las acciones repercuten en la gente y la economía**.
+  Todo tiene que mostrar a quién le pega (caras, flechas ▲▼, frases cortas de la gente, cadenas de causa → efecto).
+- Le gusta que Claude trabaje en vueltas («loop») y sea muy crítico con su propio trabajo.
+
+## Cómo está hecho
+- HTML + CSS + JS puro, sin frameworks ni build obligatorio. `index.html` carga los scripts en orden (esa lista es la fuente de verdad).
+- Todo cuelga del objeto global `R` (cada archivo es `(function (R) { … })(globalThis.R = globalThis.R || {})`).
+- **Motor sin DOM** (`js/nucleo`, `js/datos`, `js/motor`): se puede correr en Node. **Interfaz** en `js/ui`.
+- Azar con semilla guardada en el estado (`R.rand(s)`), así guardar/cargar es reproducible.
+- Guardado en `localStorage` (siempre con try/catch).
+
+| Carpeta | Qué hay |
+|---|---|
+| `js/nucleo/util.js` | azar, fechas (mes 0 = enero 2027), formato de números a la argentina |
+| `js/datos/` | provincias (padrón, diputados, grupo de Senado, inclinación, posición en el mapa hexagonal), partidos rivales ficticios, grupos sociales, noticias |
+| `js/motor/estado.js` | crear partida, guardar/cargar |
+| `js/motor/efectos.js` | aplicar y **describir** efectos (icono + flechas). `R.describirAplicado` para mostrar lo que realmente se aplicó |
+| `js/motor/campana.js` | acciones de campaña, voto por provincia (`R.camp.votos`), paso del mes |
+| `js/motor/elecciones.js` | PASO, generales (45 % o 40+10), ballotage, D'Hondt, Senado por grupos, Congreso por tandas |
+| `js/motor/eventos.js` | motor de noticias (`R.ev.elegir/datos/resolver`) |
+| `js/motor/turno.js` | qué pasa al «Pasar el mes» y el debate (piedra-papel-tijera de estilos) |
+| `js/ui/` | pantallas, mapa de fichas hexagonales, hemiciclo, avatar SVG, sonidos WebAudio |
+| `js/main.js` | ruteo de pantallas y la **cola de momentos** (`s.cola`: noticias, elecciones, debates, asunción) |
+
+## Probar antes de cada commit (obligatorio)
+```bash
+python3 rosada/tools/build.py                 # arma rosada/dist/index.html (un solo archivo) y dist/pagina.html
+for f in rosada/js/*.js rosada/js/*/*.js; do node --check "$f"; done
+node rosada/tests/sim.js 300 lista            # bots que juegan campañas: sin NaN y con chances razonables
+node rosada/tests/sim.js 300 azar
+node rosada/tests/ui.js /tmp/capturas celu    # Playwright: juega solo, saca capturas, falla si hay errores de consola
+node rosada/tests/ui.js /tmp/capturas pc
+```
+Mirar las capturas y criticar: texto de más, cosas tapadas, botones chicos, efectos que no se entienden.
+**Después de cada cambio, regenerar `dist/` y commitearlo** (es lo que el usuario abre o sube).
+
+## Convenciones
+- Textos, comentarios y nombres de datos en español; identificadores de código en inglés o español corto.
+- Titulares de noticias ≤ 8 palabras; opciones de 1 a 3 palabras. Efectos con flechas, no con números.
+- Partidos y personas **ficticios** (nada de políticos reales).
+- Nunca `alert/confirm/prompt` (no andan en la página publicada): confirmaciones dentro del juego.
+- `[hidden]` siempre con `display:none !important` en el CSS.
+
+## Estado y plan
+Ver `PLAN.md` (diseño completo y vueltas). Hecho: Vuelta 0 (plan) y Vuelta 1 (crear partido, campaña, PASO, generales, ballotage, debate, noche electoral, Congreso).

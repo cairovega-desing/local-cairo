@@ -1,0 +1,3510 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Camino a la Rosada</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Fundá tu partido, ganá la elección y gobernás la Argentina mes a mes.">
+<meta name="theme-color" content="#bfe0f7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800;900&display=swap">
+<style>
+/* Camino a la Rosada — un solo look, a propósito: figuritas pegadas sobre el cielo celeste.
+   Tarjetas blancas con borde azul marino y sombra sólida; el dorado del Sol de Mayo marca lo importante. */
+:root {
+  --cielo: #bfe0f7;
+  --cielo-claro: #e4f2fc;
+  --celeste: #6cb4ea;
+  --tinta: #13284a;
+  --tinta-suave: #4b5f80;
+  --papel: #ffffff;
+  --papel-2: #f2f7fc;
+  --sol: #f6b40e;
+  --sol-claro: #ffe08a;
+  --sol-osc: #a87800;
+  --bien: #1c9a50;
+  --bien-claro: #d5f5e1;
+  --mal: #d5383a;
+  --mal-claro: #fde0df;
+  --meh: #8796ad;
+  --noche: #0f1d38;
+  --f-titulo: 'Lilita One', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
+  --f-texto: 'Nunito', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --borde: 3px solid var(--tinta);
+  --sombra: 0 4px 0 var(--tinta);
+  --sombra-chica: 0 3px 0 var(--tinta);
+  --radio: 18px;
+  --radio-chico: 12px;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--f-texto);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--tinta);
+  background: var(--cielo);
+  background-image:
+    radial-gradient(circle at 50% -8%, rgba(255, 224, 138, 0.9) 0, rgba(255, 224, 138, 0) 32%),
+    repeating-conic-gradient(from 0deg at 50% -8%, rgba(255, 255, 255, 0.22) 0deg 6deg, rgba(255, 255, 255, 0) 6deg 18deg),
+    linear-gradient(180deg, var(--cielo-claro) 0%, var(--cielo) 55%);
+  background-attachment: fixed;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 30;
+  background: var(--cielo-claro);
+}
+button { font: inherit; color: inherit; }
+h1, h2, h3 { font-family: var(--f-titulo); font-weight: 400; margin: 0; text-wrap: balance; letter-spacing: 0.01em; }
+p { margin: 0; }
+
+.app {
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-left: max(14px, env(safe-area-inset-left, 0px));
+  padding-right: max(14px, env(safe-area-inset-right, 0px));
+  padding-block: 10px 120px;
+}
+.app.ancha { max-width: 1120px; }
+
+/* ── Piezas básicas ── */
+.tarjeta {
+  background: var(--papel);
+  border: var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 14px;
+}
+.tarjeta.plana { box-shadow: none; }
+.tarjeta.suave { background: var(--papel-2); }
+.pila { display: flex; flex-direction: column; gap: 12px; }
+.fila { display: flex; align-items: center; gap: 10px; }
+.fila.envolver { flex-wrap: wrap; }
+.fila.entre { justify-content: space-between; }
+.centro { text-align: center; }
+.chico { font-size: 13px; }
+.suave { color: var(--tinta-suave); }
+.titulo-seccion { font-family: var(--f-titulo); font-size: 20px; display: flex; align-items: center; gap: 8px; }
+.etiqueta { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tinta-suave); font-weight: 900; }
+.numero { font-variant-numeric: tabular-nums; }
+
+.boton {
+  appearance: none;
+  border: var(--borde);
+  border-radius: 14px;
+  background: var(--sol);
+  box-shadow: var(--sombra);
+  padding: 12px 18px;
+  min-height: 48px;
+  font-family: var(--f-titulo);
+  font-size: 19px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.06s ease, box-shadow 0.06s ease, filter 0.15s;
+  user-select: none;
+  text-align: center;
+}
+.boton:hover { filter: brightness(1.04); }
+.boton:active, .boton.apretado { transform: translateY(3px); box-shadow: 0 1px 0 var(--tinta); }
+.boton:focus-visible, .toque:focus-visible { outline: 3px solid var(--celeste); outline-offset: 3px; }
+.boton.sec { background: var(--papel); }
+.boton.celeste { background: var(--celeste); }
+.boton.verde { background: #5bd38c; }
+.boton.rojo { background: #ff8a80; }
+.boton.grande { font-size: 22px; padding: 14px 22px; min-height: 58px; }
+.boton.ancho { width: 100%; }
+.boton.mini { font-size: 15px; min-height: 38px; padding: 6px 12px; border-radius: 11px; box-shadow: var(--sombra-chica); }
+.boton[disabled] { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); }
+.boton[disabled]:active { transform: none; box-shadow: var(--sombra); }
+
+.toque { cursor: pointer; transition: transform 0.08s ease; }
+.toque:active { transform: scale(0.97); }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 2px solid var(--tinta);
+  background: var(--papel);
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.chip.sol { background: var(--sol-claro); }
+.chip.bien { background: var(--bien-claro); color: #0d5c2f; }
+.chip.mal { background: var(--mal-claro); color: #8b1517; }
+.chip.oscuro { background: var(--tinta); color: var(--papel); }
+
+/* Efectos: icono + flechitas (sin números) */
+.efectos { display: flex; flex-wrap: wrap; gap: 6px; }
+.ef {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px 2px 6px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
+  border: 2px solid currentColor;
+  background: var(--papel);
+  white-space: nowrap;
+}
+.ef .fl { letter-spacing: -2px; font-size: 12px; }
+.ef.bien { color: var(--bien); background: var(--bien-claro); }
+.ef.mal { color: var(--mal); background: var(--mal-claro); }
+.ef .em { filter: saturate(1.1); }
+.ef .nom { color: var(--tinta); font-weight: 800; font-size: 13px; }
+
+/* Barras */
+.barra { height: 14px; border: 2px solid var(--tinta); border-radius: 999px; background: var(--papel-2); overflow: hidden; position: relative; }
+.barra > i { display: block; height: 100%; background: var(--celeste); border-radius: 999px; transition: width 0.7s cubic-bezier(.2,.9,.2,1); }
+.barra.gorda { height: 22px; }
+
+/* ── Barra superior ── */
+.barra-sup {
+  flex-wrap: nowrap;
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  margin: 0 -4px 12px;
+  background: var(--papel);
+  border: var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.barra-sup .quien { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+.barra-sup .quien b { font-family: var(--f-titulo); font-weight: 400; font-size: 18px; display: block; white-space: nowrap; }
+.barra-sup .quien small { display: block; color: var(--tinta-suave); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recurso { display: inline-flex; align-items: center; gap: 4px; font-weight: 900; padding: 4px 8px; white-space: nowrap; border-radius: 12px; background: var(--papel-2); border: 2px solid var(--tinta); font-size: 15px; }
+.recurso.pulso { animation: pulso 0.6s ease; }
+.agenda-puntos { display: inline-flex; gap: 3px; }
+.agenda-puntos i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--tinta); background: var(--sol); }
+.agenda-puntos i.usado { background: var(--papel-2); }
+
+.escudo {
+  width: 40px; height: 40px; flex: none;
+  border-radius: 50%;
+  border: var(--borde);
+  display: grid; place-items: center;
+  font-size: 20px;
+  box-shadow: var(--sombra-chica);
+  position: relative;
+}
+.escudo.grande { width: 92px; height: 92px; font-size: 44px; border-width: 4px; }
+.escudo .sig {
+  position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%);
+  background: var(--tinta); color: #fff; font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 8px; white-space: nowrap;
+}
+.escudo.grande .sig { font-size: 15px; bottom: -14px; padding: 2px 10px; }
+
+.avatar { display: block; border-radius: 50%; border: var(--borde); background: var(--papel-2); flex: none; overflow: hidden; }
+
+/* ── Navegación inferior ── */
+.nav-inf {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 25;
+  padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+  background: linear-gradient(180deg, rgba(191, 224, 247, 0) 0%, var(--cielo) 30%);
+  pointer-events: none;
+}
+.nav-inf > .dentro { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 6px; pointer-events: auto; }
+.nav-inf .boton.grande { min-height: 50px; padding: 8px 16px; font-size: 20px; }
+.app.ancha ~ .nav-inf > .dentro, .nav-inf.ancha > .dentro { max-width: 1120px; }
+.pestanas { display: flex; gap: 4px; background: var(--papel); border: var(--borde); border-radius: 16px; padding: 4px; box-shadow: var(--sombra); }
+.pestanas button {
+  flex: 1; border: 0; background: transparent; border-radius: 11px; padding: 6px 2px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 12px; font-weight: 900; color: var(--tinta-suave);
+}
+.pestanas button .ic { font-size: 19px; line-height: 1.1; }
+.pestanas button.activa { background: var(--sol-claro); color: var(--tinta); box-shadow: inset 0 0 0 2px var(--tinta); }
+
+/* ── Capa (ventanas encima) ── */
+.capa {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(15, 29, 56, 0.55);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: env(safe-area-inset-top, 0px) max(8px, env(safe-area-inset-right, 0px)) 0 max(8px, env(safe-area-inset-left, 0px));
+  animation: aparecer 0.18s ease;
+}
+.capa.oscura { background: var(--noche); display: block; overflow-y: auto; overscroll-behavior: contain; }
+.hoja {
+  width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+  background: var(--papel);
+  border: var(--borde); border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  animation: subir 0.28s cubic-bezier(.2,.9,.3,1.2);
+  overscroll-behavior: contain;
+}
+.hoja .cerrar { position: sticky; top: 0; float: right; z-index: 2; }
+@media (min-width: 700px) {
+  .capa { align-items: center; padding: 20px; }
+  .hoja { border-bottom: var(--borde); border-radius: 24px; box-shadow: 0 8px 0 var(--tinta); max-height: 88vh; }
+}
+
+/* ── Avisos (resultado de acciones) ── */
+.avisos {
+  position: fixed; z-index: 60; left: 50%; transform: translateX(-50%);
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  width: min(520px, calc(100% - 24px));
+  display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+}
+.aviso {
+  pointer-events: auto;
+  background: var(--papel); border: var(--borde); border-radius: 16px; box-shadow: var(--sombra);
+  padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;
+  animation: caer 0.35s cubic-bezier(.2,.9,.3,1.3);
+}
+.aviso.bien { background: #effbf3; }
+.aviso.mal { background: #fff1f0; }
+.aviso.especial { background: var(--sol-claro); }
+.aviso .txt { font-weight: 900; font-size: 16px; }
+.aviso.saliendo { animation: irse 0.3s ease forwards; }
+
+/* ── Portada ── */
+.portada { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 18px; text-align: center; }
+.sol-mayo { width: 132px; height: 132px; animation: girar 40s linear infinite; filter: drop-shadow(0 4px 0 var(--tinta)); }
+.logo {
+  font-family: var(--f-titulo); font-size: clamp(40px, 11vw, 64px); line-height: 0.95; color: var(--papel);
+  -webkit-text-stroke: 3px var(--tinta); paint-order: stroke fill; text-shadow: 0 5px 0 var(--tinta);
+}
+.logo span { color: var(--sol); display: block; }
+.lema { font-size: 18px; max-width: 30ch; }
+.portada .botones { display: flex; flex-direction: column; gap: 12px; width: min(340px, 100%); }
+.pasos-portada { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 460px; }
+.pasos-portada .tarjeta { padding: 10px 6px; font-size: 13px; }
+.pasos-portada .tarjeta div { font-size: 28px; }
+
+/* ── Crear partido ── */
+.progreso-pasos { display: flex; gap: 6px; justify-content: center; }
+.progreso-pasos i { width: 34px; height: 8px; border-radius: 4px; background: var(--papel); border: 2px solid var(--tinta); }
+.progreso-pasos i.hecho { background: var(--sol); }
+.campo { display: flex; flex-direction: column; gap: 6px; }
+.campo input[type=text] {
+  font: inherit; font-weight: 800; font-size: 18px; padding: 12px 14px; border: var(--borde); border-radius: 14px; background: var(--papel); color: var(--tinta); width: 100%; min-width: 0;
+}
+.campo input[type=text]:focus { outline: 3px solid var(--celeste); outline-offset: 1px; }
+.grilla-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 8px; }
+.opcion-redonda {
+  aspect-ratio: 1; border: var(--borde); border-radius: 14px; background: var(--papel); cursor: pointer; font-size: 24px;
+  display: grid; place-items: center; box-shadow: var(--sombra-chica); padding: 0; max-width: 100%;
+}
+.opcion-redonda.elegida { outline: 4px solid var(--sol); outline-offset: 2px; transform: translateY(-2px); }
+.deslizador { display: flex; flex-direction: column; gap: 6px; }
+.deslizador .extremos { display: flex; justify-content: space-between; font-size: 14px; font-weight: 900; }
+.deslizador input[type=range] { width: 100%; accent-color: var(--sol-osc); height: 32px; }
+.caritas { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 6px; }
+.carita { text-align: center; font-size: 12px; font-weight: 900; padding: 6px 2px; border-radius: 12px; background: var(--papel-2); border: 2px solid var(--tinta); }
+.carita .cara { font-size: 26px; display: block; transition: transform 0.3s; }
+.dificultades { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dificultades .opcion { padding: 10px 4px; text-align: center; border: var(--borde); border-radius: 14px; background: var(--papel); cursor: pointer; box-shadow: var(--sombra-chica); }
+.dificultades .opcion.elegida { background: var(--sol-claro); outline: 3px solid var(--sol); }
+.dificultades .opcion div { font-size: 28px; }
+.editor-avatar { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; }
+.editor-avatar .controles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+/* ── Campaña ── */
+.encuesta { display: flex; flex-direction: column; gap: 8px; }
+.encuesta .linea { display: grid; grid-template-columns: 34px minmax(0, 1fr) 60px; gap: 8px; align-items: center; }
+.encuesta .linea .nombre { font-size: 14px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.encuesta .linea .pct { font-family: var(--f-titulo); font-size: 18px; text-align: right; font-variant-numeric: tabular-nums; }
+.encuesta .linea.yo .nombre { color: var(--tinta); }
+.encuesta .linea.yo { background: var(--sol-claro); border-radius: 12px; padding: 4px; margin: -4px; }
+.mini-escudo { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--tinta); display: grid; place-items: center; font-size: 15px; }
+
+.cuenta-regresiva { display: flex; align-items: center; gap: 12px; }
+.cuenta-regresiva .num { font-family: var(--f-titulo); font-size: 40px; line-height: 1; min-width: 44px; text-align: center; }
+
+.mis-numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mi-numero { text-align: center; padding: 8px 4px; border-radius: 14px; background: var(--papel-2); border: 2px solid var(--tinta); }
+.mi-numero .em { font-size: 24px; }
+.mi-numero .val { font-family: var(--f-titulo); font-size: 22px; }
+.mi-numero .nom { font-size: 12px; font-weight: 900; color: var(--tinta-suave); }
+
+.acciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.accion {
+  text-align: left; border: var(--borde); border-radius: 16px; background: var(--papel); box-shadow: var(--sombra);
+  padding: 10px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-width: 0; position: relative;
+}
+.accion:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--tinta); }
+.accion .cab { display: flex; align-items: center; gap: 8px; }
+.accion .ic { font-size: 28px; line-height: 1; }
+.accion .nom { font-family: var(--f-titulo); font-size: 17px; line-height: 1.05; }
+.accion .desc { font-size: 13px; color: var(--tinta-suave); }
+.accion[disabled] { opacity: 0.5; cursor: not-allowed; }
+.accion[disabled]:active { transform: none; box-shadow: var(--sombra); }
+.accion .bloq { font-size: 12px; color: var(--mal); font-weight: 900; }
+
+.lista-elegir { display: flex; flex-direction: column; gap: 8px; }
+.item-elegir {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left;
+  border: var(--borde); border-radius: 14px; background: var(--papel); padding: 8px 10px; cursor: pointer; box-shadow: var(--sombra-chica);
+}
+.item-elegir:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
+.item-elegir .ic { font-size: 28px; text-align: center; }
+.item-elegir[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Mapa ── */
+.mapa { width: 100%; max-width: 420px; display: block; margin: 0 auto; }
+.mapa .hex { stroke: var(--tinta); stroke-width: 2.5; cursor: pointer; transition: fill 0.4s; }
+.mapa .hex:hover { stroke-width: 3.5; }
+.mapa .hex.sel { stroke: var(--sol-osc); stroke-width: 5; }
+.mapa text { font-family: var(--f-texto); font-weight: 900; pointer-events: none; fill: var(--tinta); }
+.mapa .nom { font-size: 10.5px; }
+.mapa .val { font-size: 10px; }
+.mapa .mar { fill: none; stroke: rgba(19, 40, 74, 0.25); stroke-dasharray: 3 4; }
+.leyenda { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; font-size: 13px; }
+
+/* ── Noticia ── */
+.diario-hoja { background: #fffdf6; }
+.diario-cab { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px double var(--tinta); padding-bottom: 6px; margin-bottom: 12px; }
+.diario-cab .marca { font-family: var(--f-titulo); font-size: 22px; letter-spacing: 0.04em; }
+.dibujo-noticia { font-size: 54px; text-align: center; letter-spacing: 6px; padding: 10px 0 6px; animation: rebote 0.6s ease; }
+.titular { font-family: var(--f-titulo); font-size: 27px; line-height: 1.08; text-align: center; }
+.bajada { text-align: center; color: var(--tinta-suave); margin-top: 6px; }
+.opciones-noticia { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.opcion-noticia {
+  border: var(--borde); border-radius: 16px; background: var(--papel); box-shadow: var(--sombra); padding: 10px 12px;
+  cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 6px;
+}
+.opcion-noticia:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--tinta); }
+.opcion-noticia .cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.opcion-noticia .txt { font-family: var(--f-titulo); font-size: 19px; }
+.opcion-noticia[disabled] { opacity: 0.5; cursor: not-allowed; }
+.opcion-noticia .tecla { font-size: 11px; color: var(--tinta-suave); border: 2px solid var(--meh); border-radius: 6px; padding: 0 5px; }
+.resultado-grande { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; padding: 8px 0; }
+.resultado-grande > .em { font-size: 54px; animation: rebote 0.6s ease; }
+.resultado-grande .txt { font-family: var(--f-titulo); font-size: 24px; }
+
+/* ── Noche de elecciones ── */
+.noche { width: 100%; max-width: 860px; margin: 0 auto; color: #fff; display: flex; flex-direction: column; gap: 14px; padding: 18px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.noche-cuerpo { display: grid; gap: 14px; align-items: center; }
+.noche-cuerpo .mapa-noche { max-width: 230px; margin: 0 auto; width: 100%; }
+@media (min-width: 760px) { .noche-cuerpo { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); } .noche-cuerpo .mapa-noche { max-width: 300px; } }
+.noche h2 { font-size: 30px; text-align: center; color: var(--sol); }
+.noche .escrutinio { text-align: center; font-weight: 900; color: #b9cdf0; }
+.noche .barra { border-color: #fff; background: rgba(255, 255, 255, 0.1); }
+.noche .barra > i { background: var(--sol); transition: width 0.25s linear; }
+.carrera { display: flex; flex-direction: column; gap: 10px; }
+.carrera .linea { display: grid; grid-template-columns: 44px minmax(0, 1fr) 72px; gap: 10px; align-items: center; }
+.carrera .linea .nombre { font-weight: 900; font-size: 15px; display: flex; flex-direction: column; min-width: 0; }
+.carrera .linea .nombre small { color: #b9cdf0; font-size: 12px; }
+.carrera .pista { height: 22px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.5); }
+.carrera .pista i { display: block; height: 100%; border-radius: 999px; transition: width 0.25s linear; }
+.carrera .pct { font-family: var(--f-titulo); font-size: 24px; text-align: right; font-variant-numeric: tabular-nums; }
+.carrera .linea.yo .nombre { color: var(--sol); }
+.noche .mapa .hex { stroke: #0b1428; }
+.noche .mapa text { fill: #0b1428; }
+.veredicto { text-align: center; font-family: var(--f-titulo); font-size: 34px; line-height: 1.05; animation: rebote 0.7s ease; }
+.veredicto.gana { color: var(--sol); }
+.veredicto.pierde { color: #ff9b97; }
+.noche .tarjeta { color: var(--tinta); }
+.bancas-ganadas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.hemiciclo { width: 100%; max-width: 360px; display: block; margin: 0 auto; }
+
+/* ── Debate ── */
+.debate-escenario { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 6px; text-align: center; }
+.debate-escenario .atril { display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 900; font-size: 13px; }
+.debate-escenario .vs { font-family: var(--f-titulo); font-size: 26px; color: var(--mal); padding-bottom: 30px; }
+.aplausometro { display: flex; align-items: center; gap: 8px; }
+.aplausometro .barra { flex: 1; height: 20px; }
+.aplausometro .barra > i { background: linear-gradient(90deg, var(--mal), var(--sol), var(--bien)); }
+.estilos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.estilos .boton { flex-direction: column; gap: 0; min-height: 76px; }
+.estilos .boton .em { font-size: 28px; }
+.estilos .boton.recomendado { background: var(--sol-claro); }
+.regla { text-align: center; font-size: 13px; font-weight: 900; color: var(--tinta-suave); }
+.regla b { font-size: 18px; letter-spacing: 2px; color: var(--tinta); }
+.burbuja { background: var(--papel-2); border: 2px solid var(--tinta); border-radius: 14px; padding: 8px 12px; font-weight: 900; position: relative; }
+
+/* ── Diario (historial) ── */
+.historial { display: flex; flex-direction: column; gap: 6px; }
+.historial .item { display: grid; grid-template-columns: 30px 56px minmax(0, 1fr); gap: 8px; align-items: center; font-size: 14px; padding: 6px 8px; border-radius: 10px; background: var(--papel-2); }
+.historial .item .em { font-size: 20px; }
+.historial .item .f { font-size: 12px; color: var(--tinta-suave); font-weight: 900; }
+
+/* ── Escritorio: dos columnas ── */
+.columnas { display: grid; gap: 14px; }
+@media (min-width: 900px) {
+  .columnas { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: start; }
+  .columnas > .col-izq { position: sticky; top: 92px; }
+  .acciones { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .solo-celu { display: none !important; }
+}
+@media (max-width: 899px) { .solo-pc { display: none !important; } }
+@media (max-width: 380px) {
+  .acciones { gap: 8px; }
+  .accion .nom { font-size: 15px; }
+  .titular { font-size: 23px; }
+}
+
+/* ── Animaciones ── */
+@keyframes aparecer { from { opacity: 0; } to { opacity: 1; } }
+@keyframes subir { from { transform: translateY(40px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+@keyframes caer { from { transform: translateY(-24px) scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes irse { to { transform: translateY(-16px); opacity: 0; } }
+@keyframes girar { to { transform: rotate(360deg); } }
+@keyframes rebote { 0% { transform: scale(0.6); } 55% { transform: scale(1.12); } 100% { transform: scale(1); } }
+@keyframes pulso { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes temblar { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+.temblor { animation: temblar 0.45s ease; }
+.confeti { position: fixed; inset: 0; pointer-events: none; z-index: 70; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+</style>
+</head>
+<body>
+<div id="app" class="app"></div>
+<div id="capa" class="capa" hidden></div>
+<div id="avisos" class="avisos" aria-live="polite"></div>
+<script>
+// ── js/nucleo/util.js ──
+// Utilidades comunes: azar con semilla (guardado en el estado), formato y fechas.
+// Todos los archivos del juego cuelgan del objeto global R (funciona en navegador y en Node).
+(function (R) {
+  'use strict';
+
+  R.VERSION = 1;
+
+  R.clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  R.lerp = (a, b, t) => a + (b - a) * t;
+  R.round = (x, d = 1) => Math.round(x * 10 ** d) / 10 ** d;
+  R.sum = (arr) => arr.reduce((a, b) => a + b, 0);
+
+  // Azar Mulberry32: el estado de la semilla vive en s.rng, así guardar/cargar es reproducible.
+  R.rand = function (s) {
+    let t = (s.rng = (s.rng + 0x6d2b79f5) | 0);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  R.randRange = (s, a, b) => a + R.rand(s) * (b - a);
+  R.randInt = (s, a, b) => a + Math.floor(R.rand(s) * (b - a + 1));
+  R.chance = (s, p) => R.rand(s) < p;
+  R.pick = (s, arr) => arr[Math.floor(R.rand(s) * arr.length)];
+  // Ruido aproximadamente normal (media 0, desvío ~1).
+  R.gauss = (s) => (R.rand(s) + R.rand(s) + R.rand(s) + R.rand(s) - 2) * 1.73;
+  R.weighted = function (s, items, wfn) {
+    const ws = items.map(wfn);
+    const total = R.sum(ws);
+    if (total <= 0) return null;
+    let r = R.rand(s) * total;
+    for (let i = 0; i < items.length; i++) {
+      r -= ws[i];
+      if (r <= 0) return items[i];
+    }
+    return items[items.length - 1];
+  };
+  R.shuffle = function (s, arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(R.rand(s) * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  // Fechas: el mes 0 es enero de 2027.
+  R.MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  R.MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  R.mesDelAnio = (mes) => ((mes % 12) + 12) % 12;
+  R.anio = (mes) => 2027 + Math.floor(mes / 12);
+  R.fechaTxt = (mes) => R.cap(R.MESES[R.mesDelAnio(mes)]) + ' ' + R.anio(mes);
+  R.fechaCorta = (mes) => R.MESES_CORTOS[R.mesDelAnio(mes)] + ' ' + String(R.anio(mes)).slice(2);
+  R.mesNum = (anio, mesDelAnio) => (anio - 2027) * 12 + mesDelAnio;
+
+  R.cap = (t) => (t ? t[0].toUpperCase() + t.slice(1) : t);
+
+  // Números con coma decimal, a la argentina.
+  R.fmt = function (x, dec = 0) {
+    if (!isFinite(x)) return '–';
+    const s = Math.abs(x).toFixed(dec).split('.');
+    s[0] = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return (x < 0 ? '−' : '') + s.join(',');
+  };
+  R.pct = (x, dec = 1) => R.fmt(x, dec) + ' %';
+  R.signo = (x, dec = 1) => (x > 0 ? '+' : x < 0 ? '−' : '') + R.fmt(Math.abs(x), dec);
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/datos/provincias.js ──
+// Los 24 distritos. padron = % del padrón nacional; dip = diputados; sen = grupo de renovación del Senado
+// (A vota en 2027, B en 2029, C en 2031); lean = inclinación económica (−1 Estado presente … +1 mercado libre);
+// hex = [columna, fila] en el mapa de fichas (las filas impares se corren media ficha a la derecha).
+(function (R) {
+  'use strict';
+
+  R.PROVINCIAS = [
+    { id: 'JUJ', nombre: 'Jujuy', padron: 1.7, dip: 6, sen: 'B', lean: 0.0, hex: [1, 0], region: 'norte' },
+    { id: 'SAL', nombre: 'Salta', padron: 3.0, dip: 7, sen: 'C', lean: -0.1, hex: [2, 0], region: 'norte' },
+    { id: 'FOR', nombre: 'Formosa', padron: 1.4, dip: 5, sen: 'B', lean: -0.7, hex: [3, 0], region: 'norte' },
+    { id: 'CAT', nombre: 'Catamarca', padron: 0.9, dip: 5, sen: 'A', lean: -0.4, hex: [1, 1], region: 'norte' },
+    { id: 'TUC', nombre: 'Tucumán', padron: 3.6, dip: 9, sen: 'A', lean: -0.3, hex: [2, 1], region: 'norte' },
+    { id: 'CHA', nombre: 'Chaco', padron: 2.6, dip: 7, sen: 'C', lean: -0.3, hex: [3, 1], region: 'litoral' },
+    { id: 'MIS', nombre: 'Misiones', padron: 2.7, dip: 7, sen: 'B', lean: -0.1, hex: [4, 1], region: 'litoral' },
+    { id: 'LRJ', nombre: 'La Rioja', padron: 0.9, dip: 5, sen: 'B', lean: -0.5, hex: [1, 2], region: 'norte' },
+    { id: 'SGO', nombre: 'Santiago del Estero', corto: 'Santiago', padron: 2.3, dip: 7, sen: 'C', lean: -0.7, hex: [2, 2], region: 'norte' },
+    { id: 'SFE', nombre: 'Santa Fe', padron: 8.0, dip: 19, sen: 'A', lean: 0.2, hex: [3, 2], region: 'centro' },
+    { id: 'COR', nombre: 'Corrientes', padron: 2.5, dip: 7, sen: 'A', lean: 0.2, hex: [4, 2], region: 'litoral' },
+    { id: 'SJU', nombre: 'San Juan', padron: 1.7, dip: 6, sen: 'B', lean: 0.1, hex: [0, 3], region: 'cuyo' },
+    { id: 'SLU', nombre: 'San Luis', padron: 1.2, dip: 5, sen: 'B', lean: 0.3, hex: [1, 3], region: 'cuyo' },
+    { id: 'CBA', nombre: 'Córdoba', padron: 8.7, dip: 18, sen: 'A', lean: 0.6, hex: [2, 3], region: 'centro' },
+    { id: 'ERI', nombre: 'Entre Ríos', padron: 3.2, dip: 9, sen: 'C', lean: 0.2, hex: [3, 3], region: 'litoral' },
+    { id: 'MZA', nombre: 'Mendoza', padron: 4.3, dip: 10, sen: 'A', lean: 0.5, hex: [1, 4], region: 'cuyo' },
+    { id: 'LPA', nombre: 'La Pampa', padron: 0.9, dip: 5, sen: 'A', lean: -0.1, hex: [2, 4], region: 'centro' },
+    { id: 'BUE', nombre: 'Buenos Aires', padron: 37.0, dip: 70, sen: 'B', lean: -0.2, hex: [3, 4], region: 'amba' },
+    { id: 'CABA', nombre: 'Ciudad de Buenos Aires', corto: 'CABA', padron: 7.4, dip: 25, sen: 'C', lean: 0.5, hex: [4, 4], region: 'amba' },
+    { id: 'NQN', nombre: 'Neuquén', padron: 1.6, dip: 5, sen: 'C', lean: 0.0, hex: [0, 5], region: 'patagonia' },
+    { id: 'RNE', nombre: 'Río Negro', padron: 1.7, dip: 5, sen: 'C', lean: 0.0, hex: [1, 5], region: 'patagonia' },
+    { id: 'CHU', nombre: 'Chubut', padron: 1.3, dip: 5, sen: 'A', lean: 0.0, hex: [1, 6], region: 'patagonia' },
+    { id: 'SCR', nombre: 'Santa Cruz', padron: 0.8, dip: 5, sen: 'B', lean: -0.3, hex: [0, 7], region: 'patagonia' },
+    { id: 'TDF', nombre: 'Tierra del Fuego', corto: 'T. del Fuego', padron: 0.4, dip: 5, sen: 'C', lean: -0.1, hex: [1, 8], region: 'patagonia' },
+  ];
+
+  // Normalizar el padrón para que sume exactamente 100.
+  const total = R.PROVINCIAS.reduce((a, p) => a + p.padron, 0);
+  R.PROVINCIAS.forEach((p) => {
+    p.padron = (p.padron * 100) / total;
+    p.corto = p.corto || p.nombre;
+  });
+  R.PROV = Object.fromEntries(R.PROVINCIAS.map((p) => [p.id, p]));
+
+  R.REGIONES = {
+    norte: { nombre: 'Norte', emoji: '🌵' },
+    litoral: { nombre: 'Litoral', emoji: '🌊' },
+    centro: { nombre: 'Centro', emoji: '🌾' },
+    cuyo: { nombre: 'Cuyo', emoji: '🍇' },
+    amba: { nombre: 'AMBA', emoji: '🏙️' },
+    patagonia: { nombre: 'Patagonia', emoji: '🏔️' },
+  };
+
+  // Qué grupo del Senado se renueva cada año electoral.
+  R.SENADO_GRUPO = { 2027: 'A', 2029: 'B', 2031: 'C', 2033: 'A', 2035: 'B', 2037: 'C' };
+
+  // Malvinas: ficha especial del mapa (no vota).
+  R.MALVINAS = { id: 'MLV', nombre: 'Islas Malvinas', corto: 'Malvinas', hex: [3, 7] };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/datos/partidos.js ──
+// Partidos rivales (ficticios), figuras para sumar a la campaña, aliados chicos y generadores de nombres.
+(function (R) {
+  'use strict';
+
+  // ideo: −1 Estado presente … +1 mercado libre. base: intención de voto nacional al empezar.
+  // fuerte: bonus por provincia. debate: estilo preferido en los debates.
+  R.PARTIDOS = {
+    MNP: {
+      id: 'MNP', sigla: 'MNP', nombre: 'Movimiento Nacional Popular', color: '#2f7fd0', simbolo: '✌️', ideo: -0.55, base: 31,
+      candidato: { nombre: 'Ramón Arrieta', avatar: { piel: 2, pelo: 1, colorPelo: 4, anteojos: 0, barba: 1, ropa: 0 } },
+      debate: 'emocion',
+      fuerte: { FOR: 0.35, SGO: 0.4, LRJ: 0.3, CAT: 0.2, BUE: 0.15, TUC: 0.25, SCR: 0.25, CHA: 0.15, MIS: 0.1 },
+    },
+    PL: {
+      id: 'PL', sigla: 'PL', nombre: 'Partido de la Libertad', color: '#7c3fc4', simbolo: '⚡', ideo: 0.9, base: 30,
+      candidato: { nombre: 'Tomás Kessler', avatar: { piel: 0, pelo: 4, colorPelo: 1, anteojos: 0, barba: 0, ropa: 3 } },
+      debate: 'ataque',
+      fuerte: { CBA: 0.25, MZA: 0.2, SLU: 0.15, SJU: 0.15, SAL: 0.1, TUC: 0.1, CABA: 0.05 },
+      oficialismo: true,
+    },
+    AR: {
+      id: 'AR', sigla: 'AR', nombre: 'Alianza Republicana', color: '#f0b90b', simbolo: '🏛️', ideo: 0.45, base: 15,
+      candidato: { nombre: 'Valeria Montes', avatar: { piel: 0, pelo: 2, colorPelo: 3, anteojos: 1, barba: 0, ropa: 2 } },
+      debate: 'datos',
+      fuerte: { CABA: 0.5, CBA: 0.15, ERI: 0.2, SFE: 0.1, MZA: 0.15 },
+    },
+    UCF: {
+      id: 'UCF', sigla: 'UCF', nombre: 'Unión Cívica Federal', color: '#d6453d', simbolo: '📜', ideo: 0.05, base: 9,
+      candidato: { nombre: 'Elena Cabral', avatar: { piel: 1, pelo: 3, colorPelo: 5, anteojos: 2, barba: 0, ropa: 1 } },
+      debate: 'datos',
+      fuerte: { COR: 0.6, JUJ: 0.45, MZA: 0.3, CHU: 0.15, SFE: 0.15, CAT: 0.1 },
+    },
+    FT: {
+      id: 'FT', sigla: 'FT', nombre: 'Frente de Trabajadores', color: '#a51c30', simbolo: '✊', ideo: -1, base: 4,
+      candidato: { nombre: 'Nicolás Ferro', avatar: { piel: 1, pelo: 5, colorPelo: 0, anteojos: 1, barba: 2, ropa: 4 } },
+      debate: 'ataque',
+      fuerte: { NQN: 0.45, JUJ: 0.35, CABA: 0.2, SFE: 0.1, SAL: 0.1 },
+    },
+    PROV: {
+      id: 'PROV', sigla: 'Prov.', nombre: 'Partidos provinciales', color: '#8a96a8', simbolo: '🗺️', ideo: 0.1, base: 0,
+      noCompite: true,
+    },
+  };
+  R.RIVALES = ['MNP', 'PL', 'AR', 'UCF', 'FT'];
+
+  // Bancas que NO se renuevan en 2027 (elegidas en 2025 y 2023).
+  R.CONGRESO_INICIAL = {
+    diputados: { PL: 52, MNP: 47, AR: 11, UCF: 10, FT: 3, PROV: 4 }, // 127
+    senado: { MNP: 20, PL: 13, AR: 4, UCF: 7, PROV: 4 }, // 48 (grupos B y C)
+  };
+
+  // Figuras para sumar a la campaña. ideo: a qué votante le gusta (−1 izq, +1 der, 0 a todos).
+  R.FIGURAS = [
+    { id: 'diez', emoji: '⚽', nombre: 'Ex 10 de la Selección', conocen: 12, simpatia: 3, ideo: 0, costo: 35 },
+    { id: 'actriz', emoji: '🎭', nombre: 'Actriz de novelas', conocen: 9, simpatia: 3, ideo: 0, costo: 30 },
+    { id: 'economista', emoji: '📈', nombre: 'Economista de la tele', conocen: 5, simpatia: 6, ideo: 0.8, costo: 30 },
+    { id: 'cura', emoji: '⛪', nombre: 'Cura de barrio', conocen: 4, simpatia: 7, ideo: -0.8, costo: 20 },
+    { id: 'streamer', emoji: '🎮', nombre: 'Streamer famosa', conocen: 10, simpatia: 2, ideo: 0.2, costo: 25, riesgo: true },
+    { id: 'parrillero', emoji: '🥩', nombre: 'Parrillero de la tele', conocen: 7, simpatia: 5, ideo: 0, costo: 25 },
+    { id: 'rockero', emoji: '🎸', nombre: 'Rockero de los 80', conocen: 6, simpatia: 4, ideo: -0.4, costo: 20 },
+    { id: 'medica', emoji: '🩺', nombre: 'Médica de la pandemia', conocen: 5, simpatia: 6, ideo: -0.2, costo: 20 },
+    { id: 'campo', emoji: '🚜', nombre: 'Productor rural famoso', conocen: 4, simpatia: 5, ideo: 0.7, costo: 20, region: 'centro' },
+    { id: 'sindical', emoji: '👷', nombre: 'Dirigente sindical', conocen: 4, simpatia: 3, ideo: -0.7, costo: 15, militancia: 12 },
+  ];
+
+  // Partidos chicos que pueden sumarse en una alianza.
+  R.ALIADOS = [
+    { id: 'vecinal', nombre: 'Partido Vecinal', emoji: '🏘️', ideo: 0.1, votos: 2.5, region: 'amba' },
+    { id: 'verde', nombre: 'Partido Verde', emoji: '🌱', ideo: -0.3, votos: 2, region: 'patagonia' },
+    { id: 'demo', nombre: 'Demócratas del Interior', emoji: '🐎', ideo: 0.5, votos: 2.5, region: 'cuyo' },
+    { id: 'norte', nombre: 'Frente Norteño', emoji: '🌵', ideo: -0.3, votos: 2.5, region: 'norte' },
+    { id: 'litoral', nombre: 'Movimiento Litoraleño', emoji: '🌊', ideo: 0.1, votos: 2, region: 'litoral' },
+  ];
+
+  // Opciones visuales del partido propio.
+  R.COLORES_PARTIDO = ['#e8504f', '#f28c28', '#e9b200', '#3aa655', '#13a89e', '#2f7fd0', '#5b5bd6', '#a24bc6', '#e0569b', '#6aa31a'];
+  R.SIMBOLOS_PARTIDO = ['☀️', '🧉', '🐎', '🌾', '🔥', '⭐', '🐄', '🕊️', '🌳', '🏔️', '⚓', '🦅', '🐆', '🌻', '💡', '🛠️'];
+
+  const PRE = ['Movimiento', 'Partido', 'Frente', 'Unión', 'Fuerza', 'Coalición', 'Encuentro', 'Bloque'];
+  const POST = ['Celeste', 'del Mate', 'Federal', 'de la Esperanza', 'Patria Grande', 'del Sol', 'Renovador', 'de los Laburantes',
+    'Productivo', 'Futuro', 'Vecinal', 'de la Gente', 'Nuevo Rumbo', 'del Asado', 'Argentino', 'Despierta'];
+  R.nombrePartidoAzar = function () {
+    const a = PRE[Math.floor(Math.random() * PRE.length)];
+    const b = POST[Math.floor(Math.random() * POST.length)];
+    const nombre = a + ' ' + b;
+    const sigla = nombre.split(' ').filter((w) => w.length > 2 && w[0] === w[0].toUpperCase()).map((w) => w[0]).join('').slice(0, 4);
+    return { nombre, sigla: sigla.length >= 2 ? sigla : nombre.slice(0, 3).toUpperCase() };
+  };
+
+  const NOMBRES = ['Lucía', 'Martín', 'Sofía', 'Diego', 'Carla', 'Javier', 'Valentina', 'Gustavo', 'Paula', 'Facundo', 'Romina',
+    'Hernán', 'Mariela', 'Pablo', 'Agustina', 'Ezequiel', 'Florencia', 'Matías', 'Julieta', 'Rodrigo'];
+  const APELLIDOS = ['Benítez', 'Ruiz Díaz', 'Ferreyra', 'Acosta', 'Medina', 'Godoy', 'Sosa', 'Correa', 'Villalba', 'Paz',
+    'Castro', 'Rojas', 'Luna', 'Aguirre', 'Peralta', 'Domínguez', 'Ledesma', 'Molina', 'Ríos', 'Quiroga'];
+  R.nombreLiderAzar = function () {
+    return NOMBRES[Math.floor(Math.random() * NOMBRES.length)] + ' ' + APELLIDOS[Math.floor(Math.random() * APELLIDOS.length)];
+  };
+  R.avatarAzar = function () {
+    const r = (n) => Math.floor(Math.random() * n);
+    return { piel: r(5), pelo: r(6), colorPelo: r(6), anteojos: r(3) === 0 ? r(2) + 1 : 0, barba: r(3) === 0 ? r(2) + 1 : 0, ropa: r(5) };
+  };
+
+  // Datos del partido del jugador como «partido» para el Congreso y las elecciones.
+  R.partidoInfo = function (s, id) {
+    if (id === 'YO') return { id: 'YO', sigla: s.partido.sigla, nombre: s.partido.nombre, color: s.partido.color, simbolo: s.partido.simbolo, ideo: s.partido.ideo };
+    return R.PARTIDOS[id];
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/datos/grupos.js ──
+// La gente: seis grupos con cara y nombre. peso = cuánto pesa en la aprobación; ideo = qué ideas prefieren.
+(function (R) {
+  'use strict';
+
+  R.GRUPOS = [
+    { id: 'trabajadores', emoji: '👷', nombre: 'Trabajadores', personaje: 'Julio', oficio: 'metalúrgico', peso: 20, ideo: -0.55,
+      avatar: { piel: 2, pelo: 0, colorPelo: 0, anteojos: 0, barba: 1, ropa: 1 } },
+    { id: 'campo', emoji: '🌾', nombre: 'El campo', personaje: 'Pedro', oficio: 'chacarero', peso: 5, ideo: 0.65,
+      avatar: { piel: 1, pelo: 5, colorPelo: 4, anteojos: 0, barba: 0, ropa: 3 } },
+    { id: 'empresarios', emoji: '💼', nombre: 'Empresarios', personaje: 'Laura', oficio: 'dueña de una pyme', peso: 5, ideo: 0.75,
+      avatar: { piel: 0, pelo: 3, colorPelo: 2, anteojos: 2, barba: 0, ropa: 0 } },
+    { id: 'media', emoji: '🏙️', nombre: 'Clase media', personaje: 'Sofía', oficio: 'docente', peso: 30, ideo: 0.15,
+      avatar: { piel: 1, pelo: 2, colorPelo: 1, anteojos: 1, barba: 0, ropa: 4 } },
+    { id: 'humildes', emoji: '🏚️', nombre: 'Barrios humildes', personaje: 'Kevin', oficio: 'repartidor', peso: 25, ideo: -0.6,
+      avatar: { piel: 3, pelo: 4, colorPelo: 0, anteojos: 0, barba: 0, ropa: 2 } },
+    { id: 'jubilados', emoji: '👵', nombre: 'Jubilados', personaje: 'Doña Marta', oficio: 'jubilada', peso: 15, ideo: -0.2,
+      avatar: { piel: 0, pelo: 3, colorPelo: 4, anteojos: 1, barba: 0, ropa: 4 } },
+  ];
+  R.GRUPO = Object.fromEntries(R.GRUPOS.map((g) => [g.id, g]));
+
+  // Cara según humor 0-100.
+  R.cara = (v) => (v >= 72 ? '😄' : v >= 56 ? '🙂' : v >= 42 ? '😐' : v >= 28 ? '🙁' : '😠');
+  R.humorAvatar = (v) => (v >= 62 ? 'feliz' : v >= 42 ? 'normal' : v >= 28 ? 'triste' : 'enojado');
+
+  // Cuánto le gustás de entrada a cada grupo según tus ideas (0-100).
+  R.simpatiaInicialGrupo = (g, ideo) => R.clamp(50 + 30 * (0.75 - Math.abs(g.ideo - ideo) * 1.2), 22, 78);
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/estado.js ──
+// Estado de la partida: creación, guardado y carga.
+(function (R) {
+  'use strict';
+
+  const CLAVE = 'rosada_partida_v1';
+
+  R.DIFICULTADES = {
+    facil: { nombre: 'Fácil', emoji: '😊', fondos: 140, agenda: 4, rival: 0.9, mult: 1.15 },
+    normal: { nombre: 'Normal', emoji: '😐', fondos: 100, agenda: 3, rival: 1, mult: 1 },
+    dificil: { nombre: 'Difícil', emoji: '😈', fondos: 70, agenda: 3, rival: 1.1, mult: 0.88 },
+  };
+
+  // cfg: { partido: {nombre, sigla, color, simbolo, ideo, estilo}, lider: {nombre, avatar}, dificultad, semilla? }
+  R.nuevaPartida = function (cfg) {
+    const dif = R.DIFICULTADES[cfg.dificultad] ? cfg.dificultad : 'normal';
+    const D = R.DIFICULTADES[dif];
+    const semilla = (cfg.semilla ?? Math.floor(Math.random() * 2 ** 31)) | 0;
+    const s = {
+      v: R.VERSION,
+      semilla,
+      rng: semilla,
+      fase: 'campana',
+      mes: 0,
+      dif,
+      partido: {
+        nombre: cfg.partido.nombre,
+        sigla: cfg.partido.sigla,
+        color: cfg.partido.color,
+        simbolo: cfg.partido.simbolo,
+        ideo: R.clamp(cfg.partido.ideo ?? 0, -1, 1),
+        estilo: R.clamp(cfg.partido.estilo ?? 0, -1, 1),
+      },
+      lider: { nombre: cfg.lider.nombre, avatar: cfg.lider.avatar },
+      camp: {
+        fondos: D.fondos,
+        agenda: D.agenda,
+        agendaMax: D.agenda,
+        conocen: 6,
+        simpatia: 52,
+        militancia: 8,
+        presencia: {},
+        visitas: {},
+        figuras: [],
+        alianza: null,
+        sucio: 0,
+        usadasMes: {},
+        bonusVotos: 0,
+      },
+      rivales: Object.fromEntries(R.RIVALES.map((id) => [id, 0])),
+      encuestas: [],
+      elecciones: {},
+      congreso: null,
+      diario: [],
+      cola: [], // momentos pendientes de mostrar (noticias por decidir, resultados…)
+      vistos: {},
+      flags: {},
+      stats: { acciones: 0, noticias: 0 },
+    };
+    R.PROVINCIAS.forEach((p) => {
+      s.camp.presencia[p.id] = 0;
+      s.camp.visitas[p.id] = 0;
+    });
+    s.congreso = R.congresoInicial();
+    s.encuestas.push(R.camp.encuesta(s));
+    R.diario(s, '🎉', 'Nace ' + s.partido.nombre);
+    return s;
+  };
+
+  R.diario = function (s, emoji, txt, tipo) {
+    s.diario.unshift({ mes: s.mes, emoji, txt, tipo: tipo || 'info' });
+    if (s.diario.length > 120) s.diario.length = 120;
+  };
+
+  // ── Guardado (el navegador puede no tener localStorage: todo con try/catch) ──
+  R.guardar = function (s) {
+    try {
+      globalThis.localStorage && globalThis.localStorage.setItem(CLAVE, JSON.stringify(s));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+  R.cargar = function () {
+    try {
+      const txt = globalThis.localStorage && globalThis.localStorage.getItem(CLAVE);
+      if (!txt) return null;
+      const s = JSON.parse(txt);
+      if (!s || s.v !== R.VERSION) return null;
+      return s;
+    } catch (e) {
+      return null;
+    }
+  };
+  R.borrarPartida = function () {
+    try {
+      globalThis.localStorage && globalThis.localStorage.removeItem(CLAVE);
+    } catch (e) {
+      /* nada */
+    }
+  };
+
+  // Preferencias (sonido, tutorial visto…) aparte de la partida.
+  R.pref = function (clave, valor) {
+    const K = 'rosada_pref_' + clave;
+    try {
+      if (valor === undefined) {
+        const v = globalThis.localStorage && globalThis.localStorage.getItem(K);
+        return v === null || v === undefined ? undefined : JSON.parse(v);
+      }
+      globalThis.localStorage && globalThis.localStorage.setItem(K, JSON.stringify(valor));
+    } catch (e) {
+      return undefined;
+    }
+    return valor;
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/efectos.js ──
+// Efectos: cómo se aplican y cómo se muestran (icono + flechas, sin números raros).
+// Un objeto de efectos es plano: { conocen: +5, simpatia: -2, fondos: 20, presencia: { BUE: 10 }, rival: { MNP: -2 } }.
+(function (R) {
+  'use strict';
+
+  // paso = cuánto vale una flecha. inverso = subir es malo para vos.
+  R.EF_META = {
+    conocen: { emoji: '👁️', nombre: 'Te conocen', paso: 3 },
+    simpatia: { emoji: '❤️', nombre: 'Les caés bien', paso: 2 },
+    militancia: { emoji: '🏴', nombre: 'Militancia', paso: 4 },
+    fondos: { emoji: '💰', nombre: 'Fondos', paso: 15, numero: true },
+    sucio: { emoji: '⚠️', nombre: 'Riesgo de escándalo', paso: 1, inverso: true },
+    agenda: { emoji: '⏱️', nombre: 'Agenda', paso: 1, numero: true },
+    presencia: { emoji: '📍', nombre: 'Apoyo local', paso: 8 },
+    rival: { emoji: '🗡️', nombre: 'Rival', paso: 1.5, inverso: true },
+    votos: { emoji: '🗳️', nombre: 'Votos', paso: 1.5 },
+  };
+
+  function flechas(meta, v) {
+    return Math.min(3, Math.max(1, Math.ceil(Math.abs(v) / meta.paso - 0.15)));
+  }
+
+  // Convierte efectos que dependen de la ideología del jugador en simpatía concreta.
+  // ideoDer: n → +n si sos de derecha, −n si sos de izquierda (proporcional a cuánto).
+  function simpatiaIdeologica(s, ef) {
+    let d = 0;
+    if (ef.ideoDer) d += ef.ideoDer * s.partido.ideo;
+    if (ef.ideoIzq) d += ef.ideoIzq * -s.partido.ideo;
+    if (ef.confrontativo) d += ef.confrontativo * s.partido.estilo;
+    if (ef.dialoguista) d += ef.dialoguista * -s.partido.estilo;
+    return d;
+  }
+
+  // Expande un efecto a sus deltas concretos (sin aplicarlos). Devuelve una lista [{k, v, sub}].
+  R.expandirEfectos = function (s, ef) {
+    const out = [];
+    if (!ef) return out;
+    let simp = (ef.simpatia || 0) + simpatiaIdeologica(s, ef);
+    // Rendimientos decrecientes: cuanto más alto estás, más cuesta seguir subiendo.
+    if (simp > 0 && s.camp) simp *= R.clamp(1 - (s.camp.simpatia - 50) / 40, 0.2, 1);
+    for (const k of ['conocen', 'militancia', 'fondos', 'sucio', 'agenda']) {
+      if (!ef[k]) continue;
+      let v = ef[k];
+      if (k === 'conocen' && v > 0 && s.camp) v *= R.clamp(1 - (s.camp.conocen - 40) / 80, 0.3, 1);
+      out.push({ k, v: R.round(v, 2) });
+    }
+    if (Math.abs(simp) >= 0.05) out.push({ k: 'simpatia', v: R.round(simp, 2) });
+    if (ef.presencia) {
+      for (const [where, v] of Object.entries(ef.presencia)) {
+        out.push({ k: 'presencia', v, sub: where });
+      }
+    }
+    if (ef.rival) {
+      for (const [id, v] of Object.entries(ef.rival)) out.push({ k: 'rival', v, sub: id });
+    }
+    if (ef.votos) out.push({ k: 'votos', v: ef.votos });
+    return out;
+  };
+
+  function provinciasDe(where) {
+    if (where === 'todas') return R.PROVINCIAS.map((p) => p.id);
+    if (R.REGIONES[where]) return R.PROVINCIAS.filter((p) => p.region === where).map((p) => p.id);
+    if (R.PROV[where]) return [where];
+    return [];
+  }
+
+  R.aplicarEfectos = function (s, ef) {
+    const lista = R.expandirEfectos(s, ef);
+    const c = s.camp;
+    for (const { k, v, sub } of lista) {
+      switch (k) {
+        case 'conocen': c.conocen = R.clamp(c.conocen + v, 0, 100); break;
+        case 'simpatia': c.simpatia = R.clamp(c.simpatia + v, 0, 100); break;
+        case 'militancia': c.militancia = R.clamp(c.militancia + v, 0, 100); break;
+        case 'fondos': c.fondos = Math.max(0, c.fondos + v); break;
+        case 'sucio': c.sucio = Math.max(0, c.sucio + v); break;
+        case 'agenda': c.agenda = Math.max(0, c.agenda + v); break;
+        case 'presencia':
+          provinciasDe(sub).forEach((id) => { c.presencia[id] = R.clamp(c.presencia[id] + v, 0, 100); });
+          break;
+        case 'rival': if (s.rivales[sub] !== undefined) s.rivales[sub] += v; break;
+        case 'votos': c.bonusVotos += v; break;
+      }
+    }
+    return lista;
+  };
+
+  // Para dibujar: [{emoji, nombre, flechas, sube, bueno, sub}]
+  R.describirEfectos = function (s, ef) {
+    return R.expandirEfectos(s, ef).map(({ k, v, sub }) => {
+      const meta = R.EF_META[k] || { emoji: '•', nombre: k, paso: 1 };
+      let nombre = meta.nombre;
+      let emoji = meta.emoji;
+      if (k === 'presencia') nombre = (R.PROV[sub] ? R.PROV[sub].corto : R.REGIONES[sub] ? R.REGIONES[sub].nombre : 'Todo el país');
+      if (k === 'rival') {
+        const p = R.PARTIDOS[sub];
+        nombre = p ? p.sigla : sub;
+        emoji = p ? p.simbolo : emoji;
+      }
+      const sube = v > 0;
+      const bueno = meta.inverso ? !sube : sube;
+      return { k, emoji, nombre, v, sube, bueno, flechas: flechas(meta, v), numero: meta.numero, sub };
+    });
+  };
+
+  // Describe una lista ya aplicada [{k, v, sub}] (sin volver a escalar los valores).
+  R.describirAplicado = function (s, lista) {
+    if (s.fase === 'gobierno' && R.gob && R.gob.describirAplicado) return R.gob.describirAplicado(s, lista);
+    return lista.map(({ k, v, sub }) => {
+      const out = R.describirEfectos({ partido: s.partido, camp: null }, sub ? { [k]: { [sub]: v } } : { [k]: v });
+      return out[0];
+    }).filter(Boolean);
+  };
+
+  // Suma dos objetos de efectos (para combinar costo + resultado).
+  R.sumarEfectos = function (a, b) {
+    const out = JSON.parse(JSON.stringify(a || {}));
+    for (const [k, v] of Object.entries(b || {})) {
+      if (v && typeof v === 'object') {
+        out[k] = out[k] || {};
+        for (const [k2, v2] of Object.entries(v)) out[k][k2] = (out[k][k2] || 0) + v2;
+      } else out[k] = (out[k] || 0) + v;
+    }
+    return out;
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/campana.js ──
+// Campaña: acciones del mes, paso del tiempo y cálculo de la intención de voto por provincia.
+(function (R) {
+  'use strict';
+
+  const camp = (R.camp = {});
+
+  // Afinidad entre tus ideas y la provincia: 0,6 (nada que ver) … 1,35 (calcado).
+  camp.afinidad = (s, prov) => R.clamp(1 + 0.6 * (0.55 - Math.abs(prov.lean - s.partido.ideo)), 0.6, 1.35);
+  const cercania = (a, b) => 1 - Math.abs(a - b) / 2; // 0 … 1
+
+  // ── Acciones ──
+  // Cada acción: costo (fondos), elegir (qué hay que elegir antes), max por mes, preview y hacer.
+  camp.ACCIONES = [
+    {
+      id: 'acto', emoji: '🎤', nombre: 'Acto', desc: 'Subís fuerte en una provincia', costo: 10, elegir: 'provincia',
+      calc(s, provId) {
+        const p = R.PROV[provId];
+        const vis = s.camp.visitas[provId] || 0;
+        const af = camp.afinidad(s, p);
+        const rinde = Math.pow(0.62, vis);
+        return {
+          presencia: { [provId]: Math.round(30 * af * rinde) },
+          conocen: R.round((0.5 + p.padron * 0.07) * rinde + 0.3, 1),
+          simpatia: R.round(0.6 * af * rinde, 1),
+          militancia: 1,
+        };
+      },
+      hacer(s, provId) {
+        const ef = this.calc(s, provId);
+        s.camp.visitas[provId] = (s.camp.visitas[provId] || 0) + 1;
+        const lleno = R.chance(s, 0.15);
+        if (lleno) ef.presencia[provId] += 8;
+        return { ef, txt: lleno ? '¡Plaza llena en ' + R.PROV[provId].corto + '! 🙌' : 'Acto en ' + R.PROV[provId].corto, bueno: true };
+      },
+    },
+    {
+      id: 'tv', emoji: '📺', nombre: 'Publicidad en TV', desc: 'Que te conozca todo el país', costo: 25, max: 1,
+      calc(s) {
+        return { conocen: R.round(10 * (1 - s.camp.conocen / 115), 1), simpatia: 0.5 };
+      },
+      hacer(s) {
+        return { ef: this.calc(s), txt: 'Tu spot sale en todos los canales', bueno: true };
+      },
+    },
+    {
+      id: 'redes', emoji: '📱', nombre: 'Redes', desc: 'Barato, a veces explota', costo: 5, max: 2, azar: true,
+      calc(s) {
+        return { conocen: R.round(4 * (1 - s.camp.conocen / 125), 1) };
+      },
+      hacer(s) {
+        const ef = this.calc(s);
+        const r = R.rand(s);
+        const pBien = 0.14 + 0.05 * s.partido.estilo;
+        const pMal = 0.1 + 0.05 * s.partido.estilo;
+        if (r < pBien) {
+          ef.conocen += 8;
+          ef.simpatia = 2;
+          return { ef, txt: '¡Se hizo viral! 🔥', bueno: true, especial: true };
+        }
+        if (r > 1 - pMal) {
+          ef.simpatia = -3;
+          return { ef, txt: 'Un posteo tuyo cae mal 😬', bueno: false };
+        }
+        return { ef, txt: 'Buen alcance en redes', bueno: true };
+      },
+    },
+    {
+      id: 'entrevista', emoji: '🎙️', nombre: 'Entrevista', desc: 'Gratis, pero arriesgada', costo: 0, max: 1, azar: true,
+      calc() {
+        return { conocen: 1.5, simpatia: 1.5 };
+      },
+      hacer(s) {
+        const r = R.rand(s);
+        const pMal = 0.2 + 0.1 * s.partido.estilo;
+        const pBien = 0.35 - 0.05 * s.partido.estilo;
+        if (r < pMal) return { ef: { conocen: 2, simpatia: -3 }, txt: 'Te comieron en la entrevista 😓', bueno: false };
+        if (r > 1 - pBien) return { ef: { conocen: 2.5, simpatia: 4 }, txt: '¡La rompiste en la entrevista! 👏', bueno: true, especial: true };
+        return { ef: this.calc(s), txt: 'Entrevista correcta', bueno: true };
+      },
+    },
+    {
+      id: 'estructura', emoji: '🏴', nombre: 'Militancia', desc: 'Fiscales y sedes', costo: 15,
+      calc(s) {
+        return { militancia: R.round(12 * (1 - s.camp.militancia / 120) + 1, 1) };
+      },
+      hacer(s) {
+        return { ef: this.calc(s), txt: 'Abrís sedes y sumás fiscales', bueno: true };
+      },
+    },
+    {
+      id: 'plata', emoji: '💵', nombre: 'Juntar plata', desc: 'Rifas o empresarios', costo: 0, elegir: 'plata',
+      opciones: [
+        { id: 'rifa', emoji: '🎟️', nombre: 'Rifas y aportes chicos', ef: { fondos: 18 } },
+        { id: 'empresas', emoji: '💼', nombre: 'Cena con empresarios', ef: { fondos: 45, sucio: 1, ideoIzq: 1.5 }, riesgo: true },
+      ],
+      calc(s, op) {
+        const o = this.opciones.find((x) => x.id === op) || this.opciones[0];
+        return o.ef;
+      },
+      hacer(s, op) {
+        const o = this.opciones.find((x) => x.id === op) || this.opciones[0];
+        return { ef: JSON.parse(JSON.stringify(o.ef)), txt: o.id === 'rifa' ? 'La militancia junta plata' : 'Los empresarios ponen la plata 💼', bueno: true };
+      },
+    },
+    {
+      id: 'figura', emoji: '⭐', nombre: 'Sumar una figura', desc: 'Un famoso te banca', costo: 0, elegir: 'figura',
+      costoDe: (s, id) => (R.FIGURAS.find((f) => f.id === id) || { costo: 0 }).costo,
+      calc(s, id) {
+        const f = R.FIGURAS.find((x) => x.id === id);
+        if (!f) return {};
+        const ajuste = 1 - 0.55 * Math.abs(f.ideo - s.partido.ideo);
+        const ef = { conocen: f.conocen, simpatia: R.round(f.simpatia * ajuste, 1) };
+        if (f.militancia) ef.militancia = f.militancia;
+        if (f.region) ef.presencia = { [f.region]: 10 };
+        return ef;
+      },
+      hacer(s, id) {
+        const f = R.FIGURAS.find((x) => x.id === id);
+        s.camp.figuras.push(id);
+        const ef = this.calc(s, id);
+        if (f.riesgo && R.chance(s, 0.25)) {
+          ef.simpatia -= 5;
+          return { ef, txt: f.emoji + ' Se suma… y arma polémica 🙃', bueno: false };
+        }
+        return { ef, txt: f.emoji + ' ' + f.nombre + ' te apoya', bueno: true, especial: true };
+      },
+    },
+    {
+      id: 'ataque', emoji: '🗡️', nombre: 'Pegarle a un rival', desc: 'Le bajás votos', costo: 5, elegir: 'rival', max: 1, azar: true,
+      calc(s, id) {
+        return { rival: { [id]: -R.round(2 * (1 + 0.3 * s.partido.estilo), 1) }, simpatia: -0.5 };
+      },
+      hacer(s, id) {
+        const pMal = 0.25 - 0.08 * s.partido.estilo;
+        if (R.chance(s, pMal)) {
+          return { ef: { rival: { [id]: -0.5 }, simpatia: -4 }, txt: 'Te salió el tiro por la culata 🤦', bueno: false };
+        }
+        return { ef: this.calc(s, id), txt: 'Golpe certero contra ' + R.PARTIDOS[id].sigla + ' 🥊', bueno: true };
+      },
+    },
+    {
+      id: 'alianza', emoji: '🤝', nombre: 'Alianza', desc: 'Un partido chico se suma', costo: 0, elegir: 'aliado',
+      disponible: (s) => !s.camp.alianza,
+      calc(s, id) {
+        const a = R.ALIADOS.find((x) => x.id === id);
+        if (!a) return {};
+        return { votos: a.votos, simpatia: -R.round(3 * Math.abs(a.ideo - s.partido.ideo), 1), presencia: { [a.region]: 10 } };
+      },
+      hacer(s, id) {
+        s.camp.alianza = id;
+        const a = R.ALIADOS.find((x) => x.id === id);
+        return { ef: this.calc(s, id), txt: a.emoji + ' ' + a.nombre + ' se suma a tu frente', bueno: true, especial: true };
+      },
+    },
+  ];
+  camp.ACC = Object.fromEntries(camp.ACCIONES.map((a) => [a.id, a]));
+
+  camp.costo = (s, acc, arg) => (acc.costoDe ? acc.costoDe(s, arg) : acc.costo);
+
+  // ¿Se puede hacer? Devuelve null si sí, o un motivo corto si no.
+  camp.bloqueo = function (s, acc, arg) {
+    if (s.fase !== 'campana') return 'No es momento';
+    if (s.camp.agenda <= 0) return 'Sin agenda este mes';
+    if (acc.disponible && !acc.disponible(s)) return 'Ya lo hiciste';
+    if (acc.max && (s.camp.usadasMes[acc.id] || 0) >= acc.max) return 'Ya lo hiciste este mes';
+    if (arg !== undefined && camp.costo(s, acc, arg) > s.camp.fondos) return 'No te alcanza la plata';
+    if (arg === undefined && !acc.elegir && acc.costo > s.camp.fondos) return 'No te alcanza la plata';
+    return null;
+  };
+
+  camp.hacer = function (s, accId, arg) {
+    const acc = camp.ACC[accId];
+    if (!acc) throw new Error('Acción desconocida ' + accId);
+    const motivo = camp.bloqueo(s, acc, arg);
+    if (motivo) return { error: motivo };
+    const costo = camp.costo(s, acc, arg);
+    const res = acc.hacer(s, arg);
+    s.camp.fondos -= costo;
+    s.camp.agenda -= 1;
+    s.camp.usadasMes[accId] = (s.camp.usadasMes[accId] || 0) + 1;
+    s.stats.acciones++;
+    const antes = camp.votos(s).nac.YO;
+    res.aplicado = R.aplicarEfectos(s, res.ef);
+    res.costo = costo;
+    res.votosAntes = antes;
+    res.votosDespues = camp.votos(s).nac.YO;
+    return res;
+  };
+
+  // ── Votos ──
+  // Devuelve { nac: {YO, MNP, …}, prov: {BUE: {YO, MNP, …}} } en % de votos válidos.
+  camp.votos = function (s, opts) {
+    opts = opts || {};
+    const c = s.camp;
+    const ideoP = s.partido.ideo;
+    const dif = R.DIFICULTADES[s.dif] || R.DIFICULTADES.normal;
+    const ali = c.alianza ? R.ALIADOS.find((a) => a.id === c.alianza) : null;
+    const nac = { YO: 0 };
+    R.RIVALES.forEach((id) => (nac[id] = 0));
+    const prov = {};
+    for (const p of R.PROVINCIAS) {
+      const pres = c.presencia[p.id] || 0;
+      const know = R.clamp(c.conocen + pres * 0.45, 0, 100) / 100;
+      const like = R.clamp(c.simpatia + pres * 0.12, 0, 100) / 100;
+      const af = camp.afinidad(s, p);
+      let yo = 100 * know * Math.pow(like, 1.6) * af * 0.58 * dif.mult;
+      yo += c.bonusVotos;
+      if (ali) yo += ali.votos * (ali.region === p.region ? 2.2 : 0.75);
+      if (opts.extraYo) yo += opts.extraYo;
+      yo = R.clamp(yo, 0.2, 78);
+      const ws = {};
+      let tot = 0;
+      for (const id of R.RIVALES) {
+        const r = R.PARTIDOS[id];
+        let w = Math.max(0.3, (r.base * dif.rival + s.rivales[id]));
+        w *= 1 + (r.fuerte[p.id] || 0);
+        w *= R.clamp(1 + 0.7 * (0.5 - Math.abs(p.lean - r.ideo)), 0.45, 1.4);
+        w *= 1 - 0.5 * (yo / 100) * cercania(r.ideo, ideoP);
+        if (opts.ruido) w *= Math.max(0.2, 1 + opts.ruido[p.id + id] * 0.06);
+        ws[id] = Math.max(0.05, w);
+        tot += ws[id];
+      }
+      const res = { YO: yo };
+      for (const id of R.RIVALES) res[id] = ((100 - yo) * ws[id]) / tot;
+      prov[p.id] = res;
+      for (const k in res) nac[k] += (res[k] * p.padron) / 100;
+    }
+    return { nac, prov };
+  };
+
+  // Encuesta: tus números con un poquito de error (como en la vida real), ordenados.
+  camp.encuesta = function (s) {
+    const v = camp.votos(s).nac;
+    const e = { mes: s.mes };
+    for (const k in v) e[k] = R.round(v[k], 1);
+    return e;
+  };
+
+  // ── Paso del mes ──
+  camp.finDeMes = function (s) {
+    const c = s.camp;
+    const dif = R.DIFICULTADES[s.dif] || R.DIFICULTADES.normal;
+    c.fondos += Math.round((7 + c.militancia * 0.12) * (dif.mult > 1 ? 1.2 : 1));
+    if (c.conocen > 5) c.conocen = Math.max(5, c.conocen - 0.5);
+    c.simpatia += (50 - c.simpatia) * 0.06;
+    for (const id in c.presencia) c.presencia[id] *= 0.96;
+    for (const id of R.RIVALES) {
+      s.rivales[id] = s.rivales[id] * 0.94 + R.gauss(s) * 0.45;
+    }
+    c.agenda = c.agendaMax;
+    c.usadasMes = {};
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/elecciones.js ──
+// Elecciones: PASO, generales, ballotage y legislativas. Reparto de bancas (D'Hondt y Senado).
+(function (R) {
+  'use strict';
+
+  const elec = (R.elec = {});
+
+  // ── Congreso por «tandas» (año en que se eligió cada grupo de bancas) ──
+  R.congresoInicial = function () {
+    return {
+      dip: { 2025: Object.assign({}, R.CONGRESO_INICIAL.diputados) },
+      sen: {
+        2023: { MNP: 10, PL: 6, AR: 2, UCF: 4, PROV: 2 },
+        2025: { MNP: 10, PL: 7, AR: 2, UCF: 3, PROV: 2 },
+      },
+    };
+  };
+  R.composicion = function (s, camara) {
+    const out = {};
+    const tandas = s.congreso[camara === 'senado' ? 'sen' : 'dip'];
+    for (const t of Object.values(tandas)) for (const [p, n] of Object.entries(t)) out[p] = (out[p] || 0) + n;
+    return out;
+  };
+  R.TOTAL_BANCAS = { diputados: 257, senado: 72 };
+
+  // Diputados que renueva cada provincia: en años «A» (2027, 2031…) se usa renovA, en los otros el resto.
+  const impares = R.PROVINCIAS.filter((p) => p.dip % 2 === 1).sort((a, b) => b.padron - a.padron).slice(0, 11).map((p) => p.id);
+  elec.renuevaDip = function (prov, anio) {
+    const a = Math.floor(prov.dip / 2) + (impares.includes(prov.id) ? 1 : 0);
+    return ((anio - 2027) / 2) % 2 === 0 ? a : prov.dip - a;
+  };
+
+  // D'Hondt con piso (en % de votos).
+  elec.dhondt = function (votos, bancas, piso) {
+    const partidos = Object.keys(votos).filter((k) => votos[k] >= (piso ?? 3));
+    const out = Object.fromEntries(partidos.map((k) => [k, 0]));
+    for (let i = 0; i < bancas; i++) {
+      let mejor = null;
+      let mejorQ = -1;
+      for (const k of partidos) {
+        const q = votos[k] / (out[k] + 1);
+        if (q > mejorQ) {
+          mejorQ = q;
+          mejor = k;
+        }
+      }
+      if (mejor === null) break;
+      out[mejor]++;
+    }
+    return out;
+  };
+
+  const ordenar = (nac) => Object.entries(nac).map(([id, v]) => ({ id, v })).sort((a, b) => b.v - a.v);
+
+  // Calcula votos reales: encuesta + ruido + efecto de los fiscales.
+  elec.contar = function (s) {
+    const ruido = {};
+    for (const p of R.PROVINCIAS) for (const id of R.RIVALES) ruido[p.id + id] = R.gauss(s);
+    const swing = R.gauss(s) * 1.2;
+    const r = R.camp.votos(s, { ruido, extraYo: swing });
+    // Fiscales: con poca militancia «te roban» parte de los votos en las mesas.
+    const mil = s.camp.militancia;
+    const perdida = mil < 45 ? ((45 - mil) / 45) * 0.08 : 0;
+    let perdidos = 0;
+    for (const p of R.PROVINCIAS) {
+      const v = r.prov[p.id];
+      const quita = v.YO * perdida;
+      if (quita > 0) {
+        const top = R.RIVALES.reduce((a, b) => (v[a] > v[b] ? a : b));
+        v.YO -= quita;
+        v[top] += quita;
+        perdidos += (quita * p.padron) / 100;
+      }
+    }
+    const nac = { YO: 0 };
+    R.RIVALES.forEach((id) => (nac[id] = 0));
+    for (const p of R.PROVINCIAS) for (const k in r.prov[p.id]) nac[k] += (r.prov[p.id][k] * p.padron) / 100;
+    return { nac, prov: r.prov, perdidos };
+  };
+
+  function ganadoresPorProvincia(prov) {
+    const out = {};
+    for (const id in prov) {
+      const v = prov[id];
+      out[id] = Object.keys(v).reduce((a, b) => (v[a] > v[b] ? a : b));
+    }
+    return out;
+  }
+
+  // Bancas legislativas que se eligen este año.
+  elec.bancas = function (s, prov, anio) {
+    const dip = {};
+    const sen = {};
+    const tuyos = { dip: {}, sen: {} };
+    const grupo = R.SENADO_GRUPO[anio];
+    for (const p of R.PROVINCIAS) {
+      const d = elec.dhondt(prov[p.id], elec.renuevaDip(p, anio), 3);
+      for (const [k, n] of Object.entries(d)) {
+        dip[k] = (dip[k] || 0) + n;
+        if (k === 'YO' && n) tuyos.dip[p.id] = n;
+      }
+      if (p.sen === grupo) {
+        const o = ordenar(prov[p.id]);
+        sen[o[0].id] = (sen[o[0].id] || 0) + 2;
+        sen[o[1].id] = (sen[o[1].id] || 0) + 1;
+        if (o[0].id === 'YO') tuyos.sen[p.id] = 2;
+        else if (o[1].id === 'YO') tuyos.sen[p.id] = 1;
+      }
+    }
+    return { dip, sen, tuyos };
+  };
+
+  elec.renovarCongreso = function (s, anio, bancas) {
+    delete s.congreso.dip[anio - 4];
+    delete s.congreso.sen[anio - 6];
+    s.congreso.dip[anio] = bancas.dip;
+    s.congreso.sen[anio] = bancas.sen;
+  };
+
+  // PASO: los que no llegan al 1,5 % quedan afuera.
+  elec.paso = function (s) {
+    const c = elec.contar(s);
+    const lista = ordenar(c.nac);
+    const res = {
+      tipo: 'paso', titulo: 'PASO 2027', anio: R.anio(s.mes), lista, prov: c.prov,
+      ganadores: ganadoresPorProvincia(c.prov), pasa: c.nac.YO >= 1.5, perdidos: c.perdidos,
+    };
+    s.elecciones.paso = res;
+    return res;
+  };
+
+  // Generales: presidente + Congreso.
+  elec.general = function (s) {
+    const anio = R.anio(s.mes);
+    const c = elec.contar(s);
+    const lista = ordenar(c.nac);
+    const [a, b] = lista;
+    const directo = a.v >= 45 || (a.v >= 40 && a.v - b.v >= 10);
+    const bancas = elec.bancas(s, c.prov, anio);
+    elec.renovarCongreso(s, anio, bancas);
+    const res = {
+      tipo: 'general', titulo: 'Elecciones generales ' + anio, anio, lista, prov: c.prov,
+      ganadores: ganadoresPorProvincia(c.prov), perdidos: c.perdidos, bancas,
+      ganador: directo ? a.id : null, ballotage: directo ? null : [a.id, b.id],
+    };
+    s.elecciones.general = res;
+    return res;
+  };
+
+  // Ballotage: los votos de los demás se reparten por cercanía de ideas (y cuánto les caés vos).
+  elec.ballotage = function (s, pares) {
+    const [A, B] = pares;
+    const c = elec.contar(s);
+    const ideo = (id) => (id === 'YO' ? s.partido.ideo : R.PARTIDOS[id].ideo);
+    const prov = {};
+    const nac = { [A]: 0, [B]: 0 };
+    for (const p of R.PROVINCIAS) {
+      const v = c.prov[p.id];
+      // El partido tradicional tiene aparato: micros, punteros y fiscales en todas las mesas.
+      let va = v[A] + (A !== 'YO' ? 3 : 0);
+      let vb = v[B] + (B !== 'YO' ? 3 : 0);
+      for (const k in v) {
+        if (k === A || k === B) continue;
+        const da = Math.abs(ideo(k) - ideo(A));
+        const db = Math.abs(ideo(k) - ideo(B));
+        let wa = Math.exp(-1.6 * da);
+        let wb = Math.exp(-1.6 * db);
+        // Al que no conocen mucho le tienen miedo; al que cae bien, lo votan.
+        if (A === 'YO') wa *= 0.45 + 0.6 * (s.camp.simpatia / 100);
+        if (B === 'YO') wb *= 0.45 + 0.6 * (s.camp.simpatia / 100);
+        // Si ninguno de los dos se parece a lo que votaron, muchos votan en blanco.
+        const vota = 0.92 - 0.25 * Math.min(da, db);
+        va += (v[k] * vota * wa) / (wa + wb);
+        vb += (v[k] * vota * wb) / (wa + wb);
+      }
+      const t = va + vb;
+      prov[p.id] = { [A]: (va / t) * 100, [B]: (vb / t) * 100 };
+      nac[A] += (prov[p.id][A] * p.padron) / 100;
+      nac[B] += (prov[p.id][B] * p.padron) / 100;
+    }
+    const lista = ordenar(nac);
+    const res = {
+      tipo: 'ballotage', titulo: 'Ballotage ' + R.anio(s.mes), anio: R.anio(s.mes), lista, prov,
+      ganadores: ganadoresPorProvincia(prov), ganador: lista[0].id, perdidos: c.perdidos,
+    };
+    s.elecciones.ballotage = res;
+    return res;
+  };
+
+  // Nombre lindo de un competidor.
+  elec.nombre = function (s, id) {
+    if (id === 'YO') return s.lider.nombre;
+    return R.PARTIDOS[id].candidato.nombre;
+  };
+  elec.color = (s, id) => (id === 'YO' ? s.partido.color : R.PARTIDOS[id].color);
+  elec.sigla = (s, id) => (id === 'YO' ? s.partido.sigla : R.PARTIDOS[id].sigla);
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/eventos.js ──
+// Motor de noticias: elige una noticia que cumpla su condición, arma el texto y aplica la opción elegida.
+(function (R) {
+  'use strict';
+
+  const ev = (R.ev = {});
+  R.EVENTOS = R.EVENTOS || [];
+  ev.registrar = (lista) => lista.forEach((e) => R.EVENTOS.push(e));
+  ev.porId = (id) => R.EVENTOS.find((e) => e.id === id);
+
+  // Elige una noticia para esta fase (o null). Cada una sale una sola vez salvo que diga «repite: meses».
+  ev.elegir = function (s, fase) {
+    const posibles = R.EVENTOS.filter((e) => {
+      if (e.fase !== fase) return false;
+      const visto = s.vistos[e.id];
+      if (visto !== undefined && (!e.repite || s.mes - visto < e.repite)) return false;
+      if (e.desde !== undefined && s.mes < e.desde) return false;
+      if (e.hasta !== undefined && s.mes > e.hasta) return false;
+      try {
+        return !e.cuando || e.cuando(s);
+      } catch (err) {
+        return false;
+      }
+    });
+    const e = R.weighted(s, posibles, (x) => (typeof x.peso === 'function' ? x.peso(s) : x.peso ?? 1));
+    if (!e) return null;
+    return ev.instanciar(s, e);
+  };
+
+  ev.instanciar = function (s, e) {
+    s.vistos[e.id] = s.mes;
+    return { tipo: 'noticia', id: e.id, vars: e.vars ? e.vars(s) : {}, mes: s.mes };
+  };
+
+  function texto(s, t, vars) {
+    if (!t) return t;
+    return t.replace(/\{(\w+)\}/g, (m, k) => {
+      if (k === 'rival' && vars.rival) return R.elec.nombre(s, vars.rival);
+      if (k === 'rivalSigla' && vars.rival) return R.elec.sigla(s, vars.rival);
+      if (k === 'prov' && vars.prov) return R.PROV[vars.prov].corto;
+      if (k === 'lider') return s.lider.nombre;
+      if (k === 'partido') return s.partido.sigla;
+      return vars[k] !== undefined ? vars[k] : m;
+    });
+  }
+
+  function resolverValor(s, v, vars) {
+    return typeof v === 'function' ? v(s, vars) : v;
+  }
+
+  // Noticia lista para dibujar: textos con variables y cada opción con su costo, efectos y si se puede.
+  ev.datos = function (s, inst) {
+    const e = ev.porId(inst.id);
+    if (!e) return null;
+    const vars = inst.vars || {};
+    return {
+      id: e.id,
+      dibujo: resolverValor(s, e.dibujo, vars),
+      titular: texto(s, resolverValor(s, e.titular, vars), vars),
+      bajada: texto(s, resolverValor(s, e.bajada, vars), vars),
+      opciones: e.opciones.map((o, i) => {
+        const ef = resolverValor(s, o.ef, vars) || {};
+        const costo = resolverValor(s, o.costo, vars) || {};
+        return {
+          i,
+          txt: texto(s, o.txt, vars),
+          costo,
+          ef,
+          azar: o.azar ? { p: resolverValor(s, o.azar.p, vars), bueno: !!o.azar.bueno } : null,
+          bloqueo: ev.bloqueoOpcion(s, costo, o, vars),
+        };
+      }),
+    };
+  };
+
+  ev.bloqueoOpcion = function (s, costo, o, vars) {
+    if (o.si && !o.si(s, vars)) return o.siTxt || 'No se puede';
+    if (costo.fondos && s.camp && costo.fondos > s.camp.fondos) return 'Falta plata';
+    if (costo.agenda && s.camp && costo.agenda > s.camp.agenda) return 'Sin agenda';
+    if (R.gob && R.gob.bloqueoCosto) return R.gob.bloqueoCosto(s, costo);
+    return null;
+  };
+
+  // Aplica la opción i. Devuelve { txt, bueno, aplicado: [...] }.
+  ev.resolver = function (s, inst, i) {
+    const e = ev.porId(inst.id);
+    const o = e.opciones[i];
+    const vars = inst.vars || {};
+    const costo = resolverValor(s, o.costo, vars) || {};
+    let ef = JSON.parse(JSON.stringify(resolverValor(s, o.ef, vars) || {}));
+    let txt = texto(s, o.res, vars) || null;
+    let bueno = o.bueno ?? true;
+    if (o.azar && R.chance(s, resolverValor(s, o.azar.p, vars))) {
+      ef = R.sumarEfectos(ef, resolverValor(s, o.azar.ef, vars));
+      txt = texto(s, o.azar.txt, vars) || txt;
+      bueno = o.azar.bueno ?? false;
+    }
+    const total = R.sumarEfectos(ef, costoComoEfecto(costo));
+    const aplicado = R.aplicarEfectosFase(s, total);
+    if (o.flag) s.flags[o.flag] = s.mes;
+    if (o.despues) o.despues(s, vars);
+    s.stats.noticias++;
+    const d = ev.datos(s, inst);
+    R.diario(s, (d.dibujo || '📰').split(' ')[0], d.titular + ' → ' + d.opciones[i].txt, 'noticia');
+    return { txt, bueno, aplicado, ef: total };
+  };
+
+  function costoComoEfecto(costo) {
+    const out = {};
+    if (costo.fondos) out.fondos = -costo.fondos;
+    if (costo.agenda) out.agenda = -costo.agenda;
+    if (costo.pc) out.pc = -costo.pc;
+    if (costo.gasto) out.gastoExtra = costo.gasto;
+    return out;
+  }
+
+  // Aplica efectos según la fase (en campaña los de campaña; en gobierno se agregan los del gobierno).
+  R.aplicarEfectosFase = function (s, ef) {
+    if (s.fase === 'gobierno' && R.gob && R.gob.aplicarEfectos) return R.gob.aplicarEfectos(s, ef);
+    return R.aplicarEfectos(s, ef);
+  };
+  R.describirEfectosFase = function (s, ef) {
+    if (s.fase === 'gobierno' && R.gob && R.gob.describirEfectos) return R.gob.describirEfectos(s, ef);
+    return R.describirEfectos(s, ef);
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/turno.js ──
+// El paso del tiempo: qué pasa cuando apretás «Pasar el mes» y el debate presidencial.
+(function (R) {
+  'use strict';
+
+  const turno = (R.turno = {});
+
+  // Calendario de 2027 (mes 0 = enero).
+  turno.MES_PASO = 7; // agosto: se ven los resultados de las PASO
+  turno.MES_GENERAL = 9; // octubre: se vota al final del mes
+  turno.MES_BALLOTAGE = 10; // noviembre
+  turno.MES_ASUNCION = 11; // 10 de diciembre
+
+  // Texto del botón grande y aviso de la próxima elección.
+  turno.botonPasar = function (s) {
+    if (s.fase === 'campana' && s.mes === turno.MES_GENERAL) return { txt: 'Ir a votar', emoji: '🗳️' };
+    if (s.fase === 'campana' && s.mes === turno.MES_BALLOTAGE) return { txt: 'Votar en el ballotage', emoji: '🗳️' };
+    return { txt: 'Pasar el mes', emoji: '▶' };
+  };
+  turno.proximaEleccion = function (s) {
+    if (s.fase !== 'campana') return null;
+    if (s.mes < turno.MES_PASO) return { nombre: 'PASO', emoji: '🗳️', faltan: turno.MES_PASO - s.mes };
+    if (s.mes < turno.MES_GENERAL) return { nombre: 'Generales', emoji: '🗳️', faltan: turno.MES_GENERAL - s.mes };
+    if (s.mes === turno.MES_GENERAL) return { nombre: 'Generales', emoji: '🗳️', faltan: 0 };
+    return { nombre: 'Ballotage', emoji: '⚔️', faltan: 0 };
+  };
+
+  // Devuelve la lista de «momentos» nuevos (también quedan en s.cola para sobrevivir a una recarga).
+  turno.pasar = function (s) {
+    if (s.cola.length) return [];
+    const momentos = [];
+    if (s.fase === 'campana') turno.pasarCampana(s, momentos);
+    else if (s.fase === 'gobierno' && R.gob) R.gob.pasarMes(s, momentos);
+    s.cola.push(...momentos);
+    return momentos;
+  };
+
+  turno.pasarCampana = function (s, momentos) {
+    if (s.mes === turno.MES_GENERAL) {
+      const res = R.elec.general(s);
+      momentos.push({ tipo: 'eleccion', clave: 'general' });
+      if (res.ganador === 'YO') {
+        turno.ganaste(s, momentos, 'primera');
+      } else if (res.ballotage && res.ballotage.includes('YO')) {
+        s.ballotage = res.ballotage;
+        R.diario(s, '⚔️', 'Vamos al ballotage contra ' + R.elec.nombre(s, res.ballotage.find((x) => x !== 'YO')), 'eleccion');
+        R.camp.finDeMes(s);
+        s.mes++;
+        s.camp.agenda = 2; // un mes cortito de campaña
+        momentos.push({ tipo: 'debate', rival: res.ballotage.find((x) => x !== 'YO'), etapa: 'ballotage' });
+      } else {
+        turno.perdiste(s, momentos, 'general');
+      }
+      return;
+    }
+    if (s.mes === turno.MES_BALLOTAGE) {
+      const res = R.elec.ballotage(s, s.ballotage);
+      momentos.push({ tipo: 'eleccion', clave: 'ballotage' });
+      if (res.ganador === 'YO') turno.ganaste(s, momentos, 'ballotage');
+      else turno.perdiste(s, momentos, 'ballotage');
+      return;
+    }
+
+    R.camp.finDeMes(s);
+    s.mes++;
+    if (s.mes === turno.MES_PASO) {
+      const res = R.elec.paso(s);
+      momentos.push({ tipo: 'eleccion', clave: 'paso' });
+      R.diario(s, '🗳️', 'PASO: sacaste ' + R.pct(res.lista.find((x) => x.id === 'YO').v), 'eleccion');
+      if (!res.pasa) {
+        turno.perdiste(s, momentos, 'paso');
+        return;
+      }
+    }
+    if (s.mes === turno.MES_GENERAL) {
+      const e = R.camp.votos(s).nac;
+      const rivales = R.RIVALES.slice().sort((a, b) => e[b] - e[a]);
+      momentos.push({ tipo: 'debate', rival: rivales[0], etapa: 'general' });
+    }
+    if (R.chance(s, s.mes === turno.MES_GENERAL ? 0.5 : 0.75)) {
+      const n = R.ev.elegir(s, 'campana');
+      if (n) momentos.push(n);
+    }
+    s.encuestas.push(R.camp.encuesta(s));
+  };
+
+  turno.ganaste = function (s, momentos, como) {
+    s.fase = 'electo';
+    s.flags.ganoEn = como;
+    R.diario(s, '🏆', '¡' + s.lider.nombre + ' es presidente electo!', 'eleccion');
+    momentos.push({ tipo: 'asuncion' });
+  };
+  turno.perdiste = function (s, momentos, donde) {
+    s.fase = 'fin';
+    s.fin = { motivo: donde, mes: s.mes };
+    R.diario(s, '😞', donde === 'paso' ? 'Quedaste afuera en las PASO' : 'Perdiste la elección', 'eleccion');
+    momentos.push({ tipo: 'fin' });
+  };
+
+  // ── Debate presidencial (minijuego) ──
+  const deb = (R.debate = {});
+  deb.ESTILOS = {
+    ataque: { emoji: '🔥', nombre: 'Atacar' },
+    datos: { emoji: '📊', nombre: 'Datos' },
+    emocion: { emoji: '❤️', nombre: 'Emoción' },
+    humor: { emoji: '😂', nombre: 'Humor' },
+  };
+  // A le gana a B: los datos desarman el ataque, el ataque ridiculiza la emoción,
+  // la emoción le gana al chiste y el humor vuelve aburridos los datos.
+  deb.GANA = { datos: 'ataque', ataque: 'emocion', emocion: 'humor', humor: 'datos' };
+  deb.TEMAS = [
+    { id: 'economia', emoji: '💰', nombre: 'Economía', fuerte: 'datos' },
+    { id: 'seguridad', emoji: '👮', nombre: 'Seguridad', fuerte: 'ataque' },
+    { id: 'salud', emoji: '🏥', nombre: 'Salud y escuelas', fuerte: 'emocion' },
+    { id: 'corrupcion', emoji: '🕵️', nombre: 'Corrupción', fuerte: 'ataque' },
+    { id: 'futuro', emoji: '🚀', nombre: 'El futuro', fuerte: 'emocion' },
+    { id: 'campo', emoji: '🌾', nombre: 'Campo e industria', fuerte: 'datos' },
+    { id: 'jovenes', emoji: '🎮', nombre: 'Jóvenes', fuerte: 'humor' },
+    { id: 'jubilados', emoji: '👵', nombre: 'Jubilados', fuerte: 'emocion' },
+  ];
+
+  deb.nuevo = function (s, rival, etapa) {
+    return { rival, etapa, temas: R.shuffle(s, deb.TEMAS).slice(0, 3), ronda: 0, puntos: 0, historia: [] };
+  };
+
+  deb.resultado = function (yo, el) {
+    if (yo === el) return 'empate';
+    if (deb.GANA[yo] === el) return 'gana';
+    if (deb.GANA[el] === yo) return 'pierde';
+    return 'empate';
+  };
+
+  deb.jugar = function (s, d, estilo) {
+    const tema = d.temas[d.ronda];
+    const pref = R.PARTIDOS[d.rival].debate;
+    const el = R.chance(s, 0.5) ? pref : R.pick(s, Object.keys(deb.ESTILOS));
+    const r = deb.resultado(estilo, el);
+    let pts = r === 'gana' ? 1 : r === 'pierde' ? -1 : 0;
+    if (tema.fuerte === estilo) pts += 0.5;
+    d.puntos += pts;
+    d.historia.push({ tema: tema.id, yo: estilo, el, r, pts });
+    d.ronda++;
+    return { el, r, pts, tema };
+  };
+
+  deb.terminar = function (s, d) {
+    const p = d.puntos;
+    const ef = { simpatia: R.round(p * 2.6, 1), conocen: 3, rival: { [d.rival]: -R.round(Math.max(0, p) * 1.1, 1) } };
+    if (p < 0) ef.rival[d.rival] = R.round(-p * 0.6, 1);
+    const aplicado = R.aplicarEfectos(s, ef);
+    const veredicto = p >= 2 ? '¡Ganaste el debate por paliza!' : p > 0 ? 'Ganaste el debate' : p === 0 ? 'Empate técnico' : 'Perdiste el debate';
+    R.diario(s, '🎙️', 'Debate: ' + veredicto.toLowerCase().replace('¡', '').replace('!', ''), 'debate');
+    return { veredicto, aplicado, bueno: p >= 0 };
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/datos/eventos_campana.js ──
+// Noticias de la campaña. Titulares cortos, opciones de 1 a 3 palabras.
+// ef usa las claves de efectos.js; ideoDer/ideoIzq dependen de tus ideas; azar = chance de que salga distinto.
+(function (R) {
+  'use strict';
+
+  const rivalAzar = (s) => ({ rival: R.pick(s, R.RIVALES.slice(0, 4)) });
+  const rivalPuntero = (s) => {
+    const e = R.camp.votos(s).nac;
+    return { rival: R.RIVALES.reduce((a, b) => (e[a] > e[b] ? a : b)) };
+  };
+
+  R.ev.registrar([
+    {
+      id: 'c_baile', fase: 'campana', peso: 2, dibujo: '🕺 📱 🔥',
+      titular: 'Se viraliza un video tuyo bailando cumbia',
+      opciones: [
+        { txt: 'Subir otro', ef: { conocen: 6 }, azar: { p: 0.4, ef: { simpatia: -3 }, txt: 'El segundo no causó gracia 😬' }, res: '¡Ya sos tendencia! 💃' },
+        { txt: 'Reírte de vos', ef: { conocen: 4, simpatia: 3 }, res: 'La gente valora el humor 😄' },
+        { txt: 'Pedir que lo bajen', ef: { conocen: 1, simpatia: -2 }, res: 'Quedaste como amargo', bueno: false },
+      ],
+    },
+    {
+      id: 'c_empresario', fase: 'campana', peso: 2, dibujo: '💼 💰 🤫',
+      titular: 'Un empresario ofrece plata para tu campaña',
+      bajada: 'No pide nada… por ahora',
+      opciones: [
+        { txt: 'Aceptar', ef: { fondos: 55, sucio: 2 }, res: 'La caja se llenó 💰' },
+        { txt: 'Aceptar y declararlo', ef: { fondos: 30, ideoIzq: 1 }, res: 'Todo en blanco ✅' },
+        { txt: 'Rechazar', ef: { simpatia: 1.5 }, res: 'Manos limpias 🙌' },
+      ],
+    },
+    {
+      id: 'c_filtracion', fase: 'campana', peso: 6, cuando: (s) => s.camp.sucio >= 2, dibujo: '📰 🔍 💸',
+      titular: 'Filtran quién financia tu campaña',
+      opciones: [
+        { txt: 'Negar todo', ef: {}, azar: { p: 0.55, ef: { simpatia: -8 }, txt: 'Aparecieron más papeles 😱' }, res: 'Zafaste… esta vez', despues: (s) => (s.camp.sucio = 0) },
+        { txt: 'Mostrar las cuentas', ef: { simpatia: -3 }, res: 'Duele, pero se termina el tema', despues: (s) => (s.camp.sucio = 0) },
+        { txt: 'Echar al tesorero', ef: { simpatia: -1.5, militancia: -4 }, res: 'Rodó una cabeza', despues: (s) => (s.camp.sucio = 0) },
+      ],
+    },
+    {
+      id: 'c_streamer', fase: 'campana', peso: 2, dibujo: '🎮 🎙️ 👾',
+      titular: 'Un streamer famoso te invita a su canal',
+      opciones: [
+        { txt: 'Ir', ef: { conocen: 6, simpatia: 1 }, azar: { p: 0.3, ef: { simpatia: -5 }, txt: 'No entendiste ningún chiste 🫠' }, res: 'Los pibes te conocen 🎮' },
+        { txt: 'Mandar un vocero', ef: { conocen: 2 }, res: 'Correcto, sin brillo' },
+        { txt: 'No ir', ef: {}, res: 'Nadie se enteró' },
+      ],
+    },
+    {
+      id: 'c_acusacion', fase: 'campana', peso: 3, vars: rivalPuntero, dibujo: '🗡️ 😠 📺',
+      titular: '{rival} dice que sos un improvisado',
+      cuando: (s) => s.camp.conocen > 15,
+      opciones: [
+        { txt: 'Responder fuerte', ef: (s, v) => ({ confrontativo: 2, rival: { [v.rival]: -1.5 } }), res: 'Pelea en todos los canales 🥊' },
+        { txt: 'Con humor', ef: { simpatia: 3, conocen: 2 }, azar: { p: 0.3, ef: { simpatia: -4 }, txt: 'El chiste no salió 😶' }, res: '¡Ganaste el día! 😂' },
+        { txt: 'Ignorar', ef: { simpatia: -1.5 }, res: 'Quedó flotando', bueno: false },
+      ],
+    },
+    {
+      id: 'c_sindicato', fase: 'campana', peso: 2, dibujo: '👷 🤝 📣',
+      titular: 'Un sindicato grande ofrece apoyarte',
+      opciones: [
+        { txt: 'Aceptar', ef: { militancia: 14, ideoIzq: 3 }, res: 'Sumás micros y fiscales 🚌' },
+        { txt: 'Gracias, no', ef: { ideoDer: 1.5 }, res: 'Mantenés distancia' },
+      ],
+    },
+    {
+      id: 'c_campo', fase: 'campana', peso: 2, dibujo: '🌾 🚜 ❓',
+      titular: 'El campo te pide definirte sobre retenciones',
+      opciones: [
+        { txt: 'Bajarlas', ef: { presencia: { centro: 10 }, ideoDer: 3 }, res: 'Aplausos en la ruta 🚜' },
+        { txt: 'Mantenerlas', ef: { simpatia: 0.5 }, res: 'Ni fu ni fa' },
+        { txt: 'Subirlas', ef: { presencia: { centro: -10 }, ideoIzq: 3 }, res: 'El campo se enoja 😤' },
+      ],
+    },
+    {
+      id: 'c_inundacion', fase: 'campana', peso: 2, dibujo: '🌧️ 🏠 🛶',
+      titular: 'Inundaciones en el Litoral',
+      opciones: [
+        { txt: 'Ir a ayudar', costo: { agenda: 1 }, ef: { presencia: { litoral: 14 }, simpatia: 3 }, res: 'Con las botas en el barro 👢' },
+        { txt: 'Mandar donaciones', costo: { fondos: 15 }, ef: { presencia: { litoral: 6 }, simpatia: 2 }, res: 'Llegaron camiones con ayuda 🚚' },
+        { txt: 'Tuit de apoyo', ef: { simpatia: -1 }, res: '«Pura foto», dicen', bueno: false },
+      ],
+    },
+    {
+      id: 'c_afiches', fase: 'campana', peso: 2, dibujo: '🧱 🖌️ 😤',
+      titular: 'Te arrancan los afiches en todo el país',
+      opciones: [
+        { txt: 'Repintar todo', costo: { fondos: 10 }, ef: { militancia: 4, conocen: 1 }, res: 'La militancia sale de noche 🖌️' },
+        { txt: 'Denunciarlo en la tele', ef: { conocen: 3, simpatia: 1 }, res: 'Quedaste como víctima' },
+      ],
+    },
+    {
+      id: 'c_jingle', fase: 'campana', peso: 2, dibujo: '🎵 🎤 🎶',
+      titular: 'Te proponen un jingle pegadizo',
+      opciones: [
+        { txt: 'Comprarlo', costo: { fondos: 20 }, ef: { conocen: 6 }, res: 'Lo canta todo el país 🎶' },
+        { txt: 'Hacerlo casero', ef: { militancia: 3 }, azar: { p: 0.35, ef: { conocen: 6 }, txt: '¡El casero pegó más! 🎸', bueno: true }, res: 'Simpático, nada más' },
+        { txt: 'Sin jingle', ef: {}, res: 'Campaña seria' },
+      ],
+    },
+    {
+      id: 'c_provincial', fase: 'campana', peso: 2, vars: (s) => ({ prov: R.pick(s, R.PROVINCIAS.filter((p) => p.padron < 4)).id }),
+      dibujo: '🤝 🗺️ 📍',
+      titular: 'Un partido de {prov} quiere sumarse',
+      opciones: [
+        { txt: 'Aceptar', ef: (s, v) => ({ presencia: { [v.prov]: 25 }, militancia: 3, simpatia: -0.5 }), res: 'Sumás estructura local 🏘️' },
+        { txt: 'Rechazar', ef: { simpatia: 0.5 }, res: 'Lista pura' },
+      ],
+    },
+    {
+      id: 'c_fake', fase: 'campana', peso: 2, dibujo: '🤥 📲 💥',
+      titular: 'Circula una noticia falsa sobre vos',
+      cuando: (s) => s.camp.conocen > 12,
+      opciones: [
+        { txt: 'Desmentir', costo: { fondos: 5 }, ef: { simpatia: -0.5 }, res: 'Aclarado a tiempo' },
+        { txt: 'Ignorar', ef: {}, azar: { p: 0.5, ef: { simpatia: -5 }, txt: 'Mucha gente se la creyó 😩' }, res: 'Se olvidó rápido' },
+        { txt: 'Ir a la Justicia', costo: { agenda: 1 }, ef: { simpatia: 1.5, conocen: 1 }, res: 'Mostrás que no tenés nada que esconder' },
+      ],
+    },
+    {
+      id: 'c_pan', fase: 'campana', peso: 2, dibujo: '🍞 🎤 😰',
+      titular: 'Te preguntan cuánto sale el kilo de pan',
+      opciones: [
+        { txt: 'Arriesgar un número', ef: { simpatia: 4 }, azar: { p: 0.45, ef: { simpatia: -8 }, txt: 'Le erraste por mucho 🤦' }, res: '¡Clavado! Sabés lo que vive la gente' },
+        { txt: 'Cambiar de tema', ef: { simpatia: -2 }, res: 'Se notó', bueno: false },
+        { txt: 'Admitir que no sabés', ef: { simpatia: 1 }, res: 'Honesto, al menos' },
+      ],
+    },
+    {
+      id: 'c_asado', fase: 'campana', peso: 2, dibujo: '🥩 🔥 🍷',
+      titular: 'La militancia organiza un asado gigante',
+      opciones: [
+        { txt: 'Ir a cocinar', costo: { agenda: 1 }, ef: { militancia: 7, simpatia: 2 }, res: 'Asador del año 🥩' },
+        { txt: 'Mandar saludos', ef: { militancia: 1 }, res: 'Te extrañaron' },
+      ],
+    },
+    {
+      id: 'c_exministro', fase: 'campana', peso: 2, dibujo: '👴 💼 🤔',
+      titular: 'Un exministro quiere sumarse a tu equipo',
+      opciones: [
+        { txt: 'Sumarlo', ef: { conocen: 3, militancia: 5, simpatia: -2 }, res: 'Experiencia… y mochila' },
+        { txt: 'Caras nuevas', ef: { simpatia: 1.5 }, res: '«Lo nuevo», dicen' },
+      ],
+    },
+    {
+      id: 'c_meme', fase: 'campana', peso: 2, dibujo: '😂 📱 🖼️',
+      titular: 'Te hacen un meme que explota',
+      cuando: (s) => s.camp.conocen > 10,
+      opciones: [
+        { txt: 'Usarlo de slogan', ef: { conocen: 5, simpatia: 2 }, res: 'Convertiste la burla en marca 😎' },
+        { txt: 'Enojarte', ef: { conocen: 2, simpatia: -3 }, res: 'Más memes 😅', bueno: false },
+      ],
+    },
+    {
+      id: 'c_cumbre', fase: 'campana', peso: 1, dibujo: '✈️ 🌎 🤝',
+      titular: 'Te invitan a una cumbre en el exterior',
+      opciones: [
+        { txt: 'Ir', costo: { agenda: 1 }, ef: { simpatia: 2, conocen: 2 }, res: 'Foto con líderes del mundo 📸' },
+        { txt: 'Quedarte acá', ef: { simpatia: 0.5 }, res: 'Prioridad: los argentinos' },
+      ],
+    },
+    {
+      id: 'c_rival_escandalo', fase: 'campana', peso: 2, vars: rivalAzar, dibujo: '📰 💥 🕵️',
+      titular: 'Escándalo de corrupción salpica a {rival}',
+      opciones: [
+        { txt: 'Aprovechar', ef: (s, v) => ({ rival: { [v.rival]: -3 }, simpatia: -1 }), res: 'Le pegaste donde duele' },
+        { txt: 'Pedir respeto', ef: (s, v) => ({ rival: { [v.rival]: -1.5 }, simpatia: 3 }), res: 'Quedaste como un estadista' },
+      ],
+    },
+    {
+      id: 'c_dolar', fase: 'campana', peso: 2, dibujo: '💵 📈 😨',
+      titular: 'El dólar se dispara en plena campaña',
+      opciones: [
+        { txt: 'Prometer dolarizar', ef: { ideoDer: 4, conocen: 2 }, res: 'Todos hablan de tu propuesta' },
+        { txt: 'Culpar al gobierno', ef: { rival: { PL: -2 }, simpatia: 0.5 }, res: 'Golpe al oficialismo ⚡' },
+        { txt: 'Llevar calma', ef: { simpatia: 2, dialoguista: 1.5 }, res: 'Sonás a alguien serio' },
+      ],
+    },
+    {
+      id: 'c_docentes', fase: 'campana', peso: 2, dibujo: '🎓 ✋ 🏫',
+      titular: 'Paro docente: te piden que te definas',
+      opciones: [
+        { txt: 'Con los docentes', ef: { ideoIzq: 3, simpatia: 1 }, res: 'Las aulas te aplauden 👩‍🏫' },
+        { txt: 'Clases sí o sí', ef: { ideoDer: 3, simpatia: 1 }, res: 'Los padres te bancan 👪' },
+      ],
+    },
+    {
+      id: 'c_crimen', fase: 'campana', peso: 2, dibujo: '🚨 😢 🕯️',
+      titular: 'Un crimen conmociona al país',
+      opciones: [
+        { txt: 'Mano dura', ef: { ideoDer: 3, conocen: 2 }, res: 'Mensaje firme 👮' },
+        { txt: 'Acompañar a la familia', costo: { agenda: 1 }, ef: { simpatia: 3 }, res: 'Un gesto humano 🕯️' },
+        { txt: 'Prudencia', ef: { simpatia: 0.5 }, res: 'Nadie te escuchó' },
+      ],
+    },
+    {
+      id: 'c_encuestadora', fase: 'campana', peso: 1, dibujo: '📊 💵 🤨',
+      titular: 'Una encuestadora te ofrece «mejorar» tus números',
+      opciones: [
+        { txt: 'Pagar', costo: { fondos: 20 }, ef: { conocen: 3, sucio: 1 }, res: 'Apareciste arriba en la tele 📈' },
+        { txt: 'Denunciarlo', ef: { simpatia: 2.5 }, res: 'Bien ahí 👏' },
+      ],
+    },
+    {
+      id: 'c_vice', fase: 'campana', peso: 4, desde: 3, dibujo: '👥 🤝 🗳️',
+      titular: '¿Con quién armás la fórmula?',
+      bajada: 'Tu compañero/a de fórmula',
+      opciones: [
+        { txt: 'Un gobernador', ef: { presencia: { norte: 10 }, militancia: 5 }, res: 'Sumás territorio 🌵' },
+        { txt: 'Una economista', ef: { ideoDer: 2, simpatia: 1 }, res: 'Sumás credibilidad 📊' },
+        { txt: 'Alguien de tu riñón', ef: { simpatia: 1.5, conocen: -1 }, res: 'Lealtad absoluta 🫡' },
+      ],
+    },
+    {
+      id: 'c_lluvia_acto', fase: 'campana', peso: 1, dibujo: '⛈️ 🎤 ☂️',
+      titular: 'Diluvia en tu acto más grande',
+      opciones: [
+        { txt: 'Hablar igual', ef: { simpatia: 2, militancia: 3 }, azar: { p: 0.2, ef: { simpatia: -3 }, txt: 'Se cortó el sonido 🔇' }, res: 'Épico bajo la lluvia ☔' },
+        { txt: 'Suspender', ef: { militancia: -2 }, res: 'Prudente, pero frío', bueno: false },
+      ],
+    },
+    {
+      id: 'c_tiktok', fase: 'campana', peso: 2, dibujo: '🎬 📱 🕺',
+      titular: 'Tu equipo quiere que hagas TikToks diarios',
+      opciones: [
+        { txt: '¡Dale!', costo: { fondos: 8 }, ef: { conocen: 5 }, azar: { p: 0.25, ef: { simpatia: -2 }, txt: 'Un poco cringe 😅' }, res: 'Llegás a los jóvenes 📱' },
+        { txt: 'Prefiero la radio', ef: { simpatia: 1 }, res: 'Estilo clásico 📻' },
+      ],
+    },
+    {
+      id: 'c_papa', fase: 'campana', peso: 1, dibujo: '⛪ 🤍 📸',
+      titular: 'El Papa recibe a los candidatos en Roma',
+      opciones: [
+        { txt: 'Viajar', costo: { agenda: 1, fondos: 10 }, ef: { simpatia: 3, conocen: 3 }, res: 'La foto recorre el país 📸' },
+        { txt: 'No viajar', ef: {}, res: 'Te la perdiste' },
+      ],
+    },
+  ]);
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/dom.js ──
+// Ayudantes de interfaz: crear nodos, ventanas, avisos, chips de efectos y animaciones.
+(function (R) {
+  'use strict';
+
+  const ui = (R.ui = R.ui || {});
+
+  // h('div', {class: 'x', onclick: fn, style: {...}}, hijos...)
+  const h = (R.h = function (tag, props, ...hijos) {
+    const el = document.createElementNS(tag === 'svg' || props?.svg ? 'http://www.w3.org/2000/svg' : 'http://www.w3.org/1999/xhtml', tag);
+    if (props) {
+      for (const [k, v] of Object.entries(props)) {
+        if (v === null || v === undefined || v === false || k === 'svg') continue;
+        if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
+        else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+        else if (k === 'html') el.innerHTML = v;
+        else el.setAttribute(k === 'className' ? 'class' : k, v === true ? '' : v);
+      }
+    }
+    agregar(el, hijos);
+    return el;
+  });
+  function agregar(el, hijos) {
+    for (const c of hijos) {
+      if (c === null || c === undefined || c === false) continue;
+      if (Array.isArray(c)) agregar(el, c);
+      else el.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
+    }
+  }
+  // SVG: s('circle', {...})
+  R.svg = (tag, props, ...hijos) => h(tag, Object.assign({ svg: true }, props), ...hijos);
+
+  ui.montar = function (nodo, ancha) {
+    const app = document.getElementById('app');
+    const scroll = window.scrollY;
+    app.className = 'app' + (ancha ? ' ancha' : '');
+    app.replaceChildren(nodo);
+    return scroll;
+  };
+
+  // ── Ventanas encima (hoja que sube desde abajo en el celu, centrada en la PC) ──
+  let capaAbierta = null;
+  ui.hayCapa = () => !!capaAbierta;
+  ui.abrirCapa = function (contenido, opts) {
+    opts = opts || {};
+    ui.cerrarCapa(true);
+    if (!opts.dejarAvisos) document.getElementById('avisos').replaceChildren();
+    const capa = document.getElementById('capa');
+    capa.className = 'capa' + (opts.oscura ? ' oscura' : '');
+    const hoja = opts.oscura ? contenido : h('div', { class: 'hoja ' + (opts.clase || ''), role: 'dialog', 'aria-modal': 'true' },
+      opts.cerrable ? h('button', { class: 'boton mini sec cerrar', onclick: () => ui.cerrarCapa(), 'aria-label': 'Cerrar' }, '✕') : null,
+      contenido);
+    capa.replaceChildren(hoja);
+    capa.hidden = false;
+    capaAbierta = { opts };
+    if (opts.cerrable) {
+      capa.onclick = (e) => { if (e.target === capa) ui.cerrarCapa(); };
+    } else capa.onclick = null;
+    const foco = hoja.querySelector('[autofocus]') || hoja.querySelector('button:not(.cerrar)');
+    if (foco && !opts.sinFoco) setTimeout(() => foco.focus({ preventScroll: true }), 30);
+    hoja.scrollTop = 0;
+    return hoja;
+  };
+  ui.cerrarCapa = function (silencioso) {
+    const capa = document.getElementById('capa');
+    if (!capaAbierta) return;
+    const opts = capaAbierta.opts;
+    capaAbierta = null;
+    capa.hidden = true;
+    capa.replaceChildren();
+    if (!silencioso && opts.alCerrar) opts.alCerrar();
+  };
+
+  // ── Avisos cortos arriba (resultado de una acción) ──
+  ui.aviso = function (txt, opts) {
+    opts = opts || {};
+    const caja = document.getElementById('avisos');
+    const el = h('div', { class: 'aviso ' + (opts.tipo || '') },
+      h('div', { class: 'txt' }, txt),
+      opts.efectos && opts.efectos.length ? ui.chipsEfectos(opts.efectos) : null,
+      opts.extra || null);
+    caja.appendChild(el);
+    while (caja.children.length > 2) caja.firstChild.remove();
+    const dur = opts.dur || 2600 + (opts.efectos ? opts.efectos.length * 250 : 0);
+    setTimeout(() => {
+      el.classList.add('saliendo');
+      setTimeout(() => el.remove(), 320);
+    }, dur);
+    el.addEventListener('click', () => el.remove());
+    return el;
+  };
+
+  // Chips de efectos: [{emoji, nombre, flechas, sube, bueno}] → «👁️ Te conocen ▲▲»
+  ui.chipsEfectos = function (lista, opts) {
+    opts = opts || {};
+    return h('div', { class: 'efectos' }, opts.antes || null, lista.map((e) => {
+      const fl = (e.sube ? '▲' : '▼').repeat(e.flechas);
+      const etiqueta = e.numero ? R.signo(e.v, 0) : fl;
+      return h('span', { class: 'ef ' + (e.bueno ? 'bien' : 'mal'), title: e.nombre + (e.sube ? ' sube' : ' baja') },
+        h('span', { class: 'em' }, e.emoji),
+        opts.conNombre !== false && !opts.compacto ? h('span', { class: 'nom' }, e.nombre) : null,
+        h('span', { class: e.numero ? '' : 'fl' }, etiqueta));
+    }));
+  };
+
+  // Número que cuenta de a poco.
+  ui.contar = function (el, desde, hasta, dur, fmt) {
+    fmt = fmt || ((x) => R.fmt(x, 1));
+    const t0 = performance.now();
+    const paso = (t) => {
+      const k = Math.min(1, (t - t0) / dur);
+      const e = 1 - Math.pow(1 - k, 3);
+      el.textContent = fmt(desde + (hasta - desde) * e);
+      if (k < 1) requestAnimationFrame(paso);
+    };
+    requestAnimationFrame(paso);
+  };
+
+  ui.temblor = function (el) {
+    el = el || document.getElementById('app');
+    el.classList.remove('temblor');
+    void el.offsetWidth;
+    el.classList.add('temblor');
+  };
+
+  ui.confeti = function (colores) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    colores = colores || ['#f6b40e', '#6cb4ea', '#ffffff', '#ff8a80', '#5bd38c'];
+    const c = h('canvas', { class: 'confeti' });
+    document.body.appendChild(c);
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.width = innerWidth * dpr;
+    c.height = innerHeight * dpr;
+    const ctx = c.getContext('2d');
+    const ps = Array.from({ length: 140 }, () => ({
+      x: Math.random() * c.width, y: -Math.random() * c.height * 0.5, vx: (Math.random() - 0.5) * 4 * dpr,
+      vy: (2 + Math.random() * 4) * dpr, r: (4 + Math.random() * 5) * dpr, a: Math.random() * 6, va: (Math.random() - 0.5) * 0.3,
+      col: colores[Math.floor(Math.random() * colores.length)],
+    }));
+    const t0 = performance.now();
+    const paso = (t) => {
+      ctx.clearRect(0, 0, c.width, c.height);
+      for (const p of ps) {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.05 * dpr; p.a += p.va;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.col;
+        ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r); ctx.restore();
+      }
+      if (t - t0 < 3200) requestAnimationFrame(paso);
+      else c.remove();
+    };
+    requestAnimationFrame(paso);
+  };
+
+  // Escudo del partido: círculo de color con símbolo y sigla.
+  ui.escudo = function (p, grande) {
+    return h('div', { class: 'escudo' + (grande ? ' grande' : ''), style: { background: p.color } },
+      h('span', null, p.simbolo), h('span', { class: 'sig' }, p.sigla));
+  };
+  ui.miniEscudo = (p) => h('div', { class: 'mini-escudo', style: { background: p.color }, title: p.nombre }, p.simbolo);
+
+  // Mezcla un color con blanco (0 = color, 1 = blanco).
+  ui.aclarar = function (hex, k) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const m = (x) => Math.round(x + (255 - x) * k);
+    return 'rgb(' + m(r) + ',' + m(g) + ',' + m(b) + ')';
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/sonido.js ──
+// Sonidos generados en el momento con WebAudio (no hay archivos). Arranca después del primer toque.
+(function (R) {
+  'use strict';
+
+  const son = (R.son = {});
+  let ctx = null;
+  son.activo = R.pref('sonido') !== false;
+
+  function audio() {
+    if (!son.activo) return null;
+    try {
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function tono(frec, dur, opts) {
+    const a = audio();
+    if (!a) return;
+    opts = opts || {};
+    const t = a.currentTime + (opts.retraso || 0);
+    const o = a.createOscillator();
+    const g = a.createGain();
+    o.type = opts.tipo || 'sine';
+    o.frequency.setValueAtTime(frec, t);
+    if (opts.hasta) o.frequency.exponentialRampToValueAtTime(opts.hasta, t + dur);
+    const vol = opts.vol ?? 0.18;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(a.destination);
+    o.start(t);
+    o.stop(t + dur + 0.05);
+  }
+
+  function ruido(dur, opts) {
+    const a = audio();
+    if (!a) return;
+    opts = opts || {};
+    const t = a.currentTime + (opts.retraso || 0);
+    const buf = a.createBuffer(1, Math.floor(a.sampleRate * dur), a.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (opts.crepitar ? (Math.random() < 0.08 ? 1 : 0.2) : 1);
+    const src = a.createBufferSource();
+    src.buffer = buf;
+    const f = a.createBiquadFilter();
+    f.type = opts.filtro || 'bandpass';
+    f.frequency.value = opts.frec || 1800;
+    f.Q.value = opts.q || 0.8;
+    const g = a.createGain();
+    const vol = opts.vol ?? 0.25;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + (opts.ataque || 0.02));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f).connect(g).connect(a.destination);
+    src.start(t);
+  }
+
+  son.toque = () => tono(660, 0.07, { tipo: 'triangle', vol: 0.12 });
+  son.bien = () => { tono(660, 0.12, { tipo: 'triangle' }); tono(990, 0.18, { tipo: 'triangle', retraso: 0.09 }); };
+  son.genial = () => [523, 659, 784, 1046].forEach((f, i) => tono(f, 0.2, { tipo: 'triangle', retraso: i * 0.08, vol: 0.16 }));
+  son.mal = () => { tono(220, 0.22, { tipo: 'sawtooth', vol: 0.08, hasta: 150 }); };
+  son.moneda = () => { tono(988, 0.08, { tipo: 'square', vol: 0.06 }); tono(1318, 0.22, { tipo: 'square', vol: 0.06, retraso: 0.07 }); };
+  son.diario = () => { for (let i = 0; i < 5; i++) ruido(0.03, { retraso: i * 0.07, frec: 3000, vol: 0.12, q: 2 }); };
+  son.tambor = () => { tono(110, 0.25, { vol: 0.3, hasta: 50 }); ruido(0.12, { frec: 400, vol: 0.15 }); };
+  son.aplausos = (dur) => ruido(dur || 1.6, { crepitar: true, frec: 2400, q: 0.6, vol: 0.3, ataque: 0.15 });
+  son.abucheo = () => { tono(180, 0.7, { tipo: 'sawtooth', vol: 0.06, hasta: 120 }); tono(150, 0.7, { tipo: 'sawtooth', vol: 0.05, hasta: 100 }); };
+  son.tic = () => tono(1200, 0.025, { tipo: 'square', vol: 0.04 });
+
+  son.alternar = function () {
+    son.activo = !son.activo;
+    R.pref('sonido', son.activo);
+    if (son.activo) son.bien();
+    return son.activo;
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/avatar.js ──
+// Avatar dibujado con SVG: piel, pelo, anteojos, barba, ropa, humor y banda presidencial.
+(function (R) {
+  'use strict';
+
+  R.AV = {
+    piel: ['#f6d2b8', '#e9b590', '#c98d64', '#a06944', '#6e4529'],
+    colorPelo: ['#1e1a19', '#4a2e1c', '#8b5a2b', '#dba54a', '#b9b9b9', '#a6432a'],
+    ropa: ['#1f3b6e', '#3a3a42', '#7a1f2b', '#2b6e4a', '#5a4a8a'],
+    pelo: ['Corto', 'Al costado', 'Largo', 'Melena', 'Jopo', 'Pelado'],
+    anteojos: ['Sin', 'Redondos', 'Cuadrados'],
+    barba: ['Sin', 'Bigote', 'Barba'],
+  };
+
+  const oscurecer = (hex, k) => {
+    const n = parseInt(hex.slice(1), 16);
+    const f = (x) => Math.round(x * (1 - k));
+    return 'rgb(' + f((n >> 16) & 255) + ',' + f((n >> 8) & 255) + ',' + f(n & 255) + ')';
+  };
+
+  R.ui = R.ui || {};
+  R.ui.avatar = function (av, opts) {
+    opts = opts || {};
+    const S = R.svg;
+    av = av || {};
+    const piel = R.AV.piel[av.piel || 0];
+    const pelo = R.AV.colorPelo[av.colorPelo || 0];
+    const ropa = R.AV.ropa[av.ropa || 0];
+    const size = opts.size || 56;
+    const humor = opts.humor || 'normal';
+    const partes = [];
+
+    partes.push(S('circle', { cx: 50, cy: 50, r: 50, fill: opts.fondo || '#dbeefb' }));
+    // Pelo de atrás (largo y melena)
+    if (av.pelo === 2) partes.push(S('path', { d: 'M29 40 C28 20 40 14 50 14 C60 14 72 20 71 40 L73 70 C66 74 60 67 62 52 L38 52 C40 67 34 74 27 70 Z', fill: pelo }));
+    if (av.pelo === 3) partes.push(S('path', { d: 'M28 42 C27 21 39 15 50 15 C61 15 73 21 72 42 L72 59 C66 61 63 57 64 50 L36 50 C37 57 34 61 28 59 Z', fill: pelo }));
+    // Cuerpo
+    partes.push(S('path', { d: 'M12 100 C14 79 31 70 50 70 C69 70 86 79 88 100 Z', fill: ropa }));
+    partes.push(S('path', { d: 'M42 71 L50 85 L58 71 Z', fill: '#ffffff' }));
+    if (!opts.banda) partes.push(S('path', { d: 'M48.5 76 L51.5 76 L53 93 L50 97 L47 93 Z', fill: opts.corbata || '#c43b3b' }));
+    // Cuello y cabeza
+    partes.push(S('rect', { x: 43, y: 57, width: 14, height: 15, rx: 4, fill: oscurecer(piel, 0.1) }));
+    partes.push(S('circle', { cx: 31, cy: 45, r: 4.5, fill: oscurecer(piel, 0.05) }));
+    partes.push(S('circle', { cx: 69, cy: 45, r: 4.5, fill: oscurecer(piel, 0.05) }));
+    partes.push(S('ellipse', { cx: 50, cy: 43, rx: 19, ry: 22, fill: piel }));
+    // Cachetes
+    partes.push(S('circle', { cx: 39, cy: 51, r: 3.2, fill: '#ff7b7b', opacity: 0.22 }));
+    partes.push(S('circle', { cx: 61, cy: 51, r: 3.2, fill: '#ff7b7b', opacity: 0.22 }));
+    // Barba (debajo de la boca)
+    if (av.barba === 2) partes.push(S('path', { d: 'M31 44 C31 61 40 67 50 67 C60 67 69 61 69 44 C67 55 60 59 50 59 C40 59 33 55 31 44 Z', fill: pelo }));
+    // Ojos y cejas
+    const cejaY = humor === 'enojado' ? [36, 39] : humor === 'triste' ? [39, 36.5] : [37.5, 37];
+    partes.push(S('line', { x1: 38.5, y1: cejaY[0], x2: 46, y2: cejaY[1], stroke: av.pelo === 5 && av.colorPelo === 4 ? '#777' : pelo, 'stroke-width': 2.4, 'stroke-linecap': 'round' }));
+    partes.push(S('line', { x1: 54, y1: cejaY[1], x2: 61.5, y2: cejaY[0], stroke: av.pelo === 5 && av.colorPelo === 4 ? '#777' : pelo, 'stroke-width': 2.4, 'stroke-linecap': 'round' }));
+    if (humor === 'feliz') {
+      partes.push(S('path', { d: 'M40 45 Q43 41.5 46 45', stroke: '#1d1d1d', 'stroke-width': 2.2, fill: 'none', 'stroke-linecap': 'round' }));
+      partes.push(S('path', { d: 'M54 45 Q57 41.5 60 45', stroke: '#1d1d1d', 'stroke-width': 2.2, fill: 'none', 'stroke-linecap': 'round' }));
+    } else {
+      partes.push(S('ellipse', { cx: 43, cy: 44, rx: 2.2, ry: 2.8, fill: '#1d1d1d' }));
+      partes.push(S('ellipse', { cx: 57, cy: 44, rx: 2.2, ry: 2.8, fill: '#1d1d1d' }));
+    }
+    // Boca
+    const bocas = {
+      feliz: 'M42 52 Q50 61 58 52 Z',
+      normal: 'M44 54 Q50 57.5 56 54',
+      triste: 'M44 57 Q50 51.5 56 57',
+      enojado: 'M44 56 Q50 53.5 56 56',
+    };
+    partes.push(S('path', { d: bocas[humor] || bocas.normal, stroke: '#7a2a2a', 'stroke-width': 2.2, fill: humor === 'feliz' ? '#7a2a2a' : 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+    // Bigote
+    if (av.barba === 1 || av.barba === 2) partes.push(S('path', { d: 'M41.5 51.5 Q46 47.5 50 50 Q54 47.5 58.5 51.5 Q54 50.5 50 51.8 Q46 50.5 41.5 51.5 Z', fill: pelo }));
+    // Pelo de adelante
+    const frente = {
+      0: 'M31 41 C30 24 40 17 50 17 C61 17 70 24 69 41 C66 32 58 27 50 27 C42 27 34 32 31 41 Z',
+      1: 'M31 42 C29 23 41 16 52 17 C63 18 71 26 69 42 C67 31 61 26 44 29 C39 30 34 34 31 42 Z',
+      2: 'M31 39 C32 24 42 19 50 19 C60 19 68 25 69 39 C60 30 44 31 31 39 Z',
+      3: 'M31 39 C32 23 42 18 50 18 C60 18 68 24 69 39 C64 31 56 27 50 33 C44 27 36 31 31 39 Z',
+      4: 'M31 41 C28 20 37 9 53 10 C66 11 73 22 69 41 C66 30 60 25 50 25 C42 25 35 31 31 41 Z',
+      5: null,
+    };
+    if (av.pelo === 5) {
+      partes.push(S('path', { d: 'M30.5 47 C29 37 31 31 35 29 L36.5 45 Z', fill: pelo }));
+      partes.push(S('path', { d: 'M69.5 47 C71 37 69 31 65 29 L63.5 45 Z', fill: pelo }));
+    } else if (frente[av.pelo || 0]) partes.push(S('path', { d: frente[av.pelo || 0], fill: pelo }));
+    // Anteojos
+    if (av.anteojos === 1) {
+      partes.push(S('circle', { cx: 43, cy: 44, r: 5.6, stroke: '#1d1d1d', 'stroke-width': 2, fill: 'rgba(255,255,255,0.25)' }));
+      partes.push(S('circle', { cx: 57, cy: 44, r: 5.6, stroke: '#1d1d1d', 'stroke-width': 2, fill: 'rgba(255,255,255,0.25)' }));
+      partes.push(S('line', { x1: 48.6, y1: 44, x2: 51.4, y2: 44, stroke: '#1d1d1d', 'stroke-width': 2 }));
+    } else if (av.anteojos === 2) {
+      partes.push(S('rect', { x: 37, y: 40, width: 11.5, height: 8, rx: 2, stroke: '#1d1d1d', 'stroke-width': 2, fill: 'rgba(255,255,255,0.25)' }));
+      partes.push(S('rect', { x: 51.5, y: 40, width: 11.5, height: 8, rx: 2, stroke: '#1d1d1d', 'stroke-width': 2, fill: 'rgba(255,255,255,0.25)' }));
+      partes.push(S('line', { x1: 48.5, y1: 43, x2: 51.5, y2: 43, stroke: '#1d1d1d', 'stroke-width': 2 }));
+    }
+    // Banda presidencial
+    if (opts.banda) {
+      partes.push(S('path', { d: 'M22 80 L31 73 L86 100 L68 100 Z', fill: '#74acdf' }));
+      partes.push(S('path', { d: 'M25.5 77.4 L28.5 75 L80 100 L74 100 Z', fill: '#ffffff' }));
+      partes.push(S('circle', { cx: 52, cy: 88, r: 3.4, fill: '#f6b40e', stroke: '#a87800', 'stroke-width': 0.8 }));
+    }
+    const el = S('svg', { viewBox: '0 0 100 100', width: size, height: size, class: 'avatar', role: 'img', 'aria-label': opts.titulo || 'Avatar' }, ...partes);
+    return el;
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/mapa.js ──
+// Mapa de fichas hexagonales con la forma de la Argentina (fácil de tocar en el celu).
+(function (R) {
+  'use strict';
+
+  R.ABREV = {
+    JUJ: 'JUJ', SAL: 'SAL', FOR: 'FOR', CAT: 'CAT', TUC: 'TUC', CHA: 'CHA', MIS: 'MIS', LRJ: 'LR', SGO: 'SDE', SFE: 'SF',
+    COR: 'CTES', SJU: 'SJ', SLU: 'SL', CBA: 'CBA', ERI: 'ER', MZA: 'MZA', LPA: 'LP', BUE: 'BA', CABA: 'CABA', NQN: 'NQN',
+    RNE: 'RN', CHU: 'CHU', SCR: 'SC', TDF: 'TDF', MLV: 'MLV',
+  };
+
+  const RAD = 27;
+  const W = Math.sqrt(3) * RAD;
+  const M = 6;
+
+  function centro(col, fila) {
+    return [M + W / 2 + col * W + (fila % 2 ? W / 2 : 0), M + RAD + fila * 1.5 * RAD];
+  }
+  function puntos(cx, cy, r) {
+    const p = [];
+    for (let i = 0; i < 6; i++) {
+      const a = ((60 * i - 30) * Math.PI) / 180;
+      p.push((cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1));
+    }
+    return p.join(' ');
+  }
+
+  // opts: { colorDe(id), valorDe(id), alTocar(id), sel, sinMalvinas, extra: [{id, hex, nombre, color}] }
+  R.ui.mapa = function (opts) {
+    opts = opts || {};
+    const S = R.svg;
+    const fichas = R.PROVINCIAS.map((p) => ({ id: p.id, hex: p.hex, nombre: p.nombre }));
+    if (!opts.sinMalvinas) fichas.push({ id: 'MLV', hex: R.MALVINAS.hex, nombre: R.MALVINAS.nombre, especial: true });
+    (opts.extra || []).forEach((e) => fichas.push(e));
+    let maxX = 0;
+    let maxY = 0;
+    let minX = 1e9;
+    fichas.forEach((f) => {
+      const [x, y] = centro(f.hex[0], f.hex[1]);
+      maxX = Math.max(maxX, x + W / 2 + M);
+      minX = Math.min(minX, x - W / 2 - M);
+      maxY = Math.max(maxY, y + RAD + M);
+    });
+    minX = Math.min(minX, 0);
+    const defs = S('defs', null,
+      S('pattern', { id: 'rayas-mlv', width: 8, height: 8, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' },
+        S('rect', { width: 8, height: 8, fill: '#ffffff' }), S('rect', { width: 4, height: 8, fill: '#9ccbf0' })));
+    const g = [];
+    // Línea de mar hasta Malvinas
+    if (!opts.sinMalvinas) {
+      const [x1, y1] = centro(1, 8);
+      const [x2, y2] = centro(R.MALVINAS.hex[0], R.MALVINAS.hex[1]);
+      g.push(S('path', { class: 'mar', d: 'M' + (x1 + 18) + ' ' + (y1 - 6) + ' Q' + (x1 + 40) + ' ' + (y2 + 10) + ' ' + (x2 - 22) + ' ' + y2 }));
+    }
+    for (const f of fichas) {
+      const [cx, cy] = centro(f.hex[0], f.hex[1]);
+      const color = f.especial && !(opts.colorDe && opts.colorDe(f.id, true)) ? 'url(#rayas-mlv)' : (opts.colorDe ? opts.colorDe(f.id) : '#ffffff') || '#ffffff';
+      const val = opts.valorDe ? opts.valorDe(f.id) : null;
+      const pol = S('polygon', {
+        class: 'hex' + (opts.sel === f.id ? ' sel' : ''), points: puntos(cx, cy, RAD - 1.5), fill: color,
+        'data-id': f.id, tabindex: opts.alTocar ? 0 : null, role: opts.alTocar ? 'button' : null, 'aria-label': f.nombre,
+      });
+      if (opts.alTocar) {
+        pol.addEventListener('click', () => opts.alTocar(f.id));
+        pol.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opts.alTocar(f.id); } });
+      }
+      pol.appendChild(S('title', null, f.nombre));
+      g.push(pol);
+      g.push(S('text', { class: 'nom', x: cx, y: val ? cy - 2 : cy + 4, 'text-anchor': 'middle' }, f.abrev || R.ABREV[f.id] || f.id));
+      if (val) g.push(S('text', { class: 'val', x: cx, y: cy + 11, 'text-anchor': 'middle' }, val));
+    }
+    return S('svg', { class: 'mapa', viewBox: minX.toFixed(0) + ' 0 ' + (maxX - minX).toFixed(0) + ' ' + maxY.toFixed(0), role: 'group', 'aria-label': 'Mapa de provincias' }, defs, ...g);
+  };
+
+  // Escala de color de 0 a 100: blanco → color del partido.
+  R.ui.colorEscala = function (hex, v) {
+    return R.ui.aclarar(hex, R.clamp(1 - v / 100, 0.04, 0.96));
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/hemiciclo.js ──
+// Hemiciclo del Congreso: una banca = un puntito, coloreado por partido (de izquierda a derecha).
+(function (R) {
+  'use strict';
+
+  // grupos: [{id, n, color, borde?}] ya ordenados; opts: {filas, centro, sub, resaltar}
+  R.ui.hemiciclo = function (grupos, opts) {
+    opts = opts || {};
+    const S = R.svg;
+    const N = grupos.reduce((a, g) => a + g.n, 0);
+    const filas = opts.filas || (N > 150 ? 9 : N > 60 ? 5 : 4);
+    const r0 = 42;
+    const r1 = 98;
+    const radios = Array.from({ length: filas }, (_, i) => (filas === 1 ? r1 : r0 + ((r1 - r0) * i) / (filas - 1)));
+    const sumaR = R.sum(radios);
+    const porFila = radios.map((r) => Math.round((N * r) / sumaR));
+    let dif = N - R.sum(porFila);
+    for (let i = filas - 1; dif !== 0; i = (i - 1 + filas) % filas) {
+      porFila[i] += Math.sign(dif);
+      dif -= Math.sign(dif);
+    }
+    const pos = [];
+    radios.forEach((r, i) => {
+      const n = porFila[i];
+      for (let j = 0; j < n; j++) {
+        const a = n === 1 ? Math.PI / 2 : Math.PI * (1 - j / (n - 1));
+        pos.push({ a, r, x: Math.cos(a) * r, y: -Math.sin(a) * r });
+      }
+    });
+    pos.sort((p, q) => q.a - p.a || p.r - q.r);
+    const radioPunto = Math.min(((r1 - r0) / Math.max(1, filas - 1)) * 0.42, (Math.PI * r0) / Math.max(1, porFila[0]) * 0.45, 6);
+    const puntos = [];
+    let k = 0;
+    for (const g of grupos) {
+      for (let i = 0; i < g.n; i++, k++) {
+        const p = pos[k];
+        if (!p) continue;
+        puntos.push(S('circle', {
+          cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: radioPunto.toFixed(2), fill: g.color,
+          stroke: g.borde || '#13284a', 'stroke-width': opts.resaltar && opts.resaltar !== g.id ? 0.4 : 0.9,
+          opacity: opts.resaltar && opts.resaltar !== g.id ? 0.55 : 1,
+          'data-g': g.id,
+        }));
+      }
+    }
+    const textos = [];
+    if (opts.centro !== undefined) textos.push(S('text', { x: 0, y: -8, 'text-anchor': 'middle', style: 'font-family: var(--f-titulo); font-size: 26px; fill: currentColor' }, String(opts.centro)));
+    if (opts.sub) textos.push(S('text', { x: 0, y: 6, 'text-anchor': 'middle', style: 'font-size: 10px; font-weight: 900; fill: currentColor; opacity: .75' }, opts.sub));
+    return S('svg', { class: 'hemiciclo', viewBox: '-104 -104 208 114', role: 'img', 'aria-label': opts.titulo || 'Hemiciclo' }, ...puntos, ...textos);
+  };
+
+  // Ordena una composición {partido: bancas} de izquierda a derecha con sus colores.
+  R.ui.gruposCamara = function (s, comp) {
+    return Object.entries(comp)
+      .filter(([, n]) => n > 0)
+      .map(([id, n]) => {
+        const p = R.partidoInfo(s, id);
+        return { id, n, color: p.color, ideo: p.ideo ?? 0 };
+      })
+      .sort((a, b) => a.ideo - b.ideo);
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/componentes.js ──
+// Piezas de interfaz que se repiten: barra superior, encuesta, botón de pasar el mes, historial.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+
+  ui.puntosAgenda = function (usados, total) {
+    return h('span', { class: 'agenda-puntos', title: 'Agenda del mes: ' + (total - usados) + ' de ' + total },
+      Array.from({ length: total }, (_, i) => h('i', { class: i < total - usados ? '' : 'usado' })));
+  };
+
+  // Barra de arriba en campaña: escudo, nombre, mes, plata y agenda.
+  ui.barraCampana = function (s) {
+    const c = s.camp;
+    return h('header', { class: 'barra-sup' },
+      h('div', { class: 'quien' }, ui.escudo(s.partido), h('div', { style: { minWidth: 0 } },
+        h('b', null, R.cap(R.MESES_CORTOS[R.mesDelAnio(s.mes)]) + ' ' + R.anio(s.mes)), h('small', null, s.partido.nombre))),
+      h('span', { class: 'recurso', id: 'rec-fondos', title: 'Fondos de campaña' }, '💰 ', h('span', { class: 'numero' }, R.fmt(c.fondos))),
+      h('span', { class: 'recurso', id: 'rec-agenda', title: 'Agenda del mes' }, '⏱️ ', ui.puntosAgenda(c.agendaMax - c.agenda, Math.max(c.agendaMax, c.agenda))),
+      h('button', { class: 'boton mini sec', onclick: () => ui.menu(), 'aria-label': 'Menú' }, '☰'));
+  };
+
+  // Encuesta: barras horizontales ordenadas.
+  ui.encuesta = function (s, enc, opts) {
+    opts = opts || {};
+    const ids = ['YO'].concat(R.RIVALES).sort((a, b) => enc[b] - enc[a]);
+    const max = Math.max(...ids.map((id) => enc[id]), 1);
+    return h('div', { class: 'encuesta' }, ids.map((id) => {
+      const p = R.partidoInfo(s, id);
+      const ant = opts.anterior ? opts.anterior[id] : null;
+      const dif = ant !== null && ant !== undefined ? enc[id] - ant : 0;
+      return h('div', { class: 'linea' + (id === 'YO' ? ' yo' : '') },
+        ui.miniEscudo(p),
+        h('div', { style: { minWidth: 0 } },
+          h('div', { class: 'nombre' }, R.elec.nombre(s, id), ' ', h('span', { class: 'suave chico' }, p.sigla)),
+          h('div', { class: 'barra' }, h('i', { style: { width: (enc[id] / max) * 100 + '%', background: p.color } }))),
+        h('div', { class: 'pct' }, R.fmt(enc[id], 1), h('div', { class: 'chico', style: { color: dif > 0.05 ? 'var(--bien)' : dif < -0.05 ? 'var(--mal)' : 'var(--meh)', fontFamily: 'var(--f-texto)', fontSize: '12px' } },
+          Math.abs(dif) >= 0.05 ? (dif > 0 ? '▲' : '▼') + R.fmt(Math.abs(dif), 1) : '')));
+    }));
+  };
+
+  // Historial del diario.
+  ui.historial = function (s, max) {
+    const items = s.diario.slice(0, max || 40);
+    if (!items.length) return h('p', { class: 'suave' }, 'Todavía no pasó nada.');
+    return h('div', { class: 'historial' }, items.map((d) =>
+      h('div', { class: 'item' }, h('span', { class: 'em' }, d.emoji), h('span', { class: 'f' }, R.fechaCorta(d.mes)), h('span', null, d.txt))));
+  };
+
+  // Barra inferior: pestañas + botón grande para pasar el mes.
+  ui.navInferior = function (pestanas, activa, alElegir, boton) {
+    const nav = document.querySelector('.nav-inf') || document.body.appendChild(h('nav', { class: 'nav-inf' }));
+    nav.className = 'nav-inf' + (document.getElementById('app').classList.contains('ancha') ? ' ancha' : '');
+    nav.replaceChildren(h('div', { class: 'dentro' },
+      boton || null,
+      pestanas ? h('div', { class: 'pestanas', role: 'tablist' }, pestanas.map((p) =>
+        h('button', { class: p.id === activa ? 'activa' : '', role: 'tab', 'aria-selected': p.id === activa ? 'true' : 'false', onclick: () => alElegir(p.id) },
+          h('span', { class: 'ic' }, p.emoji), p.nombre))) : null));
+    nav.hidden = false;
+  };
+  ui.ocultarNav = function () {
+    const nav = document.querySelector('.nav-inf');
+    if (nav) nav.hidden = true;
+  };
+
+  // Menú general (guardar, sonido, salir).
+  ui.menu = function () {
+    const s = ui.s;
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, 'Menú'),
+      h('button', { class: 'boton sec ancho', onclick: () => { R.son.alternar(); ui.cerrarCapa(); ui.aviso(R.son.activo ? '🔊 Sonido activado' : '🔇 Sonido apagado'); } }, R.son.activo ? '🔇 Apagar sonido' : '🔊 Prender sonido'),
+      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.comoSeJuega(); } }, '❓ Cómo se juega'),
+      s ? h('button', { class: 'boton sec ancho', onclick: () => { R.guardar(s); ui.cerrarCapa(); ui.irPortada(); } }, '🏠 Volver a la portada') : null,
+      h('p', { class: 'chico suave centro' }, 'La partida se guarda sola en este dispositivo.')), { cerrable: true });
+  };
+
+  ui.comoSeJuega = function () {
+    const paso = (em, t, d) => h('div', { class: 'fila tarjeta plana suave', style: { alignItems: 'flex-start' } }, h('div', { style: { fontSize: '32px' } }, em), h('div', null, h('b', null, t), h('p', { class: 'chico' }, d)));
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, 'Cómo se juega'),
+      paso('🗓️', 'Cada turno es un mes', 'Hacé tus acciones y tocá «Pasar el mes».'),
+      paso('📰', 'Llegan noticias', 'Elegí qué hacer. Cada opción muestra a quién le pega: ▲ sube, ▼ baja.'),
+      paso('🗳️', 'Ganá la elección', 'PASO en agosto, generales en octubre y, si hace falta, ballotage.'),
+      paso('🏛️', 'Gobernás', 'Economía, Congreso, provincias y el mundo. Que la gente esté contenta.'),
+      h('button', { class: 'boton ancho', onclick: () => ui.cerrarCapa() }, '¡Entendido!')), { cerrable: true });
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/portada.js ──
+// Portada: logo, Sol de Mayo, jugar / continuar.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+
+  ui.solDeMayo = function (cls) {
+    const S = R.svg;
+    const rayos = [];
+    for (let i = 0; i < 32; i++) {
+      const a = (i / 32) * Math.PI * 2;
+      const largo = i % 2 ? 46 : 40;
+      const ancho = i % 2 ? 0.06 : 0.1;
+      const p = (ang, r) => (50 + Math.cos(ang) * r).toFixed(1) + ',' + (50 + Math.sin(ang) * r).toFixed(1);
+      rayos.push(S('polygon', { points: p(a - ancho, 22) + ' ' + p(a, largo) + ' ' + p(a + ancho, 22), fill: '#f6b40e', stroke: '#a87800', 'stroke-width': 0.8 }));
+    }
+    return S('svg', { viewBox: '0 0 100 100', class: cls || 'sol-mayo', 'aria-hidden': 'true' },
+      ...rayos,
+      S('circle', { cx: 50, cy: 50, r: 22, fill: '#f6b40e', stroke: '#a87800', 'stroke-width': 1.5 }),
+      S('path', { d: 'M41 46 Q43.5 43.5 46 46 M54 46 Q56.5 43.5 59 46', stroke: '#7a5200', 'stroke-width': 1.8, fill: 'none', 'stroke-linecap': 'round' }),
+      S('path', { d: 'M42 56 Q50 63 58 56', stroke: '#7a5200', 'stroke-width': 2, fill: 'none', 'stroke-linecap': 'round' }),
+      S('path', { d: 'M50 47 L48.5 53 L51 53.5', stroke: '#7a5200', 'stroke-width': 1.3, fill: 'none', 'stroke-linecap': 'round' }));
+  };
+
+  ui.portada = function () {
+    ui.ocultarNav();
+    const guardada = R.cargar();
+    const nodo = h('main', { class: 'portada' },
+      ui.solDeMayo(),
+      h('h1', { class: 'logo' }, 'Camino a', h('span', null, 'la Rosada')),
+      h('p', { class: 'lema' }, 'Fundá tu partido, ganá la elección y sacá el país adelante.'),
+      h('div', { class: 'botones' },
+        guardada ? h('button', { class: 'boton grande', onclick: () => { R.son.toque(); ui.continuar(guardada); } },
+          '▶ Continuar', h('span', { class: 'chico', style: { fontFamily: 'var(--f-texto)' } }, ' · ' + guardada.partido.sigla + ' · ' + R.fechaCorta(guardada.mes))) : null,
+        h('button', { class: 'boton grande' + (guardada ? ' sec' : ''), onclick: () => { R.son.toque(); ui.nuevaPartida(guardada); } }, '🏴 Nueva partida'),
+        h('div', { class: 'fila', style: { justifyContent: 'center' } },
+          h('button', { class: 'boton mini sec', onclick: () => ui.comoSeJuega() }, '❓ Cómo se juega'),
+          h('button', { class: 'boton mini sec', id: 'btn-sonido', onclick: (e) => { R.son.alternar(); e.currentTarget.textContent = R.son.activo ? '🔊 Sonido' : '🔇 Sonido'; } }, R.son.activo ? '🔊 Sonido' : '🔇 Sonido'))),
+      h('div', { class: 'pasos-portada' },
+        h('div', { class: 'tarjeta' }, h('div', null, '🏴'), 'Fundá tu partido'),
+        h('div', { class: 'tarjeta' }, h('div', null, '🗳️'), 'Ganá la elección'),
+        h('div', { class: 'tarjeta' }, h('div', null, '🏛️'), 'Gobernás el país')),
+      h('p', { class: 'chico suave' }, 'Partidos y personajes ficticios. La partida se guarda en este dispositivo.'));
+    ui.montar(nodo);
+  };
+
+  ui.nuevaPartida = function (guardada) {
+    if (!guardada) return ui.crear();
+    ui.abrirCapa(h('div', { class: 'pila centro' },
+      h('div', { style: { fontSize: '44px' } }, '⚠️'),
+      h('h2', null, '¿Empezar de cero?'),
+      h('p', null, 'Se borra la partida de ' + guardada.partido.sigla + '.'),
+      h('button', { class: 'boton rojo ancho', onclick: () => { R.borrarPartida(); ui.cerrarCapa(); ui.crear(); } }, 'Sí, empezar de nuevo'),
+      h('button', { class: 'boton sec ancho', onclick: () => ui.cerrarCapa() }, 'No, volver')), { cerrable: true });
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/crear.js ──
+// Crear partido: 4 pasos cortos, todo con toques.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+
+  const IDEO_TXT = ['Muy Estado', 'Estado', 'Al medio', 'Mercado', 'Muy mercado'];
+  const ESTILO_TXT = ['Muy dialoguista', 'Dialoguista', 'Equilibrado', 'Confrontativo', 'Muy confrontativo'];
+
+  ui.crear = function () {
+    const nombre = R.nombrePartidoAzar();
+    ui.borrador = {
+      paso: 0,
+      nombre: nombre.nombre,
+      sigla: nombre.sigla,
+      color: R.COLORES_PARTIDO[Math.floor(Math.random() * R.COLORES_PARTIDO.length)],
+      simbolo: R.SIMBOLOS_PARTIDO[Math.floor(Math.random() * R.SIMBOLOS_PARTIDO.length)],
+      ideo: 0,
+      estilo: 0,
+      lider: R.nombreLiderAzar(),
+      avatar: R.avatarAzar(),
+      dificultad: 'normal',
+    };
+    pintar();
+  };
+
+  function pintar() {
+    const b = ui.borrador;
+    ui.ocultarNav();
+    const pasos = [pasoNombre, pasoColor, pasoIdeas, pasoCandidato];
+    const nodo = h('main', { class: 'pila', style: { paddingTop: '8px' } },
+      h('div', { class: 'progreso-pasos', 'aria-label': 'Paso ' + (b.paso + 1) + ' de 4' }, [0, 1, 2, 3].map((i) => h('i', { class: i <= b.paso ? 'hecho' : '' }))),
+      h('div', { class: 'fila', style: { justifyContent: 'center', padding: '6px 0 10px' } },
+        ui.escudo({ color: b.color, simbolo: b.simbolo, sigla: b.sigla || '?' }, true)),
+      pasos[b.paso](),
+      h('div', { class: 'fila', style: { marginTop: '6px' } },
+        h('button', { class: 'boton sec', onclick: () => { R.son.toque(); if (b.paso === 0) ui.irPortada(); else { b.paso--; pintar(); } } }, b.paso === 0 ? '✕' : '◀'),
+        b.paso < 3
+          ? h('button', { class: 'boton grande', style: { flex: 1 }, disabled: !valido(b) ? true : null, onclick: () => { R.son.toque(); b.paso++; pintar(); window.scrollTo(0, 0); } }, 'Siguiente ▶')
+          : h('button', { class: 'boton grande verde', style: { flex: 1 }, disabled: !valido(b) ? true : null, onclick: fundar }, '🎉 ¡Fundar el partido!')));
+    ui.montar(nodo);
+  }
+
+  function valido(b) {
+    if (b.paso === 0) return b.nombre.trim().length >= 3 && b.sigla.trim().length >= 2;
+    if (b.paso === 3) return b.lider.trim().length >= 3;
+    return true;
+  }
+
+  function pasoNombre() {
+    const b = ui.borrador;
+    const inNombre = h('input', { type: 'text', id: 'in-nombre', maxlength: 34, value: b.nombre, autocomplete: 'off',
+      oninput: (e) => { b.nombre = e.target.value; refrescarBoton(); } });
+    const inSigla = h('input', { type: 'text', id: 'in-sigla', maxlength: 5, value: b.sigla, autocomplete: 'off', style: { textTransform: 'uppercase' },
+      oninput: (e) => { b.sigla = e.target.value.toUpperCase().replace(/[^A-ZÁÉÍÓÚÑ0-9]/g, ''); e.target.value = b.sigla; refrescarEscudo(); refrescarBoton(); } });
+    return h('section', { class: 'tarjeta pila' },
+      h('h2', null, '¿Cómo se llama tu partido?'),
+      h('div', { class: 'campo' }, h('label', { class: 'etiqueta', for: 'in-nombre' }, 'Nombre'), inNombre),
+      h('div', { class: 'campo' }, h('label', { class: 'etiqueta', for: 'in-sigla' }, 'Sigla (2 a 5 letras)'), inSigla),
+      h('button', { class: 'boton sec', onclick: () => { const n = R.nombrePartidoAzar(); b.nombre = n.nombre; b.sigla = n.sigla; R.son.toque(); pintar(); } }, '🎲 Inventame uno'));
+  }
+
+  function pasoColor() {
+    const b = ui.borrador;
+    return h('section', { class: 'tarjeta pila' },
+      h('h2', null, 'Color y símbolo'),
+      h('div', { class: 'etiqueta' }, 'Color'),
+      h('div', { class: 'grilla-opciones' }, R.COLORES_PARTIDO.map((c) =>
+        h('button', { class: 'opcion-redonda' + (b.color === c ? ' elegida' : ''), style: { background: c }, 'aria-label': 'Color ' + c,
+          onclick: () => { b.color = c; R.son.toque(); pintar(); } }))),
+      h('div', { class: 'etiqueta' }, 'Símbolo'),
+      h('div', { class: 'grilla-opciones' }, R.SIMBOLOS_PARTIDO.map((sym) =>
+        h('button', { class: 'opcion-redonda' + (b.simbolo === sym ? ' elegida' : ''), 'aria-label': 'Símbolo ' + sym,
+          onclick: () => { b.simbolo = sym; R.son.toque(); pintar(); } }, sym))));
+  }
+
+  function pasoIdeas() {
+    const b = ui.borrador;
+    const vistaPrevia = h('div', { class: 'pila', id: 'vista-ideas' });
+    const refrescar = () => {
+      const fit = (p) => R.clamp(1 + 0.6 * (0.55 - Math.abs(p.lean - b.ideo / 2)), 0.6, 1.35);
+      vistaPrevia.replaceChildren(
+        h('div', { class: 'etiqueta' }, 'Cómo te reciben de entrada'),
+        h('div', { class: 'caritas' }, R.GRUPOS.map((g) => {
+          const v = R.simpatiaInicialGrupo(g, b.ideo / 2);
+          return h('div', { class: 'carita' }, h('span', { class: 'cara' }, R.cara(v)), g.emoji + ' ' + g.nombre);
+        })),
+        h('div', { class: 'etiqueta' }, 'Dónde arrancás mejor'),
+        R.ui.mapa({ sinMalvinas: true, colorDe: (id) => {
+          const f = fit(R.PROV[id]);
+          return f > 1.15 ? '#7ed79f' : f > 0.95 ? '#d7f2df' : f > 0.8 ? '#fbe7c2' : '#f7b3ae';
+        } }),
+        h('div', { class: 'leyenda' }, h('span', { class: 'chip', style: { background: '#7ed79f' } }, 'Te quieren'), h('span', { class: 'chip', style: { background: '#d7f2df' } }, 'Bien'), h('span', { class: 'chip', style: { background: '#fbe7c2' } }, 'Difícil'), h('span', { class: 'chip', style: { background: '#f7b3ae' } }, 'Muy difícil')));
+    };
+    refrescar();
+    const deslizador = (id, izq, der, valor, textos, alCambiar) => h('div', { class: 'deslizador' },
+      h('div', { class: 'extremos' }, h('span', null, izq), h('span', null, der)),
+      h('input', { type: 'range', id, min: -2, max: 2, step: 1, value: valor, 'aria-valuetext': textos[valor + 2],
+        oninput: (e) => { alCambiar(+e.target.value); e.target.setAttribute('aria-valuetext', textos[+e.target.value + 2]); e.target.nextSibling.textContent = textos[+e.target.value + 2]; } }),
+      h('div', { class: 'centro chico suave' }, textos[valor + 2]));
+    return h('section', { class: 'tarjeta pila' },
+      h('h2', null, 'Tus ideas'),
+      deslizador('rg-ideo', '🤲 Estado presente', 'Mercado libre 💼', b.ideo, IDEO_TXT, (v) => { b.ideo = v; refrescar(); }),
+      deslizador('rg-estilo', '🕊️ Dialoguista', 'Confrontativo 🔥', b.estilo, ESTILO_TXT, (v) => { b.estilo = v; }),
+      h('p', { class: 'chico suave' }, '🕊️ Más seguro y negociador · 🔥 Más viral, pero más riesgoso'),
+      vistaPrevia);
+  }
+
+  function pasoCandidato() {
+    const b = ui.borrador;
+    const vista = h('div', { id: 'vista-avatar' }, R.ui.avatar(b.avatar, { size: 104, humor: 'feliz', fondo: ui.aclarar(b.color, 0.65) }));
+    const ciclo = (clave, etiqueta, n) => h('button', { class: 'boton mini sec', onclick: () => {
+      b.avatar[clave] = ((b.avatar[clave] || 0) + 1) % n;
+      R.son.toque();
+      vista.replaceChildren(R.ui.avatar(b.avatar, { size: 104, humor: 'feliz', fondo: ui.aclarar(b.color, 0.65) }));
+    } }, etiqueta);
+    return h('section', { class: 'tarjeta pila' },
+      h('h2', null, 'Tu candidato/a'),
+      h('div', { class: 'campo' }, h('label', { class: 'etiqueta', for: 'in-lider' }, 'Nombre'),
+        h('div', { class: 'fila' },
+          h('input', { type: 'text', id: 'in-lider', maxlength: 30, value: b.lider, autocomplete: 'off', oninput: (e) => { b.lider = e.target.value; refrescarBoton(); } }),
+          h('button', { class: 'boton mini sec', 'aria-label': 'Nombre al azar', onclick: () => { b.lider = R.nombreLiderAzar(); pintar(); } }, '🎲'))),
+      h('div', { class: 'editor-avatar' }, vista,
+        h('div', { class: 'controles' },
+          ciclo('piel', '🎨 Piel', R.AV.piel.length), ciclo('pelo', '💇 Pelo', R.AV.pelo.length),
+          ciclo('colorPelo', '🖌️ Color', R.AV.colorPelo.length), ciclo('anteojos', '👓 Lentes', 3),
+          ciclo('barba', '🧔 Barba', 3), ciclo('ropa', '👔 Ropa', R.AV.ropa.length))),
+      h('div', { class: 'etiqueta' }, 'Dificultad'),
+      h('div', { class: 'dificultades' }, Object.entries(R.DIFICULTADES).map(([id, d]) =>
+        h('button', { class: 'opcion' + (b.dificultad === id ? ' elegida' : ''), onclick: () => { b.dificultad = id; R.son.toque(); pintar(); } },
+          h('div', null, d.emoji), d.nombre))));
+  }
+
+  function refrescarEscudo() {
+    const b = ui.borrador;
+    const viejo = document.querySelector('.escudo.grande');
+    if (viejo) viejo.replaceWith(ui.escudo({ color: b.color, simbolo: b.simbolo, sigla: b.sigla || '?' }, true));
+  }
+  function refrescarBoton() {
+    const btn = document.querySelector('main .boton.grande');
+    if (btn) btn.disabled = !valido(ui.borrador);
+  }
+
+  function fundar() {
+    const b = ui.borrador;
+    const s = R.nuevaPartida({
+      dificultad: b.dificultad,
+      partido: { nombre: b.nombre.trim(), sigla: b.sigla.trim(), color: b.color, simbolo: b.simbolo, ideo: b.ideo / 2, estilo: b.estilo / 2 },
+      lider: { nombre: b.lider.trim(), avatar: b.avatar },
+    });
+    ui.s = s;
+    R.guardar(s);
+    R.son.genial();
+    ui.confeti([b.color, '#f6b40e', '#ffffff', '#6cb4ea']);
+    ui.vista = { tab: 'acciones' };
+    ui.render();
+    ui.abrirCapa(h('div', { class: 'pila centro' },
+      ui.escudo(s.partido, true),
+      h('h2', { style: { marginTop: '10px' } }, '¡Nace ' + s.partido.nombre + '!'),
+      h('div', { class: 'mis-numeros' },
+        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '👁️'), h('div', { class: 'val' }, R.fmt(s.camp.conocen) + '%'), h('div', { class: 'nom' }, 'te conoce')),
+        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗳️'), h('div', { class: 'val' }, R.fmt(R.camp.votos(s).nac.YO, 1) + '%'), h('div', { class: 'nom' }, 'te vota')),
+        h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗓️'), h('div', { class: 'val' }, R.turno.MES_PASO), h('div', { class: 'nom' }, 'meses a las PASO'))),
+      h('p', null, 'Arrancás de abajo. Cada mes tenés ', h('b', null, s.camp.agendaMax + ' acciones'), '. ¡A recorrer el país!'),
+      h('button', { class: 'boton grande ancho', onclick: () => ui.cerrarCapa() }, '¡Vamos! 💪')));
+  }
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/noticia.js ──
+// La noticia del mes: tarjeta tipo diario con 2-3 opciones que muestran a quién le pegan.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+
+  ui.costoChips = function (costo) {
+    const out = [];
+    if (costo.fondos) out.push(h('span', { class: 'chip sol' }, '💰 ' + costo.fondos));
+    if (costo.agenda) out.push(h('span', { class: 'chip sol' }, '⏱️ ' + costo.agenda));
+    if (costo.pc) out.push(h('span', { class: 'chip sol' }, '⭐ ' + costo.pc));
+    if (costo.gasto) out.push(h('span', { class: 'chip sol' }, '💸 ' + R.fmt(costo.gasto, 1) + '% presup.'));
+    return out;
+  };
+
+  ui.noticia = function (s, inst, alTerminar) {
+    const d = R.ev.datos(s, inst);
+    if (!d) return alTerminar();
+    R.son.diario();
+    let listo = false;
+    const elegir = (o) => {
+      if (listo || o.bloqueo) return;
+      listo = true;
+      document.removeEventListener('keydown', teclas);
+      const res = R.ev.resolver(s, inst, o.i);
+      R.guardar(s);
+      const efectos = R.describirAplicado(s, res.aplicado);
+      if (res.bueno) R.son.bien(); else R.son.mal();
+      if (!res.bueno) ui.temblor(document.querySelector('.hoja'));
+      ui.abrirCapa(h('div', { class: 'resultado-grande' },
+        h('div', { class: 'em' }, res.bueno ? '👍' : '😬'),
+        h('div', { class: 'txt' }, res.txt || o.txt),
+        efectos.length ? ui.chipsEfectos(efectos) : h('p', { class: 'suave' }, 'No cambió nada importante.'),
+        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir ▶')), { clase: 'diario-hoja' });
+    };
+    const teclas = (e) => {
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= d.opciones.length) elegir(d.opciones[n - 1]);
+    };
+    document.addEventListener('keydown', teclas);
+    ui.abrirCapa(h('article', { class: 'pila', style: { gap: '4px' } },
+      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, '📰 EL CAMINO'), h('span', { class: 'chico suave' }, R.fechaTxt(s.mes))),
+      h('div', { class: 'dibujo-noticia', 'aria-hidden': 'true' }, d.dibujo),
+      h('h2', { class: 'titular' }, d.titular),
+      d.bajada ? h('p', { class: 'bajada' }, d.bajada) : null,
+      h('div', { class: 'opciones-noticia' }, d.opciones.map((o, idx) => {
+        const efectos = R.describirEfectosFase(s, o.ef);
+        return h('button', { class: 'opcion-noticia', disabled: o.bloqueo ? true : null, onclick: () => elegir(o) },
+          h('div', { class: 'cab' }, h('span', { class: 'txt' }, o.txt), h('span', { class: 'fila', style: { gap: '4px' } }, ui.costoChips(o.costo), h('span', { class: 'tecla solo-pc' }, String(idx + 1)))),
+          efectos.length ? ui.chipsEfectos(efectos) : h('span', { class: 'chico suave' }, 'Sin efectos grandes'),
+          o.azar ? h('span', { class: 'chip', style: { alignSelf: 'flex-start' } }, '🎲 ' + Math.round(o.azar.p * 100) + (o.azar.bueno ? '% de que salga mejor' : '% de que salga mal')) : null,
+          o.bloqueo ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, '🚫 ' + o.bloqueo) : null);
+      }))), { clase: 'diario-hoja' });
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/eleccion.js ──
+// Noche de elecciones: escrutinio animado, mapa que se pinta y el Congreso que queda.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+
+  ui.eleccion = function (s, clave, alTerminar) {
+    const res = s.elecciones[clave];
+    if (!res) return alTerminar();
+    const lista = res.lista.slice(0, clave === 'ballotage' ? 2 : 6);
+    const lentos = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const DUR = lentos ? 6500 : 300;
+
+    // Orden en que «terminan» de contar las provincias (las chicas primero, como en la tele).
+    const orden = R.PROVINCIAS.slice().sort((a, b) => a.padron - b.padron + (Math.random() - 0.5) * 3);
+    const terminadas = new Set();
+
+    const pctEl = h('span', null, '0');
+    const barraEsc = h('i', { style: { width: '0%' } });
+    const lineas = lista.map((x) => {
+      const p = R.partidoInfo(s, x.id);
+      const pista = h('i', { style: { width: '0%', background: p.color } });
+      const num = h('div', { class: 'pct' }, '0,0');
+      const av = x.id === 'YO' ? R.ui.avatar(s.lider.avatar, { size: 40, fondo: ui.aclarar(p.color, 0.6) })
+        : R.ui.avatar(R.PARTIDOS[x.id].candidato.avatar, { size: 40, fondo: ui.aclarar(p.color, 0.6) });
+      const el = h('div', { class: 'linea' + (x.id === 'YO' ? ' yo' : '') }, av,
+        h('div', { class: 'nombre' }, R.elec.nombre(s, x.id), h('small', null, p.simbolo + ' ' + p.sigla), h('div', { class: 'pista' }, pista)), num);
+      return { x, el, pista, num };
+    });
+    const mapaCaja = h('div');
+    const pintarMapa = () => mapaCaja.replaceChildren(R.ui.mapa({
+      sinMalvinas: true,
+      colorDe: (id) => (terminadas.has(id) ? R.elec.color(s, res.ganadores[id]) : '#2a3b5e'),
+    }));
+    pintarMapa();
+    const veredicto = h('div');
+    const despues = h('div', { class: 'pila' });
+    const saltar = h('button', { class: 'boton mini sec', onclick: () => { t0 = -1e9; } }, '⏩ Ver resultado');
+    const cont = h('div', { class: 'noche' },
+      h('h2', null, '🗳️ ' + res.titulo),
+      h('div', { class: 'escrutinio' }, 'Mesas escrutadas: ', pctEl, '%'),
+      h('div', { class: 'barra gorda' }, barraEsc),
+      h('div', { class: 'noche-cuerpo' },
+        h('div', { class: 'carrera' }, lineas.map((l) => l.el)),
+        h('div', { class: 'mapa-noche' }, mapaCaja)),
+      h('div', { class: 'centro' }, saltar),
+      veredicto, despues);
+    ui.abrirCapa(cont, { oscura: true });
+    R.son.tambor();
+
+    let t0 = performance.now();
+    let ultimoTic = 0;
+    const max = Math.max(...lista.map((x) => x.v));
+    const paso = (t) => {
+      const k = Math.min(1, (t - t0) / DUR);
+      const e = 1 - Math.pow(1 - k, 2);
+      pctEl.textContent = R.fmt(e * 100, 1);
+      barraEsc.style.width = e * 100 + '%';
+      // Al principio los números bailan (cuentan primero ciertas mesas) y se acomodan al final.
+      lineas.forEach((l, i) => {
+        const ruido = Math.sin(t / 380 + i * 1.7) * 3.2 * (1 - e);
+        const v = Math.max(0, l.x.v + ruido) * Math.min(1, e * 1.6);
+        l.num.textContent = R.fmt(v, 1);
+        l.pista.style.width = (Math.max(0, v) / (max * 1.08)) * 100 + '%';
+      });
+      const nTerm = Math.floor(e * orden.length);
+      if (nTerm > terminadas.size) {
+        for (let i = terminadas.size; i < nTerm; i++) terminadas.add(orden[i].id);
+        pintarMapa();
+      }
+      if (t - ultimoTic > 160 && k < 1) { R.son.tic(); ultimoTic = t; }
+      if (k < 1) requestAnimationFrame(paso);
+      else terminar();
+    };
+    requestAnimationFrame(paso);
+
+    function terminar() {
+      orden.forEach((p) => terminadas.add(p.id));
+      pintarMapa();
+      lineas.forEach((l) => { l.num.textContent = R.fmt(l.x.v, 1); l.pista.style.width = (l.x.v / (max * 1.08)) * 100 + '%'; });
+      saltar.remove();
+      const yo = res.lista.find((x) => x.id === 'YO');
+      const puesto = res.lista.indexOf(yo) + 1;
+      let txt;
+      let gana = true;
+      if (clave === 'paso') {
+        gana = res.pasa;
+        txt = res.pasa ? (puesto === 1 ? '¡Ganaste las PASO! 🥇' : '¡Pasaste a las generales! Saliste ' + puesto + '.º') : 'Quedaste afuera… no llegaste al 1,5 %';
+      } else if (clave === 'general') {
+        if (res.ganador === 'YO') txt = '¡GANASTE EN PRIMERA VUELTA! 🏆';
+        else if (res.ballotage && res.ballotage.includes('YO')) txt = '¡Vamos al ballotage contra ' + R.elec.nombre(s, res.ballotage.find((x) => x !== 'YO')) + '! ⚔️';
+        else { gana = false; txt = 'Perdiste. Saliste ' + puesto + '.º'; }
+      } else {
+        gana = res.ganador === 'YO';
+        txt = gana ? '¡GANASTE EL BALLOTAGE! 🏆' : 'Perdiste el ballotage por ' + R.fmt(res.lista[0].v - res.lista[1].v, 1) + ' puntos';
+      }
+      veredicto.replaceChildren(h('div', { class: 'veredicto ' + (gana ? 'gana' : 'pierde') }, txt));
+      if (gana) {
+        R.son.aplausos();
+        if ((clave === 'general' && res.ganador === 'YO') || clave === 'ballotage') { ui.confeti(); R.son.genial(); }
+      } else R.son.abucheo();
+
+      const extras = [];
+      if (res.perdidos > 0.3) extras.push(h('div', { class: 'tarjeta chico' }, '⚠️ Te faltaron fiscales: perdiste ' + R.fmt(res.perdidos, 1) + ' puntos en las mesas.'));
+      if (res.bancas) extras.push(congresoNuevo(s, res));
+      extras.push(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir ▶'));
+      despues.replaceChildren(...extras);
+      const btn = despues.querySelector('.boton');
+      if (btn) setTimeout(() => btn.focus({ preventScroll: true }), 50);
+    }
+  };
+
+  function congresoNuevo(s, res) {
+    const dip = R.composicion(s, 'diputados');
+    const sen = R.composicion(s, 'senado');
+    const misDip = res.bancas.dip.YO || 0;
+    const misSen = res.bancas.sen.YO || 0;
+    const camara = (nombre, comp, mias, total) => h('div', { class: 'tarjeta pila', style: { gap: '4px', padding: '10px' } },
+      h('div', { class: 'etiqueta centro' }, nombre),
+      R.ui.hemiciclo(R.ui.gruposCamara(s, comp), { centro: comp.YO || 0, sub: 'de ' + total, resaltar: 'YO' }),
+      h('div', { class: 'centro chico' }, mias ? '+' + mias + ' bancas nuevas' : 'Sin bancas nuevas'));
+    return h('div', { class: 'pila' },
+      h('div', { class: 'centro', style: { fontWeight: 900 } }, '🏛️ Así queda el Congreso'),
+      h('div', { class: 'bancas-ganadas' },
+        camara('Diputados', dip, misDip, 257),
+        camara('Senado', sen, misSen, 72)),
+      h('div', { class: 'leyenda', style: { color: '#fff' } }, R.ui.gruposCamara(s, dip).map((g) => {
+        const p = R.partidoInfo(s, g.id);
+        return h('span', { class: 'chip', style: { background: p.color, color: '#fff', borderColor: '#fff' } }, p.sigla);
+      })));
+  }
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/debate.js ──
+// Debate presidencial: 3 temas, elegís cómo responder. Piedra, papel o tijera con estilo.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+
+  ui.debate = function (s, m, alTerminar) {
+    const d = R.debate.nuevo(s, m.rival, m.etapa);
+    const rival = R.PARTIDOS[m.rival];
+    let humorYo = 'normal';
+    let humorEl = 'normal';
+    let ultimo = null;
+
+    function pintar() {
+      const E = R.debate.ESTILOS;
+      const aplausos = R.clamp(50 + d.puntos * 13, 4, 96);
+      const escenario = h('div', { class: 'debate-escenario' },
+        h('div', { class: 'atril' }, R.ui.avatar(s.lider.avatar, { size: 84, humor: humorYo, fondo: ui.aclarar(s.partido.color, 0.6) }), s.lider.nombre),
+        h('div', { class: 'vs' }, 'VS'),
+        h('div', { class: 'atril' }, R.ui.avatar(rival.candidato.avatar, { size: 84, humor: humorEl, fondo: ui.aclarar(rival.color, 0.6) }), rival.candidato.nombre));
+      const medidor = h('div', { class: 'aplausometro' }, h('span', null, '👏'), h('div', { class: 'barra' }, h('i', { style: { width: aplausos + '%' } })), h('span', null, '🙌'));
+      const partes = [
+        h('h2', { class: 'centro' }, m.etapa === 'ballotage' ? '🎙️ Debate del ballotage' : '🎙️ Debate presidencial'),
+        escenario, medidor,
+      ];
+      if (ultimo) {
+        const r = ultimo;
+        const txt = r.r === 'gana' ? '¡Ganaste la ronda! 👏' : r.r === 'pierde' ? 'Te ganó la ronda 😓' : 'Empate';
+        partes.push(h('div', { class: 'burbuja centro' },
+          'Vos: ' + E[d.historia[d.historia.length - 1].yo].emoji + ' · ' + rival.candidato.nombre.split(' ')[0] + ': ' + E[r.el].emoji + ' ' + E[r.el].nombre,
+          h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '22px', marginTop: '4px', color: r.r === 'gana' ? 'var(--bien)' : r.r === 'pierde' ? 'var(--mal)' : 'inherit' } }, txt),
+          r.tema.fuerte === d.historia[d.historia.length - 1].yo ? h('div', { class: 'chico' }, '⭐ Bonus: era el estilo justo para ' + r.tema.nombre.toLowerCase()) : null));
+        partes.push(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ultimo = null; if (d.ronda >= 3) fin(); else pintar(); } }, d.ronda >= 3 ? 'Ver cómo te fue ▶' : 'Siguiente tema ▶'));
+      } else {
+        const tema = d.temas[d.ronda];
+        partes.push(h('div', { class: 'tarjeta plana suave centro pila', style: { gap: '4px' } },
+          h('div', { class: 'etiqueta' }, 'Tema ' + (d.ronda + 1) + ' de 3'),
+          h('div', { class: 'titulo-seccion', style: { justifyContent: 'center' } }, tema.emoji + ' ' + tema.nombre),
+          h('div', { class: 'chico' }, '💡 Acá rinde: ' + E[tema.fuerte].emoji + ' ' + E[tema.fuerte].nombre + ' · ' + rival.candidato.nombre.split(' ')[0] + ' suele ' + E[rival.debate].emoji + ' ' + E[rival.debate].nombre.toLowerCase())));
+        partes.push(h('div', { class: 'estilos' }, Object.entries(E).map(([id, e]) =>
+          h('button', { class: 'boton sec' + (tema.fuerte === id ? ' recomendado' : ''), onclick: () => jugar(id) }, h('span', { class: 'em' }, e.emoji), e.nombre))));
+        partes.push(h('div', { class: 'regla' }, 'Quién le gana a quién', h('br'), h('b', null, '📊 › 🔥 › ❤️ › 😂 › 📊')));
+      }
+      ui.abrirCapa(h('div', { class: 'pila' }, partes), { sinFoco: !ultimo });
+    }
+
+    function jugar(estilo) {
+      const r = R.debate.jugar(s, d, estilo);
+      ultimo = r;
+      humorYo = r.r === 'gana' ? 'feliz' : r.r === 'pierde' ? 'triste' : 'normal';
+      humorEl = r.r === 'pierde' ? 'feliz' : r.r === 'gana' ? 'enojado' : 'normal';
+      if (r.r === 'gana') { R.son.bien(); R.son.aplausos(0.8); } else if (r.r === 'pierde') R.son.mal(); else R.son.toque();
+      pintar();
+    }
+
+    function fin() {
+      const res = R.debate.terminar(s, d);
+      R.guardar(s);
+      if (res.bueno) R.son.genial(); else R.son.abucheo();
+      if (d.puntos >= 2) ui.confeti();
+      ui.abrirCapa(h('div', { class: 'resultado-grande' },
+        R.ui.avatar(s.lider.avatar, { size: 96, humor: res.bueno ? 'feliz' : 'triste', fondo: ui.aclarar(s.partido.color, 0.6) }),
+        h('div', { class: 'txt' }, res.veredicto),
+        ui.chipsEfectos(R.describirAplicado(s, res.aplicado)),
+        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir ▶')));
+    }
+    pintar();
+  };
+
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/campana.js ──
+// Pantalla de campaña: tu número, acciones del mes, mapa, encuesta y diario.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+
+  const PESTANAS = [
+    { id: 'acciones', emoji: '🎯', nombre: 'Acciones' },
+    { id: 'mapa', emoji: '🗺️', nombre: 'Mapa' },
+    { id: 'encuesta', emoji: '📊', nombre: 'Encuesta', soloCelu: true },
+    { id: 'diario', emoji: '📰', nombre: 'Diario' },
+  ];
+
+  ui.esPC = () => window.matchMedia && window.matchMedia('(min-width: 900px)').matches;
+
+  ui.pantallaCampana = function (s) {
+    const pc = ui.esPC();
+    let tab = (ui.vista && ui.vista.tab) || 'acciones';
+    if (pc && tab === 'encuesta') tab = 'acciones';
+    const contenido = {
+      acciones: () => [pc ? null : resumen(s), tarjetaAcciones(s)],
+      mapa: () => tarjetaMapa(s),
+      encuesta: () => tarjetaEncuesta(s),
+      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Lo que pasó'), ui.historial(s)),
+    }[tab]();
+    const cuerpo = pc
+      ? h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, resumen(s), tarjetaEncuesta(s)), h('div', { class: 'pila' }, contenido))
+      : h('div', { class: 'pila' }, contenido);
+    const scroll = ui.montar(h('div', null, ui.barraCampana(s), cuerpo), pc);
+    if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
+    const b = R.turno.botonPasar(s);
+    ui.navInferior(PESTANAS.filter((p) => !(pc && p.soloCelu)), tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
+      h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() },
+        b.emoji + ' ' + b.txt, s.camp.agenda > 0 ? h('span', { class: 'chip', style: { fontFamily: 'var(--f-texto)', fontSize: '12px' } }, 'te quedan ' + s.camp.agenda) : null));
+  };
+
+  // ── Resumen: cuenta regresiva y tus números ──
+  function resumen(s) {
+    const c = s.camp;
+    const prox = R.turno.proximaEleccion(s);
+    const enc = R.camp.encuesta(s);
+    const ant = s.encuestas.length >= 2 ? s.encuestas[s.encuestas.length - 2] : null;
+    const dif = ant ? enc.YO - ant.YO : 0;
+    const puesto = ['YO'].concat(R.RIVALES).sort((a, b) => enc[b] - enc[a]).indexOf('YO') + 1;
+    const numero = (em, nom, val, color) => h('div', { class: 'mi-numero' },
+      h('div', { class: 'em' }, em), h('div', { class: 'val numero' }, R.fmt(val) + '%'),
+      h('div', { class: 'barra', style: { height: '8px', margin: '3px 6px' } }, h('i', { style: { width: val + '%', background: color } })),
+      h('div', { class: 'nom' }, nom));
+    return h('section', { class: 'tarjeta pila' },
+      prox ? h('div', { class: 'cuenta-regresiva' },
+        h('div', { class: 'num' }, prox.faltan ? prox.faltan : prox.emoji),
+        h('div', null, h('div', { class: 'etiqueta' }, prox.faltan ? (prox.faltan === 1 ? 'mes para las' : 'meses para las') : '¡Este mes se vota!'), h('div', { class: 'titulo-seccion' }, prox.emoji + ' ' + prox.nombre))) : null,
+      h('div', { class: 'fila entre', style: { alignItems: 'flex-end' } },
+        h('div', null, h('div', { class: 'etiqueta' }, 'Te votaría'),
+          h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '46px', lineHeight: 1 }, class: 'numero' }, R.fmt(enc.YO, 1), h('span', { style: { fontSize: '24px' } }, ' %'))),
+        h('div', { class: 'pila', style: { alignItems: 'flex-end', gap: '6px' } },
+          h('span', { class: 'chip ' + (puesto <= 2 ? 'sol' : '') }, puesto === 1 ? '🥇 Primero' : puesto === 2 ? '🥈 Segundo' : '#' + puesto + ' en la encuesta'),
+          Math.abs(dif) >= 0.05 ? h('span', { class: 'chip ' + (dif > 0 ? 'bien' : 'mal') }, (dif > 0 ? '▲ ' : '▼ ') + R.fmt(Math.abs(dif), 1) + ' este mes') : null)),
+      h('div', { class: 'mis-numeros' },
+        numero('👁️', 'Te conocen', c.conocen, 'var(--celeste)'),
+        numero('❤️', 'Les caés bien', c.simpatia, '#ff7b8a'),
+        numero('🏴', 'Militancia', c.militancia, s.partido.color)),
+      c.militancia < 30 && s.mes >= 4 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, '⚠️ Con poca militancia no tenés fiscales: te pueden robar votos.') : null);
+  }
+
+  // ── Acciones ──
+  function tarjetaAcciones(s) {
+    const c = s.camp;
+    return h('section', { class: 'pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🎯 Acciones del mes'), ui.puntosAgenda(c.agendaMax - c.agenda, Math.max(c.agendaMax, c.agenda))),
+      c.agenda <= 0 ? h('div', { class: 'tarjeta plana centro', style: { background: 'var(--sol-claro)' } }, '✅ Agenda completa. Tocá ', h('b', null, R.turno.botonPasar(s).txt), ' para seguir.') : null,
+      h('div', { class: 'acciones' }, R.camp.ACCIONES.map((a) => cartaAccion(s, a))));
+  }
+
+  function cartaAccion(s, a) {
+    const bloq = R.camp.bloqueo(s, a, undefined);
+    const prev = !a.elegir ? R.describirEfectos(s, a.calc(s)) : null;
+    const costoTxt = a.elegir === 'figura' ? '💰 20-35' : a.costo ? '💰 ' + a.costo : 'gratis';
+    const chipCosto = h('span', { class: 'chip ' + (a.costo || a.elegir === 'figura' ? 'sol' : '') }, costoTxt);
+    return h('button', { class: 'accion', disabled: bloq ? true : null, onclick: () => elegirAccion(s, a), 'aria-label': a.nombre + '. ' + a.desc },
+      h('div', { class: 'cab' }, h('span', { class: 'ic' }, a.emoji), h('span', { class: 'nom' }, a.nombre)),
+      h('div', { class: 'desc' }, a.desc),
+      prev ? ui.chipsEfectos(prev, { compacto: true, antes: chipCosto })
+        : h('div', { class: 'efectos' }, chipCosto, h('span', { class: 'chip' }, a.elegir === 'provincia' ? '📍 Elegís dónde' : '👆 Elegís')),
+      a.azar ? h('span', { class: 'chip', style: { alignSelf: 'flex-start', fontSize: '12px' } }, '🎲 tiene riesgo') : null,
+      bloq && bloq !== 'Sin agenda este mes' ? h('div', { class: 'bloq' }, bloq) : null);
+  }
+
+  function elegirAccion(s, a) {
+    R.son.toque();
+    if (!a.elegir) return hacer(s, a.id);
+    if (a.elegir === 'provincia') return elegirProvincia(s, a);
+    const items = {
+      plata: () => a.opciones.map((o) => ({ id: o.id, emoji: o.emoji, nombre: o.nombre, ef: o.ef, costo: 0, nota: o.riesgo ? '⚠️ riesgo de escándalo' : null })),
+      figura: () => R.FIGURAS.filter((f) => !s.camp.figuras.includes(f.id)).map((f) => ({ id: f.id, emoji: f.emoji, nombre: f.nombre, ef: a.calc(s, f.id), costo: f.costo, nota: f.riesgo ? '🎲 puede armar polémica' : null })),
+      rival: () => R.RIVALES.map((id) => ({ id, emoji: R.PARTIDOS[id].simbolo, nombre: R.elec.nombre(s, id) + ' · ' + R.PARTIDOS[id].sigla, ef: a.calc(s, id), costo: a.costo, nota: '🎲 25% de que te salga mal' })),
+      aliado: () => R.ALIADOS.map((x) => ({ id: x.id, emoji: x.emoji, nombre: x.nombre, ef: a.calc(s, x.id), costo: 0, nota: R.REGIONES[x.region].emoji + ' fuerte en ' + R.REGIONES[x.region].nombre })),
+    }[a.elegir]();
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, a.emoji + ' ' + a.nombre),
+      a.elegir === 'aliado' ? h('p', { class: 'chico suave' }, 'Solo una alianza por elección. Si piensa distinto a vos, tu gente se enoja un poco.') : null,
+      h('div', { class: 'lista-elegir' }, items.map((it) => h('button', {
+        class: 'item-elegir', disabled: it.costo > s.camp.fondos ? true : null,
+        onclick: () => { ui.cerrarCapa(); hacer(s, a.id, it.id); },
+      },
+      h('span', { class: 'ic' }, it.emoji),
+      h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, it.nombre), ui.chipsEfectos(R.describirEfectos(s, it.ef), { compacto: true }), it.nota ? h('span', { class: 'chico suave' }, it.nota) : null),
+      h('span', { class: 'chip ' + (it.costo ? 'sol' : '') }, it.costo ? '💰 ' + it.costo : 'gratis'))))), { cerrable: true });
+  }
+
+  function elegirProvincia(s, a, sel) {
+    const votos = R.camp.votos(s).prov;
+    const detalle = h('div', { class: 'pila' });
+    const pintarDetalle = (id) => {
+      if (!id || !R.PROV[id]) {
+        detalle.replaceChildren(h('p', { class: 'centro suave' }, '👆 Tocá una provincia'));
+        return;
+      }
+      const p = R.PROV[id];
+      const vis = s.camp.visitas[id] || 0;
+      const af = R.camp.afinidad(s, p);
+      detalle.replaceChildren(h('div', { class: 'tarjeta plana suave pila', style: { gap: '8px' } },
+        h('div', { class: 'fila entre' }, h('b', { style: { fontFamily: 'var(--f-titulo)', fontSize: '20px', fontWeight: 400 } }, p.nombre),
+          h('span', { class: 'chip' }, '👥 ' + R.fmt(p.padron, 1) + '% del país')),
+        h('div', { class: 'fila envolver' },
+          h('span', { class: 'chip ' + (af > 1.1 ? 'bien' : af < 0.85 ? 'mal' : '') }, af > 1.1 ? '💚 Les gustan tus ideas' : af < 0.85 ? '💔 Piensan distinto' : '🤝 Afinidad media'),
+          vis ? h('span', { class: 'chip' }, '🎤 ' + vis + (vis === 1 ? ' visita' : ' visitas') + ' · rinde menos') : null),
+        ui.chipsEfectos(R.describirEfectos(s, a.calc(s, id))),
+        h('button', { class: 'boton ancho', onclick: () => { ui.cerrarCapa(); hacer(s, a.id, id); }, disabled: R.camp.bloqueo(s, a, id) ? true : null }, '🎤 Hacer el acto · 💰 ' + a.costo)));
+    };
+    const mapa = R.ui.mapa({
+      sinMalvinas: true,
+      sel,
+      colorDe: (id) => R.ui.colorEscala(s.partido.color, Math.min(100, votos[id].YO * 2.2)),
+      valorDe: (id) => R.fmt(votos[id].YO, 0) + '%',
+      alTocar: (id) => { R.son.toque(); elegirProvincia(s, a, id); },
+    });
+    pintarDetalle(sel);
+    ui.abrirCapa(h('div', { class: 'pila' }, h('h2', null, '🎤 ¿Dónde hacés el acto?'), h('p', { class: 'chico suave' }, 'Más color = más te votan. Las grandes pesan más.'), mapa, detalle), { cerrable: true, sinFoco: true });
+  }
+
+  function hacer(s, id, arg) {
+    const res = R.camp.hacer(s, id, arg);
+    if (res.error) {
+      R.son.mal();
+      ui.aviso('🚫 ' + res.error, { tipo: 'mal' });
+      return;
+    }
+    R.guardar(s);
+    const efectos = R.describirAplicado(s, res.aplicado);
+    if (res.costo) efectos.unshift({ k: 'fondos', emoji: '💰', nombre: 'Fondos', v: -res.costo, sube: false, bueno: false, flechas: 1, numero: true });
+    const dv = res.votosDespues - res.votosAntes;
+    const extra = h('div', { class: 'chico', style: { fontWeight: 900 } }, '🗳️ Te votaría: ' + R.fmt(res.votosAntes, 1) + '% → ',
+      h('span', { style: { color: dv >= 0 ? 'var(--bien)' : 'var(--mal)' } }, R.fmt(res.votosDespues, 1) + '% ' + (dv >= 0.05 ? '▲' : dv <= -0.05 ? '▼' : '')));
+    ui.aviso(res.txt, { tipo: res.especial ? 'especial' : res.bueno ? 'bien' : 'mal', efectos, extra });
+    if (res.especial) R.son.genial();
+    else if (res.bueno) R.son.bien();
+    else R.son.mal();
+    ui.vista = Object.assign({}, ui.vista, { mantenerScroll: true });
+    ui.render();
+    ui.vista.mantenerScroll = false;
+    const f = document.getElementById('rec-fondos');
+    if (f) f.classList.add('pulso');
+  }
+
+  // ── Mapa ──
+  function tarjetaMapa(s) {
+    const votos = R.camp.votos(s).prov;
+    const info = h('div', { class: 'pila' }, h('p', { class: 'centro suave chico' }, '👆 Tocá una provincia para ver quién gana ahí'));
+    const mostrar = (id) => {
+      if (!R.PROV[id]) {
+        info.replaceChildren(h('div', { class: 'tarjeta plana suave centro' }, h('b', null, '🇦🇷 Islas Malvinas'), h('p', { class: 'chico' }, 'Fueron, son y serán argentinas.')));
+        return;
+      }
+      const v = votos[id];
+      const orden = Object.keys(v).sort((a, b) => v[b] - v[a]);
+      info.replaceChildren(h('div', { class: 'tarjeta plana suave pila', style: { gap: '8px' } },
+        h('div', { class: 'fila entre' }, h('b', { style: { fontFamily: 'var(--f-titulo)', fontWeight: 400, fontSize: '20px' } }, R.PROV[id].nombre),
+          h('span', { class: 'chip' }, '📍 Apoyo local ' + R.fmt(s.camp.presencia[id]) + '%')),
+        h('div', { class: 'encuesta' }, orden.slice(0, 3).map((k) => {
+          const p = R.partidoInfo(s, k);
+          return h('div', { class: 'linea' + (k === 'YO' ? ' yo' : '') }, ui.miniEscudo(p),
+            h('div', null, h('div', { class: 'nombre' }, p.sigla), h('div', { class: 'barra' }, h('i', { style: { width: v[k] + '%', background: p.color } }))),
+            h('div', { class: 'pct' }, R.fmt(v[k], 1)));
+        }))));
+    };
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'titulo-seccion' }, '🗺️ Dónde te votan'),
+      R.ui.mapa({
+        colorDe: (id) => (R.PROV[id] ? R.ui.colorEscala(s.partido.color, Math.min(100, votos[id].YO * 2.2)) : null),
+        valorDe: (id) => (R.PROV[id] ? R.fmt(votos[id].YO, 0) + '%' : null),
+        alTocar: (id) => { R.son.toque(); mostrar(id); },
+      }),
+      info);
+  }
+
+  // ── Encuesta ──
+  function tarjetaEncuesta(s) {
+    const enc = R.camp.encuesta(s);
+    const ant = s.encuestas.length >= 2 ? s.encuestas[s.encuestas.length - 2] : null;
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📊 Encuesta'), h('span', { class: 'chip' }, R.fechaCorta(s.mes))),
+      ui.encuesta(s, enc, { anterior: ant }),
+      s.encuestas.length > 1 ? tendencia(s) : null,
+      h('p', { class: 'chico suave' }, 'Las encuestas tienen ± 2 puntos de error.'));
+  }
+
+  // Línea de tu evolución mes a mes.
+  function tendencia(s) {
+    const S = R.svg;
+    const pts = s.encuestas.map((e) => e.YO);
+    const max = Math.max(10, ...pts) * 1.15;
+    const W = 300;
+    const H = 70;
+    const x = (i) => 10 + (i * (W - 20)) / Math.max(1, pts.length - 1);
+    const y = (v) => H - 8 - (v / max) * (H - 18);
+    const linea = pts.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+    return h('div', null, h('div', { class: 'etiqueta' }, 'Tu evolución'),
+      S('svg', { viewBox: '0 0 ' + W + ' ' + H, style: 'width:100%;height:auto;display:block', role: 'img', 'aria-label': 'Evolución de tu intención de voto' },
+        S('line', { x1: 10, x2: W - 10, y1: y(0), y2: y(0), stroke: '#c9d6e6', 'stroke-width': 1 }),
+        S('path', { d: linea + ' L' + x(pts.length - 1) + ' ' + y(0) + ' L' + x(0) + ' ' + y(0) + ' Z', fill: ui.aclarar(s.partido.color, 0.75) }),
+        S('path', { d: linea, fill: 'none', stroke: s.partido.color, 'stroke-width': 3, 'stroke-linejoin': 'round' }),
+        S('circle', { cx: x(pts.length - 1), cy: y(pts[pts.length - 1]), r: 5, fill: s.partido.color, stroke: '#13284a', 'stroke-width': 2 }),
+        S('text', { x: x(pts.length - 1) - 4, y: y(pts[pts.length - 1]) - 9, 'text-anchor': 'end', style: 'font-size:12px;font-weight:900;fill:#13284a' }, R.fmt(pts[pts.length - 1], 1) + '%')));
+  }
+
+  // ── Pasar el mes ──
+  ui.pasarMes = function () {
+    const s = ui.s;
+    if (ui.hayCapa()) return;
+    if (s.fase === 'campana' && s.camp.agenda > 0 && !ui.confirmoPasar) {
+      ui.abrirCapa(h('div', { class: 'pila centro' },
+        h('div', { style: { fontSize: '44px' } }, '⏱️'),
+        h('h2', null, 'Te quedan ' + s.camp.agenda + (s.camp.agenda === 1 ? ' acción' : ' acciones')),
+        h('p', null, 'Si pasás el mes, se pierden.'),
+        h('button', { class: 'boton ancho', onclick: () => { ui.cerrarCapa(); } }, '🎯 Usarlas'),
+        h('button', { class: 'boton sec ancho', onclick: () => { ui.confirmoPasar = true; ui.cerrarCapa(); ui.pasarMes(); } }, 'Pasar igual ▶')), { cerrable: true });
+      return;
+    }
+    ui.confirmoPasar = false;
+    const antes = R.camp.encuesta(s).YO;
+    R.son.tambor();
+    R.turno.pasar(s);
+    R.guardar(s);
+    ui.vista = { tab: (ui.vista && ui.vista.tab) || 'acciones' };
+    ui.render();
+    window.scrollTo(0, 0);
+    if (s.fase === 'campana') {
+      const ahora = R.camp.encuesta(s).YO;
+      const d = ahora - antes;
+      ui.aviso('📅 ' + R.fechaTxt(s.mes) + ' · Encuesta: ' + R.fmt(ahora, 1) + '% ' + (d >= 0.05 ? '▲' : d <= -0.05 ? '▼' : '='), { tipo: d >= 0 ? 'bien' : 'mal', dur: 2200 });
+    }
+    ui.procesarCola();
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/fin.js ──
+// Pantallas de cierre: asunción (ganaste) y fin de la partida (perdiste).
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+
+  ui.asuncion = function (s, alTerminar) {
+    R.son.genial();
+    ui.confeti(['#74acdf', '#ffffff', '#f6b40e']);
+    const comoGano = s.flags.ganoEn === 'primera' ? 'Ganaste en primera vuelta' : 'Ganaste el ballotage';
+    ui.abrirCapa(h('div', { class: 'pila centro' },
+      ui.solDeMayo('sol-mayo'),
+      h('div', { class: 'etiqueta' }, '10 de diciembre de ' + R.anio(s.mes)),
+      h('h2', { style: { fontSize: '30px' } }, '¡' + s.lider.nombre + ' asume la Presidencia!'),
+      h('div', { class: 'fila', style: { justifyContent: 'center' } }, R.ui.avatar(s.lider.avatar, { size: 120, humor: 'feliz', banda: true, fondo: '#dbeefb' })),
+      h('p', null, '🏆 ' + comoGano + '. Banda y bastón: ahora te toca gobernar.'),
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, '🏛️ Entrar a la Rosada')));
+  };
+
+  // Pantalla de fin (por ahora: perder la elección).
+  ui.pantallaFin = function (s) {
+    ui.ocultarNav();
+    const f = s.fin || {};
+    const motivos = {
+      paso: { em: '🥲', t: 'Quedaste afuera en las PASO', d: 'No llegaste al 1,5 %. El año que viene, más acto y más tele.' },
+      general: { em: '😞', t: 'Perdiste la elección', d: 'No entraste al ballotage. Pero tu partido ya existe.' },
+      ballotage: { em: '💔', t: 'Perdiste el ballotage', d: 'Por poco. La próxima es tuya.' },
+    };
+    const m = motivos[f.motivo] || { em: '🏁', t: 'Fin de la partida', d: '' };
+    const g = s.elecciones.general;
+    const yoGen = g ? g.lista.find((x) => x.id === 'YO') : null;
+    const mejor = Math.max(...s.encuestas.map((e) => e.YO));
+    ui.montar(h('main', { class: 'pila', style: { paddingTop: '16px' } },
+      h('section', { class: 'tarjeta pila centro' },
+        h('div', { style: { fontSize: '60px' } }, m.em),
+        h('h2', { style: { fontSize: '30px' } }, m.t),
+        h('p', null, m.d),
+        h('div', { class: 'mis-numeros' },
+          h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '📈'), h('div', { class: 'val' }, R.fmt(mejor, 1) + '%'), h('div', { class: 'nom' }, 'mejor encuesta')),
+          h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗳️'), h('div', { class: 'val' }, yoGen ? R.fmt(yoGen.v, 1) + '%' : '–'), h('div', { class: 'nom' }, 'en las generales')),
+          h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🏛️'), h('div', { class: 'val' }, g ? (g.bancas.dip.YO || 0) + (g.bancas.sen.YO || 0) : 0), h('div', { class: 'nom' }, 'bancas ganadas')))),
+      h('button', { class: 'boton grande ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.crear(); } }, '🏴 Fundar otro partido'),
+      h('button', { class: 'boton sec ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.irPortada(); } }, '🏠 Portada'),
+      h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Tu camino'), ui.historial(s, 25))));
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/main.js ──
+// Arranque y «director de orquesta»: qué pantalla se ve y en qué orden aparecen noticias y elecciones.
+(function (R) {
+  'use strict';
+  const ui = R.ui;
+  const h = R.h;
+
+  ui.s = null;
+  ui.vista = { tab: 'acciones' };
+
+  ui.irPortada = function () {
+    ui.cerrarCapa(true);
+    ui.s = null;
+    ui.portada();
+    window.scrollTo(0, 0);
+  };
+
+  ui.continuar = function (s) {
+    ui.s = s;
+    ui.vista = { tab: s.fase === 'gobierno' ? 'inicio' : 'acciones' };
+    ui.render();
+    window.scrollTo(0, 0);
+    ui.procesarCola();
+  };
+
+  ui.render = function () {
+    const s = ui.s;
+    if (!s) return ui.portada();
+    if (s.fase === 'campana') return ui.pantallaCampana(s);
+    if (s.fase === 'gobierno' && ui.pantallaGobierno) return ui.pantallaGobierno(s);
+    if (s.fase === 'fin') return ui.pantallaFin(s);
+    return ui.pantallaElecto(s);
+  };
+
+  // Mientras se arma el gobierno: pantalla de presidente electo.
+  ui.pantallaElecto = function (s) {
+    ui.ocultarNav();
+    ui.montar(h('main', { class: 'pila', style: { paddingTop: '16px' } },
+      h('section', { class: 'tarjeta pila centro' },
+        R.ui.avatar(s.lider.avatar, { size: 110, humor: 'feliz', banda: true }),
+        h('h2', null, s.lider.nombre + ', presidente electo'),
+        h('p', null, 'El gobierno se arma en la próxima versión del juego.')),
+      h('button', { class: 'boton ancho', onclick: () => ui.irPortada() }, '🏠 Portada')));
+  };
+
+  // Muestra de a uno los momentos pendientes (noticias, elecciones, debates…).
+  ui.procesarCola = function () {
+    const s = ui.s;
+    if (!s || ui.procesando || ui.hayCapa()) return;
+    const m = s.cola[0];
+    if (!m) return;
+    ui.procesando = true;
+    const listo = () => {
+      if (s.cola[0] === m) s.cola.shift();
+      R.guardar(s);
+      ui.procesando = false;
+      ui.render();
+      ui.procesarCola();
+    };
+    switch (m.tipo) {
+      case 'noticia': return ui.noticia(s, m, listo);
+      case 'eleccion': return ui.eleccion(s, m.clave, listo);
+      case 'debate': return ui.debate(s, m, listo);
+      case 'asuncion': return ui.asuncion(s, () => { if (R.gob && R.gob.iniciar) R.gob.iniciar(s); listo(); });
+      default:
+        if (ui.momentos && ui.momentos[m.tipo]) return ui.momentos[m.tipo](s, m, listo);
+        return listo();
+    }
+  };
+
+  // Enter = pasar el mes (en la PC).
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || ui.hayCapa() || !ui.s) return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'BUTTON' || t.tagName === 'TEXTAREA')) return;
+    if (ui.s.fase === 'campana' || ui.s.fase === 'gobierno') ui.pasarMes();
+  });
+
+  // Al cruzar el ancho de PC/celu se redibuja (cambia el diseño de columnas).
+  let eraPC = null;
+  window.addEventListener('resize', () => {
+    const pc = ui.esPC ? ui.esPC() : false;
+    if (eraPC !== null && pc !== eraPC && ui.s) ui.render();
+    eraPC = pc;
+  });
+
+  function arrancar(data) {
+    eraPC = ui.esPC ? ui.esPC() : false;
+    if (data && data.s && data.s.v === R.VERSION) {
+      ui.continuar(data.s);
+      return;
+    }
+    ui.portada();
+  }
+  const hot = window.claude && window.claude.hot;
+  if (hot && hot.snapshot) hot.snapshot(() => ({ s: ui.s }));
+  if (hot && hot.ready) hot.ready(arrancar);
+  else arrancar((hot && hot.data) || {});
+})(globalThis.R = globalThis.R || {});
+
+</script>
+</body>
+</html>
