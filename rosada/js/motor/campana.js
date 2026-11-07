@@ -99,6 +99,7 @@
       },
       hacer(s, op) {
         const o = this.opciones.find((x) => x.id === op) || this.opciones[0];
+        if (o.id === 'empresas') s.flags.plataEmpresas = s.mes;
         return { ef: JSON.parse(JSON.stringify(o.ef)), txt: o.id === 'rifa' ? 'La militancia junta plata' : 'Los empresarios ponen la plata 💼', bueno: true };
       },
     },
@@ -215,6 +216,7 @@
         let w = Math.max(0.3, (r.base * dif.rival + s.rivales[id]));
         w *= 1 + (r.fuerte[p.id] || 0);
         w *= R.clamp(1 + 0.7 * (0.5 - Math.abs(p.lean - r.ideo)), 0.45, 1.4);
+        if (s.gobRival && R.oposicion) w *= R.oposicion.factor(s, id);
         w *= 1 - 0.5 * (yo / 100) * cercania(r.ideo, ideoP);
         if (opts.ruido) w *= Math.max(0.2, 1 + opts.ruido[p.id + id] * 0.06);
         ws[id] = Math.max(0.05, w);

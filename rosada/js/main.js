@@ -47,7 +47,10 @@
     const s = ui.s;
     if (!s || ui.procesando || ui.hayCapa()) return;
     const m = s.cola[0];
-    if (!m) return;
+    if (!m) {
+      if (ui.mostrarLogros) ui.mostrarLogros(s);
+      return;
+    }
     ui.procesando = true;
     const listo = () => {
       if (s.cola[0] === m) s.cola.shift();

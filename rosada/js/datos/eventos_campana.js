@@ -24,8 +24,8 @@
       titular: 'Un empresario ofrece plata para tu campaña',
       bajada: 'No pide nada… por ahora',
       opciones: [
-        { txt: 'Aceptar', ef: { fondos: 55, sucio: 2 }, res: 'La caja se llenó 💰' },
-        { txt: 'Aceptar y declararlo', ef: { fondos: 30, ideoIzq: 1 }, res: 'Todo en blanco ✅' },
+        { txt: 'Aceptar', ef: { fondos: 55, sucio: 2 }, flag: 'plataEmpresas', res: 'La caja se llenó 💰' },
+        { txt: 'Aceptar y declararlo', ef: { fondos: 30, ideoIzq: 1 }, flag: 'plataEmpresas', res: 'Todo en blanco ✅' },
         { txt: 'Rechazar', ef: { simpatia: 1.5 }, res: 'Manos limpias 🙌' },
       ],
     },

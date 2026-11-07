@@ -4,24 +4,35 @@
 
   const turno = (R.turno = {});
 
-  // Calendario de 2027 (mes 0 = enero).
+  // Calendario de 2027 (mes 0 = enero). En la oposición se usa s.calendario (2029 y 2031).
   turno.MES_PASO = 7; // agosto: se ven los resultados de las PASO
   turno.MES_GENERAL = 9; // octubre: se vota al final del mes
   turno.MES_BALLOTAGE = 10; // noviembre
-  turno.MES_ASUNCION = 11; // 10 de diciembre
+  turno.cal = (s) => s.calendario || { paso: turno.MES_PASO, general: turno.MES_GENERAL, ballotage: turno.MES_BALLOTAGE };
 
   // Texto del botón grande y aviso de la próxima elección.
   turno.botonPasar = function (s) {
-    if (s.fase === 'campana' && s.mes === turno.MES_GENERAL) return { txt: 'Ir a votar', emoji: '🗳️' };
-    if (s.fase === 'campana' && s.mes === turno.MES_BALLOTAGE) return { txt: 'Votar en el ballotage', emoji: '🗳️' };
+    const c = turno.cal(s);
+    if (s.fase === 'campana' && s.mes === c.general) return { txt: 'Ir a votar', emoji: '🗳️' };
+    if (s.fase === 'campana' && s.mes === c.ballotage && s.ballotage) return { txt: 'Votar en el ballotage', emoji: '🗳️' };
+    if (s.fase === 'campana' && s.gobRival && turno.pasosOposicion(s) > 1) return { txt: 'Pasar 3 meses', emoji: '⏩' };
     return { txt: 'Pasar el mes', emoji: '▶' };
   };
   turno.proximaEleccion = function (s) {
     if (s.fase !== 'campana') return null;
-    if (s.mes < turno.MES_PASO) return { nombre: 'PASO', emoji: '🗳️', faltan: turno.MES_PASO - s.mes };
-    if (s.mes < turno.MES_GENERAL) return { nombre: 'Generales', emoji: '🗳️', faltan: turno.MES_GENERAL - s.mes };
-    if (s.mes === turno.MES_GENERAL) return { nombre: 'Generales', emoji: '🗳️', faltan: 0 };
-    return { nombre: 'Ballotage', emoji: '⚔️', faltan: 0 };
+    const c = turno.cal(s);
+    if (c.medio && s.mes <= c.medio) return { nombre: 'Medio término', art: 'el', emoji: '🗳️', faltan: c.medio - s.mes };
+    if (s.mes < c.paso) return { nombre: 'PASO', emoji: '🗳️', faltan: c.paso - s.mes };
+    if (s.mes < c.general) return { nombre: 'Generales', emoji: '🗳️', faltan: c.general - s.mes };
+    if (s.mes === c.general) return { nombre: 'Generales', emoji: '🗳️', faltan: 0 };
+    return { nombre: 'Ballotage', art: 'el', emoji: '⚔️', faltan: 0 };
+  };
+  // En la oposición, lejos de las elecciones, cada turno son 3 meses.
+  turno.pasosOposicion = function (s) {
+    const c = turno.cal(s);
+    const objetivos = [c.medio, c.paso].filter((m) => m !== undefined && m > s.mes);
+    if (!objetivos.length) return 1;
+    return Math.max(1, Math.min(3, Math.min(...objetivos) - s.mes));
   };
 
   // Devuelve la lista de «momentos» nuevos (también quedan en s.cola para sobrevivir a una recarga).
@@ -35,7 +46,8 @@
   };
 
   turno.pasarCampana = function (s, momentos) {
-    if (s.mes === turno.MES_GENERAL) {
+    const c = turno.cal(s);
+    if (s.mes === c.general) {
       const res = R.elec.general(s);
       momentos.push({ tipo: 'eleccion', clave: 'general' });
       if (res.ganador === 'YO') {
@@ -52,7 +64,7 @@
       }
       return;
     }
-    if (s.mes === turno.MES_BALLOTAGE) {
+    if (s.mes === c.ballotage && s.ballotage) {
       const res = R.elec.ballotage(s, s.ballotage);
       momentos.push({ tipo: 'eleccion', clave: 'ballotage' });
       if (res.ganador === 'YO') turno.ganaste(s, momentos, 'ballotage');
@@ -60,9 +72,18 @@
       return;
     }
 
-    R.camp.finDeMes(s);
-    s.mes++;
-    if (s.mes === turno.MES_PASO) {
+    const pasos = s.gobRival ? turno.pasosOposicion(s) : 1;
+    for (let i = 0; i < pasos; i++) {
+      R.camp.finDeMes(s);
+      s.mes++;
+      if (s.gobRival) R.oposicion.mes(s);
+    }
+    if (c.medio && s.mes === c.medio) {
+      const res = R.elec.legislativa(s);
+      momentos.push({ tipo: 'eleccion', clave: 'legislativa' });
+      if (s.gobRival) s.gobRival.aprob = R.clamp(s.gobRival.aprob + (res.ganador === s.gobRival.partido ? 4 : -4), 10, 80);
+    }
+    if (s.mes === c.paso) {
       const res = R.elec.paso(s);
       momentos.push({ tipo: 'eleccion', clave: 'paso' });
       R.diario(s, '🗳️', 'PASO: sacaste ' + R.pct(res.lista.find((x) => x.id === 'YO').v), 'eleccion');
@@ -71,12 +92,12 @@
         return;
       }
     }
-    if (s.mes === turno.MES_GENERAL) {
+    if (s.mes === c.general) {
       const e = R.camp.votos(s).nac;
       const rivales = R.RIVALES.slice().sort((a, b) => e[b] - e[a]);
       momentos.push({ tipo: 'debate', rival: rivales[0], etapa: 'general' });
     }
-    if (R.chance(s, s.mes === turno.MES_GENERAL ? 0.5 : 0.75)) {
+    if (R.chance(s, s.mes === c.general ? 0.5 : 0.75)) {
       const n = R.ev.elegir(s, 'campana');
       if (n) momentos.push(n);
     }

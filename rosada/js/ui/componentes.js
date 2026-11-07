@@ -70,6 +70,7 @@
       h('h2', null, 'Menú'),
       h('button', { class: 'boton sec ancho', onclick: () => { R.son.alternar(); ui.cerrarCapa(); ui.aviso(R.son.activo ? '🔊 Sonido activado' : '🔇 Sonido apagado'); } }, R.son.activo ? '🔇 Apagar sonido' : '🔊 Prender sonido'),
       h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.comoSeJuega(); } }, '❓ Cómo se juega'),
+      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.verLogros(); } }, '🏅 Logros'),
       s ? h('button', { class: 'boton sec ancho', onclick: () => { R.guardar(s); ui.cerrarCapa(); ui.irPortada(); } }, '🏠 Volver a la portada') : null,
       h('p', { class: 'chico suave centro' }, 'La partida se guarda sola en este dispositivo.')), { cerrable: true });
   };

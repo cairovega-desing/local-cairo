@@ -14,6 +14,7 @@
     presencia: { emoji: '📍', nombre: 'Apoyo local', paso: 8 },
     rival: { emoji: '🗡️', nombre: 'Rival', paso: 1.5, inverso: true },
     votos: { emoji: '🗳️', nombre: 'Votos', paso: 1.5 },
+    aprobRival: { emoji: '🏛️', nombre: 'Gobierno rival', paso: 3, inverso: true },
   };
 
   function flechas(meta, v) {
@@ -54,6 +55,7 @@
       for (const [id, v] of Object.entries(ef.rival)) out.push({ k: 'rival', v, sub: id });
     }
     if (ef.votos) out.push({ k: 'votos', v: ef.votos });
+    if (ef.aprobRival && s.gobRival) out.push({ k: 'aprobRival', v: ef.aprobRival });
     return out;
   };
 
@@ -80,6 +82,7 @@
           break;
         case 'rival': if (s.rivales[sub] !== undefined) s.rivales[sub] += v; break;
         case 'votos': c.bonusVotos += v; break;
+        case 'aprobRival': if (s.gobRival) s.gobRival.aprob = R.clamp(s.gobRival.aprob + v, 10, 85); break;
       }
     }
     return lista;

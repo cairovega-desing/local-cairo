@@ -59,13 +59,23 @@
         h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🗳️'), h('div', { class: 'val' }, yoGen ? R.fmt(yoGen.v, 1) + '%' : '–'), h('div', { class: 'nom' }, 'en las generales')),
         h('div', { class: 'mi-numero' }, h('div', { class: 'em' }, '🏛️'), h('div', { class: 'val' }, g ? (g.bancas.dip.YO || 0) + (g.bancas.sen.YO || 0) : 0), h('div', { class: 'nom' }, 'bancas ganadas'))));
     }
+    const leg = R.legado(s);
+    const logrosPartida = R.LOGROS.filter((l) => s.logros && s.logros[l.id]);
     ui.montar(h('main', { class: 'pila', style: { paddingTop: '16px' } },
       h('section', { class: 'tarjeta pila centro' },
         h('div', { style: { fontSize: '60px' } }, m.em),
         s.gob ? h('div', { class: 'fila', style: { justifyContent: 'center' } }, R.ui.avatar(s.lider.avatar, { size: 90, humor: f.motivo === 'mandato' ? 'feliz' : 'triste', banda: f.motivo === 'mandato' })) : null,
         h('h2', { style: { fontSize: '30px' } }, m.t),
-        h('p', null, m.d)),
+        h('p', null, m.d),
+        leg ? h('div', { class: 'legado' }, h('div', { class: 'estrellas', 'aria-label': leg.estrellas + ' de 5 estrellas' }, '★'.repeat(leg.estrellas) + '☆'.repeat(5 - leg.estrellas)),
+          h('div', { class: 'titulo-legado' }, '«' + leg.titulo + '»'), h('div', { class: 'chico suave' }, 'Legado: ' + leg.puntos + '/100')) : null),
+      R.oposicion && R.oposicion.puede(s) ? h('section', { class: 'tarjeta pila centro', style: { background: 'var(--sol-claro)' } },
+        h('b', null, '🔄 ¿Seguís en la oposición?'),
+        h('p', { class: 'chico' }, 'Tu partido ya existe y tiene ' + ((R.composicion(s, 'diputados').YO || 0)) + ' diputados. Medio término en 2029 y presidenciales en 2031.'),
+        h('button', { class: 'boton grande ancho', onclick: () => { R.oposicion.iniciar(s); R.guardar(s); ui.vista = { tab: 'acciones' }; R.son.genial(); ui.render(); window.scrollTo(0, 0); } }, '🗳️ Seguir en la oposición')) : null,
       filas,
+      logrosPartida.length ? h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '🏅 Logros de esta partida'),
+        h('div', { class: 'vitrina' }, logrosPartida.map((l) => h('div', { class: 'medalla chica' + (l.malo ? ' mala' : '') }, h('span', { class: 'em' }, l.emoji), h('span', null, l.nombre))))) : null,
       h('button', { class: 'boton grande ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.crear(); } }, '🏴 Fundar otro partido'),
       h('button', { class: 'boton sec ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.irPortada(); } }, '🏠 Portada'),
       h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Tu camino'), ui.historial(s, 25))));

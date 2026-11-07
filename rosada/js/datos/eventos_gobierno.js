@@ -330,8 +330,8 @@
       id: 'g_mundial', fase: 'gobierno', peso: 50, unaVez: true, desde: mes(2030, 6), hasta: mes(2030, 7), dibujo: '⚽ 🏆 🇦🇷',
       titular: '¡Argentina juega la final del Mundial!',
       opciones: [
-        { txt: 'Feriado nacional', ef: { todos: 4, crec: -0.2 }, azar: { p: 0.5, ef: { todos: 6 }, txt: '¡SOMOS CAMPEONES DEL MUNDO! 🏆🎉', bueno: true }, res: 'Perdimos en los penales… 😭' },
-        { txt: 'Ver el partido en la Rosada', ef: { todos: 1 }, azar: { p: 0.5, ef: { todos: 5 }, txt: '¡CAMPEONES! La gente te asocia con la alegría 🏆', bueno: true }, res: 'Perdimos la final 😢' },
+        { txt: 'Feriado nacional', ef: { todos: 4, crec: -0.2 }, azar: { p: 0.5, ef: { todos: 6 }, txt: '¡SOMOS CAMPEONES DEL MUNDO! 🏆🎉', bueno: true, flag: 'campeon' }, res: 'Perdimos en los penales… 😭' },
+        { txt: 'Ver el partido en la Rosada', ef: { todos: 1 }, azar: { p: 0.5, ef: { todos: 5 }, txt: '¡CAMPEONES! La gente te asocia con la alegría 🏆', bueno: true, flag: 'campeon' }, res: 'Perdimos la final 😢' },
       ],
     },
     {

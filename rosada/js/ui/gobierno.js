@@ -244,6 +244,7 @@
     ui.aviso(res.txt, { tipo: res.bueno ? 'bien' : 'mal', efectos, extra });
     if (res.bueno) R.son.bien(); else R.son.mal();
     ui.refrescar();
+    setTimeout(() => ui.procesarCola(), 1900);
   };
 
   // Mini gráfico de línea.

@@ -28,7 +28,7 @@
 
   gob.iniciar = function (s) {
     s.fase = 'gobierno';
-    s.mes = R.mesNum(2027, 11);
+    s.mes = R.mesNum(R.anio(s.mes), 11);
     s.eco = R.eco.inicial();
     const grupos = {};
     for (const g of R.GRUPOS) {

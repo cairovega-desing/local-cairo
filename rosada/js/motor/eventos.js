@@ -93,6 +93,7 @@
       ef = R.sumarEfectos(ef, resolverValor(s, o.azar.ef, vars));
       txt = texto(s, o.azar.txt, vars) || txt;
       bueno = o.azar.bueno ?? false;
+      if (o.azar.flag) s.flags[o.azar.flag] = s.mes;
     }
     const total = R.sumarEfectos(ef, costoComoEfecto(costo));
     const aplicado = R.aplicarEfectosFase(s, total);

@@ -49,7 +49,7 @@
     return h('section', { class: 'tarjeta pila' },
       prox ? h('div', { class: 'cuenta-regresiva' },
         h('div', { class: 'num' }, prox.faltan ? prox.faltan : prox.emoji),
-        h('div', null, h('div', { class: 'etiqueta' }, prox.faltan ? (prox.faltan === 1 ? 'mes para las' : 'meses para las') : '¡Este mes se vota!'), h('div', { class: 'titulo-seccion' }, prox.emoji + ' ' + prox.nombre))) : null,
+        h('div', null, h('div', { class: 'etiqueta' }, prox.faltan ? (prox.faltan === 1 ? 'mes para ' : 'meses para ') + (prox.art || 'las') : '¡Este mes se vota!'), h('div', { class: 'titulo-seccion' }, prox.emoji + ' ' + prox.nombre))) : null,
       h('div', { class: 'fila entre', style: { alignItems: 'flex-end' } },
         h('div', null, h('div', { class: 'etiqueta' }, 'Te votaría'),
           h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '46px', lineHeight: 1 }, class: 'numero' }, R.fmt(enc.YO, 1), h('span', { style: { fontSize: '24px' } }, ' %'))),
@@ -60,7 +60,11 @@
         numero('👁️', 'Te conocen', c.conocen, 'var(--celeste)'),
         numero('❤️', 'Les caés bien', c.simpatia, '#ff7b8a'),
         numero('🏴', 'Militancia', c.militancia, s.partido.color)),
-      c.militancia < 30 && s.mes >= 4 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, '⚠️ Con poca militancia no tenés fiscales: te pueden robar votos.') : null);
+      c.militancia < 30 && s.mes >= 4 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, '⚠️ Con poca militancia no tenés fiscales: te pueden robar votos.') : null,
+      s.gobRival ? h('div', { class: 'fila envolver', style: { gap: '6px' } },
+        h('span', { class: 'chip' }, '🏛️ Gobierna ' + R.elec.nombre(s, s.gobRival.partido) + ' (' + R.PARTIDOS[s.gobRival.partido].sigla + ')'),
+        h('span', { class: 'chip ' + (s.gobRival.aprob < 40 ? 'bien' : s.gobRival.aprob > 55 ? 'mal' : '') }, '👍 ' + Math.round(s.gobRival.aprob) + '% de aprobación'),
+        h('span', { class: 'chip' }, '🏛️ ' + (R.composicion(s, 'diputados').YO || 0) + ' diputados tuyos')) : null);
   }
 
   // ── Acciones ──
