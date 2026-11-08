@@ -71,6 +71,9 @@
       nivelesInicioMes: Object.fromEntries(R.AREAS.map((a) => [a.id, 1])),
       impuestos: 2,
       retenciones: 2,
+      // Lo que la economía «siente» de impuestos y retenciones: se acomoda de a poco (siembras, inversiones).
+      impEf: 2,
+      retEf: 2,
       financiamiento: 1,
       impuestosInicioMes: 2,
       retencionesInicioMes: 2,
@@ -113,11 +116,13 @@
   eco.gastoTotal = (e) => eco.gastoPrimario(e) + eco.intereses(e);
   eco.factorExpo = (s) => {
     const e = s.eco;
-    let f = 1 + (2 - e.retenciones) * 0.06;
+    let f = 1 + (2 - (e.retEf ?? e.retenciones)) * 0.06;
     if (e.cepo) f -= 0.05;
     if (s.gob) f += ((s.gob.grupos.campo.humor - 50) / 50) * 0.05;
     for (const sh of e.shocks) if (sh.k === 'expo') f += sh.v;
-    f += eco.bonus(s, 'bonusExpo');
+    // Leyes y tratados: suman exportaciones, con techo (no se puede exportar el doble por decreto).
+    const bExpo = eco.bonus(s, 'bonusExpo');
+    f += Math.sign(bExpo) * 0.3 * (1 - Math.exp(-Math.abs(bExpo) / 0.3));
     return Math.max(0.5, f);
   };
   eco.recaudacion = (s) => {
@@ -177,7 +182,9 @@
     // producción y más competencia: los precios suben un poco menos. Si se derrumba la oferta, al revés.
     // Con inflación casi cero el efecto se apaga (los precios no bajan para siempre).
     const pOferta = -R.clamp((e.oferta || 0) * 0.03, -0.08, 0.1) * R.clamp(e.inflMes / 1.5, 0, 1);
-    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + R.gauss(s) * 0.12;
+    // Leyes que mueven los precios: competencia, apertura, acuerdos (bajan) o protección, controles que rebotan (suben).
+    const pLeyesInfl = eco.bonus(s, 'bonusPrecios');
+    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + pLeyesInfl + R.gauss(s) * 0.12;
     infl = R.clamp(infl, -0.5, 60);
     C.inflacion = [
       { k: 'inercia', v: inercia + base },
@@ -186,6 +193,7 @@
       { k: 'dolar', v: pDolar },
       { k: 'ancla', v: ancla },
       { k: 'oferta', v: pOferta },
+      { k: 'leyes', v: pLeyesInfl },
       { k: 'shock', v: pShock + pParitarias },
     ];
     const inflAntes = e.inflMes;
@@ -208,14 +216,16 @@
     const pObras = 2.2 * (m.obras - 1) + (e.calidad.infra - 50) / 30;
     const pFuturo = (e.calidad.educacion - 50) / 45 + (e.calidad.ciencia - 50) / 45;
     const pConfianza = -(e.riesgo - 650) / 420;
-    const pImpuestos = -0.7 * (e.impuestos - 2) - 0.3 * (e.retenciones - 2);
+    const pImpuestos = -0.7 * ((e.impEf ?? e.impuestos) - 2) - 0.3 * ((e.retEf ?? e.retenciones) - 2);
     const pInflacion = -Math.max(0, e.inflAnual - 35) / 25;
     const pCepo = e.cepo ? -0.7 : 0;
     const pExpo = (eco.factorExpo(s) - 1) * 6;
     const pGasto = 0.5 * (eco.gastoPrimario(e) - 14.6);
     const pShockCrec = shock('crec');
     const pMin = min && min.crec ? min.crec : 0;
-    const pLeyes = eco.bonus(s, 'bonusCrec');
+    // Leyes: cada una suma, pero con rendimientos decrecientes (no se crece al infinito a fuerza de leyes).
+    const bCrec = eco.bonus(s, 'bonusCrec');
+    const pLeyes = Math.sign(bCrec) * 1.8 * (1 - Math.exp(-Math.abs(bCrec) / 1.8));
     let crecMes = pPot + pObras + pFuturo + pConfianza + pImpuestos + pInflacion + pCepo + pExpo + pGasto + pShockCrec + pMin + pLeyes + R.gauss(s) * 0.6;
     crecMes = R.clamp(crecMes, -15, 12);
     e.pbi *= 1 + crecMes / 1200;
@@ -237,7 +247,7 @@
     // 6) Salario real: las paritarias corren detrás de la inflación. Y a mediano plazo los sueldos siguen
     // a la productividad: si la economía crece y falta gente para trabajar, las empresas pagan más.
     const paritaria = 0.75 * inflAntes + 0.25 * Math.min(infl, inflAntes * 1.5) + 0.04 + (g && g.grupos.trabajadores.humor < 35 ? 0.1 : 0) + shock('salario');
-    const tiron = 0.05 * e.crec + 0.03 * (7.5 - e.desempleo);
+    const tiron = 0.05 * e.crec + 0.03 * (7.5 - e.desempleo) + eco.bonus(s, 'bonusSalario');
     const salAntes = e.salarioReal;
     e.salarioReal = R.clamp(e.salarioReal * (1 + (paritaria + tiron - infl) / 100), 45, 160);
     C.salario = [{ k: 'inflacion', v: (salAntes * (paritaria - infl)) / 100 }, { k: 'productividad', v: (salAntes * tiron) / 100 }];
@@ -254,7 +264,7 @@
 
     // 8) Reservas (miles de millones de dólares)
     const expo = 6.6 * eco.factorExpo(s);
-    const impo = 6.0 * (1 + (e.crec - 1.5) / 40) * (e.cepo ? 0.92 : 1);
+    const impo = 6.0 * (1 + (e.crec - 1.5) / 40) * (e.cepo ? 0.92 : 1) * Math.max(0.6, 1 + eco.bonus(s, 'bonusImpo'));
     const pagos = 0.55 + (e.deuda / 100) * 0.15;
     const fuga = e.cepo ? 0 : Math.max(0, (e.riesgo - 900) / 1000) * 0.6 + Math.max(0, e.inflAnual - 60) / 200;
     const prestamos = shock('reservas');
@@ -266,7 +276,7 @@
     e.deuda = R.clamp(e.deuda + prestado * 1.0 - e.deuda * (crecMes / 1200) + shock('deuda'), 5, 300);
     const defAnual = -eco.resultado(s);
     const riesgoObj = R.clamp(320 + 7 * Math.max(0, e.deuda - 45) + 70 * Math.max(0, defAnual) + 3.5 * Math.max(0, e.inflAnual - 20)
-      - 5 * (e.reservas - 25) + (e.cepo ? 120 : 0) + shock('riesgo') + (min && min.riesgo ? min.riesgo : 0) - (ley('bcra') ? 80 : 0), 150, 5000);
+      - 5 * (e.reservas - 25) + (e.cepo ? 120 : 0) + shock('riesgo') + (min && min.riesgo ? min.riesgo : 0) - (ley('bcra') ? 80 : 0) + eco.bonus(s, 'bonusRiesgo'), 150, 5000);
     e.riesgo = R.clamp(e.riesgo + (riesgoObj - e.riesgo) * 0.2, 150, 5000);
 
     // 10) Calidad de cada área: va lento hacia lo que le das.
@@ -275,6 +285,10 @@
       const obj = R.clamp(50 + 48 * (m[a.id] * torta - 1) - Math.max(0, e.inflAnual - 40) * 0.08 + eco.bonus(s, 'bonusCalidad', a.calidad), 5, 97);
       e.calidad[a.calidad] = R.clamp(e.calidad[a.calidad] + (obj - e.calidad[a.calidad]) * 0.06, 0, 100);
     }
+
+    // 10 bis) Impuestos y retenciones: la producción se acomoda de a poco (≈ 8 % por mes).
+    e.impEf = (e.impEf ?? e.impuestos) + (e.impuestos - (e.impEf ?? e.impuestos)) * 0.08;
+    e.retEf = (e.retEf ?? e.retenciones) + (e.retenciones - (e.retEf ?? e.retenciones)) * 0.08;
 
     // 11) Los shocks se gastan y las leyes que ya maduraron dejan de estar «en camino»
     if (g && g.madurando) {
@@ -308,7 +322,7 @@
     inflacion: {
       inercia: ['🔁', 'Los precios vienen subiendo'], emision: ['🖨️', 'Emitiste para pagar el déficit'], tarifas: ['⚡', 'Subieron las tarifas'],
       dolar: ['💵', 'Saltó el dólar'], ancla: ['⚓', 'Confían en tu plan'], shock: ['💥', 'Golpes de este mes'],
-      oferta: ['🏭', 'Más producción y competencia'],
+      oferta: ['🏭', 'Más producción y competencia'], leyes: ['📜', 'Tus leyes'],
     },
     crecimiento: {
       obras: ['🏗️', 'Obra pública y rutas'], futuro: ['🎓', 'Educación y ciencia'], confianza: ['📊', 'Riesgo país'],

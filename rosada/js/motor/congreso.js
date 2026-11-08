@@ -214,7 +214,7 @@
       const meses = ley.madura || 18;
       G.madurando = G.madurando || [];
       const madura = (k, v, sub) => G.madurando.push({ ley: ley.id, k, v, sub, desde: s.mes, meses });
-      for (const k of ['bonusEmpleo', 'bonusCrec', 'bonusExpo', 'bonusRecauda']) {
+      for (const k of ['bonusEmpleo', 'bonusCrec', 'bonusExpo', 'bonusRecauda', 'bonusImpo', 'bonusPrecios', 'bonusSalario', 'bonusRiesgo']) {
         if (p[k]) { G[k] = (G[k] || 0) + p[k]; madura(k, p[k]); }
       }
       if (p.bonusCalidad) { G.bonusCalidad = G.bonusCalidad || {}; for (const [k, v] of Object.entries(p.bonusCalidad)) { G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) + v; madura('bonusCalidad', v, k); } }

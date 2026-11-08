@@ -240,24 +240,97 @@
   };
   gob.describirEfectos = (s, ef) => gob.describirAplicado(s, gob.expandir(s, ef));
 
-  // Lo que una ley deja «con el tiempo» (mediano plazo), para mostrarlo antes de votarla.
+  // ── Qué hace una ley, en pocos carteles y solo lo que toca directo ──
+  // { ya: [...], luego: [...] } — «ya» = al firmarla; «luego» = lo que llega con el tiempo (madura en 1-2 años).
+  // Sale de la definición de la ley (ef, perm y lo que cambia en el presupuesto), no de efectos indirectos.
+  // [emoji, nombre, paso de una flecha, signo: +1 si que suba es bueno, −1 si es malo, 0 neutro]
   const PERM_META = {
-    bonusEmpleo: ['🚪', 'Trabajo', 0.4],
-    bonusCrec: ['📈', 'Economía', 0.2],
-    bonusExpo: ['🚢', 'Exportaciones', 0.025],
-    bonusRecauda: ['🧾', 'Recaudación', 0.15],
+    bonusCrec: ['📈', 'Economía', 0.2, 1],
+    bonusEmpleo: ['🚪', 'Desempleo', 0.3, -1], // positivo = baja el desempleo
+    bonusExpo: ['🚢', 'Exportaciones', 0.025, 1],
+    bonusImpo: ['📦', 'Importaciones', 0.025, 0],
+    bonusRecauda: ['🧾', 'Recaudación', 0.15, 1],
+    bonusPrecios: ['🛒', 'Inflación', 0.02, -1],
+    bonusSalario: ['💰', 'Sueldos', 0.015, 1],
+    bonusRiesgo: ['📊', 'Riesgo país', 15, -1],
   };
-  gob.describirPerm = function (s, ley) {
-    const p = ley.perm || {};
-    const out = [];
-    const add = (emoji, nombre, v, paso) => out.push({ emoji, nombre, v, sube: v > 0, bueno: v > 0, flechas: Math.min(3, Math.max(1, Math.ceil(Math.abs(v) / paso - 0.15))) });
-    for (const [k, [em, nom, paso]] of Object.entries(PERM_META)) if (p[k]) add(em, nom, p[k], paso);
-    for (const [c, v] of Object.entries(p.bonusCalidad || {})) {
-      const a = R.AREAS.find((x) => x.calidad === c);
-      add(a ? a.emoji : '•', a ? a.nombre : c, v, 5);
+  // Lo que cambia el `hacer` de una ley en el presupuesto y en las perillas (sin tocar la partida).
+  gob.impactoHacer = function (s, ley) {
+    const r = { areas: [], dRec: 0, dGasto: 0, dExpo: 0, dCrec: 0, dReservas: 0 };
+    if (!ley.hacer || !s.eco) return r;
+    const c = Object.assign({}, s, { eco: JSON.parse(JSON.stringify(s.eco)) });
+    ley.hacer(c);
+    const a = s.eco;
+    const b = c.eco;
+    for (const ar of R.AREAS) {
+      const d = R.round(b.niveles[ar.id] - a.niveles[ar.id], 2);
+      if (d) { r.areas.push({ id: ar.id, d }); r.dGasto += d * ar.base; }
     }
-    for (const [g, v] of Object.entries(p.bonusGrupo || {})) add(R.GRUPO[g].emoji, R.GRUPO[g].nombre, v, 2);
-    return out;
+    r.dRec = R.eco.recaudacion(c) - R.eco.recaudacion(s);
+    r.dReservas = b.reservas - a.reservas;
+    // Con el tiempo: menos retenciones = más exportaciones; menos impuestos = más inversión; obras y educación empujan.
+    r.dExpo = (a.retenciones - b.retenciones) * 0.06;
+    r.dCrec = 0.7 * (a.impuestos - b.impuestos) + 0.3 * (a.retenciones - b.retenciones) + r.dExpo * 6;
+    for (const { id, d } of r.areas) {
+      if (id === 'obras') r.dCrec += 2.2 * d;
+      if (id === 'educacion' || id === 'ciencia') r.dCrec += (48 * d) / 45;
+    }
+    return r;
+  };
+  // Plata que deja (+) o se come (−) la ley en las cuentas, en % del PBI, cuando ya dio todo.
+  gob.fiscalLey = function (s, ley) {
+    const im = gob.impactoHacer(s, ley);
+    return im.dRec + ((ley.perm && ley.perm.bonusRecauda) || 0) - im.dGasto;
+  };
+  gob.efectosLey = function (s, ley, max) {
+    max = max || 3;
+    const ya = {};
+    const luego = {};
+    const add = (dest, k, emoji, nombre, v, paso, signo) => {
+      if (!v) return;
+      const x = dest[k] || (dest[k] = { k, emoji, nombre, v: 0, paso, signo });
+      x.v += v;
+    };
+    const p = ley.perm || {};
+    const im = gob.impactoHacer(s, ley);
+    // Al firmar: cómo reacciona cada grupo y los golpes a la economía.
+    for (const [k, v] of Object.entries(ley.ef || {})) {
+      const m = R.EF_GOB[k];
+      if (!m || k === 'pc') continue;
+      add(ya, k, m.emoji, m.grupo ? R.GRUPO[k] ? R.GRUPO[k].nombre : m.nombre : m.nombre, v, m.paso, m.inverso ? -1 : 1);
+    }
+    for (const [g, v] of Object.entries(p.bonusGrupo || {})) add(ya, g, R.GRUPO[g].emoji, R.GRUPO[g].nombre, v, 4, 1);
+    for (const { id, d } of im.areas) add(ya, 'area_' + id, R.AREA[id].emoji, R.AREA[id].nombre, d, 0.05, 1);
+    if (Math.abs(im.dRec) > 0.05) add(ya, 'recauda', '🧾', 'Recaudación', im.dRec, 0.3, 1);
+    if (Math.abs(im.dReservas) > 0.5) add(ya, 'reservas', '🏦', 'Reservas', im.dReservas, 2, 1);
+    // Con el tiempo: lo que la ley cambia en el motor.
+    for (const [k, [em, nom, paso, signo]] of Object.entries(PERM_META)) {
+      let v = p[k] || 0;
+      if (k === 'bonusEmpleo') v = -v; // se muestra como «Desempleo ▼»
+      if (k === 'bonusCrec') v += im.dCrec;
+      if (k === 'bonusExpo') v += im.dExpo;
+      add(luego, k, em, nom, v, paso, signo);
+    }
+    for (const [c, v] of Object.entries(p.bonusCalidad || {})) add(luego, c, R.EF_GOB[c].emoji, R.EF_GOB[c].nombre, v, 5, 1);
+    const lista = (obj) => Object.values(obj)
+      .filter((x) => Math.abs(x.v) >= x.paso * (R.GRUPO[x.k] ? 0.85 : 0.4))
+      .map((x) => ({
+        k: x.k, emoji: x.emoji, nombre: x.nombre, v: x.v, sube: x.v > 0, neutro: x.signo === 0,
+        bueno: x.signo === 0 ? true : (x.v > 0) === (x.signo > 0),
+        flechas: Math.min(3, Math.max(1, Math.round(Math.abs(x.v) / x.paso))),
+        grupo: !!R.GRUPO[x.k],
+      }))
+      .sort((a, b) => b.flechas - a.flechas || a.grupo - b.grupo)
+      .slice(0, max);
+    return { ya: lista(ya), luego: lista(luego) };
+  };
+  gob.describirPerm = (s, ley) => gob.efectosLey(s, ley, 4).luego;
+
+  // Un cambio permanente en el motor que llega de a poco (lo usan las noticias que dejan huella).
+  gob.bono = function (s, k, v, meses, sub) {
+    const G = s.gob;
+    if (sub) { G[k] = G[k] || {}; G[k][sub] = (G[k][sub] || 0) + v; } else G[k] = (G[k] || 0) + v;
+    if (meses) { G.madurando = G.madurando || []; G.madurando.push({ ley: 'noticia', k, v, sub, desde: s.mes, meses }); }
   };
   // Cuánto tarda en llegar, en palabras.
   gob.plazoTxt = (meses) => (meses <= 12 ? '1 año' : meses <= 18 ? '1 año y medio' : '2 años');

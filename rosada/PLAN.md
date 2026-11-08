@@ -393,6 +393,7 @@ Cada vuelta: **hacer → probar automáticamente → mirar capturas en celular y
 | 8 · Acto local: panel que salta al tocar la provincia y entra en la pantalla, efecto según afinidad, imagen del país = promedio de las provincias por padrón; Tierra del Fuego vuelve a dibujarse | ✅ |
 | 9 · Congreso coherente: cada bloque vota según si la ley va para su lado (no por distancia pura), su bandera la empuja aunque esté peleado con vos, y se ve el motivo de cada voto | ✅ |
 | 10 · Corto vs mediano plazo: las leyes muestran «⚡ Ahora» y «⏳ En 1-2 años» y maduran de a poco (tarjeta «Tus leyes, en camino»); el crecimiento llega a sueldos, precios y, por la «torta», a jubilados y ayuda social en plata real | ✅ |
+| 11 · Leyes con motor: 54 leyes con filtros por tema e ideología (botones que abren una ventanita), filas compactas, «Al firmar» / «Con el tiempo» con pocos carteles directos; caminos viables para Estado presente, Centro y Mercado; retenciones e impuestos con efecto gradual en exportaciones e inversión; 36 noticias que dependen de ideología, leyes y economía | ✅ |
 
 **Criterios de terminado:** se juega de punta a punta en celu y PC sin errores de consola (Playwright); 2000 campañas y 100 gobiernos
 de dos mandatos simulados sin NaN; 150 noticias, 23 leyes, 12 países y 32 logros; ningún titular pasa de 9 palabras ni opción de 4.

@@ -36,72 +36,143 @@
       h('p', { class: 'chico suave centro' }, 'Diputados / Senadores de cada bloque'));
   }
 
+  // 🤝 Cómo te llevás con cada bloque: una fila de caritas; tocás y se abre el detalle.
+  const relTxt = (r) => (r >= 60 ? ['😊', 'Aliado'] : r >= 35 ? ['😐', 'Neutral'] : ['😠', 'Opositor']);
   function tarjetaBloques(s) {
     const G = s.gob;
     const dip = R.composicion(s, 'diputados');
     const sen = R.composicion(s, 'senado');
-    return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, '🤝 Cómo te llevás con cada bloque'),
+    const bloques = con.BLOQUES.filter((b) => (dip[b] || 0) + (sen[b] || 0) > 0);
+    return h('button', { class: 'tarjeta toque fila-bloques', onclick: () => verBloques(s) },
+      h('span', { class: 'titulo-seccion' }, '🤝 Bloques'),
+      h('span', { class: 'caritas' }, bloques.map((b) => {
+        const p = R.partidoInfo(s, b);
+        return h('span', { class: 'carita', title: p.sigla + ': ' + relTxt(G.rel[b])[1] }, h('b', null, p.sigla), relTxt(G.rel[b])[0]);
+      })),
+      h('span', { class: 'mas' }, '›'));
+  }
+  function verBloques(s) {
+    R.son.toque();
+    const G = s.gob;
+    const dip = R.composicion(s, 'diputados');
+    const sen = R.composicion(s, 'senado');
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, '🤝 Cómo te llevás con cada bloque'),
       h('div', { class: 'razones' }, con.BLOQUES.filter((b) => (dip[b] || 0) + (sen[b] || 0) > 0).map((b) => {
         const p = R.partidoInfo(s, b);
         const r = G.rel[b];
-        return h('div', { class: 'razon', style: { gridTemplateColumns: '30px minmax(0,1fr) 80px 70px' } },
+        const [cara, txt] = relTxt(r);
+        return h('div', { class: 'razon', style: { gridTemplateColumns: '30px minmax(0,1fr) 70px 86px' } },
           ui.miniEscudo(p), h('span', null, h('b', null, p.sigla), h('span', { class: 'chico suave' }, ' ' + (dip[b] || 0) + ' + ' + (sen[b] || 0))),
           h('span', { class: 'barrita' }, h('i', { style: { width: r + '%', background: r >= 60 ? 'var(--bien)' : r >= 35 ? 'var(--sol)' : 'var(--mal)' } })),
-          h('span', { class: 'chico', style: { fontWeight: 900, textAlign: 'right' } }, r >= 60 ? '😊 Aliado' : r >= 35 ? '😐 Neutral' : '😠 Opositor'));
+          h('span', { class: 'chico', style: { fontWeight: 900, textAlign: 'right' } }, cara + ' ' + txt));
       })),
-      h('p', { class: 'chico suave' }, 'Mejora si negociás, si les gusta tu ley o si tu aprobación sube. Los gobernadores también mueven a sus legisladores.'));
+      h('p', { class: 'chico suave' }, 'Diputados + senadores de cada bloque. Mejora si negociás, si les gusta tu ley o si tu aprobación sube. Los gobernadores también mueven a sus legisladores.')), { cerrable: true });
   }
 
+  // 📜 Leyes: dos botones de filtro (tema e ideas) que abren una ventanita, y filas compactas.
+  // Al tocar una ley se abre arriba con todo el detalle.
   function tarjetaLeyes(s) {
     const G = s.gob;
-    const leyes = R.LEYES.slice().sort((a, b) => (G.leyes[a.id] ? 1 : 0) - (G.leyes[b.id] ? 1 : 0));
+    const v = ui.vista || {};
+    const mia = R.ideaLey({ ideo: s.partido.ideo });
+    const tema = v.temaLey || 'todas';
+    const idea = v.ideaLey || mia; // arranca mostrando las de tu ideología
+    const leyes = R.LEYES.filter((l) => (tema === 'todas' || l.cat === tema) && (idea === 'todas' || R.ideaLey(l) === idea))
+      .sort((a, b) => (G.leyes[a.id] ? 1 : 0) - (G.leyes[b.id] ? 1 : 0));
+    const te = R.TEMAS_LEY.find((x) => x.id === tema);
+    const ia = R.IDEAS_LEY.find((x) => x.id === idea);
     return h('section', { class: 'pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📜 Leyes'), h('span', { class: 'chip sol' }, '⭐ ' + G.pc)),
-      h('p', { class: 'chico suave' }, 'Mandar una ley cuesta ⭐ ' + con.COSTO_PRESENTAR + '. Antes de votar ves cuántos votos tenés.'),
-      h('div', { class: 'acciones' }, leyes.map((ley) => {
-        const st = G.leyesEstado[ley.id];
-        const b = con.bloqueoLey(s, ley);
-        const hecha = G.leyes[ley.id];
-        return h('button', { class: 'accion' + (hecha ? ' hecha' : ''), disabled: b ? true : null, onclick: () => abrirLey(s, ley) },
-          h('div', { class: 'cab' }, h('span', { class: 'ic' }, ley.emoji), h('span', { class: 'nom' }, ley.nombre)),
-          h('div', { class: 'desc' }, ley.desc),
-          ui.chipsEfectos(R.gob.describirEfectos(s, ley.ef || {}), { compacto: true, antes: h('span', { class: 'chip' }, ideoTxt(ley.ideo)) }),
-          ley.perm ? ui.chipsEfectos(R.gob.describirPerm(s, ley), { compacto: true, antes: h('span', { class: 'chip plazo' }, '⏳') }) : null,
-          hecha ? h('span', { class: 'chip bien', style: { alignSelf: 'flex-start' } }, st && st.estado === 'dnu' ? '📜 Por decreto' : '✅ Es ley')
-            : b ? h('div', { class: 'bloq' }, b) : ley.mayoria === 'dos_tercios' ? h('span', { class: 'chip', style: { alignSelf: 'flex-start' } }, '⚠️ Necesita 2/3') : null);
-      })));
-  }
-  // Corto y mediano plazo de una ley: lo que pasa al firmarla y lo que llega con el tiempo.
-  function plazos(s, ley, efectos) {
-    const perm = R.gob.describirPerm(s, ley);
-    if (!perm.length) return efectos.length ? ui.chipsEfectos(efectos) : null;
-    return h('div', { class: 'plazos' },
-      efectos.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⚡ Ahora'), ui.chipsEfectos(efectos)) : null,
-      h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⏳ En ' + R.gob.plazoTxt(ley.madura || 18)), ui.chipsEfectos(perm)));
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📜 Leyes'), h('span', { class: 'chip sol' }, '⭐ ' + G.pc + ' · cada ley ⭐' + con.COSTO_PRESENTAR)),
+      h('div', { class: 'filtros-ley' },
+        h('button', { class: 'filtro-btn', onclick: () => elegirFiltro(s, 'temaLey') }, h('small', null, 'Tema'), h('b', null, te ? te.emoji + ' ' + te.nombre : 'Todos'), '▾'),
+        h('button', { class: 'filtro-btn', onclick: () => elegirFiltro(s, 'ideaLey') }, h('small', null, 'Ideas'), h('b', null, ia ? ia.emoji + ' ' + ia.nombre : 'Todas'), '▾')),
+      leyes.length ? h('div', { class: 'leyes-lista' }, leyes.map((ley) => filaLey(s, ley))) : h('p', { class: 'suave centro' }, 'No hay leyes con esos filtros.'),
+      h('p', { class: 'chico suave centro' }, '⏳ = llega con el tiempo · tocá una ley para ver todo'));
   }
 
-  // ⏳ Leyes que todavía no dieron todo: barra de cuánto falta.
+  function elegirFiltro(s, clave) {
+    R.son.toque();
+    const mia = R.ideaLey({ ideo: s.partido.ideo });
+    const actual = (ui.vista || {})[clave] || (clave === 'ideaLey' ? mia : 'todas');
+    const lista = clave === 'temaLey'
+      ? [{ id: 'todas', emoji: '📜', nombre: 'Todos los temas' }].concat(R.TEMAS_LEY)
+      : [{ id: 'todas', emoji: '🌐', nombre: 'Todas las ideas' }].concat(R.IDEAS_LEY);
+    const cuantas = (id) => R.LEYES.filter((l) => id === 'todas' || (clave === 'temaLey' ? l.cat === id : R.ideaLey(l) === id)).length;
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, clave === 'temaLey' ? '📂 Tema' : '🧭 Ideas'),
+      h('div', { class: 'opciones-filtro' }, lista.map((x) => h('button', {
+        class: 'opcion-filtro' + (x.id === actual ? ' activa' : ''),
+        onclick: () => {
+          R.son.toque();
+          ui.cerrarCapa();
+          ui.vista = Object.assign({}, ui.vista, { [clave]: x.id, mantenerScroll: true });
+          ui.render();
+          ui.vista.mantenerScroll = false;
+        },
+      }, h('span', { class: 'em' }, x.emoji), h('b', null, x.nombre + (clave === 'ideaLey' && x.id === mia ? ' (la tuya)' : '')), h('span', { class: 'chico suave' }, cuantas(x.id)))))), { cerrable: true });
+  }
+
+  function filaLey(s, ley) {
+    const G = s.gob;
+    const st = G.leyesEstado[ley.id];
+    const b = con.bloqueoLey(s, ley);
+    const hecha = G.leyes[ley.id];
+    const ef = R.gob.efectosLey(s, ley, 2);
+    let estado;
+    if (hecha) estado = h('span', { class: 'estado bien' }, st && st.estado === 'dnu' ? '📜' : '✅');
+    else if (b) estado = h('span', { class: 'estado' }, '🔒');
+    else {
+      const p = con.porotos(s, ley);
+      const falta = Math.max(p.diputados.necesarios - p.diputados.si, p.senado.necesarios - p.senado.si);
+      estado = h('span', { class: 'estado ' + (falta <= 0 ? 'bien' : 'falta'), title: falta <= 0 ? 'Te alcanzan los votos' : 'Te faltan ' + falta + ' votos' }, falta <= 0 ? '🗳️✓' : '🗳️−' + falta);
+    }
+    const ia = R.IDEAS_LEY.find((x) => x.id === R.ideaLey(ley));
+    return h('button', { class: 'ley-fila' + (hecha ? ' hecha' : ''), disabled: b ? true : null, title: b || null, onclick: () => abrirLey(s, ley) },
+      h('span', { class: 'ic idea-' + ia.id }, ley.emoji),
+      h('span', { class: 'cuerpo' }, h('b', null, ley.nombre),
+        h('span', { class: 'mini-efectos' }, ui.chipsEfectos(ef.ya, { compacto: true }), ef.luego.length ? h('span', { class: 'luego' }, '⏳') : null, ef.luego.length ? ui.chipsEfectos(ef.luego, { compacto: true }) : null)),
+      estado);
+  }
+
+  // Leyes (mejor de la misma ideología) que dejan plata en las cuentas: para tapar el agujero de otra.
+  function compensan(s, ley) {
+    const G = s.gob;
+    return R.LEYES.filter((l) => l.id !== ley.id && !G.leyes[l.id] && !con.bloqueoLey(s, l))
+      .map((l) => ({ l, c: R.gob.fiscalLey(s, l), misma: R.ideaLey(l) === R.ideaLey(ley) }))
+      .filter((x) => x.c > 0.2)
+      .sort((a, b) => (b.misma - a.misma) || (b.c - a.c))
+      .slice(0, 2).map((x) => x.l);
+  }
+
+  // Qué hace la ley: al firmar y con el tiempo, solo lo que toca directo.
+  function queHaceLey(s, ley) {
+    const ef = R.gob.efectosLey(s, ley, 4);
+    const fiscal = R.gob.fiscalLey(s, ley);
+    const comp = fiscal < -0.15 ? compensan(s, ley) : [];
+    return h('div', { class: 'pila', style: { gap: '8px' } },
+      h('div', { class: 'plazos' },
+        ef.ya.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⚡ Al firmar'), ui.chipsEfectos(ef.ya)) : null,
+        ef.luego.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⏳ Con el tiempo'), ui.chipsEfectos(ef.luego)) : null),
+      fiscal < -0.15 ? h('div', { class: 'chico nota-proy mal' }, '💸 Te deja menos plata en las cuentas: si no recortás otra cosa, se paga emitiendo (inflación) o con deuda.',
+        comp.length ? h('div', { style: { marginTop: '4px' } }, '🧩 Combinala con: ', comp.map((x, i) => h('b', null, (i ? ' · ' : '') + x.emoji + ' ' + x.nombre))) : null) : null,
+      fiscal > 0.15 ? h('div', { class: 'chico nota-proy bien' }, '💰 Te deja más plata en las cuentas: podés gastarla en otra cosa sin déficit.') : null);
+  }
+
+  // ⏳ Leyes que todavía no dieron todo: una línea por ley con su barra.
   function tarjetaEnCamino(s) {
     const G = s.gob;
     const porLey = {};
-    for (const m of G.madurando || []) porLey[m.ley] = Math.max(porLey[m.ley] || 0, R.eco.madurez(s, m));
-    const ids = Object.keys(porLey).filter((id) => R.LEY[id]);
+    for (const m of G.madurando || []) if (R.LEY[m.ley]) porLey[m.ley] = Math.max(porLey[m.ley] || 0, R.eco.madurez(s, m));
+    const ids = Object.keys(porLey);
     if (!ids.length) return null;
-    return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, '⏳ Tus leyes, en camino'),
-      h('p', { class: 'chico suave' }, 'Una fábrica o un empleo nuevo no aparecen el día que firmás: llegan de a poco.'),
-      h('div', { class: 'razones' }, ids.map((id) => {
-        const ley = R.LEY[id];
-        const k = porLey[id];
-        return h('div', { class: 'en-camino' },
-          h('div', { class: 'fila entre' }, h('b', null, ley.emoji + ' ' + ley.nombre), h('span', { class: 'chico', style: { fontWeight: 900 } }, Math.round(k * 100) + '%')),
-          h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(4, k * 100) + '%', background: 'var(--celeste)' } })),
-          ui.chipsEfectos(R.gob.describirPerm(s, ley).filter((x) => !R.GRUPOS.some((g) => g.emoji === x.emoji))));
-      })));
+    return h('section', { class: 'tarjeta pila', style: { gap: '6px' } },
+      h('div', { class: 'titulo-seccion' }, '⏳ Tus leyes, llegando'),
+      ids.map((id) => h('button', { class: 'en-camino toque', onclick: () => abrirLey(s, R.LEY[id]) },
+        h('span', { class: 'nom' }, R.LEY[id].emoji + ' ' + R.LEY[id].nombre),
+        h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(4, porLey[id] * 100) + '%', background: 'var(--celeste)' } })),
+        h('b', { class: 'chico' }, Math.round(porLey[id] * 100) + '%'))));
   }
-
-  const ideoTxt = (x) => (x <= -0.6 ? '🤲🤲' : x < -0.15 ? '🤲' : x <= 0.15 ? '⚖️' : x < 0.6 ? '💼' : '💼💼');
 
   // Hoja de una ley: porotos, negociación y votación.
   function abrirLey(s, ley) {
@@ -119,11 +190,13 @@
     };
     const bloques = {};
     for (const cam of ['diputados', 'senado']) for (const b of p[cam].bloques) bloques[b.id] = bloques[b.id] || b;
-    const efectos = R.gob.describirEfectos(s, Object.assign({}, ley.ef || {}, ley.costo && ley.costo.gasto ? { gastoExtra: ley.costo.gasto } : {}));
+    const ia = R.IDEAS_LEY.find((x) => x.id === R.ideaLey(ley));
+    const te = R.TEMAS_LEY.find((x) => x.id === ley.cat);
     ui.abrirCapa(h('div', { class: 'pila' },
       h('h2', null, ley.emoji + ' ' + ley.nombre),
       h('p', null, ley.desc + (ley.nota ? ' · ' + ley.nota : '')),
-      plazos(s, ley, efectos),
+      h('div', { class: 'fila envolver', style: { gap: '6px' } }, h('span', { class: 'chip idea-' + ia.id }, ia.emoji + ' ' + ia.nombre), te ? h('span', { class: 'chip' }, te.emoji + ' ' + te.nombre) : null),
+      queHaceLey(s, ley),
       h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '🗳️ ¿Te alcanzan los votos?'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
       h('div', { class: 'etiqueta' }, 'Bloques'),
       h('div', { class: 'lista-elegir' }, Object.values(bloques).filter((b) => b.id !== 'YO').map((b) => {

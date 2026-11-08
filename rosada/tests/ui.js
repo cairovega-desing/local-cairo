@@ -128,7 +128,7 @@ fs.mkdirSync(OUT, { recursive: true });
         // Congreso: abrir una ley, negociar y votar
         await page.click('.pestanas button:has-text("Congreso")');
         await foto('congreso', true);
-        const leyes = page.locator('.accion:not([disabled])');
+        const leyes = page.locator('.ley-fila:not([disabled])');
         if (await leyes.count()) {
           await leyes.nth(2).click();
           await foto('ley');

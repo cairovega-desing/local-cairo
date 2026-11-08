@@ -35,6 +35,14 @@ const ESTRATEGIAS = {
   },
 };
 
+// Caminos por ideología: manejan el presupuesto como el equilibrado y mandan leyes de SU ideología.
+const CAMINOS = { estado: -0.4, centro: 0, mercado: 0.4 };
+for (const c of Object.keys(CAMINOS)) ESTRATEGIAS[c] = ESTRATEGIAS.equilibrado;
+const valorLey = (s, l) => {
+  const p = l.perm || {};
+  return 2 * (p.bonusCrec || 0) + (p.bonusEmpleo || 0) + 10 * (p.bonusExpo || 0) + 1.5 * R.gob.fiscalLey(s, l) - 8 * (p.bonusPrecios || 0) - l.polemica * 0.5;
+};
+
 function decidir(s, inst, modo) {
   const d = R.ev.datos(s, inst);
   const ok = d.opciones.filter((o) => !o.bloqueo);
@@ -51,7 +59,7 @@ function decidir(s, inst, modo) {
 
 const stats = { presupuestos: [], elecciones: [], leyes: [] };
 function jugar(semilla, est, meses) {
-  const s = nuevoGobierno(semilla, ((semilla % 5) - 2) / 2);
+  const s = nuevoGobierno(semilla, CAMINOS[est] ?? ((semilla % 5) - 2) / 2);
   R.gob.elegirMinistro(s, ['ortodoxo', 'heterodoxo', 'pragmatico'][semilla % 3]);
   const serie = [];
   for (let i = 0; i < meses && s.fase === 'gobierno'; i++) {
@@ -65,9 +73,11 @@ function jugar(semilla, est, meses) {
       if (m.tipo === 'eleccion') stats.elecciones.push(m.clave + ':' + (s.elecciones[m.clave].ganador === 'YO' ? 'gana' : s.elecciones[m.clave].ballotage && s.elecciones[m.clave].ballotage.includes('YO') ? 'ballotage' : 'pierde'));
       if (m.tipo === 'ministro') R.gob.elegirMinistro(s, 'pragmatico');
     }
-    // Leyes: el equilibrado manda una ley afín cuando tiene ⭐ y votos.
-    if (est === 'equilibrado' && s.gob.pc >= 6) {
-      const ley = R.LEYES.find((l) => !R.congreso.bloqueoLey(s, l) && Math.abs(l.ideo - s.partido.ideo) < 0.6 && l.polemica < 0.7);
+    // Leyes: el equilibrado manda una ley afín cuando tiene ⭐ y votos; los caminos, la mejor de su ideología.
+    if ((est === 'equilibrado' || CAMINOS[est] !== undefined) && s.gob.pc >= 6) {
+      const ley = CAMINOS[est] !== undefined
+        ? R.LEYES.filter((l) => !R.congreso.bloqueoLey(s, l) && R.ideaLey(l) === est && l.polemica < 0.9).sort((a, b) => valorLey(s, b) - valorLey(s, a))[0]
+        : R.LEYES.find((l) => !R.congreso.bloqueoLey(s, l) && Math.abs(l.ideo - s.partido.ideo) < 0.6 && l.polemica < 0.7);
       if (ley) {
         const p = R.congreso.porotos(s, ley);
         if (p.diputados.si < p.diputados.necesarios) { const b = p.diputados.bloques.find((x) => x.postura !== 'si' && x.id !== 'YO'); if (b) R.congreso.negociar(s, ley, b.id); }

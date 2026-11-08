@@ -384,12 +384,50 @@ p { margin: 0; }
 .item-elegir[disabled] { opacity: 0.45; cursor: not-allowed; }
 .motivo-voto { margin-top: 3px; font-weight: 800; line-height: 1.25; }
 .plazos { display: flex; flex-direction: column; gap: 6px; }
+/* Leyes: filtros en dos botones, filas compactas */
+.filtros-ley { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.filtro-btn { font: inherit; color: var(--tinta); text-align: left; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 6px; background: var(--papel); border: var(--borde); border-radius: var(--radio-chico); box-shadow: var(--sombra-chica); padding: 5px 10px; cursor: pointer; min-width: 0; }
+.filtro-btn small { grid-column: 1 / -1; font-size: 11px; font-weight: 900; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: 0.5px; }
+.filtro-btn b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.opciones-filtro { display: flex; flex-direction: column; gap: 6px; }
+.opcion-filtro { font: inherit; color: var(--tinta); display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 8px; align-items: center; text-align: left; background: var(--papel); border: 2px solid #c9d6e6; border-radius: var(--radio-chico); padding: 8px 10px; cursor: pointer; }
+.opcion-filtro .em { font-size: 22px; text-align: center; }
+.opcion-filtro.activa { border-color: var(--tinta); background: var(--sol-claro); }
+.leyes-lista { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+@media (min-width: 700px) { .leyes-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ley-fila { font: inherit; color: inherit; text-align: left; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 8px; align-items: center; background: var(--papel); border: 2px solid var(--tinta); border-radius: var(--radio-chico); box-shadow: 0 2px 0 var(--tinta); padding: 6px 8px; cursor: pointer; min-width: 0; }
+.ley-fila:active { transform: translateY(2px); box-shadow: none; }
+.ley-fila[disabled] { opacity: 0.5; cursor: not-allowed; }
+.ley-fila.hecha { background: var(--papel-2); }
+.ley-fila .ic { font-size: 22px; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; }
+.ley-fila .cuerpo { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.ley-fila .cuerpo > b { font-size: 15px; line-height: 1.15; }
+.mini-efectos { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.mini-efectos .efectos { gap: 4px; }
+.mini-efectos .ef { font-size: 12px; padding: 0 6px 0 4px; border-width: 1.5px; }
+.mini-efectos .luego { font-size: 13px; }
+.ley-fila .estado { font-size: 12px; font-weight: 900; white-space: nowrap; padding: 2px 6px; border-radius: 8px; background: var(--papel-2); }
+.ley-fila .estado.bien { background: var(--bien-claro); color: #0d5c2f; }
+.ley-fila .estado.falta { background: #fff1d6; color: var(--sol-osc); }
+.idea-estado { background: #fde3d6; }
+.idea-centro { background: #e8eef6; }
+.idea-mercado { background: #e3ddf6; }
+.ef.neutro { color: var(--tinta-suave); background: var(--papel-2); }
+/* Bloques en una fila */
+.fila-bloques { font: inherit; color: inherit; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; text-align: left; cursor: pointer; padding: 10px 12px; }
+.caritas { display: flex; flex-wrap: wrap; gap: 4px 8px; justify-content: flex-end; }
+.carita { font-size: 13px; white-space: nowrap; }
+.carita b { margin-right: 2px; }
+.fila-bloques .mas { font-size: 24px; font-weight: 900; color: var(--tinta-suave); }
+.nota-proy { margin: 0; font-weight: 800; padding: 6px 10px; border-radius: var(--radio-chico); }
+.nota-proy.mal { background: var(--mal-claro); color: #8b1517; }
+.nota-proy.bien { background: var(--bien-claro); color: #0d5c2f; }
 .plazo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .plazo .cuando { font-weight: 900; font-size: 13px; min-width: 88px; }
 .chip.plazo { background: var(--cielo-claro); }
-.en-camino { display: flex; flex-direction: column; gap: 4px; padding: 6px 0; border-bottom: 1px dashed #d3deeb; }
-.en-camino:last-child { border-bottom: 0; }
-.en-camino .barrita { display: block; width: 100%; }
+.en-camino { font: inherit; color: inherit; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(50px, 1fr) 40px; gap: 8px; align-items: center; background: none; border: 0; padding: 2px 0; text-align: left; cursor: pointer; }
+.en-camino .nom { font-size: 14px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.en-camino b { text-align: right; }
 
 /* ── Mapa ── */
 .mapa { width: 100%; max-width: 360px; max-height: 72vh; display: block; margin: 0 auto; overflow: visible; }
@@ -2260,6 +2298,9 @@ label.boton { cursor: pointer; }
       nivelesInicioMes: Object.fromEntries(R.AREAS.map((a) => [a.id, 1])),
       impuestos: 2,
       retenciones: 2,
+      // Lo que la economía «siente» de impuestos y retenciones: se acomoda de a poco (siembras, inversiones).
+      impEf: 2,
+      retEf: 2,
       financiamiento: 1,
       impuestosInicioMes: 2,
       retencionesInicioMes: 2,
@@ -2302,11 +2343,13 @@ label.boton { cursor: pointer; }
   eco.gastoTotal = (e) => eco.gastoPrimario(e) + eco.intereses(e);
   eco.factorExpo = (s) => {
     const e = s.eco;
-    let f = 1 + (2 - e.retenciones) * 0.06;
+    let f = 1 + (2 - (e.retEf ?? e.retenciones)) * 0.06;
     if (e.cepo) f -= 0.05;
     if (s.gob) f += ((s.gob.grupos.campo.humor - 50) / 50) * 0.05;
     for (const sh of e.shocks) if (sh.k === 'expo') f += sh.v;
-    f += eco.bonus(s, 'bonusExpo');
+    // Leyes y tratados: suman exportaciones, con techo (no se puede exportar el doble por decreto).
+    const bExpo = eco.bonus(s, 'bonusExpo');
+    f += Math.sign(bExpo) * 0.3 * (1 - Math.exp(-Math.abs(bExpo) / 0.3));
     return Math.max(0.5, f);
   };
   eco.recaudacion = (s) => {
@@ -2366,7 +2409,9 @@ label.boton { cursor: pointer; }
     // producción y más competencia: los precios suben un poco menos. Si se derrumba la oferta, al revés.
     // Con inflación casi cero el efecto se apaga (los precios no bajan para siempre).
     const pOferta = -R.clamp((e.oferta || 0) * 0.03, -0.08, 0.1) * R.clamp(e.inflMes / 1.5, 0, 1);
-    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + R.gauss(s) * 0.12;
+    // Leyes que mueven los precios: competencia, apertura, acuerdos (bajan) o protección, controles que rebotan (suben).
+    const pLeyesInfl = eco.bonus(s, 'bonusPrecios');
+    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + pLeyesInfl + R.gauss(s) * 0.12;
     infl = R.clamp(infl, -0.5, 60);
     C.inflacion = [
       { k: 'inercia', v: inercia + base },
@@ -2375,6 +2420,7 @@ label.boton { cursor: pointer; }
       { k: 'dolar', v: pDolar },
       { k: 'ancla', v: ancla },
       { k: 'oferta', v: pOferta },
+      { k: 'leyes', v: pLeyesInfl },
       { k: 'shock', v: pShock + pParitarias },
     ];
     const inflAntes = e.inflMes;
@@ -2397,14 +2443,16 @@ label.boton { cursor: pointer; }
     const pObras = 2.2 * (m.obras - 1) + (e.calidad.infra - 50) / 30;
     const pFuturo = (e.calidad.educacion - 50) / 45 + (e.calidad.ciencia - 50) / 45;
     const pConfianza = -(e.riesgo - 650) / 420;
-    const pImpuestos = -0.7 * (e.impuestos - 2) - 0.3 * (e.retenciones - 2);
+    const pImpuestos = -0.7 * ((e.impEf ?? e.impuestos) - 2) - 0.3 * ((e.retEf ?? e.retenciones) - 2);
     const pInflacion = -Math.max(0, e.inflAnual - 35) / 25;
     const pCepo = e.cepo ? -0.7 : 0;
     const pExpo = (eco.factorExpo(s) - 1) * 6;
     const pGasto = 0.5 * (eco.gastoPrimario(e) - 14.6);
     const pShockCrec = shock('crec');
     const pMin = min && min.crec ? min.crec : 0;
-    const pLeyes = eco.bonus(s, 'bonusCrec');
+    // Leyes: cada una suma, pero con rendimientos decrecientes (no se crece al infinito a fuerza de leyes).
+    const bCrec = eco.bonus(s, 'bonusCrec');
+    const pLeyes = Math.sign(bCrec) * 1.8 * (1 - Math.exp(-Math.abs(bCrec) / 1.8));
     let crecMes = pPot + pObras + pFuturo + pConfianza + pImpuestos + pInflacion + pCepo + pExpo + pGasto + pShockCrec + pMin + pLeyes + R.gauss(s) * 0.6;
     crecMes = R.clamp(crecMes, -15, 12);
     e.pbi *= 1 + crecMes / 1200;
@@ -2426,7 +2474,7 @@ label.boton { cursor: pointer; }
     // 6) Salario real: las paritarias corren detrás de la inflación. Y a mediano plazo los sueldos siguen
     // a la productividad: si la economía crece y falta gente para trabajar, las empresas pagan más.
     const paritaria = 0.75 * inflAntes + 0.25 * Math.min(infl, inflAntes * 1.5) + 0.04 + (g && g.grupos.trabajadores.humor < 35 ? 0.1 : 0) + shock('salario');
-    const tiron = 0.05 * e.crec + 0.03 * (7.5 - e.desempleo);
+    const tiron = 0.05 * e.crec + 0.03 * (7.5 - e.desempleo) + eco.bonus(s, 'bonusSalario');
     const salAntes = e.salarioReal;
     e.salarioReal = R.clamp(e.salarioReal * (1 + (paritaria + tiron - infl) / 100), 45, 160);
     C.salario = [{ k: 'inflacion', v: (salAntes * (paritaria - infl)) / 100 }, { k: 'productividad', v: (salAntes * tiron) / 100 }];
@@ -2443,7 +2491,7 @@ label.boton { cursor: pointer; }
 
     // 8) Reservas (miles de millones de dólares)
     const expo = 6.6 * eco.factorExpo(s);
-    const impo = 6.0 * (1 + (e.crec - 1.5) / 40) * (e.cepo ? 0.92 : 1);
+    const impo = 6.0 * (1 + (e.crec - 1.5) / 40) * (e.cepo ? 0.92 : 1) * Math.max(0.6, 1 + eco.bonus(s, 'bonusImpo'));
     const pagos = 0.55 + (e.deuda / 100) * 0.15;
     const fuga = e.cepo ? 0 : Math.max(0, (e.riesgo - 900) / 1000) * 0.6 + Math.max(0, e.inflAnual - 60) / 200;
     const prestamos = shock('reservas');
@@ -2455,7 +2503,7 @@ label.boton { cursor: pointer; }
     e.deuda = R.clamp(e.deuda + prestado * 1.0 - e.deuda * (crecMes / 1200) + shock('deuda'), 5, 300);
     const defAnual = -eco.resultado(s);
     const riesgoObj = R.clamp(320 + 7 * Math.max(0, e.deuda - 45) + 70 * Math.max(0, defAnual) + 3.5 * Math.max(0, e.inflAnual - 20)
-      - 5 * (e.reservas - 25) + (e.cepo ? 120 : 0) + shock('riesgo') + (min && min.riesgo ? min.riesgo : 0) - (ley('bcra') ? 80 : 0), 150, 5000);
+      - 5 * (e.reservas - 25) + (e.cepo ? 120 : 0) + shock('riesgo') + (min && min.riesgo ? min.riesgo : 0) - (ley('bcra') ? 80 : 0) + eco.bonus(s, 'bonusRiesgo'), 150, 5000);
     e.riesgo = R.clamp(e.riesgo + (riesgoObj - e.riesgo) * 0.2, 150, 5000);
 
     // 10) Calidad de cada área: va lento hacia lo que le das.
@@ -2464,6 +2512,10 @@ label.boton { cursor: pointer; }
       const obj = R.clamp(50 + 48 * (m[a.id] * torta - 1) - Math.max(0, e.inflAnual - 40) * 0.08 + eco.bonus(s, 'bonusCalidad', a.calidad), 5, 97);
       e.calidad[a.calidad] = R.clamp(e.calidad[a.calidad] + (obj - e.calidad[a.calidad]) * 0.06, 0, 100);
     }
+
+    // 10 bis) Impuestos y retenciones: la producción se acomoda de a poco (≈ 8 % por mes).
+    e.impEf = (e.impEf ?? e.impuestos) + (e.impuestos - (e.impEf ?? e.impuestos)) * 0.08;
+    e.retEf = (e.retEf ?? e.retenciones) + (e.retenciones - (e.retEf ?? e.retenciones)) * 0.08;
 
     // 11) Los shocks se gastan y las leyes que ya maduraron dejan de estar «en camino»
     if (g && g.madurando) {
@@ -2497,7 +2549,7 @@ label.boton { cursor: pointer; }
     inflacion: {
       inercia: ['🔁', 'Los precios vienen subiendo'], emision: ['🖨️', 'Emitiste para pagar el déficit'], tarifas: ['⚡', 'Subieron las tarifas'],
       dolar: ['💵', 'Saltó el dólar'], ancla: ['⚓', 'Confían en tu plan'], shock: ['💥', 'Golpes de este mes'],
-      oferta: ['🏭', 'Más producción y competencia'],
+      oferta: ['🏭', 'Más producción y competencia'], leyes: ['📜', 'Tus leyes'],
     },
     crecimiento: {
       obras: ['🏗️', 'Obra pública y rutas'], futuro: ['🎓', 'Educación y ciencia'], confianza: ['📊', 'Riesgo país'],
@@ -2758,24 +2810,97 @@ label.boton { cursor: pointer; }
   };
   gob.describirEfectos = (s, ef) => gob.describirAplicado(s, gob.expandir(s, ef));
 
-  // Lo que una ley deja «con el tiempo» (mediano plazo), para mostrarlo antes de votarla.
+  // ── Qué hace una ley, en pocos carteles y solo lo que toca directo ──
+  // { ya: [...], luego: [...] } — «ya» = al firmarla; «luego» = lo que llega con el tiempo (madura en 1-2 años).
+  // Sale de la definición de la ley (ef, perm y lo que cambia en el presupuesto), no de efectos indirectos.
+  // [emoji, nombre, paso de una flecha, signo: +1 si que suba es bueno, −1 si es malo, 0 neutro]
   const PERM_META = {
-    bonusEmpleo: ['🚪', 'Trabajo', 0.4],
-    bonusCrec: ['📈', 'Economía', 0.2],
-    bonusExpo: ['🚢', 'Exportaciones', 0.025],
-    bonusRecauda: ['🧾', 'Recaudación', 0.15],
+    bonusCrec: ['📈', 'Economía', 0.2, 1],
+    bonusEmpleo: ['🚪', 'Desempleo', 0.3, -1], // positivo = baja el desempleo
+    bonusExpo: ['🚢', 'Exportaciones', 0.025, 1],
+    bonusImpo: ['📦', 'Importaciones', 0.025, 0],
+    bonusRecauda: ['🧾', 'Recaudación', 0.15, 1],
+    bonusPrecios: ['🛒', 'Inflación', 0.02, -1],
+    bonusSalario: ['💰', 'Sueldos', 0.015, 1],
+    bonusRiesgo: ['📊', 'Riesgo país', 15, -1],
   };
-  gob.describirPerm = function (s, ley) {
-    const p = ley.perm || {};
-    const out = [];
-    const add = (emoji, nombre, v, paso) => out.push({ emoji, nombre, v, sube: v > 0, bueno: v > 0, flechas: Math.min(3, Math.max(1, Math.ceil(Math.abs(v) / paso - 0.15))) });
-    for (const [k, [em, nom, paso]] of Object.entries(PERM_META)) if (p[k]) add(em, nom, p[k], paso);
-    for (const [c, v] of Object.entries(p.bonusCalidad || {})) {
-      const a = R.AREAS.find((x) => x.calidad === c);
-      add(a ? a.emoji : '•', a ? a.nombre : c, v, 5);
+  // Lo que cambia el `hacer` de una ley en el presupuesto y en las perillas (sin tocar la partida).
+  gob.impactoHacer = function (s, ley) {
+    const r = { areas: [], dRec: 0, dGasto: 0, dExpo: 0, dCrec: 0, dReservas: 0 };
+    if (!ley.hacer || !s.eco) return r;
+    const c = Object.assign({}, s, { eco: JSON.parse(JSON.stringify(s.eco)) });
+    ley.hacer(c);
+    const a = s.eco;
+    const b = c.eco;
+    for (const ar of R.AREAS) {
+      const d = R.round(b.niveles[ar.id] - a.niveles[ar.id], 2);
+      if (d) { r.areas.push({ id: ar.id, d }); r.dGasto += d * ar.base; }
     }
-    for (const [g, v] of Object.entries(p.bonusGrupo || {})) add(R.GRUPO[g].emoji, R.GRUPO[g].nombre, v, 2);
-    return out;
+    r.dRec = R.eco.recaudacion(c) - R.eco.recaudacion(s);
+    r.dReservas = b.reservas - a.reservas;
+    // Con el tiempo: menos retenciones = más exportaciones; menos impuestos = más inversión; obras y educación empujan.
+    r.dExpo = (a.retenciones - b.retenciones) * 0.06;
+    r.dCrec = 0.7 * (a.impuestos - b.impuestos) + 0.3 * (a.retenciones - b.retenciones) + r.dExpo * 6;
+    for (const { id, d } of r.areas) {
+      if (id === 'obras') r.dCrec += 2.2 * d;
+      if (id === 'educacion' || id === 'ciencia') r.dCrec += (48 * d) / 45;
+    }
+    return r;
+  };
+  // Plata que deja (+) o se come (−) la ley en las cuentas, en % del PBI, cuando ya dio todo.
+  gob.fiscalLey = function (s, ley) {
+    const im = gob.impactoHacer(s, ley);
+    return im.dRec + ((ley.perm && ley.perm.bonusRecauda) || 0) - im.dGasto;
+  };
+  gob.efectosLey = function (s, ley, max) {
+    max = max || 3;
+    const ya = {};
+    const luego = {};
+    const add = (dest, k, emoji, nombre, v, paso, signo) => {
+      if (!v) return;
+      const x = dest[k] || (dest[k] = { k, emoji, nombre, v: 0, paso, signo });
+      x.v += v;
+    };
+    const p = ley.perm || {};
+    const im = gob.impactoHacer(s, ley);
+    // Al firmar: cómo reacciona cada grupo y los golpes a la economía.
+    for (const [k, v] of Object.entries(ley.ef || {})) {
+      const m = R.EF_GOB[k];
+      if (!m || k === 'pc') continue;
+      add(ya, k, m.emoji, m.grupo ? R.GRUPO[k] ? R.GRUPO[k].nombre : m.nombre : m.nombre, v, m.paso, m.inverso ? -1 : 1);
+    }
+    for (const [g, v] of Object.entries(p.bonusGrupo || {})) add(ya, g, R.GRUPO[g].emoji, R.GRUPO[g].nombre, v, 4, 1);
+    for (const { id, d } of im.areas) add(ya, 'area_' + id, R.AREA[id].emoji, R.AREA[id].nombre, d, 0.05, 1);
+    if (Math.abs(im.dRec) > 0.05) add(ya, 'recauda', '🧾', 'Recaudación', im.dRec, 0.3, 1);
+    if (Math.abs(im.dReservas) > 0.5) add(ya, 'reservas', '🏦', 'Reservas', im.dReservas, 2, 1);
+    // Con el tiempo: lo que la ley cambia en el motor.
+    for (const [k, [em, nom, paso, signo]] of Object.entries(PERM_META)) {
+      let v = p[k] || 0;
+      if (k === 'bonusEmpleo') v = -v; // se muestra como «Desempleo ▼»
+      if (k === 'bonusCrec') v += im.dCrec;
+      if (k === 'bonusExpo') v += im.dExpo;
+      add(luego, k, em, nom, v, paso, signo);
+    }
+    for (const [c, v] of Object.entries(p.bonusCalidad || {})) add(luego, c, R.EF_GOB[c].emoji, R.EF_GOB[c].nombre, v, 5, 1);
+    const lista = (obj) => Object.values(obj)
+      .filter((x) => Math.abs(x.v) >= x.paso * (R.GRUPO[x.k] ? 0.85 : 0.4))
+      .map((x) => ({
+        k: x.k, emoji: x.emoji, nombre: x.nombre, v: x.v, sube: x.v > 0, neutro: x.signo === 0,
+        bueno: x.signo === 0 ? true : (x.v > 0) === (x.signo > 0),
+        flechas: Math.min(3, Math.max(1, Math.round(Math.abs(x.v) / x.paso))),
+        grupo: !!R.GRUPO[x.k],
+      }))
+      .sort((a, b) => b.flechas - a.flechas || a.grupo - b.grupo)
+      .slice(0, max);
+    return { ya: lista(ya), luego: lista(luego) };
+  };
+  gob.describirPerm = (s, ley) => gob.efectosLey(s, ley, 4).luego;
+
+  // Un cambio permanente en el motor que llega de a poco (lo usan las noticias que dejan huella).
+  gob.bono = function (s, k, v, meses, sub) {
+    const G = s.gob;
+    if (sub) { G[k] = G[k] || {}; G[k][sub] = (G[k][sub] || 0) + v; } else G[k] = (G[k] || 0) + v;
+    if (meses) { G.madurando = G.madurando || []; G.madurando.push({ ley: 'noticia', k, v, sub, desde: s.mes, meses }); }
   };
   // Cuánto tarda en llegar, en palabras.
   gob.plazoTxt = (meses) => (meses <= 12 ? '1 año' : meses <= 18 ? '1 año y medio' : '2 años');
@@ -3020,8 +3145,13 @@ label.boton { cursor: pointer; }
 <script>
 // ── js/datos/leyes.js ──
 // Leyes que podés mandar al Congreso. ideo: −1 (Estado presente) … +1 (mercado). polemica: 0 … 1.
-// ef: efecto inmediato (con las claves de gobierno). perm: efecto que queda para siempre; lo económico
-// (empleo, crecimiento, exportaciones, recaudación, calidad) madura de a poco en `madura` meses (18 si no dice).
+// cat: tema (para los filtros). ef: lo que pasa al firmarla (la gente reacciona, algún golpe a la economía).
+// perm: lo que cambia en el motor para siempre. Lo económico madura de a poco en `madura` meses (18 si no dice):
+//   bonusCrec (crecimiento), bonusEmpleo (baja el desempleo), bonusExpo (exportaciones), bonusImpo (importaciones),
+//   bonusRecauda (recaudación, % PBI), bonusPrecios (inflación por mes), bonusSalario (sueldo real por mes),
+//   bonusRiesgo (riesgo país), bonusCalidad {área}. bonusGrupo {grupo}: cómo lo siente cada grupo, desde ya.
+// hacer: cambios en el presupuesto (subirNivel) o en las perillas de la economía.
+// Cada ideología tiene su camino para hacer crecer al país, con costos y beneficios de verdad.
 // mayoria: 'simple' (mitad + 1 de cada cámara) o 'dos_tercios'. dnu: se puede sacar por decreto.
 (function (R) {
   'use strict';
@@ -3030,57 +3160,148 @@ label.boton { cursor: pointer; }
     s.eco.niveles[area] = R.clamp(R.round(s.eco.niveles[area] + d, 2), R.eco.NIVEL_MIN, R.eco.NIVEL_MAX);
     s.eco.nivelesInicioMes[area] = s.eco.niveles[area];
   };
+  const varias = (...fs) => (s) => fs.forEach((f) => f(s));
+
+  R.TEMAS_LEY = [
+    { id: 'economia', emoji: '💰', nombre: 'Economía' },
+    { id: 'trabajo', emoji: '👷', nombre: 'Trabajo' },
+    { id: 'produccion', emoji: '🏭', nombre: 'Producción' },
+    { id: 'social', emoji: '❤️', nombre: 'Social' },
+    { id: 'seguridad', emoji: '👮', nombre: 'Seguridad' },
+    { id: 'instituciones', emoji: '🏛️', nombre: 'Instituciones' },
+  ];
+  R.IDEAS_LEY = [
+    { id: 'estado', emoji: '🤲', nombre: 'Estado presente' },
+    { id: 'centro', emoji: '⚖️', nombre: 'Centro' },
+    { id: 'mercado', emoji: '💼', nombre: 'Mercado' },
+  ];
+  R.ideaLey = (ley) => (ley.ideo <= -0.2 ? 'estado' : ley.ideo >= 0.2 ? 'mercado' : 'centro');
 
   R.LEYES = [
-    { id: 'reforma_laboral', emoji: '📋', nombre: 'Reforma laboral', desc: 'Contratar y despedir más fácil', ideo: 0.7, polemica: 0.6, dnu: true,
-      ef: { trabajadores: -10, empresarios: 10 }, perm: { bonusEmpleo: 1.2, bonusCrec: 0.3, bonusGrupo: { trabajadores: -3, empresarios: 4 } }, madura: 18 },
-    { id: 'salario_minimo', emoji: '💵', nombre: 'Suba del salario mínimo', desc: 'Que nadie gane menos de lo justo', ideo: -0.5, polemica: 0.3, dnu: true,
-      ef: { trabajadores: 9, humildes: 4, empresarios: -6, inflacion: 0.3 }, perm: { bonusEmpleo: -0.4, bonusGrupo: { trabajadores: 3 } }, madura: 12 },
-    { id: 'reforma_previsional', emoji: '👴', nombre: 'Reforma jubilatoria', desc: 'Se jubilan más tarde', ideo: 0.6, polemica: 0.75,
-      ef: { jubilados: -9, media: -3, empresarios: 4, riesgo: -100 }, hacer: subirNivel('jubilaciones', -0.1), nota: 'Baja el gasto en jubilaciones sin que se note de golpe' },
-    { id: 'inversiones', emoji: '🏭', nombre: 'Ley de grandes inversiones', desc: 'Beneficios para invertir', ideo: 0.5, polemica: 0.35, dnu: true,
-      ef: { empresarios: 8, riesgo: -60 }, perm: { bonusCrec: 0.5, bonusExpo: 0.05 }, madura: 24 },
-    { id: 'bcra', emoji: '🏦', nombre: 'Banco Central independiente', desc: 'Nadie lo usa para imprimir', ideo: 0.4, polemica: 0.3,
+    // ── 💰 Economía ──
+    { id: 'inversiones', cat: 'economia', emoji: '🏭', nombre: 'Ley de grandes inversiones', desc: 'Beneficios para invertir', ideo: 0.5, polemica: 0.35, dnu: true, madura: 24,
+      ef: { empresarios: 8, riesgo: -60 }, perm: { bonusCrec: 0.5, bonusExpo: 0.05, bonusEmpleo: 0.3, bonusRecauda: -0.1 } },
+    { id: 'reforma_tributaria', cat: 'economia', emoji: '🧾', nombre: 'Reforma tributaria', desc: 'Menos impuestos que frenan la producción', ideo: 0.5, polemica: 0.3, madura: 18,
+      ef: { empresarios: 7, media: 3 }, perm: { bonusCrec: 0.45, bonusEmpleo: 0.25, bonusRecauda: -0.3 } },
+    { id: 'desregulacion', cat: 'economia', emoji: '✂️', nombre: 'Desregulación económica', desc: 'Menos trámites y reglas para producir', ideo: 0.8, polemica: 0.5, dnu: true, madura: 18,
+      ef: { empresarios: 8, trabajadores: -3 }, perm: { bonusCrec: 0.4, bonusPrecios: -0.03, bonusEmpleo: 0.2 } },
+    { id: 'apertura', cat: 'economia', emoji: '🚢', nombre: 'Apertura de importaciones', desc: 'Bajar aranceles: importar más barato', ideo: 0.7, polemica: 0.5, dnu: true, madura: 18,
+      ef: { media: 5, trabajadores: -6, empresarios: -2 }, perm: { bonusImpo: 0.06, bonusPrecios: -0.07, bonusExpo: 0.03, bonusCrec: 0.2, bonusEmpleo: -0.4 } },
+    { id: 'achicar_estado', cat: 'economia', emoji: '🪓', nombre: 'Achicar el Estado', desc: 'Menos ministerios y empleados públicos', ideo: 0.8, polemica: 0.6, dnu: true, madura: 6,
+      ef: { media: 3, trabajadores: -5, empresarios: 4, desempleo: 0.4 }, perm: { bonusRecauda: 0.4, bonusRiesgo: -30 } },
+    { id: 'bcra', cat: 'economia', emoji: '🏦', nombre: 'Banco Central independiente', desc: 'Nadie lo usa para imprimir', ideo: 0.4, polemica: 0.3,
       ef: { empresarios: 5, riesgo: -80 }, nota: 'Baja la inflación todos los meses' },
-    { id: 'dolarizacion', emoji: '💵', nombre: 'Dolarización', desc: 'Chau peso, hola dólar', ideo: 0.9, polemica: 0.9,
+    { id: 'regla_fiscal', cat: 'economia', emoji: '⚖️', nombre: 'Responsabilidad fiscal', desc: 'Prohibido gastar más de lo que entra', ideo: 0.3, polemica: 0.35, madura: 12,
+      ef: { empresarios: 4, riesgo: -100 }, perm: { bonusRiesgo: -70, bonusPrecios: -0.03 } },
+    { id: 'competencia_monedas', cat: 'economia', emoji: '💱', nombre: 'Competencia de monedas', desc: 'Podés usar dólares para todo', ideo: 0.9, polemica: 0.6, madura: 12,
+      ef: { media: 4, empresarios: 4, riesgo: -40 }, perm: { bonusPrecios: -0.05, bonusRiesgo: -20, bonusExpo: 0.01 }, hacer: (s) => { s.eco.cepo = false; } },
+    { id: 'dolarizacion', cat: 'economia', emoji: '💵', nombre: 'Dolarización', desc: 'Chau peso, hola dólar', ideo: 0.9, polemica: 0.9,
       requiere: (s) => s.eco.reservas >= 35, requiereTxt: 'Necesitás US$ 35 mil M de reservas',
       ef: { media: 5, trabajadores: -6, humildes: -4, campo: 3, riesgo: -150 },
       hacer: (s) => { s.eco.cepo = false; s.eco.brecha = 0; s.eco.financiamiento = 2; s.eco.reservas -= 20; },
       nota: 'La inflación baja muchísimo, pero ya no podés emitir nunca más' },
-    { id: 'universidades', emoji: '🎓', nombre: 'Financiamiento universitario', desc: 'Más plata para las universidades', ideo: -0.4, polemica: 0.3,
-      ef: { media: 7 }, hacer: subirNivel('educacion', 0.15) },
-    { id: 'seguridad', emoji: '👮', nombre: 'Ley de seguridad', desc: 'Más policías y cárceles', ideo: 0.4, polemica: 0.3, dnu: true,
-      ef: { media: 5 }, perm: { bonusCalidad: { seguridad: 12 } }, madura: 12 },
-    { id: 'imputabilidad', emoji: '⚖️', nombre: 'Bajar la edad de imputabilidad', desc: 'Menores que delinquen, a juicio', ideo: 0.6, polemica: 0.6,
-      ef: { media: 6, humildes: -5 }, perm: { bonusCalidad: { seguridad: 5 } }, madura: 12 },
-    { id: 'servicio_militar', emoji: '🪖', nombre: 'Servicio militar obligatorio', desc: 'Los jóvenes, a los cuarteles', ideo: 0.5, polemica: 0.8,
-      ef: { media: -4, humildes: -3 }, perm: { bonusCalidad: { defensa: 20 } }, madura: 24, nota: 'Mucho más poder militar' },
-    { id: 'ciencia', emoji: '🔬', nombre: 'Ley de ciencia', desc: 'Más plata para investigar', ideo: -0.2, polemica: 0.1,
-      ef: { media: 3 }, hacer: subirNivel('ciencia', 0.3) },
-    { id: 'retenciones_cero', emoji: '🌾', nombre: 'Retenciones cero', desc: 'El campo no paga más retenciones', ideo: 0.7, polemica: 0.5,
-      ef: { campo: 15, humildes: -2 }, hacer: (s) => { s.eco.retenciones = 0; s.eco.retencionesInicioMes = 0; } },
-    { id: 'fortunas', emoji: '💰', nombre: 'Impuesto a las grandes fortunas', desc: 'Que paguen los que más tienen', ideo: -0.8, polemica: 0.6,
-      ef: { empresarios: -10, humildes: 5, trabajadores: 3 }, perm: { bonusRecauda: 0.4, bonusCrec: -0.2 }, madura: 12 },
-    { id: 'privatizar', emoji: '🏷️', nombre: 'Privatizar empresas públicas', desc: 'Vender empresas del Estado', ideo: 0.8, polemica: 0.7,
-      ef: { reservas: 6, trabajadores: -6, empresarios: 6, riesgo: -60 }, perm: { bonusCrec: 0.2 }, madura: 24 },
-    { id: 'estatizar', emoji: '⛽', nombre: 'Estatizar la energía', desc: 'Petróleo y luz, del Estado', ideo: -0.8, polemica: 0.7,
-      ef: { trabajadores: 5, empresarios: -10, riesgo: 120 }, perm: { bonusExpo: -0.03, bonusCrec: -0.2, bonusGrupo: { trabajadores: 2 } }, madura: 18 },
-    { id: 'alquileres', emoji: '🏠', nombre: 'Ley de alquileres', desc: 'Contratos largos y con tope', ideo: -0.3, polemica: 0.4, dnu: true,
-      ef: { media: 4, empresarios: -2 } },
-    { id: 'litio', emoji: '🔋', nombre: 'Ley del litio', desc: 'Reglas claras para la minería', ideo: 0.2, polemica: 0.3,
-      ef: { empresarios: 4 }, perm: { bonusExpo: 0.06 }, madura: 24 },
-    { id: 'humedales', emoji: '🌱', nombre: 'Ley de humedales', desc: 'Proteger ríos y lagunas', ideo: -0.3, polemica: 0.4,
-      ef: { media: 4, campo: -8 } },
-    { id: 'boleta_unica', emoji: '🗳️', nombre: 'Boleta única', desc: 'Votar más fácil y sin trampa', ideo: 0, polemica: 0.1,
-      ef: { media: 3, escandalo: -1 } },
-    { id: 'ficha_limpia', emoji: '🧼', nombre: 'Ficha limpia', desc: 'Condenados no pueden ser candidatos', ideo: 0.2, polemica: 0.3,
-      ef: { media: 5, escandalo: -2 } },
-    { id: 'vivienda', emoji: '🏘️', nombre: 'Plan nacional de vivienda', desc: 'Casas para los que no tienen', ideo: -0.4, polemica: 0.2,
-      costo: { gasto: 3 }, ef: { humildes: 8, trabajadores: 4, infra: 5 } },
-    { id: 'fmi', emoji: '🌐', nombre: 'Acuerdo con el FMI', desc: 'Dólares a cambio de ajuste', ideo: 0.5, polemica: 0.6,
+    { id: 'privatizar', cat: 'economia', emoji: '🏷️', nombre: 'Privatizar empresas públicas', desc: 'Vender empresas del Estado', ideo: 0.8, polemica: 0.7, madura: 24,
+      ef: { reservas: 6, trabajadores: -6, empresarios: 6, riesgo: -60 }, perm: { bonusCrec: 0.25, bonusRecauda: 0.1 } },
+    { id: 'blanqueo', cat: 'economia', emoji: '💵', nombre: 'Blanqueo de capitales', desc: 'Traé tus dólares sin multa', ideo: 0.4, polemica: 0.4, madura: 6,
+      ef: { reservas: 8, empresarios: 4, media: -2, escandalo: 1 }, perm: { bonusRecauda: 0.1, bonusCrec: 0.1 } },
+    { id: 'fmi', cat: 'economia', emoji: '🌐', nombre: 'Acuerdo con el FMI', desc: 'Dólares a cambio de ajuste', ideo: 0.5, polemica: 0.6,
       requiere: (s) => s.eco.reservas < 22, requiereTxt: 'Solo si las reservas están bajas',
       ef: { reservas: 20, deuda: 6, riesgo: -250, humildes: -5, trabajadores: -5, empresarios: 5 } },
-    { id: 're_reeleccion', emoji: '👑', nombre: 'Reforma constitucional', desc: 'Poder ser reelecto otra vez', ideo: 0, polemica: 1, mayoria: 'dos_tercios',
+    { id: 'acuerdo_social', cat: 'economia', emoji: '🤝', nombre: 'Acuerdo económico y social', desc: 'Empresas y gremios pactan precios y sueldos', ideo: -0.1, polemica: 0.25, madura: 12,
+      ef: { trabajadores: 4, empresarios: 3, media: 3, inflacion: -0.6 }, perm: { bonusPrecios: -0.06, bonusSalario: 0.02, bonusRiesgo: -20 } },
+    { id: 'competencia', cat: 'economia', emoji: '🔍', nombre: 'Defensa de la competencia', desc: 'Multas a los que abusan con precios', ideo: 0, polemica: 0.2, madura: 12,
+      ef: { media: 4, empresarios: -4 }, perm: { bonusPrecios: -0.04, bonusCrec: 0.05 } },
+    { id: 'banco_desarrollo', cat: 'economia', emoji: '🏗️', nombre: 'Banco de desarrollo', desc: 'Créditos baratos para producir', ideo: -0.5, polemica: 0.3, madura: 18,
+      ef: { trabajadores: 3, empresarios: 2 }, perm: { bonusCrec: 0.5, bonusEmpleo: 0.5, bonusRecauda: -0.1 } },
+    { id: 'renta_financiera', cat: 'economia', emoji: '📉', nombre: 'Impuesto a la renta financiera', desc: 'Que paguen las ganancias de la timba', ideo: -0.4, polemica: 0.4, madura: 12,
+      ef: { empresarios: -4, humildes: 2 }, perm: { bonusRecauda: 0.3, bonusRiesgo: 15 } },
+    { id: 'fortunas', cat: 'economia', emoji: '💰', nombre: 'Impuesto a las grandes fortunas', desc: 'Que paguen los que más tienen', ideo: -0.8, polemica: 0.6, madura: 12,
+      ef: { empresarios: -10, humildes: 5, trabajadores: 3 }, perm: { bonusRecauda: 0.45, bonusCrec: -0.1, bonusRiesgo: 20 } },
+    { id: 'control_precios', cat: 'economia', emoji: '🏷️', nombre: 'Control de precios', desc: 'Precios máximos para la canasta', ideo: -0.8, polemica: 0.7, madura: 18,
+      ef: { humildes: 6, media: 5, empresarios: -12, inflacion: -1.0 }, perm: { bonusPrecios: 0.03, bonusCrec: -0.15, bonusGrupo: { empresarios: -3 } },
+      nota: 'Alivio rápido; si dura mucho, faltan productos' },
+    { id: 'banca_publica', cat: 'economia', emoji: '🏛️', nombre: 'Nacionalizar los bancos', desc: 'Los ahorros, a créditos para producir', ideo: -1, polemica: 0.95, madura: 24,
+      ef: { empresarios: -14, media: -4, trabajadores: 3, riesgo: 200 }, perm: { bonusCrec: 0.8, bonusEmpleo: 0.8, bonusRiesgo: 60, bonusPrecios: 0.03 } },
+
+    // ── 👷 Trabajo ──
+    { id: 'reforma_laboral', cat: 'trabajo', emoji: '📋', nombre: 'Reforma laboral', desc: 'Contratar y despedir más fácil', ideo: 0.7, polemica: 0.6, dnu: true, madura: 18,
+      ef: { trabajadores: -10, empresarios: 10 }, perm: { bonusEmpleo: 1.2, bonusCrec: 0.3, bonusRecauda: 0.15, bonusGrupo: { trabajadores: -3, empresarios: 4 } } },
+    { id: 'reforma_sindical', cat: 'trabajo', emoji: '📢', nombre: 'Reforma sindical', desc: 'Menos poder para los gremios', ideo: 0.8, polemica: 0.7, madura: 12,
+      ef: { trabajadores: -8, empresarios: 8 }, perm: { bonusEmpleo: 0.3, bonusCrec: 0.1, bonusSalario: -0.02, bonusGrupo: { trabajadores: -2 } } },
+    { id: 'monotributo', cat: 'trabajo', emoji: '🧾', nombre: 'Monotributo simple', desc: 'Pagar impuestos fácil y en blanco', ideo: 0.15, polemica: 0.1, madura: 12,
+      ef: { trabajadores: 2, media: 2 }, perm: { bonusRecauda: 0.15, bonusEmpleo: 0.3 } },
+    { id: 'pymes', cat: 'trabajo', emoji: '🧰', nombre: 'Ley pyme', desc: 'Menos impuestos para empresas chicas', ideo: 0.1, polemica: 0.15, madura: 18,
+      ef: { empresarios: 6, trabajadores: 2, media: 2 }, perm: { bonusEmpleo: 0.6, bonusCrec: 0.25, bonusRecauda: -0.2 } },
+    { id: 'salario_minimo', cat: 'trabajo', emoji: '💵', nombre: 'Suba del salario mínimo', desc: 'Que nadie gane menos de lo justo', ideo: -0.5, polemica: 0.3, dnu: true, madura: 12,
+      ef: { trabajadores: 9, humildes: 4, empresarios: -6, inflacion: 0.3, crec: 0.4 }, perm: { bonusSalario: 0.04, bonusEmpleo: -0.3, bonusGrupo: { trabajadores: 3 } } },
+    { id: 'jornada', cat: 'trabajo', emoji: '⏰', nombre: 'Semana de 40 horas', desc: 'Trabajar menos con el mismo sueldo', ideo: -0.6, polemica: 0.5, madura: 12,
+      ef: { trabajadores: 12, empresarios: -9, media: 3 }, perm: { bonusEmpleo: 0.4, bonusCrec: -0.15, bonusPrecios: 0.02, bonusGrupo: { trabajadores: 4 } } },
+    { id: 'cooperativas', cat: 'trabajo', emoji: '🤝', nombre: 'Trabajo cooperativo', desc: 'Cooperativas de trabajo para desocupados', ideo: -0.6, polemica: 0.3, madura: 12,
+      ef: { humildes: 7, trabajadores: 3, empresarios: -2 }, perm: { bonusEmpleo: 0.8, bonusCrec: 0.05, bonusRecauda: -0.1 } },
+
+    // ── 🏭 Producción ──
+    { id: 'retenciones_cero', cat: 'produccion', emoji: '🌾', nombre: 'Retenciones cero', desc: 'El campo no paga más retenciones', ideo: 0.7, polemica: 0.5, madura: 24,
+      ef: { campo: 15, humildes: -2 }, perm: { bonusExpo: 0.03, bonusCrec: 0.25, bonusRecauda: 0.3 },
+      hacer: (s) => { s.eco.retenciones = 0; s.eco.retencionesInicioMes = 0; }, nota: 'Recaudás menos ya; la cosecha crece en 1-2 años' },
+    { id: 'vaca_muerta', cat: 'produccion', emoji: '🛢️', nombre: 'Régimen de hidrocarburos', desc: 'Más inversión en Vaca Muerta', ideo: 0.3, polemica: 0.35, madura: 24,
+      ef: { empresarios: 5, trabajadores: 2, media: -2 }, perm: { bonusExpo: 0.08, bonusCrec: 0.35, bonusRecauda: 0.05 } },
+    { id: 'glaciares', cat: 'produccion', emoji: '⛰️', nombre: 'Reforma de glaciares', desc: 'Minería cerca de la cordillera', ideo: 0.6, polemica: 0.6, madura: 24,
+      ef: { empresarios: 5, media: -5 }, perm: { bonusExpo: 0.05, bonusCrec: 0.2 } },
+    { id: 'litio', cat: 'produccion', emoji: '🔋', nombre: 'Ley del litio', desc: 'Reglas claras para la minería', ideo: 0.15, polemica: 0.3, madura: 24,
+      ef: { empresarios: 4 }, perm: { bonusExpo: 0.06, bonusCrec: 0.15 } },
+    { id: 'conocimiento', cat: 'produccion', emoji: '💻', nombre: 'Economía del conocimiento', desc: 'Software y servicios para exportar', ideo: 0.1, polemica: 0.15, madura: 24,
+      ef: { media: 4, empresarios: 3 }, perm: { bonusExpo: 0.04, bonusEmpleo: 0.3, bonusCrec: 0.25, bonusRecauda: -0.08 } },
+    { id: 'renovables', cat: 'produccion', emoji: '🌞', nombre: 'Energías renovables', desc: 'Sol y viento para producir energía', ideo: -0.1, polemica: 0.1, madura: 24,
+      ef: { media: 4 }, perm: { bonusExpo: 0.02, bonusPrecios: -0.02, bonusCrec: 0.15, bonusEmpleo: 0.2 } },
+    { id: 'ciencia', cat: 'produccion', emoji: '🔬', nombre: 'Ley de ciencia', desc: 'Más plata para investigar', ideo: -0.15, polemica: 0.1,
+      ef: { media: 3 }, hacer: subirNivel('ciencia', 0.3), nota: 'La ciencia empuja el crecimiento a largo plazo' },
+    { id: 'trenes', cat: 'produccion', emoji: '🚆', nombre: 'Plan de trenes', desc: 'Volver a tener trenes de carga', ideo: -0.3, polemica: 0.2, madura: 24,
+      ef: { trabajadores: 5, campo: 3 }, perm: { bonusCrec: 0.25, bonusExpo: 0.02, bonusEmpleo: 0.3, bonusCalidad: { infra: 8 } }, hacer: subirNivel('obras', 0.12) },
+    { id: 'industria_nacional', cat: 'produccion', emoji: '🇦🇷', nombre: 'Compre nacional', desc: 'Proteger a la industria argentina', ideo: -0.6, polemica: 0.4, madura: 18,
+      ef: { trabajadores: 6, empresarios: 3, media: -3 }, perm: { bonusImpo: -0.05, bonusEmpleo: 0.7, bonusCrec: 0.2, bonusPrecios: 0.05, bonusExpo: -0.02 } },
+    { id: 'estatizar', cat: 'produccion', emoji: '⛽', nombre: 'Estatizar la energía', desc: 'Petróleo y luz, del Estado', ideo: -0.8, polemica: 0.7, madura: 24,
+      ef: { trabajadores: 5, humildes: 3, empresarios: -10, riesgo: 120 }, perm: { bonusPrecios: -0.04, bonusExpo: 0.02, bonusRecauda: 0.1, bonusRiesgo: 40, bonusGrupo: { trabajadores: 2 } } },
+    { id: 'junta_granos', cat: 'produccion', emoji: '🌽', nombre: 'Junta Nacional de Granos', desc: 'El Estado compra y vende el grano', ideo: -0.9, polemica: 0.8, madura: 12,
+      ef: { campo: -15, trabajadores: 3, reservas: 3 }, perm: { bonusRecauda: 0.35, bonusPrecios: -0.03, bonusExpo: -0.02, bonusRiesgo: 30 } },
+    { id: 'humedales', cat: 'produccion', emoji: '🌱', nombre: 'Ley de humedales', desc: 'Proteger ríos y lagunas', ideo: -0.3, polemica: 0.4,
+      ef: { media: 4, campo: -8 }, perm: { bonusExpo: -0.01, bonusCrec: 0.05, bonusGrupo: { media: 2 } }, nota: 'Más turismo y menos inundaciones' },
+
+    // ── ❤️ Social ──
+    { id: 'reforma_previsional', cat: 'social', emoji: '👴', nombre: 'Reforma jubilatoria', desc: 'Se jubilan más tarde', ideo: 0.6, polemica: 0.75, madura: 12,
+      ef: { jubilados: -9, media: -3, empresarios: 4, riesgo: -100 }, perm: { bonusRiesgo: -40 }, hacer: subirNivel('jubilaciones', -0.1), nota: 'Baja el gasto en jubilaciones sin que se note de golpe' },
+    { id: 'educacion_tecnica', cat: 'social', emoji: '🛠️', nombre: 'Escuelas técnicas', desc: 'Oficios para los jóvenes', ideo: 0, polemica: 0.05, madura: 24,
+      ef: { media: 3, trabajadores: 3, empresarios: 2 }, perm: { bonusEmpleo: 0.4, bonusCrec: 0.15 }, hacer: subirNivel('educacion', 0.1) },
+    { id: 'universidades', cat: 'social', emoji: '🎓', nombre: 'Financiamiento universitario', desc: 'Más plata para las universidades', ideo: -0.4, polemica: 0.3,
+      ef: { media: 7 }, hacer: subirNivel('educacion', 0.15), nota: 'Más profesionales: más crecimiento a largo plazo' },
+    { id: 'salud_publica', cat: 'social', emoji: '🏥', nombre: 'Sistema integrado de salud', desc: 'Salud pública para todos', ideo: -0.4, polemica: 0.4, madura: 18,
+      ef: { humildes: 6, jubilados: 6, media: 2, empresarios: -3 }, perm: { bonusCalidad: { salud: 8 }, bonusEmpleo: 0.1 }, hacer: subirNivel('salud', 0.25) },
+    { id: 'auh', cat: 'social', emoji: '👶', nombre: 'Más asignación por hijo', desc: 'Más plata para los chicos pobres', ideo: -0.5, polemica: 0.3, madura: 6,
+      ef: { humildes: 9, media: -2 }, perm: { bonusCrec: 0.05 }, hacer: subirNivel('social', 0.2) },
+    { id: 'movilidad', cat: 'social', emoji: '👵', nombre: 'Movilidad jubilatoria', desc: 'Jubilaciones que le ganen a la inflación', ideo: -0.5, polemica: 0.4, madura: 6,
+      ef: { jubilados: 12, riesgo: 60 }, perm: { bonusRiesgo: 20 }, hacer: subirNivel('jubilaciones', 0.05) },
+    { id: 'vivienda', cat: 'social', emoji: '🏘️', nombre: 'Plan nacional de vivienda', desc: 'Casas para los que no tienen', ideo: -0.4, polemica: 0.2, madura: 12,
+      ef: { humildes: 8, trabajadores: 4 }, perm: { bonusEmpleo: 0.4, bonusCrec: 0.15, bonusCalidad: { infra: 3 } }, hacer: subirNivel('obras', 0.1) },
+    { id: 'alquileres', cat: 'social', emoji: '🏠', nombre: 'Ley de alquileres', desc: 'Contratos largos y con tope', ideo: -0.3, polemica: 0.4, dnu: true,
+      ef: { media: 4, empresarios: -2 }, perm: { bonusGrupo: { media: 1 } } },
+
+    // ── 👮 Seguridad ──
+    { id: 'seguridad', cat: 'seguridad', emoji: '👮', nombre: 'Ley de seguridad', desc: 'Más policías y cárceles', ideo: 0.4, polemica: 0.3, dnu: true, madura: 12,
+      ef: { media: 5 }, perm: { bonusCalidad: { seguridad: 12 }, bonusCrec: 0.05 } },
+    { id: 'imputabilidad', cat: 'seguridad', emoji: '⚖️', nombre: 'Bajar la edad de imputabilidad', desc: 'Menores que delinquen, a juicio', ideo: 0.6, polemica: 0.6, madura: 12,
+      ef: { media: 6, humildes: -5 }, perm: { bonusCalidad: { seguridad: 5 } } },
+    { id: 'narcotrafico', cat: 'seguridad', emoji: '🚨', nombre: 'Ley contra el narcotráfico', desc: 'Más jueces y control en fronteras', ideo: 0.15, polemica: 0.15, madura: 12,
+      ef: { media: 5, humildes: 2 }, perm: { bonusCalidad: { seguridad: 8 } }, hacer: subirNivel('seguridad', 0.05) },
+    { id: 'servicio_militar', cat: 'seguridad', emoji: '🪖', nombre: 'Servicio militar obligatorio', desc: 'Los jóvenes, a los cuarteles', ideo: 0.5, polemica: 0.8, madura: 24,
+      ef: { media: -4, humildes: -3 }, perm: { bonusCalidad: { defensa: 20 } }, nota: 'Mucho más poder militar' },
+
+    // ── 🏛️ Instituciones ──
+    { id: 'boleta_unica', cat: 'instituciones', emoji: '🗳️', nombre: 'Boleta única', desc: 'Votar más fácil y sin trampa', ideo: 0, polemica: 0.1,
+      ef: { media: 3, escandalo: -1 } },
+    { id: 'ficha_limpia', cat: 'instituciones', emoji: '🧼', nombre: 'Ficha limpia', desc: 'Condenados no pueden ser candidatos', ideo: 0.15, polemica: 0.3,
+      ef: { media: 5, escandalo: -2 } },
+    { id: 'transparencia', cat: 'instituciones', emoji: '🔎', nombre: 'Ley de transparencia', desc: 'Todo gasto público, a la vista', ideo: 0, polemica: 0.1, madura: 12,
+      ef: { media: 4, escandalo: -2 }, perm: { bonusRiesgo: -20, bonusRecauda: 0.05 } },
+    { id: 're_reeleccion', cat: 'instituciones', emoji: '👑', nombre: 'Reforma constitucional', desc: 'Poder ser reelecto otra vez', ideo: 0, polemica: 1, mayoria: 'dos_tercios',
       requiere: (s) => s.gob.mandato >= 2, requiereTxt: 'Solo en tu segundo mandato',
       ef: { media: -6, escandalo: 3 }, nota: 'Te deja buscar un tercer mandato' },
   ];
@@ -3318,7 +3539,7 @@ label.boton { cursor: pointer; }
       const meses = ley.madura || 18;
       G.madurando = G.madurando || [];
       const madura = (k, v, sub) => G.madurando.push({ ley: ley.id, k, v, sub, desde: s.mes, meses });
-      for (const k of ['bonusEmpleo', 'bonusCrec', 'bonusExpo', 'bonusRecauda']) {
+      for (const k of ['bonusEmpleo', 'bonusCrec', 'bonusExpo', 'bonusRecauda', 'bonusImpo', 'bonusPrecios', 'bonusSalario', 'bonusRiesgo']) {
         if (p[k]) { G[k] = (G[k] || 0) + p[k]; madura(k, p[k]); }
       }
       if (p.bonusCalidad) { G.bonusCalidad = G.bonusCalidad || {}; for (const [k, v] of Object.entries(p.bonusCalidad)) { G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) + v; madura('bonusCalidad', v, k); } }
@@ -5342,6 +5563,362 @@ label.boton { cursor: pointer; }
 
 </script>
 <script>
+// ── js/datos/eventos_ideas.js ──
+// Noticias que dependen de lo que hiciste: tu ideología, las leyes que pasaste y cómo está la economía.
+// Hay noticias comunes (le pasan a cualquiera) y estas, que solo aparecen si se dan las condiciones.
+// Pesan más que las comunes: si se cumplen, es probable que lleguen.
+(function (R) {
+  'use strict';
+  const ley = (s, id) => !!(s.gob && s.gob.leyes && s.gob.leyes[id]);
+  const mesesDesde = (s, id) => { const st = s.gob.leyesEstado && s.gob.leyesEstado[id]; return st ? s.mes - st.mes : -1; };
+  const izq = (s) => s.partido.ideo <= -0.2;
+  const der = (s) => s.partido.ideo >= 0.2;
+  const centro = (s) => Math.abs(s.partido.ideo) < 0.2;
+  const rel = (s, p) => (s.mundo && s.mundo.paises[p] ? s.mundo.paises[p].rel : 50);
+  const bono = (k, v, meses, sub) => (s) => R.gob.bono(s, k, v, meses, sub);
+
+  R.ev.registrar([
+    // ── Por tus leyes de mercado ──
+    {
+      id: 'i_minera', fase: 'gobierno', peso: 3, dibujo: '⛏️ 💰 🏔️',
+      cuando: (s) => ley(s, 'glaciares') || ley(s, 'litio') || ley(s, 'inversiones'),
+      titular: 'Una minera anuncia una inversión gigante',
+      opciones: [
+        { txt: 'Aprobarla ya', ef: { crec: 0.5, empresarios: 5, media: -2 }, despues: bono('bonusExpo', 0.03, 18), res: 'Llegan los dólares de la mina ⛏️' },
+        { txt: 'Con control ambiental', costo: { pc: 1 }, ef: { crec: 0.25, media: 2 }, despues: bono('bonusExpo', 0.02, 18), res: 'Mina con reglas claras 🏔️' },
+        { txt: 'Rechazarla', ef: { empresarios: -5, media: 2 }, res: 'La inversión se va a Chile', bueno: false },
+      ],
+    },
+    {
+      id: 'i_cierra_fabrica', fase: 'gobierno', peso: 4, dibujo: '🏭 🔒 👷',
+      cuando: (s) => ley(s, 'apertura') && mesesDesde(s, 'apertura') >= 3,
+      titular: 'Cierra una textil por las importaciones',
+      opciones: [
+        { txt: 'Ayuda para reconvertirse', costo: { gasto: 1 }, ef: { trabajadores: 4, desempleo: -0.1 }, res: 'La fábrica cambia de rubro 🧵' },
+        { txt: 'Es el mercado', ef: { trabajadores: -5, desempleo: 0.2, media: 1 }, res: 'Ropa más barata, menos empleo', bueno: false },
+        { txt: 'Volver a los aranceles', ef: { media: -3, trabajadores: 3, empresarios: -2 }, despues: bono('bonusImpo', -0.03, 6), res: 'Marcha atrás con la apertura' },
+      ],
+    },
+    {
+      id: 'i_wall_street', fase: 'gobierno', peso: 3, dibujo: '🏦 📈 🗽',
+      cuando: (s) => (ley(s, 'bcra') || ley(s, 'regla_fiscal') || ley(s, 'achicar_estado')) && s.eco.riesgo < 700,
+      titular: 'Wall Street aplaude tu plan: bajan las tasas',
+      opciones: [
+        { txt: 'Tomar deuda barata', ef: { reservas: 6, deuda: 3, riesgo: -30 }, res: 'Entran dólares frescos 💵' },
+        { txt: 'No endeudarse', ef: { riesgo: -40, empresarios: 2 }, res: 'Más confianza todavía 📉' },
+      ],
+    },
+    {
+      id: 'i_paro_reforma', fase: 'gobierno', peso: 4, dibujo: '✊ 🚫 🏭',
+      cuando: (s) => ley(s, 'reforma_laboral') || ley(s, 'reforma_sindical'),
+      titular: 'La CGT lanza un paro general contra tu reforma',
+      opciones: [
+        { txt: 'Negociar', costo: { pc: 1 }, ef: { trabajadores: 5, empresarios: -2 }, res: 'Mesa con la CGT 🤝' },
+        { txt: 'Aguantar el paro', ef: { crec: -0.3, trabajadores: -4, media: -2 }, res: 'Un día sin trenes ni colectivos', bueno: false },
+        { txt: 'Descontar el día', ef: { trabajadores: -7, empresarios: 4, media: 2 }, res: 'Mano dura con el paro' },
+      ],
+    },
+    {
+      id: 'i_apps', fase: 'gobierno', peso: 3, dibujo: '📱 🚗 🛵',
+      cuando: (s) => ley(s, 'desregulacion'),
+      titular: 'Llegan apps y competencia a todos los rubros',
+      opciones: [
+        { txt: 'Bienvenidas', ef: { crec: 0.25, media: 3, trabajadores: -2, inflacion: -0.1 }, res: 'Más opciones y más baratas 📱' },
+        { txt: 'Regularlas', ef: { media: -1, trabajadores: 2 }, res: 'Apps con reglas' },
+      ],
+    },
+    {
+      id: 'i_tarifas_privadas', fase: 'gobierno', peso: 4, dibujo: '💡 📈 😱',
+      cuando: (s) => ley(s, 'privatizar') && mesesDesde(s, 'privatizar') >= 4,
+      titular: 'La empresa privatizada triplica las tarifas',
+      opciones: [
+        { txt: 'Que invierta', ef: { inflacion: 0.4, empresarios: 3, humildes: -5, media: -3, crec: 0.2 }, res: 'Mejor servicio, boletas caras', bueno: false },
+        { txt: 'Tope a las tarifas', ef: { empresarios: -5, riesgo: 40, humildes: 3, media: 2 }, res: 'Tarifas congeladas 🧊' },
+      ],
+    },
+    {
+      id: 'i_eeuu_energia', fase: 'gobierno', peso: 3, dibujo: '🇺🇸 🛢️ 🤝',
+      cuando: (s) => (der(s) || ley(s, 'vaca_muerta')) && rel(s, 'USA') >= 45,
+      titular: 'Estados Unidos quiere invertir en Vaca Muerta',
+      opciones: [
+        { txt: 'Firmar el acuerdo', ef: { crec: 0.3, empresarios: 4, rel: { USA: 8, CHN: -5 } }, despues: bono('bonusExpo', 0.03, 24), res: 'Gas y petróleo para exportar 🛢️' },
+        { txt: 'Abrirlo a todos', costo: { pc: 1 }, ef: { crec: 0.2, rel: { USA: 3, CHN: 3 } }, despues: bono('bonusExpo', 0.02, 24), res: 'Licitación abierta al mundo' },
+      ],
+    },
+    {
+      id: 'i_cumbre_eeuu', fase: 'gobierno', peso: 2, dibujo: '🇺🇸 🤝 🌎',
+      cuando: (s) => s.partido.ideo >= 0.3,
+      titular: 'Te invitan a una cumbre en la Casa Blanca',
+      opciones: [
+        { txt: 'Ir', ef: { riesgo: -40, empresarios: 3, rel: { USA: 10, CHN: -4 } }, res: 'Foto con el presidente de EE.UU. 📸' },
+        { txt: 'Mandar al canciller', ef: { rel: { USA: 2 } }, res: 'Presencia discreta' },
+      ],
+    },
+
+    // ── Por tus leyes de Estado presente ──
+    {
+      id: 'i_swap_china', fase: 'gobierno', peso: 3, dibujo: '🇨🇳 💱 🏦',
+      cuando: (s) => izq(s) || ley(s, 'industria_nacional') || ley(s, 'estatizar') || s.eco.reservas < 15,
+      titular: 'China ofrece ampliar el swap de monedas',
+      opciones: [
+        { txt: 'Aceptar', ef: { reservas: 8, riesgo: -20, rel: { CHN: 8, USA: -5 } }, res: 'Más reservas en yuanes 🇨🇳' },
+        { txt: 'Rechazar', ef: { rel: { CHN: -4, USA: 2 } }, res: 'Sin swap' },
+      ],
+    },
+    {
+      id: 'i_empresarios_amenazan', fase: 'gobierno', peso: 4, dibujo: '💼 ✈️ 😠',
+      cuando: (s) => ley(s, 'fortunas') || ley(s, 'renta_financiera') || ley(s, 'banca_publica'),
+      titular: 'Grandes empresarios amenazan con irse del país',
+      opciones: [
+        { txt: 'Dialogar', costo: { pc: 1 }, ef: { empresarios: 6 }, res: 'Se quedan, por ahora' },
+        { txt: 'Que se vayan', ef: { empresarios: -6, crec: -0.3, riesgo: 40, trabajadores: 2, humildes: 2 }, res: 'Algunos se fueron a Uruguay', bueno: false },
+        { txt: 'Créditos para quedarse', costo: { gasto: 1 }, ef: { empresarios: 5, desempleo: -0.1 }, res: 'Acuerdo para invertir acá' },
+      ],
+    },
+    {
+      id: 'i_fabrica_recuperada', fase: 'gobierno', peso: 3, dibujo: '🏭 🤝 🇧🇷',
+      cuando: (s) => ley(s, 'cooperativas') || ley(s, 'industria_nacional') || ley(s, 'banco_desarrollo'),
+      titular: 'Una fábrica recuperada empieza a exportar',
+      opciones: [
+        { txt: 'Darle créditos', costo: { gasto: 0.5 }, ef: { trabajadores: 4, humildes: 2 }, despues: bono('bonusExpo', 0.01, 12), res: 'Ejemplo de trabajo argentino 🏭' },
+        { txt: 'Ponerla de ejemplo', ef: { todos: 1, trabajadores: 2 }, res: 'Foto con los trabajadores 📸' },
+      ],
+    },
+    {
+      id: 'i_faltan_productos', fase: 'gobierno', peso: 5, dibujo: '🛒 ❌ 😟',
+      cuando: (s) => ley(s, 'control_precios') && mesesDesde(s, 'control_precios') >= 5,
+      titular: 'Faltan productos en las góndolas',
+      opciones: [
+        { txt: 'Liberar los precios', ef: { inflacion: 0.8, empresarios: 6, media: -3 }, despues: bono('bonusPrecios', -0.03, 3), res: 'Vuelven los productos, más caros' },
+        { txt: 'Más controles', ef: { empresarios: -6, crec: -0.2, media: -3 }, res: 'Inspectores en los súper', bueno: false },
+        { txt: 'Importar lo que falta', ef: { reservas: -3, media: 3, empresarios: -2 }, res: 'Góndolas llenas con importados' },
+      ],
+    },
+    {
+      id: 'i_yacimiento', fase: 'gobierno', peso: 4, dibujo: '⛽ 🎉 🇦🇷',
+      cuando: (s) => ley(s, 'estatizar') && mesesDesde(s, 'estatizar') >= 6,
+      titular: 'La energética estatal descubre un yacimiento',
+      opciones: [
+        { txt: 'Invertir con fondos públicos', costo: { gasto: 2 }, ef: { trabajadores: 4, crec: 0.3 }, despues: bono('bonusExpo', 0.05, 24), res: 'Soberanía energética ⛽' },
+        { txt: 'Asociarse con privados', ef: { empresarios: 4, crec: 0.2, riesgo: -30 }, despues: bono('bonusExpo', 0.04, 24), res: 'Estatal con socios privados' },
+      ],
+    },
+    {
+      id: 'i_fmi_ajuste', fase: 'gobierno', peso: 4, dibujo: '🌐 ✂️ 💵',
+      cuando: (s) => izq(s) && s.eco.reservas < 20 && s.eco.deuda > 70,
+      titular: 'El FMI exige un ajuste para refinanciar',
+      opciones: [
+        { txt: 'Aceptar el ajuste', ef: { reservas: 10, riesgo: -100, humildes: -5, trabajadores: -4 }, res: 'Acuerdo firmado, ajuste en marcha', bueno: false },
+        { txt: 'Romper con el FMI', ef: { riesgo: 250, reservas: -3, trabajadores: 4, humildes: 3, rel: { USA: -8, CHN: 4 } }, res: '¡Soberanía! Los mercados tiemblan' },
+        { txt: 'Pedir más tiempo', costo: { pc: 2 }, ef: { riesgo: 60 }, res: 'Ganaste seis meses' },
+      ],
+    },
+    {
+      id: 'i_brasil_queja', fase: 'gobierno', peso: 3, dibujo: '🇧🇷 😤 🇦🇷',
+      cuando: (s) => ley(s, 'industria_nacional'),
+      titular: 'Brasil se queja del Compre Nacional',
+      opciones: [
+        { txt: 'Acuerdo en el Mercosur', ef: { empresarios: -2, rel: { BRA: 6 } }, despues: bono('bonusImpo', 0.01, 6), res: 'Paz con Brasil 🤝' },
+        { txt: 'Mantenerlo', ef: { trabajadores: 3, expo: -0.02, rel: { BRA: -8 } }, res: 'Brasil frena nuestros autos', bueno: false },
+      ],
+    },
+    {
+      id: 'i_paro_campo', fase: 'gobierno', peso: 4, dibujo: '🌾 🚜 🚧',
+      cuando: (s) => ley(s, 'junta_granos') || s.eco.retenciones >= 3,
+      titular: 'El campo para y corta las rutas',
+      opciones: [
+        { txt: 'Negociar', costo: { pc: 1 }, ef: { campo: 6 }, res: 'Mesa con la Mesa de Enlace 🧉' },
+        { txt: 'Aguantar', ef: { campo: -6, expo: -0.04, reservas: -2, crec: -0.3 }, res: 'Rutas cortadas y menos dólares', bueno: false },
+        { txt: 'Bajar retenciones', si: (s) => s.eco.retenciones > 0, siTxt: 'Ya no hay retenciones', ef: { campo: 10 }, despues: (s) => { s.eco.retenciones -= 1; s.eco.retencionesInicioMes = s.eco.retenciones; }, res: 'El campo levanta el paro 🌾' },
+      ],
+    },
+    {
+      id: 'i_tren_vuelve', fase: 'gobierno', peso: 4, dibujo: '🚆 🎉 🌾',
+      cuando: (s) => ley(s, 'trenes') && mesesDesde(s, 'trenes') >= 12,
+      titular: 'Vuelve el tren de carga al norte',
+      opciones: [
+        { txt: 'Inaugurarlo en persona', ef: { todos: 2, campo: 3, trabajadores: 2 }, res: 'El tren llega a Tucumán 🚆' },
+        { txt: 'Extender la red', costo: { gasto: 1 }, ef: { trabajadores: 3 }, despues: bono('bonusCrec', 0.15, 18), res: 'Más vías hacia el sur' },
+      ],
+    },
+    {
+      id: 'i_hospitales', fase: 'gobierno', peso: 4, dibujo: '🏥 📉 ❤️',
+      cuando: (s) => ley(s, 'salud_publica') && mesesDesde(s, 'salud_publica') >= 8,
+      titular: 'Mejoran los hospitales públicos en todo el país',
+      opciones: [
+        { txt: 'Ampliar el plan', costo: { gasto: 1 }, ef: { humildes: 4, jubilados: 4, salud: 4 }, res: 'Salud para todos 🏥' },
+        { txt: 'Celebrarlo', ef: { todos: 1, jubilados: 2 }, res: 'Los médicos lo festejan' },
+      ],
+    },
+    {
+      id: 'i_bloque_regional', fase: 'gobierno', peso: 2, dibujo: '🌎 ✊ 🤝',
+      cuando: (s) => s.partido.ideo <= -0.3,
+      titular: 'Gobiernos de izquierda te invitan a su bloque',
+      opciones: [
+        { txt: 'Sumarse', ef: { trabajadores: 2, riesgo: 30, rel: { VEN: 10, BOL: 6, USA: -6 } }, res: 'Foto con la izquierda regional ✊' },
+        { txt: 'Neutralidad', ef: { media: 1 }, res: 'Argentina no se alinea' },
+      ],
+    },
+    {
+      id: 'i_puerto_china', fase: 'gobierno', peso: 2, dibujo: '🇨🇳 ⚓ 🏗️',
+      cuando: (s) => izq(s) || ley(s, 'trenes') || rel(s, 'CHN') >= 60,
+      titular: 'China quiere financiar un puerto en el sur',
+      opciones: [
+        { txt: 'Aceptar', ef: { crec: 0.3, trabajadores: 2, riesgo: 20, rel: { CHN: 8, USA: -8 } }, despues: bono('bonusExpo', 0.02, 24), res: 'Nuevo puerto en Chubut ⚓' },
+        { txt: 'Con condiciones', costo: { pc: 1 }, ef: { crec: 0.15, rel: { CHN: 3 } }, despues: bono('bonusExpo', 0.01, 24), res: 'Puerto con control argentino' },
+        { txt: 'Rechazar', ef: { rel: { CHN: -5, USA: 3 } }, res: 'Sin puerto chino' },
+      ],
+    },
+
+    // ── Por tus leyes de centro ──
+    {
+      id: 'i_acuerdo_tension', fase: 'gobierno', peso: 4, dibujo: '🤝 💢 📊',
+      cuando: (s) => ley(s, 'acuerdo_social') && s.eco.inflAnual > 25,
+      titular: 'Los gremios quieren romper el acuerdo social',
+      opciones: [
+        { txt: 'Renegociar', costo: { pc: 1 }, ef: { trabajadores: 4, empresarios: -2, inflacion: 0.3 }, res: 'Nuevo acuerdo de precios y sueldos' },
+        { txt: 'Sostenerlo', ef: { trabajadores: -4, inflacion: -0.2 }, res: 'El acuerdo resiste' },
+      ],
+    },
+    {
+      id: 'i_unicornio', fase: 'gobierno', peso: 3, dibujo: '🦄 💻 🚀',
+      cuando: (s) => ley(s, 'conocimiento') && mesesDesde(s, 'conocimiento') >= 6,
+      titular: 'Una startup argentina ya vale mil millones',
+      opciones: [
+        { txt: 'Foto en la Rosada', ef: { media: 3, empresarios: 2 }, res: 'Otro unicornio argentino 🦄' },
+        { txt: 'Más beneficios al sector', ef: { empresarios: 4, media: 2 }, despues: (s) => { bono('bonusExpo', 0.02, 12)(s); R.gob.bono(s, 'bonusRecauda', -0.05); }, res: 'Programadores que exportan 💻' },
+      ],
+    },
+    {
+      id: 'i_parque_solar', fase: 'gobierno', peso: 3, dibujo: '🌞 ⚡ 🏜️',
+      cuando: (s) => ley(s, 'renovables') && mesesDesde(s, 'renovables') >= 6,
+      titular: 'Inauguran el parque solar más grande del país',
+      opciones: [
+        { txt: 'Más licitaciones', costo: { gasto: 0.5 }, ef: { media: 2, trabajadores: 2 }, despues: bono('bonusCrec', 0.1, 18), res: 'Energía limpia y empleo 🌞' },
+        { txt: 'Celebrarlo', ef: { media: 2 }, res: 'Sol de Catamarca a la red' },
+      ],
+    },
+    {
+      id: 'i_consenso', fase: 'gobierno', peso: 2, dibujo: '🏛️ 🤝 📜',
+      cuando: (s) => centro(s) && s.gob.aprob > 50,
+      titular: 'Oficialismo y oposición firman un gran acuerdo',
+      opciones: [
+        { txt: 'Firmar', costo: { pc: 1 }, ef: { todos: 2, riesgo: -40 }, despues: (s) => { for (const b of R.congreso.BLOQUES) s.gob.rel[b] = R.clamp(s.gob.rel[b] + 6, 0, 100); }, res: 'Acuerdo de Estado 🤝' },
+        { txt: 'No hace falta', ef: { media: -1 }, res: 'Cada uno por su lado' },
+      ],
+    },
+
+    {
+      id: 'i_pymes_contratan', fase: 'gobierno', peso: 3, dibujo: '🧰 👷 📈',
+      cuando: (s) => ley(s, 'pymes') && mesesDesde(s, 'pymes') >= 6,
+      titular: 'Las pymes contratan como nunca',
+      opciones: [
+        { txt: 'Ampliar el beneficio', ef: { empresarios: 4, trabajadores: 2 }, despues: (s) => { R.gob.bono(s, 'bonusEmpleo', 0.2, 12); R.gob.bono(s, 'bonusRecauda', -0.05); }, res: 'Más pymes en el régimen 🧰' },
+        { txt: 'Celebrarlo', ef: { empresarios: 3, trabajadores: 2 }, res: 'Récord de empleo pyme' },
+      ],
+    },
+    {
+      id: 'i_blanqueo_laboral', fase: 'gobierno', peso: 3, dibujo: '🧾 ✅ 👷',
+      cuando: (s) => ley(s, 'monotributo') && mesesDesde(s, 'monotributo') >= 6,
+      titular: 'Un millón de trabajadores pasan al blanco',
+      opciones: [
+        { txt: 'Cadena nacional', ef: { todos: 2 }, res: 'Más gente con aportes y obra social' },
+        { txt: 'Bajar la cuota', ef: { trabajadores: 3, media: 2 }, despues: (s) => { R.gob.bono(s, 'bonusEmpleo', 0.1, 12); R.gob.bono(s, 'bonusRecauda', -0.05); }, res: 'Monotributo más barato' },
+      ],
+    },
+    {
+      id: 'i_ue_inversiones', fase: 'gobierno', peso: 2, dibujo: '🇪🇺 🤝 🏭',
+      cuando: (s) => centro(s) && rel(s, 'UE') >= 40,
+      titular: 'Europa propone un acuerdo de inversiones',
+      opciones: [
+        { txt: 'Firmar', ef: { crec: 0.3, campo: 2, trabajadores: -2, rel: { UE: 8 } }, despues: bono('bonusExpo', 0.02, 18), res: 'Fábricas europeas en Argentina 🇪🇺' },
+        { txt: 'Con cuidado industrial', costo: { pc: 1 }, ef: { crec: 0.15, rel: { UE: 3 } }, despues: bono('bonusExpo', 0.01, 18), res: 'Acuerdo con protección' },
+      ],
+    },
+
+    // ── Por cómo está la economía (a cualquiera) ──
+    {
+      id: 'i_inflacion_alta', fase: 'gobierno', peso: 4, repite: 18, dibujo: '🛒 🔥 📈',
+      cuando: (s) => s.eco.inflAnual > 60,
+      titular: 'Los precios suben todos los días',
+      opciones: [
+        { txt: 'Plan antiinflacionario', costo: { pc: 2 }, ef: { inflacion: -1.5, crec: -0.4, media: 3 }, res: 'Plan de estabilización en marcha' },
+        { txt: 'Congelar precios', ef: { inflacion: -0.8, empresarios: -6, media: 2 }, res: 'Precios congelados por 90 días 🧊' },
+        { txt: 'Esperar', ef: { todos: -2 }, res: 'La gente está harta', bueno: false },
+      ],
+    },
+    {
+      id: 'i_desempleo_alto', fase: 'gobierno', peso: 4, repite: 18, dibujo: '🚪 👷 😞',
+      cuando: (s) => s.eco.desempleo > 10,
+      titular: 'Hay colas para conseguir trabajo',
+      opciones: [
+        { txt: 'Plan de empleo', costo: { gasto: 2 }, ef: { desempleo: -0.6, humildes: 4, trabajadores: 2 }, res: 'Miles de puestos nuevos 👷' },
+        { txt: 'Menos cargas al contratar', ef: { desempleo: -0.3, empresarios: 3 }, despues: (s) => { R.gob.bono(s, 'bonusEmpleo', 0.3, 12); R.gob.bono(s, 'bonusRecauda', -0.1); }, res: 'Contratar sale más barato' },
+        { txt: 'Esperar que crezca', ef: { trabajadores: -4, humildes: -3 }, res: 'El desempleo sigue', bueno: false },
+      ],
+    },
+    {
+      id: 'i_corrida', fase: 'gobierno', peso: 5, repite: 12, dibujo: '💵 🏃 🏦',
+      cuando: (s) => s.eco.reservas < 8,
+      titular: 'Corrida: todos quieren comprar dólares',
+      opciones: [
+        { txt: 'Poner cepo', si: (s) => !s.eco.cepo, siTxt: 'Ya hay cepo', ef: { media: -5, empresarios: -4, reservas: 2 }, despues: (s) => { s.eco.cepo = true; }, res: 'Cepo al dólar 🔒', bueno: false },
+        { txt: 'Subir las tasas', ef: { crec: -0.6, reservas: 3, media: -2 }, res: 'Se calma, pero frena la economía' },
+        { txt: 'Pedir un préstamo', ef: { reservas: 6, deuda: 4, riesgo: 40 }, res: 'Dólares prestados para aguantar' },
+      ],
+    },
+    {
+      id: 'i_boom', fase: 'gobierno', peso: 3, repite: 24, dibujo: '🚗 🏠 📈',
+      cuando: (s) => s.eco.crec > 4,
+      titular: 'Récord de ventas de autos y casas',
+      opciones: [
+        { txt: 'Ahorrar para después', ef: { riesgo: -40, reservas: 3 }, res: 'Fondo anticrisis 🐷' },
+        { txt: 'Bajar impuestos', si: (s) => s.eco.impuestos > 0, siTxt: 'Ya están al mínimo', ef: { empresarios: 5, media: 4 }, despues: (s) => { s.eco.impuestos -= 1; s.eco.impuestosInicioMes = s.eco.impuestos; }, res: 'Menos impuestos para todos 🧾' },
+        { txt: 'Subir sueldos públicos', costo: { gasto: 1.5 }, ef: { trabajadores: 4, media: 3 }, res: 'Aumento para estatales' },
+      ],
+    },
+    {
+      id: 'i_superavit', fase: 'gobierno', peso: 3, repite: 24, dibujo: '⚖️ 💰 🎉',
+      cuando: (s) => R.eco.resultado(s) > 1.2,
+      titular: 'Sobra plata en el presupuesto',
+      opciones: [
+        { txt: 'Bajar impuestos', si: (s) => s.eco.impuestos > 0, siTxt: 'Ya están al mínimo', ef: { media: 4, empresarios: 4 }, despues: (s) => { s.eco.impuestos -= 1; s.eco.impuestosInicioMes = s.eco.impuestos; }, res: 'Alivio fiscal 🧾' },
+        { txt: 'Pagar deuda', ef: { deuda: -3, riesgo: -50 }, res: 'Menos deuda, más confianza' },
+        { txt: 'Más obra pública', ef: { trabajadores: 4 }, despues: (s) => { s.eco.niveles.obras = R.clamp(R.round(s.eco.niveles.obras + 0.1, 2), R.eco.NIVEL_MIN, R.eco.NIVEL_MAX); s.eco.nivelesInicioMes.obras = s.eco.niveles.obras; }, res: 'Rutas y escuelas nuevas 🏗️' },
+      ],
+    },
+    {
+      id: 'i_riesgo_minimo', fase: 'gobierno', peso: 3, dibujo: '📊 📉 🎉',
+      cuando: (s) => s.eco.riesgo < 400,
+      titular: 'El riesgo país toca un mínimo histórico',
+      opciones: [
+        { txt: 'Salir a los mercados', ef: { reservas: 6, deuda: 3 }, res: 'Deuda a tasas bajísimas' },
+        { txt: 'Atraer inversiones', costo: { pc: 1 }, ef: { empresarios: 4 }, despues: bono('bonusCrec', 0.2, 12), res: 'Llegan fábricas nuevas 🏭' },
+      ],
+    },
+    {
+      id: 'i_pobreza_baja', fase: 'gobierno', peso: 3, dibujo: '🏚️ 📉 😊',
+      cuando: (s) => s.eco.pobreza < 25,
+      titular: 'La pobreza baja por primera vez en años',
+      opciones: [
+        { txt: 'Cadena nacional', ef: { todos: 2 }, res: 'Lo anunciás con orgullo 📺' },
+        { txt: 'Ir por más', costo: { gasto: 1 }, ef: { humildes: 4 }, despues: (s) => R.gob.bono(s, 'bonusEmpleo', 0.2, 12), res: 'Plan para los que faltan' },
+      ],
+    },
+    {
+      id: 'i_sueldos_ganan', fase: 'gobierno', peso: 3, dibujo: '💰 📈 👷',
+      cuando: (s) => s.eco.salarioReal > 108,
+      titular: 'Los sueldos le ganan a la inflación',
+      opciones: [
+        { txt: 'Festejarlo', ef: { trabajadores: 3, media: 2 }, res: 'El changuito rinde más 🛒' },
+        { txt: 'Bajar Ganancias', ef: { trabajadores: 4, media: 4 }, despues: (s) => R.gob.bono(s, 'bonusRecauda', -0.2), res: 'Más plata en el bolsillo' },
+      ],
+    },
+  ]);
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
 // ── js/motor/oposicion.js ──
 // Oposición: si perdiste en 2027, seguís construyendo hasta el medio término de 2029 y las presidenciales de 2031.
 (function (R) {
@@ -5633,7 +6210,7 @@ label.boton { cursor: pointer; }
     return h('div', { class: 'efectos' }, opts.antes || null, lista.map((e) => {
       const fl = (e.sube ? '▲' : '▼').repeat(e.flechas);
       const etiqueta = e.pct ? R.fmt(Math.abs(e.v), 1) + '%' : e.numero ? R.signo(e.v, 0) : fl;
-      return h('span', { class: 'ef ' + (e.bueno ? 'bien' : 'mal'), title: e.nombre + (e.sube ? ' sube' : ' baja') },
+      return h('span', { class: 'ef ' + (e.neutro ? 'neutro' : e.bueno ? 'bien' : 'mal'), title: e.nombre + (e.sube ? ' sube' : ' baja') },
         h('span', { class: 'em' }, e.emoji),
         opts.conNombre !== false && !opts.compacto ? h('span', { class: 'nom' }, e.nombre) : null,
         h('span', { class: e.numero ? '' : 'fl' }, etiqueta));
@@ -7873,72 +8450,143 @@ label.boton { cursor: pointer; }
       h('p', { class: 'chico suave centro' }, 'Diputados / Senadores de cada bloque'));
   }
 
+  // 🤝 Cómo te llevás con cada bloque: una fila de caritas; tocás y se abre el detalle.
+  const relTxt = (r) => (r >= 60 ? ['😊', 'Aliado'] : r >= 35 ? ['😐', 'Neutral'] : ['😠', 'Opositor']);
   function tarjetaBloques(s) {
     const G = s.gob;
     const dip = R.composicion(s, 'diputados');
     const sen = R.composicion(s, 'senado');
-    return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, '🤝 Cómo te llevás con cada bloque'),
+    const bloques = con.BLOQUES.filter((b) => (dip[b] || 0) + (sen[b] || 0) > 0);
+    return h('button', { class: 'tarjeta toque fila-bloques', onclick: () => verBloques(s) },
+      h('span', { class: 'titulo-seccion' }, '🤝 Bloques'),
+      h('span', { class: 'caritas' }, bloques.map((b) => {
+        const p = R.partidoInfo(s, b);
+        return h('span', { class: 'carita', title: p.sigla + ': ' + relTxt(G.rel[b])[1] }, h('b', null, p.sigla), relTxt(G.rel[b])[0]);
+      })),
+      h('span', { class: 'mas' }, '›'));
+  }
+  function verBloques(s) {
+    R.son.toque();
+    const G = s.gob;
+    const dip = R.composicion(s, 'diputados');
+    const sen = R.composicion(s, 'senado');
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, '🤝 Cómo te llevás con cada bloque'),
       h('div', { class: 'razones' }, con.BLOQUES.filter((b) => (dip[b] || 0) + (sen[b] || 0) > 0).map((b) => {
         const p = R.partidoInfo(s, b);
         const r = G.rel[b];
-        return h('div', { class: 'razon', style: { gridTemplateColumns: '30px minmax(0,1fr) 80px 70px' } },
+        const [cara, txt] = relTxt(r);
+        return h('div', { class: 'razon', style: { gridTemplateColumns: '30px minmax(0,1fr) 70px 86px' } },
           ui.miniEscudo(p), h('span', null, h('b', null, p.sigla), h('span', { class: 'chico suave' }, ' ' + (dip[b] || 0) + ' + ' + (sen[b] || 0))),
           h('span', { class: 'barrita' }, h('i', { style: { width: r + '%', background: r >= 60 ? 'var(--bien)' : r >= 35 ? 'var(--sol)' : 'var(--mal)' } })),
-          h('span', { class: 'chico', style: { fontWeight: 900, textAlign: 'right' } }, r >= 60 ? '😊 Aliado' : r >= 35 ? '😐 Neutral' : '😠 Opositor'));
+          h('span', { class: 'chico', style: { fontWeight: 900, textAlign: 'right' } }, cara + ' ' + txt));
       })),
-      h('p', { class: 'chico suave' }, 'Mejora si negociás, si les gusta tu ley o si tu aprobación sube. Los gobernadores también mueven a sus legisladores.'));
+      h('p', { class: 'chico suave' }, 'Diputados + senadores de cada bloque. Mejora si negociás, si les gusta tu ley o si tu aprobación sube. Los gobernadores también mueven a sus legisladores.')), { cerrable: true });
   }
 
+  // 📜 Leyes: dos botones de filtro (tema e ideas) que abren una ventanita, y filas compactas.
+  // Al tocar una ley se abre arriba con todo el detalle.
   function tarjetaLeyes(s) {
     const G = s.gob;
-    const leyes = R.LEYES.slice().sort((a, b) => (G.leyes[a.id] ? 1 : 0) - (G.leyes[b.id] ? 1 : 0));
+    const v = ui.vista || {};
+    const mia = R.ideaLey({ ideo: s.partido.ideo });
+    const tema = v.temaLey || 'todas';
+    const idea = v.ideaLey || mia; // arranca mostrando las de tu ideología
+    const leyes = R.LEYES.filter((l) => (tema === 'todas' || l.cat === tema) && (idea === 'todas' || R.ideaLey(l) === idea))
+      .sort((a, b) => (G.leyes[a.id] ? 1 : 0) - (G.leyes[b.id] ? 1 : 0));
+    const te = R.TEMAS_LEY.find((x) => x.id === tema);
+    const ia = R.IDEAS_LEY.find((x) => x.id === idea);
     return h('section', { class: 'pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📜 Leyes'), h('span', { class: 'chip sol' }, '⭐ ' + G.pc)),
-      h('p', { class: 'chico suave' }, 'Mandar una ley cuesta ⭐ ' + con.COSTO_PRESENTAR + '. Antes de votar ves cuántos votos tenés.'),
-      h('div', { class: 'acciones' }, leyes.map((ley) => {
-        const st = G.leyesEstado[ley.id];
-        const b = con.bloqueoLey(s, ley);
-        const hecha = G.leyes[ley.id];
-        return h('button', { class: 'accion' + (hecha ? ' hecha' : ''), disabled: b ? true : null, onclick: () => abrirLey(s, ley) },
-          h('div', { class: 'cab' }, h('span', { class: 'ic' }, ley.emoji), h('span', { class: 'nom' }, ley.nombre)),
-          h('div', { class: 'desc' }, ley.desc),
-          ui.chipsEfectos(R.gob.describirEfectos(s, ley.ef || {}), { compacto: true, antes: h('span', { class: 'chip' }, ideoTxt(ley.ideo)) }),
-          ley.perm ? ui.chipsEfectos(R.gob.describirPerm(s, ley), { compacto: true, antes: h('span', { class: 'chip plazo' }, '⏳') }) : null,
-          hecha ? h('span', { class: 'chip bien', style: { alignSelf: 'flex-start' } }, st && st.estado === 'dnu' ? '📜 Por decreto' : '✅ Es ley')
-            : b ? h('div', { class: 'bloq' }, b) : ley.mayoria === 'dos_tercios' ? h('span', { class: 'chip', style: { alignSelf: 'flex-start' } }, '⚠️ Necesita 2/3') : null);
-      })));
-  }
-  // Corto y mediano plazo de una ley: lo que pasa al firmarla y lo que llega con el tiempo.
-  function plazos(s, ley, efectos) {
-    const perm = R.gob.describirPerm(s, ley);
-    if (!perm.length) return efectos.length ? ui.chipsEfectos(efectos) : null;
-    return h('div', { class: 'plazos' },
-      efectos.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⚡ Ahora'), ui.chipsEfectos(efectos)) : null,
-      h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⏳ En ' + R.gob.plazoTxt(ley.madura || 18)), ui.chipsEfectos(perm)));
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📜 Leyes'), h('span', { class: 'chip sol' }, '⭐ ' + G.pc + ' · cada ley ⭐' + con.COSTO_PRESENTAR)),
+      h('div', { class: 'filtros-ley' },
+        h('button', { class: 'filtro-btn', onclick: () => elegirFiltro(s, 'temaLey') }, h('small', null, 'Tema'), h('b', null, te ? te.emoji + ' ' + te.nombre : 'Todos'), '▾'),
+        h('button', { class: 'filtro-btn', onclick: () => elegirFiltro(s, 'ideaLey') }, h('small', null, 'Ideas'), h('b', null, ia ? ia.emoji + ' ' + ia.nombre : 'Todas'), '▾')),
+      leyes.length ? h('div', { class: 'leyes-lista' }, leyes.map((ley) => filaLey(s, ley))) : h('p', { class: 'suave centro' }, 'No hay leyes con esos filtros.'),
+      h('p', { class: 'chico suave centro' }, '⏳ = llega con el tiempo · tocá una ley para ver todo'));
   }
 
-  // ⏳ Leyes que todavía no dieron todo: barra de cuánto falta.
+  function elegirFiltro(s, clave) {
+    R.son.toque();
+    const mia = R.ideaLey({ ideo: s.partido.ideo });
+    const actual = (ui.vista || {})[clave] || (clave === 'ideaLey' ? mia : 'todas');
+    const lista = clave === 'temaLey'
+      ? [{ id: 'todas', emoji: '📜', nombre: 'Todos los temas' }].concat(R.TEMAS_LEY)
+      : [{ id: 'todas', emoji: '🌐', nombre: 'Todas las ideas' }].concat(R.IDEAS_LEY);
+    const cuantas = (id) => R.LEYES.filter((l) => id === 'todas' || (clave === 'temaLey' ? l.cat === id : R.ideaLey(l) === id)).length;
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, clave === 'temaLey' ? '📂 Tema' : '🧭 Ideas'),
+      h('div', { class: 'opciones-filtro' }, lista.map((x) => h('button', {
+        class: 'opcion-filtro' + (x.id === actual ? ' activa' : ''),
+        onclick: () => {
+          R.son.toque();
+          ui.cerrarCapa();
+          ui.vista = Object.assign({}, ui.vista, { [clave]: x.id, mantenerScroll: true });
+          ui.render();
+          ui.vista.mantenerScroll = false;
+        },
+      }, h('span', { class: 'em' }, x.emoji), h('b', null, x.nombre + (clave === 'ideaLey' && x.id === mia ? ' (la tuya)' : '')), h('span', { class: 'chico suave' }, cuantas(x.id)))))), { cerrable: true });
+  }
+
+  function filaLey(s, ley) {
+    const G = s.gob;
+    const st = G.leyesEstado[ley.id];
+    const b = con.bloqueoLey(s, ley);
+    const hecha = G.leyes[ley.id];
+    const ef = R.gob.efectosLey(s, ley, 2);
+    let estado;
+    if (hecha) estado = h('span', { class: 'estado bien' }, st && st.estado === 'dnu' ? '📜' : '✅');
+    else if (b) estado = h('span', { class: 'estado' }, '🔒');
+    else {
+      const p = con.porotos(s, ley);
+      const falta = Math.max(p.diputados.necesarios - p.diputados.si, p.senado.necesarios - p.senado.si);
+      estado = h('span', { class: 'estado ' + (falta <= 0 ? 'bien' : 'falta'), title: falta <= 0 ? 'Te alcanzan los votos' : 'Te faltan ' + falta + ' votos' }, falta <= 0 ? '🗳️✓' : '🗳️−' + falta);
+    }
+    const ia = R.IDEAS_LEY.find((x) => x.id === R.ideaLey(ley));
+    return h('button', { class: 'ley-fila' + (hecha ? ' hecha' : ''), disabled: b ? true : null, title: b || null, onclick: () => abrirLey(s, ley) },
+      h('span', { class: 'ic idea-' + ia.id }, ley.emoji),
+      h('span', { class: 'cuerpo' }, h('b', null, ley.nombre),
+        h('span', { class: 'mini-efectos' }, ui.chipsEfectos(ef.ya, { compacto: true }), ef.luego.length ? h('span', { class: 'luego' }, '⏳') : null, ef.luego.length ? ui.chipsEfectos(ef.luego, { compacto: true }) : null)),
+      estado);
+  }
+
+  // Leyes (mejor de la misma ideología) que dejan plata en las cuentas: para tapar el agujero de otra.
+  function compensan(s, ley) {
+    const G = s.gob;
+    return R.LEYES.filter((l) => l.id !== ley.id && !G.leyes[l.id] && !con.bloqueoLey(s, l))
+      .map((l) => ({ l, c: R.gob.fiscalLey(s, l), misma: R.ideaLey(l) === R.ideaLey(ley) }))
+      .filter((x) => x.c > 0.2)
+      .sort((a, b) => (b.misma - a.misma) || (b.c - a.c))
+      .slice(0, 2).map((x) => x.l);
+  }
+
+  // Qué hace la ley: al firmar y con el tiempo, solo lo que toca directo.
+  function queHaceLey(s, ley) {
+    const ef = R.gob.efectosLey(s, ley, 4);
+    const fiscal = R.gob.fiscalLey(s, ley);
+    const comp = fiscal < -0.15 ? compensan(s, ley) : [];
+    return h('div', { class: 'pila', style: { gap: '8px' } },
+      h('div', { class: 'plazos' },
+        ef.ya.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⚡ Al firmar'), ui.chipsEfectos(ef.ya)) : null,
+        ef.luego.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⏳ Con el tiempo'), ui.chipsEfectos(ef.luego)) : null),
+      fiscal < -0.15 ? h('div', { class: 'chico nota-proy mal' }, '💸 Te deja menos plata en las cuentas: si no recortás otra cosa, se paga emitiendo (inflación) o con deuda.',
+        comp.length ? h('div', { style: { marginTop: '4px' } }, '🧩 Combinala con: ', comp.map((x, i) => h('b', null, (i ? ' · ' : '') + x.emoji + ' ' + x.nombre))) : null) : null,
+      fiscal > 0.15 ? h('div', { class: 'chico nota-proy bien' }, '💰 Te deja más plata en las cuentas: podés gastarla en otra cosa sin déficit.') : null);
+  }
+
+  // ⏳ Leyes que todavía no dieron todo: una línea por ley con su barra.
   function tarjetaEnCamino(s) {
     const G = s.gob;
     const porLey = {};
-    for (const m of G.madurando || []) porLey[m.ley] = Math.max(porLey[m.ley] || 0, R.eco.madurez(s, m));
-    const ids = Object.keys(porLey).filter((id) => R.LEY[id]);
+    for (const m of G.madurando || []) if (R.LEY[m.ley]) porLey[m.ley] = Math.max(porLey[m.ley] || 0, R.eco.madurez(s, m));
+    const ids = Object.keys(porLey);
     if (!ids.length) return null;
-    return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, '⏳ Tus leyes, en camino'),
-      h('p', { class: 'chico suave' }, 'Una fábrica o un empleo nuevo no aparecen el día que firmás: llegan de a poco.'),
-      h('div', { class: 'razones' }, ids.map((id) => {
-        const ley = R.LEY[id];
-        const k = porLey[id];
-        return h('div', { class: 'en-camino' },
-          h('div', { class: 'fila entre' }, h('b', null, ley.emoji + ' ' + ley.nombre), h('span', { class: 'chico', style: { fontWeight: 900 } }, Math.round(k * 100) + '%')),
-          h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(4, k * 100) + '%', background: 'var(--celeste)' } })),
-          ui.chipsEfectos(R.gob.describirPerm(s, ley).filter((x) => !R.GRUPOS.some((g) => g.emoji === x.emoji))));
-      })));
+    return h('section', { class: 'tarjeta pila', style: { gap: '6px' } },
+      h('div', { class: 'titulo-seccion' }, '⏳ Tus leyes, llegando'),
+      ids.map((id) => h('button', { class: 'en-camino toque', onclick: () => abrirLey(s, R.LEY[id]) },
+        h('span', { class: 'nom' }, R.LEY[id].emoji + ' ' + R.LEY[id].nombre),
+        h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(4, porLey[id] * 100) + '%', background: 'var(--celeste)' } })),
+        h('b', { class: 'chico' }, Math.round(porLey[id] * 100) + '%'))));
   }
-
-  const ideoTxt = (x) => (x <= -0.6 ? '🤲🤲' : x < -0.15 ? '🤲' : x <= 0.15 ? '⚖️' : x < 0.6 ? '💼' : '💼💼');
 
   // Hoja de una ley: porotos, negociación y votación.
   function abrirLey(s, ley) {
@@ -7956,11 +8604,13 @@ label.boton { cursor: pointer; }
     };
     const bloques = {};
     for (const cam of ['diputados', 'senado']) for (const b of p[cam].bloques) bloques[b.id] = bloques[b.id] || b;
-    const efectos = R.gob.describirEfectos(s, Object.assign({}, ley.ef || {}, ley.costo && ley.costo.gasto ? { gastoExtra: ley.costo.gasto } : {}));
+    const ia = R.IDEAS_LEY.find((x) => x.id === R.ideaLey(ley));
+    const te = R.TEMAS_LEY.find((x) => x.id === ley.cat);
     ui.abrirCapa(h('div', { class: 'pila' },
       h('h2', null, ley.emoji + ' ' + ley.nombre),
       h('p', null, ley.desc + (ley.nota ? ' · ' + ley.nota : '')),
-      plazos(s, ley, efectos),
+      h('div', { class: 'fila envolver', style: { gap: '6px' } }, h('span', { class: 'chip idea-' + ia.id }, ia.emoji + ' ' + ia.nombre), te ? h('span', { class: 'chip' }, te.emoji + ' ' + te.nombre) : null),
+      queHaceLey(s, ley),
       h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '🗳️ ¿Te alcanzan los votos?'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
       h('div', { class: 'etiqueta' }, 'Bloques'),
       h('div', { class: 'lista-elegir' }, Object.values(bloques).filter((b) => b.id !== 'YO').map((b) => {

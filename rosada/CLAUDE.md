@@ -30,6 +30,8 @@ Inspirado en «¿Quién quiere gobernar?» (qqg.netlify.app), pero rehecho para 
 | `js/motor/turno.js` | qué pasa al «Pasar el mes» y el debate (piedra-papel-tijera de estilos) |
 | `js/motor/economia.js` | presupuesto por áreas (niveles 0,5–1,6 sobre una base en % del PBI), impuestos, retenciones, simulación mensual y causas. **Mediano plazo:** lo económico de las leyes madura en 12-24 meses (`eco.bonus`, `s.gob.madurando`). **Derrame:** los sueldos siguen a la productividad (crecimiento y desempleo), la oferta baja un poco la inflación (`e.oferta`) y la «torta» (`eco.torta`, PBI por habitante) hace que el mismo % sea más plata real para jubilaciones, ayuda social y calidad de las áreas |
 | `js/motor/gobierno.js` | la gente (humor por grupo y sus razones), aprobación, ⭐ capital político, 🔥 llamas de crisis, acciones, medidas, resumen y frases |
+| `js/datos/leyes.js` | **54 leyes** con tema (`cat`, `R.TEMAS_LEY`) e ideología (`R.ideaLey`: Estado presente / Centro / Mercado). Cada ideología tiene su camino para hacer crecer al país (`tests/sim_gob.js` estrategias `estado`, `centro`, `mercado`). Mecanismos en `perm` (bonusCrec, bonusEmpleo, bonusExpo, bonusImpo, bonusRecauda, bonusPrecios, bonusSalario, bonusRiesgo, bonusCalidad) que maduran en `madura` meses, y `hacer` para el presupuesto. En pantalla, `R.gob.efectosLey` da **pocos carteles y solo lo directo**: «Al firmar» y «Con el tiempo» (máx. 3-4); `R.gob.fiscalLey` dice si deja o come plata |
+| `js/datos/eventos_ideas.js` | noticias que dependen de **tu ideología, tus leyes y la economía** (las comunes están en los otros `eventos_*.js`) |
 | `js/motor/congreso.js` | bloques, relación, apoyo a cada ley (`R.congreso.apoyo` = suma de `factores`: idea, relación, encuestas, polémica, negociación, gobernadores), motivo en palabras (`motivos`), votación, decretos, gobernadores, votos en el gobierno y elecciones del mandato. La idea es **direccional** (`distancia`): una ley que va para el lado de un bloque, aunque sea tibia, le gusta (LLA vota leyes de mercado; el FIT, las del Estado) |
 | `js/ui/` | pantallas, mapa real (`mapa.js` + `js/datos/mapa_geo.js`), banderas de partido (`bandera.js`), hemiciclo, avatar SVG, sonidos WebAudio |
 | `tools/mapa.py` | genera `js/datos/mapa_geo.js` con las 24 provincias, Malvinas y vecinos (Natural Earth vía npm `datamaps` y `world-atlas`) |
@@ -41,7 +43,7 @@ python3 rosada/tools/build.py                 # arma rosada/dist/index.html (un 
 for f in rosada/js/*.js rosada/js/*/*.js; do node --check "$f"; done
 node rosada/tests/sim.js 300 lista            # bots que juegan campañas: sin NaN y con chances razonables
 node rosada/tests/sim.js 300 azar
-node rosada/tests/sim_gob.js 30 60          # gobiernos con 4 estrategias (quieto, gastador, motosierra, equilibrado)
+node rosada/tests/sim_gob.js 30 60          # gobiernos: quieto, gastador, motosierra, equilibrado y los caminos estado/centro/mercado
 node rosada/tests/textos.js                   # que ningún titular/opción sea largo
 ROSADA_FUENTES=dir node rosada/tests/responsive.js 1.3   # nada se sale por los costados (360/390 px, letra +30 %)
 node rosada/tests/ui.js /tmp/capturas celu    # Playwright: juega solo, saca capturas, falla si hay errores de consola
@@ -57,6 +59,7 @@ Mirar las capturas y criticar: texto de más, cosas tapadas, botones chicos, efe
 - Todo azar se muestra con su % y su efecto (`riesgos(s, arg)` en las acciones de campaña, `azar` en noticias y acciones; `ui.riesgos`).
 - Nunca `alert/confirm/prompt` (no andan en la página publicada): confirmaciones dentro del juego.
 - `[hidden]` siempre con `display:none !important` en el CSS.
+- **Pocos carteles y que tengan que ver**: nada de efectos indirectos (ej.: retenciones → recaudación, no jubilados). Sin «en 6 meses / en 3 años»: «Al firmar» y «Con el tiempo» (⏳). Listas largas en filas compactas; el detalle se abre arriba (hoja). Filtros en botones que abren una ventanita.
 - Las hojas con mapa para elegir (como «¿Dónde es el acto?», `.hoja-acto`) **entran enteras en la pantalla**: el mapa es flexible y se achica para dejarle lugar al panel. Probarlas en 360×640 con letra +30 %.
 - **Nada puede deslizarse de costado** y las pantallas cortas no se mueven: `.app` tiene `overflow-x: clip`, sin `min-height`/`height: 100%`; la barra de arriba es una grilla con `minmax(0, 1fr)`. El usuario tiene la letra del celu grande: probar con `tests/responsive.js 1.3` (fuentes reales de npm `@fontsource/lilita-one` y `@fontsource/nunito`).
 

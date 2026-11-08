@@ -95,7 +95,7 @@
     return h('div', { class: 'efectos' }, opts.antes || null, lista.map((e) => {
       const fl = (e.sube ? '▲' : '▼').repeat(e.flechas);
       const etiqueta = e.pct ? R.fmt(Math.abs(e.v), 1) + '%' : e.numero ? R.signo(e.v, 0) : fl;
-      return h('span', { class: 'ef ' + (e.bueno ? 'bien' : 'mal'), title: e.nombre + (e.sube ? ' sube' : ' baja') },
+      return h('span', { class: 'ef ' + (e.neutro ? 'neutro' : e.bueno ? 'bien' : 'mal'), title: e.nombre + (e.sube ? ' sube' : ' baja') },
         h('span', { class: 'em' }, e.emoji),
         opts.conNombre !== false && !opts.compacto ? h('span', { class: 'nom' }, e.nombre) : null,
         h('span', { class: e.numero ? '' : 'fl' }, etiqueta));
