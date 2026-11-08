@@ -47,6 +47,24 @@
       h('div', { class: 'item' }, h('span', { class: 'em' }, d.emoji), h('span', { class: 'f' }, R.fechaCorta(d.mes)), h('span', null, d.txt))));
   };
 
+  // Íconos de línea (24×24, trazo) para las pestañas. Si no hay ícono, queda el emoji.
+  const ICONOS = {
+    inicio: 'M4 11l8-6 8 6M6 10v9h12v-9M10 19v-5h4v5',
+    economia: 'M12 4v16M16 7.5c-.8-1.2-2.3-2-4-2-2.2 0-4 1.3-4 3s1.8 2.6 4 3 4 1.3 4 3-1.8 3-4 3c-1.8 0-3.3-.8-4-2',
+    congreso: 'M3 9l9-5 9 5M5 10v8M9.7 10v8M14.3 10v8M19 10v8M3 20h18',
+    provincias: 'M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+    mapa: 'M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+    mundo: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3.5 9h17M3.5 15h17M12 3c2.5 2.6 3.6 5.6 3.6 9s-1.1 6.4-3.6 9M12 3C9.5 5.6 8.4 8.6 8.4 12s1.1 6.4 3.6 9',
+    diario: 'M5 5h11v14H6a1 1 0 0 1-1-1V5zM16 9h3v9a1 1 0 0 1-1 1h-2M8 9h5M8 12h5M8 15h3',
+    acciones: 'M4 10v4h3l6 4V6L7 10H4zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11',
+    encuesta: 'M5 20V10M10 20V5M15 20v-7M20 20v-4M3 20h18',
+  };
+  ui.icono = function (id) {
+    if (!ICONOS[id]) return null;
+    return R.svg('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.9, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' },
+      R.svg('path', { d: ICONOS[id] }));
+  };
+
   // Barra inferior: pestañas + botón grande para pasar el mes.
   ui.navInferior = function (pestanas, activa, alElegir, boton) {
     const nav = document.querySelector('.nav-inf') || document.body.appendChild(h('nav', { class: 'nav-inf' }));
@@ -55,7 +73,7 @@
       boton || null,
       pestanas ? h('div', { class: 'pestanas', role: 'tablist' }, pestanas.map((p) =>
         h('button', { class: p.id === activa ? 'activa' : '', role: 'tab', 'aria-selected': p.id === activa ? 'true' : 'false', onclick: () => alElegir(p.id) },
-          h('span', { class: 'ic' }, p.emoji), p.nombre))) : null));
+          h('span', { class: 'ic' }, ui.icono(p.id) || p.emoji), p.nombre))) : null));
     nav.hidden = false;
   };
   ui.ocultarNav = function () {
@@ -69,9 +87,9 @@
     ui.abrirCapa(h('div', { class: 'pila' },
       h('h2', null, 'Menú'),
       h('button', { class: 'boton sec ancho', onclick: () => { R.son.alternar(); ui.cerrarCapa(); ui.aviso(R.son.activo ? '🔊 Sonido activado' : '🔇 Sonido apagado'); } }, R.son.activo ? '🔇 Apagar sonido' : '🔊 Prender sonido'),
-      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.comoSeJuega(); } }, '❓ Cómo se juega'),
-      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.verLogros(); } }, '🏅 Logros'),
-      s ? h('button', { class: 'boton sec ancho', onclick: () => { R.guardar(s); ui.cerrarCapa(); ui.irPortada(); } }, '🏠 Volver a la portada') : null,
+      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.comoSeJuega(); } }, 'Cómo se juega'),
+      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.verLogros(); } }, 'Logros'),
+      s ? h('button', { class: 'boton sec ancho', onclick: () => { R.guardar(s); ui.cerrarCapa(); ui.irPortada(); } }, 'Volver a la portada') : null,
       h('p', { class: 'chico suave centro' }, 'La partida se guarda sola en este dispositivo.')), { cerrable: true });
   };
 
@@ -83,7 +101,7 @@
       const todos = R.describirEfectosFase(s, r.ef || {});
       const efs = todos.filter((e) => (r.bueno ? e.bueno : !e.bueno));
       return h('div', { class: 'riesgo ' + (r.bueno ? 'bueno' : 'malo') },
-        h('span', { class: 'pct' }, (r.bueno ? '🍀 ' : '🎲 ') + Math.round(r.p * 100) + '%'),
+        h('span', { class: 'pct' }, Math.round(r.p * 100) + '%'),
         h('span', { class: 'txt' }, r.txt + ':'),
         ui.chipsEfectos(efs.length ? efs : todos, { compacto: true }),
         r.nota ? h('span', { class: 'chico suave' }, r.nota) : null);
@@ -94,10 +112,10 @@
   ui.guia = function (clave, titulo, pasos) {
     if (R.pref('guia_' + clave)) return null;
     const caja = h('section', { class: 'tarjeta pila guia' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '👋 ' + titulo),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, titulo),
         h('button', { class: 'boton mini sec', onclick: () => { R.pref('guia_' + clave, true); caja.remove(); } }, '✕')),
       h('div', { class: 'pasos-guia' }, pasos.map(([em, t, d], i) =>
-        h('div', { class: 'paso-guia' }, h('span', { class: 'num' }, String(i + 1)), h('span', { class: 'em' }, em), h('div', null, h('b', null, t), h('div', { class: 'chico' }, d))))),
+        h('div', { class: 'paso-guia' }, h('span', { class: 'num' }, String(i + 1)), h('div', null, h('b', null, t), h('div', { class: 'chico' }, d))))),
       h('button', { class: 'boton ancho', onclick: () => { R.pref('guia_' + clave, true); R.son.toque(); caja.remove(); } }, '¡Entendido!'));
     return caja;
   };

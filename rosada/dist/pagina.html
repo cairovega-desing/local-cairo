@@ -4,34 +4,38 @@
 <meta name="theme-color" content="#bfe0f7">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
 <style>
-/* Camino a la Rosada — un solo look, a propósito: figuritas pegadas sobre el cielo celeste.
-   Tarjetas blancas con borde azul marino y sombra sólida; el dorado del Sol de Mayo marca lo importante. */
+/* Camino a la Rosada — afiche político: letra condensada y fuerte para títulos y números (Archivo, de la
+   fundidora argentina Omnibus-Type), colores de la bandera y el rosa de la Casa Rosada. Pocas cajas, bordes
+   finos, sin sombras duras. Lo único fuerte: los números grandes y el botón de pasar el mes. */
 :root {
-  --cielo: #bfe0f7;
-  --cielo-claro: #e4f2fc;
-  --celeste: #6cb4ea;
-  --tinta: #13284a;
-  --tinta-suave: #4b5f80;
+  --cielo: #e7eef6;
+  --cielo-claro: #f3f6fa;
+  --celeste: #5ba4dc;
+  --tinta: #15233a;
+  --tinta-suave: #55657c;
   --papel: #ffffff;
-  --papel-2: #f2f7fc;
-  --sol: #f6b40e;
-  --sol-claro: #ffe08a;
-  --sol-osc: #a87800;
-  --bien: #1c9a50;
-  --bien-claro: #d5f5e1;
-  --mal: #d5383a;
-  --mal-claro: #fde0df;
+  --papel-2: #f1f4f8;
+  --linea: #d3dce7;
+  --sol: #f2b10c;
+  --sol-claro: #fbe8ad;
+  --sol-osc: #8f6609;
+  --rosada: #df8b82;
+  --rosada-claro: #f7dcd8;
+  --bien: #1d8248;
+  --bien-claro: #dcf0e3;
+  --mal: #c4352e;
+  --mal-claro: #f8e0dd;
   --meh: #8796ad;
   --noche: #0f1d38;
-  --f-titulo: 'Lilita One', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
-  --f-texto: 'Nunito', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
-  --borde: 3px solid var(--tinta);
-  --sombra: 0 4px 0 var(--tinta);
-  --sombra-chica: 0 3px 0 var(--tinta);
-  --radio: 18px;
-  --radio-chico: 12px;
+  --f-titulo: 'Archivo', 'Arial Narrow', system-ui, sans-serif;
+  --f-texto: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --borde: 1px solid var(--linea);
+  --sombra: none;
+  --sombra-chica: none;
+  --radio: 12px;
+  --radio-chico: 8px;
   color-scheme: light;
 }
 
@@ -41,16 +45,11 @@ html { overflow-x: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100
 body {
   margin: 0;
   font-family: var(--f-texto);
-  font-weight: 700;
+  font-weight: 500;
   font-size: 16px;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--tinta);
   background: var(--cielo);
-  background-image:
-    radial-gradient(circle at 50% -8%, rgba(255, 224, 138, 0.9) 0, rgba(255, 224, 138, 0) 32%),
-    repeating-conic-gradient(from 0deg at 50% -8%, rgba(255, 255, 255, 0.22) 0deg 6deg, rgba(255, 255, 255, 0) 6deg 18deg),
-    linear-gradient(180deg, var(--cielo-claro) 0%, var(--cielo) 55%);
-  background-attachment: fixed;
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
 }
@@ -63,7 +62,8 @@ body::before {
   background: var(--cielo-claro);
 }
 button { font: inherit; color: inherit; }
-h1, h2, h3 { font-family: var(--f-titulo); font-weight: 400; margin: 0; text-wrap: balance; letter-spacing: 0.01em; }
+h1, h2, h3 { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; margin: 0; text-wrap: balance; letter-spacing: 0; line-height: 1.05; }
+.fuente-titulo { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; }
 p { margin: 0; }
 
 .app {
@@ -93,42 +93,45 @@ p { margin: 0; }
 .centro { text-align: center; }
 .chico { font-size: 13px; }
 .suave { color: var(--tinta-suave); }
-.titulo-seccion { font-family: var(--f-titulo); font-size: 20px; display: flex; align-items: center; gap: 8px; }
-.etiqueta { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tinta-suave); font-weight: 900; }
+.titulo-seccion { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 23px; line-height: 1.05; display: flex; align-items: center; gap: 8px; }
+.etiqueta { font-size: 14px; color: var(--tinta-suave); font-weight: 700; }
 .numero { font-variant-numeric: tabular-nums; }
 
 .boton {
   appearance: none;
-  border: var(--borde);
-  border-radius: 14px;
+  border: 0;
+  border-radius: 10px;
   background: var(--sol);
-  box-shadow: var(--sombra);
-  padding: 12px 18px;
+  box-shadow: inset 0 -3px 0 rgba(21, 35, 58, 0.2);
+  padding: 11px 18px 13px;
   min-height: 48px;
-  font-family: var(--f-titulo);
-  font-size: 19px;
-  letter-spacing: 0.02em;
+  font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800;
+  font-stretch: 75%;
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: transform 0.06s ease, box-shadow 0.06s ease, filter 0.15s;
+  transition: transform 0.06s ease, filter 0.15s;
   user-select: none;
   text-align: center;
 }
 .boton:hover { filter: brightness(1.04); }
-.boton:active, .boton.apretado { transform: translateY(3px); box-shadow: 0 1px 0 var(--tinta); }
-.boton:focus-visible, .toque:focus-visible { outline: 3px solid var(--celeste); outline-offset: 3px; }
-.boton.sec { background: var(--papel); }
+.boton:active, .boton.apretado { transform: translateY(1px); box-shadow: inset 0 -1px 0 rgba(21, 35, 58, 0.2); }
+.boton:focus-visible, .toque:focus-visible { outline: 3px solid var(--celeste); outline-offset: 2px; }
+.boton.sec { background: var(--papel); box-shadow: inset 0 0 0 1.5px var(--tinta); }
+.boton.sec:active { box-shadow: inset 0 0 0 1.5px var(--tinta); background: var(--papel-2); }
 .boton.celeste { background: var(--celeste); }
-.boton.verde { background: #5bd38c; }
-.boton.rojo { background: #ff8a80; }
-.boton.grande { font-size: 22px; padding: 14px 22px; min-height: 58px; }
+.boton.verde { background: #6cc994; }
+.boton.rojo { background: #ef9a90; }
+.boton.grande { font-size: 23px; padding: 12px 22px 14px; min-height: 56px; }
 .boton.ancho { width: 100%; }
-.boton.mini { font-size: 15px; min-height: 38px; padding: 6px 12px; border-radius: 11px; box-shadow: var(--sombra-chica); }
-.boton[disabled] { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); }
-.boton[disabled]:active { transform: none; box-shadow: var(--sombra); }
+.boton.mini { font-size: 16px; min-height: 36px; padding: 5px 12px 6px; border-radius: 8px; }
+.boton[disabled] { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.6); }
+.boton[disabled]:active { transform: none; }
 
 .toque { cursor: pointer; transition: transform 0.08s ease; }
 .toque:active { transform: scale(0.97); }
@@ -137,12 +140,12 @@ p { margin: 0; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  border: 2px solid var(--tinta);
-  background: var(--papel);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 0;
+  background: var(--papel-2);
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 700;
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
@@ -159,24 +162,23 @@ p { margin: 0; }
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 2px 8px 2px 6px;
-  border-radius: 999px;
+  padding: 1px 7px 1px 5px;
+  border-radius: 6px;
   font-size: 14px;
-  font-weight: 900;
-  border: 2px solid currentColor;
-  background: var(--papel);
+  font-weight: 700;
+  border: 0;
+  background: var(--papel-2);
   white-space: nowrap;
 }
-.ef .fl { letter-spacing: -2px; font-size: 12px; }
-.ef.bien { color: var(--bien); background: var(--bien-claro); }
-.ef.mal { color: var(--mal); background: var(--mal-claro); }
-.ef .em { filter: saturate(1.1); }
-.ef .nom { color: var(--tinta); font-weight: 800; font-size: 13px; }
+.ef .fl { letter-spacing: -2px; font-size: 11px; }
+.ef.bien { color: #17703d; background: var(--bien-claro); }
+.ef.mal { color: #a52a24; background: var(--mal-claro); }
+.ef .nom { color: var(--tinta); font-weight: 600; font-size: 13px; }
 
 /* Barras */
-.barra { height: 14px; border: 2px solid var(--tinta); border-radius: 999px; background: var(--papel-2); overflow: hidden; position: relative; }
+.barra { height: 10px; border: 0; border-radius: 999px; background: #dbe3ed; overflow: hidden; position: relative; }
 .barra > i { display: block; height: 100%; background: var(--celeste); border-radius: 999px; transition: width 0.7s cubic-bezier(.2,.9,.2,1); }
-.barra.gorda { height: 22px; }
+.barra.gorda { height: 18px; }
 
 /* ── Barra superior ── */
 .barra-sup {
@@ -196,9 +198,9 @@ p { margin: 0; }
 }
 .barra-sup .quien { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .barra-sup .quien > div { min-width: 0; }
-.barra-sup .quien b { font-family: var(--f-titulo); font-weight: 400; font-size: 18px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.barra-sup .quien b { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800;  font-size: 18px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .barra-sup .quien small { display: block; color: var(--tinta-suave); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.recurso { display: inline-flex; align-items: center; gap: 4px; font-weight: 900; padding: 4px 8px; white-space: nowrap; border-radius: 12px; background: var(--papel-2); border: 2px solid var(--tinta); font-size: 15px; }
+.recurso { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; padding: 4px 8px; white-space: nowrap; border-radius: 12px; background: var(--papel-2); border: 1px solid var(--linea); font-size: 15px; }
 @media (max-width: 420px) {
   .barra-sup { padding: 6px 7px; gap: 5px; }
   .barra-sup .quien { gap: 6px; }
@@ -213,7 +215,7 @@ p { margin: 0; }
 @media (max-width: 360px) { .barra-sup .recurso .ico { display: none; } }
 .recurso.pulso { animation: pulso 0.6s ease; }
 .agenda-puntos { display: inline-flex; gap: 3px; }
-.agenda-puntos i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--tinta); background: var(--sol); }
+.agenda-puntos i { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--linea); background: var(--sol); }
 .agenda-puntos i.usado { background: var(--papel-2); }
 
 .escudo {
@@ -228,7 +230,7 @@ p { margin: 0; }
 .escudo.grande { width: 92px; height: 92px; font-size: 44px; border-width: 4px; }
 .escudo .sig {
   position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%);
-  background: var(--tinta); color: #fff; font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 8px; white-space: nowrap;
+  background: var(--tinta); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 8px; white-space: nowrap;
 }
 .escudo.grande .sig { font-size: 15px; bottom: -14px; padding: 2px 10px; }
 
@@ -240,21 +242,22 @@ p { margin: 0; }
   left: 0; right: 0; bottom: 0;
   z-index: 25;
   padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
-  background: linear-gradient(180deg, rgba(191, 224, 247, 0) 0%, var(--cielo) 30%);
+  background: linear-gradient(180deg, rgba(231, 238, 246, 0) 0%, var(--cielo) 30%);
   pointer-events: none;
 }
 .nav-inf > .dentro { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 6px; pointer-events: auto; }
 .nav-inf .boton.grande { min-height: 50px; padding: 8px 16px; font-size: 20px; flex-wrap: wrap; row-gap: 2px; }
 .app.ancha ~ .nav-inf > .dentro, .nav-inf.ancha > .dentro { max-width: 1120px; }
-.pestanas { display: flex; gap: 4px; background: var(--papel); border: var(--borde); border-radius: 16px; padding: 4px; box-shadow: var(--sombra); }
+.pestanas { display: flex; gap: 4px; background: var(--papel); border: var(--borde); border-radius: var(--radio); padding: 4px; box-shadow: var(--sombra); }
 .pestanas button {
   flex: 1; border: 0; background: transparent; border-radius: 11px; padding: 6px 2px; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 12px; font-weight: 900; color: var(--tinta-suave);
+  display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 12px; font-weight: 700; color: var(--tinta-suave);
   min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 @media (max-width: 420px) { .pestanas button { font-size: 11px; letter-spacing: -0.2px; } }
-.pestanas button .ic { font-size: 19px; line-height: 1.1; }
-.pestanas button.activa { background: var(--sol-claro); color: var(--tinta); box-shadow: inset 0 0 0 2px var(--tinta); }
+.pestanas button .ic { font-size: 19px; line-height: 1.1; display: grid; place-items: center; height: 22px; }
+.pestanas button .ic svg { width: 22px; height: 22px; }
+.pestanas button.activa { background: var(--rosada-claro); color: var(--tinta); box-shadow: inset 0 -3px 0 var(--rosada); }
 
 /* ── Capa (ventanas encima) ── */
 .capa {
@@ -277,7 +280,7 @@ p { margin: 0; }
 .hoja .cerrar { position: sticky; top: 0; float: right; z-index: 2; }
 @media (min-width: 700px) {
   .capa { align-items: center; padding: 20px; }
-  .hoja { border-bottom: var(--borde); border-radius: 24px; box-shadow: 0 8px 0 var(--tinta); max-height: 88vh; }
+  .hoja { border-bottom: var(--borde); border-radius: 24px; box-shadow: none; max-height: 88vh; }
 }
 
 /* ── Avisos (resultado de acciones) ── */
@@ -289,53 +292,53 @@ p { margin: 0; }
 }
 .aviso {
   pointer-events: auto;
-  background: var(--papel); border: var(--borde); border-radius: 16px; box-shadow: var(--sombra);
+  background: var(--papel); border: var(--borde); border-radius: var(--radio); box-shadow: var(--sombra);
   padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;
   animation: caer 0.35s cubic-bezier(.2,.9,.3,1.3);
 }
 .aviso.bien { background: #effbf3; }
 .aviso.mal { background: #fff1f0; }
 .aviso.especial { background: var(--sol-claro); }
-.aviso .txt { font-weight: 900; font-size: 16px; }
+.aviso .txt { font-weight: 700; font-size: 16px; }
 .aviso.saliendo { animation: irse 0.3s ease forwards; }
 
 /* ── Portada ── */
-.portada { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 18px; text-align: center; }
-.sol-mayo { width: 132px; height: 132px; animation: girar 40s linear infinite; filter: drop-shadow(0 4px 0 var(--tinta)); }
-.logo {
-  font-family: var(--f-titulo); font-size: clamp(40px, 11vw, 64px); line-height: 0.95; color: var(--papel);
-  -webkit-text-stroke: 3px var(--tinta); paint-order: stroke fill; text-shadow: 0 5px 0 var(--tinta);
-}
-.logo span { color: var(--sol); display: block; }
-.lema { font-size: 18px; max-width: 30ch; }
-.portada .botones { display: flex; flex-direction: column; gap: 12px; width: min(340px, 100%); }
-.pasos-portada { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 460px; }
-.pasos-portada .tarjeta { padding: 10px 6px; font-size: 13px; }
-.pasos-portada .tarjeta div { font-size: 28px; }
+.portada { display: flex; flex-direction: column; gap: 16px; padding-top: 6px; }
+.afiche { position: relative; overflow: hidden; background: var(--rosada); border-radius: var(--radio); padding: 30px 22px 24px; min-height: min(62vh, 420px); display: flex; flex-direction: column; justify-content: flex-end; gap: 12px; }
+.afiche .sol-mayo { position: absolute; margin: 0; width: 260px; height: 260px; top: -70px; right: -80px; }
+.sol-mayo { display: block; margin: 0 auto; width: 132px; height: 132px; animation: girar 60s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .sol-mayo { animation: none; } }
+.logo { position: relative; font-family: var(--f-titulo); font-stretch: 62%; font-weight: 900; font-size: clamp(64px, 21vw, 112px); line-height: 0.86; letter-spacing: -0.01em; color: var(--tinta); }
+.logo span { display: block; }
+.lema { position: relative; font-size: 17px; font-weight: 600; max-width: 26ch; }
+.portada .botones { display: flex; flex-direction: column; gap: 10px; }
+.portada .secundarios { display: flex; justify-content: space-between; gap: 8px; }
+.portada .secundarios button { flex: 1; border: 0; background: transparent; padding: 10px 4px; font-weight: 700; font-size: 15px; color: var(--tinta-suave); cursor: pointer; border-radius: var(--radio-chico); }
+.portada .secundarios button:active { background: var(--papel); }
 
 /* ── Crear partido ── */
 .progreso-pasos { display: flex; gap: 6px; justify-content: center; }
-.progreso-pasos i { width: 34px; height: 8px; border-radius: 4px; background: var(--papel); border: 2px solid var(--tinta); }
+.progreso-pasos i { width: 34px; height: 8px; border-radius: 4px; background: var(--papel); border: 1px solid var(--linea); }
 .progreso-pasos i.hecho { background: var(--sol); }
 .campo { display: flex; flex-direction: column; gap: 6px; }
 .campo input[type=text] {
-  font: inherit; font-weight: 800; font-size: 18px; padding: 12px 14px; border: var(--borde); border-radius: 14px; background: var(--papel); color: var(--tinta); width: 100%; min-width: 0;
+  font: inherit; font-weight: 800; font-size: 18px; padding: 12px 14px; border: var(--borde); border-radius: var(--radio); background: var(--papel); color: var(--tinta); width: 100%; min-width: 0;
 }
 .campo input[type=text]:focus { outline: 3px solid var(--celeste); outline-offset: 1px; }
 .grilla-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 8px; }
 .opcion-redonda {
-  aspect-ratio: 1; border: var(--borde); border-radius: 14px; background: var(--papel); cursor: pointer; font-size: 24px;
+  aspect-ratio: 1; border: var(--borde); border-radius: var(--radio); background: var(--papel); cursor: pointer; font-size: 24px;
   display: grid; place-items: center; box-shadow: var(--sombra-chica); padding: 0; max-width: 100%;
 }
 .opcion-redonda.elegida { outline: 4px solid var(--sol); outline-offset: 2px; transform: translateY(-2px); }
 .deslizador { display: flex; flex-direction: column; gap: 6px; }
-.deslizador .extremos { display: flex; justify-content: space-between; font-size: 14px; font-weight: 900; }
+.deslizador .extremos { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; }
 .deslizador input[type=range] { width: 100%; accent-color: var(--sol-osc); height: 32px; }
 .caritas { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 6px; }
-.carita { text-align: center; font-size: 12px; font-weight: 900; padding: 6px 2px; border-radius: 12px; background: var(--papel-2); border: 2px solid var(--tinta); }
+.carita { text-align: center; font-size: 12px; font-weight: 700; padding: 6px 2px; border-radius: 12px; background: var(--papel-2); border: 1px solid var(--linea); }
 .carita .cara { font-size: 26px; display: block; transition: transform 0.3s; }
 .dificultades { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.dificultades .opcion { padding: 10px 4px; text-align: center; border: var(--borde); border-radius: 14px; background: var(--papel); cursor: pointer; box-shadow: var(--sombra-chica); }
+.dificultades .opcion { padding: 10px 4px; text-align: center; border: var(--borde); border-radius: var(--radio); background: var(--papel); cursor: pointer; box-shadow: var(--sombra-chica); }
 .dificultades .opcion.elegida { background: var(--sol-claro); outline: 3px solid var(--sol); }
 .dificultades .opcion div { font-size: 28px; }
 .editor-avatar { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; }
@@ -344,42 +347,42 @@ p { margin: 0; }
 /* ── Campaña ── */
 .encuesta { display: flex; flex-direction: column; gap: 8px; }
 .encuesta .linea { display: grid; grid-template-columns: 34px minmax(0, 1fr) 60px; gap: 8px; align-items: center; }
-.encuesta .linea .nombre { font-size: 14px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.encuesta .linea .pct { font-family: var(--f-titulo); font-size: 18px; text-align: right; font-variant-numeric: tabular-nums; }
+.encuesta .linea .nombre { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.encuesta .linea .pct { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 18px; text-align: right; font-variant-numeric: tabular-nums; }
 .encuesta .linea.yo .nombre { color: var(--tinta); }
 .encuesta .linea.yo { background: var(--sol-claro); border-radius: 12px; padding: 4px; margin: -4px; }
-.mini-escudo { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--tinta); display: grid; place-items: center; font-size: 15px; }
+.mini-escudo { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--linea); display: grid; place-items: center; font-size: 15px; }
 .mini-bandera { width: 30px; display: grid; place-items: center; }
 
 .cuenta-regresiva { display: flex; align-items: center; gap: 12px; }
-.cuenta-regresiva .num { font-family: var(--f-titulo); font-size: 40px; line-height: 1; min-width: 44px; text-align: center; }
+.cuenta-regresiva .num { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 40px; line-height: 1; min-width: 44px; text-align: center; }
 
 .mis-numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.mi-numero { text-align: center; padding: 8px 4px; border-radius: 14px; background: var(--papel-2); border: 2px solid var(--tinta); }
+.mi-numero { text-align: center; padding: 8px 4px; border-radius: var(--radio); background: var(--papel-2); border: 1px solid var(--linea); }
 .mi-numero .em { font-size: 24px; }
-.mi-numero .val { font-family: var(--f-titulo); font-size: 22px; }
-.mi-numero .nom { font-size: 12px; font-weight: 900; color: var(--tinta-suave); }
+.mi-numero .val { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 22px; }
+.mi-numero .nom { font-size: 12px; font-weight: 700; color: var(--tinta-suave); }
 
 .acciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .accion {
-  text-align: left; border: var(--borde); border-radius: 16px; background: var(--papel); box-shadow: var(--sombra);
+  text-align: left; border: var(--borde); border-radius: var(--radio); background: var(--papel); box-shadow: var(--sombra);
   padding: 10px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-width: 0; position: relative;
 }
-.accion:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--tinta); }
+.accion:active { transform: translateY(1px); box-shadow: none; }
 .accion .cab { display: flex; align-items: center; gap: 8px; }
 .accion .ic { font-size: 28px; line-height: 1; }
-.accion .nom { font-family: var(--f-titulo); font-size: 17px; line-height: 1.05; }
+.accion .nom { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 17px; line-height: 1.05; }
 .accion .desc { font-size: 13px; color: var(--tinta-suave); }
 .accion[disabled] { opacity: 0.5; cursor: not-allowed; }
 .accion[disabled]:active { transform: none; box-shadow: var(--sombra); }
-.accion .bloq { font-size: 12px; color: var(--mal); font-weight: 900; }
+.accion .bloq { font-size: 12px; color: var(--mal); font-weight: 700; }
 
 .lista-elegir { display: flex; flex-direction: column; gap: 8px; }
 .item-elegir {
   display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left;
-  border: var(--borde); border-radius: 14px; background: var(--papel); padding: 8px 10px; cursor: pointer; box-shadow: var(--sombra-chica);
+  border: var(--borde); border-radius: var(--radio); background: var(--papel); padding: 8px 10px; cursor: pointer; box-shadow: var(--sombra-chica);
 }
-.item-elegir:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
+.item-elegir:active { transform: translateY(1px); box-shadow: none; }
 .item-elegir .ic { font-size: 28px; text-align: center; }
 .item-elegir[disabled] { opacity: 0.45; cursor: not-allowed; }
 .motivo-voto { margin-top: 3px; font-weight: 800; line-height: 1.25; }
@@ -387,7 +390,7 @@ p { margin: 0; }
 /* Leyes: filtros en dos botones, filas compactas */
 .filtros-ley { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
 .filtro-btn { font: inherit; color: var(--tinta); text-align: left; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 6px; background: var(--papel); border: var(--borde); border-radius: var(--radio-chico); box-shadow: var(--sombra-chica); padding: 5px 10px; cursor: pointer; min-width: 0; }
-.filtro-btn small { grid-column: 1 / -1; font-size: 11px; font-weight: 900; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: 0.5px; }
+.filtro-btn small { grid-column: 1 / -1; font-size: 11px; font-weight: 700; color: var(--tinta-suave); }
 .filtro-btn b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .opciones-filtro { display: flex; flex-direction: column; gap: 6px; }
 .opcion-filtro { font: inherit; color: var(--tinta); display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 8px; align-items: center; text-align: left; background: var(--papel); border: 2px solid #c9d6e6; border-radius: var(--radio-chico); padding: 8px 10px; cursor: pointer; }
@@ -395,8 +398,8 @@ p { margin: 0; }
 .opcion-filtro.activa { border-color: var(--tinta); background: var(--sol-claro); }
 .leyes-lista { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
 @media (min-width: 700px) { .leyes-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.ley-fila { font: inherit; color: inherit; text-align: left; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 8px; align-items: center; background: var(--papel); border: 2px solid var(--tinta); border-radius: var(--radio-chico); box-shadow: 0 2px 0 var(--tinta); padding: 6px 8px; cursor: pointer; min-width: 0; }
-.ley-fila:active { transform: translateY(2px); box-shadow: none; }
+.ley-fila { font: inherit; color: inherit; text-align: left; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 8px; align-items: center; background: var(--papel); border: 1px solid var(--linea); border-radius: var(--radio-chico); box-shadow: none; padding: 6px 8px; cursor: pointer; min-width: 0; }
+.ley-fila:active { transform: translateY(1px); box-shadow: none; }
 .ley-fila[disabled] { opacity: 0.5; cursor: not-allowed; }
 .ley-fila.hecha { background: var(--papel-2); }
 .ley-fila .ic { font-size: 22px; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; }
@@ -406,7 +409,7 @@ p { margin: 0; }
 .mini-efectos .efectos { gap: 4px; }
 .mini-efectos .ef { font-size: 12px; padding: 0 6px 0 4px; border-width: 1.5px; }
 .mini-efectos .luego { font-size: 13px; }
-.ley-fila .estado { font-size: 12px; font-weight: 900; white-space: nowrap; padding: 2px 6px; border-radius: 8px; background: var(--papel-2); }
+.ley-fila .estado { font-size: 12px; font-weight: 700; white-space: nowrap; padding: 2px 6px; border-radius: 8px; background: var(--papel-2); }
 .ley-fila .estado.bien { background: var(--bien-claro); color: #0d5c2f; }
 .ley-fila .estado.falta { background: #fff1d6; color: var(--sol-osc); }
 .idea-estado { background: #fde3d6; }
@@ -418,12 +421,12 @@ p { margin: 0; }
 .caritas { display: flex; flex-wrap: wrap; gap: 4px 8px; justify-content: flex-end; }
 .carita { font-size: 13px; white-space: nowrap; }
 .carita b { margin-right: 2px; }
-.fila-bloques .mas { font-size: 24px; font-weight: 900; color: var(--tinta-suave); }
+.fila-bloques .mas { font-size: 24px; font-weight: 700; color: var(--tinta-suave); }
 .nota-proy { margin: 0; font-weight: 800; padding: 6px 10px; border-radius: var(--radio-chico); }
 .nota-proy.mal { background: var(--mal-claro); color: #8b1517; }
 .nota-proy.bien { background: var(--bien-claro); color: #0d5c2f; }
 .plazo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.plazo .cuando { font-weight: 900; font-size: 13px; min-width: 88px; }
+.plazo .cuando { font-weight: 700; font-size: 13px; min-width: 88px; }
 .chip.plazo { background: var(--cielo-claro); }
 .en-camino { font: inherit; color: inherit; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(50px, 1fr) 40px; gap: 8px; align-items: center; background: none; border: 0; padding: 2px 0; text-align: left; cursor: pointer; }
 .en-camino .nom { font-size: 14px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -436,7 +439,7 @@ p { margin: 0; }
 .mapa .prov.sel { stroke: var(--sol-osc); stroke-width: 2.6; }
 .mapa .vecino { stroke: #b9c5d6; stroke-width: 0.6; stroke-linejoin: round; }
 .mapa .vecino.anexado { stroke: var(--tinta); stroke-width: 0.9; cursor: pointer; }
-.mapa text { font-family: var(--f-texto); font-weight: 900; pointer-events: none; fill: var(--tinta); paint-order: stroke; stroke: rgba(255, 255, 255, 0.85); stroke-width: 2px; stroke-linejoin: round; }
+.mapa text { font-family: var(--f-texto); font-weight: 700; pointer-events: none; fill: var(--tinta); paint-order: stroke; stroke: rgba(255, 255, 255, 0.85); stroke-width: 2px; stroke-linejoin: round; }
 .mapa .nom { font-size: 8px; }
 .mapa .nom.chica { font-size: 6.5px; }
 .mapa .val { font-size: 7.5px; }
@@ -467,7 +470,7 @@ p { margin: 0; }
 .acto-panel.salta { animation: saltar 0.32s cubic-bezier(.2,.9,.3,1.3); }
 .acto-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .acto-nombre { flex: 1 1 0; min-width: 0; line-height: 1.1; }
-.acto-nombre b { display: block; font-family: var(--f-titulo); font-weight: 400; font-size: 20px; }
+.acto-nombre b { display: block; font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800;  font-size: 20px; }
 .acto-nombre small { display: block; font-size: 12px; font-weight: 800; color: var(--tinta-suave); }
 .acto-tabla { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr); align-items: center; gap: 2px 8px; font-size: 14px; font-weight: 800; }
 .acto-tabla .col { font-size: 12px; color: var(--tinta-suave); text-align: center; white-space: nowrap; }
@@ -493,23 +496,23 @@ p { margin: 0; }
 /* ── Noticia ── */
 .diario-hoja { background: #fffdf6; }
 .diario-cab { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px double var(--tinta); padding-bottom: 6px; margin-bottom: 12px; }
-.diario-cab .marca { font-family: var(--f-titulo); font-size: 22px; letter-spacing: 0.04em; }
-.dibujo-noticia { font-size: 54px; text-align: center; letter-spacing: 6px; padding: 10px 0 6px; animation: rebote 0.6s ease; }
-.titular { font-family: var(--f-titulo); font-size: 27px; line-height: 1.08; text-align: center; }
+.diario-cab .marca { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 22px; letter-spacing: 0.04em; }
+.dibujo-noticia { font-size: 34px; text-align: left; letter-spacing: 4px; padding: 4px 0 0; }
+.titular { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 27px; line-height: 1.08; text-align: center; }
 .bajada { text-align: center; color: var(--tinta-suave); margin-top: 6px; }
 .opciones-noticia { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
 .opcion-noticia {
-  border: var(--borde); border-radius: 16px; background: var(--papel); box-shadow: var(--sombra); padding: 10px 12px;
+  border: var(--borde); border-radius: var(--radio); background: var(--papel); box-shadow: var(--sombra); padding: 10px 12px;
   cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 6px;
 }
-.opcion-noticia:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--tinta); }
+.opcion-noticia:active { transform: translateY(1px); box-shadow: none; }
 .opcion-noticia .cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.opcion-noticia .txt { font-family: var(--f-titulo); font-size: 19px; }
+.opcion-noticia .txt { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 19px; }
 .opcion-noticia[disabled] { opacity: 0.5; cursor: not-allowed; }
 .opcion-noticia .tecla { font-size: 11px; color: var(--tinta-suave); border: 2px solid var(--meh); border-radius: 6px; padding: 0 5px; }
 .resultado-grande { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; padding: 8px 0; }
 .resultado-grande > .em { font-size: 54px; animation: rebote 0.6s ease; }
-.resultado-grande .txt { font-family: var(--f-titulo); font-size: 24px; }
+.resultado-grande .txt { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 24px; }
 
 /* ── Noche de elecciones ── */
 .noche { width: 100%; max-width: 860px; margin: 0 auto; color: #fff; display: flex; flex-direction: column; gap: 14px; padding: 18px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
@@ -517,22 +520,22 @@ p { margin: 0; }
 .noche-cuerpo .mapa-noche { max-width: 230px; margin: 0 auto; width: 100%; }
 @media (min-width: 760px) { .noche-cuerpo { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); } .noche-cuerpo .mapa-noche { max-width: 300px; } }
 .noche h2 { font-size: 30px; text-align: center; color: var(--sol); }
-.noche .escrutinio { text-align: center; font-weight: 900; color: #b9cdf0; }
+.noche .escrutinio { text-align: center; font-weight: 700; color: #b9cdf0; }
 .noche .barra { border-color: #fff; background: rgba(255, 255, 255, 0.1); }
 .noche .barra > i { background: var(--sol); transition: width 0.25s linear; }
 .carrera { display: flex; flex-direction: column; gap: 10px; }
 .carrera .linea { display: grid; grid-template-columns: 44px minmax(0, 1fr) 72px; gap: 10px; align-items: center; }
-.carrera .linea .nombre { font-weight: 900; font-size: 15px; display: flex; flex-direction: column; min-width: 0; }
+.carrera .linea .nombre { font-weight: 700; font-size: 15px; display: flex; flex-direction: column; min-width: 0; }
 .carrera .linea .nombre small { color: #b9cdf0; font-size: 12px; }
 .carrera .pista { height: 22px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.5); }
 .carrera .pista i { display: block; height: 100%; border-radius: 999px; transition: width 0.25s linear; }
-.carrera .pct { font-family: var(--f-titulo); font-size: 24px; text-align: right; font-variant-numeric: tabular-nums; }
+.carrera .pct { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 24px; text-align: right; font-variant-numeric: tabular-nums; }
 .carrera .linea.yo .nombre { color: var(--sol); }
 .noche .mapa .prov { stroke: #0b1428; }
 .noche .mapa .vecino { fill: #1b2a4a; stroke: #2c3e63; }
 .noche .mapa text.pais { fill: #5d7096; stroke: none; }
 .noche .mapa text { fill: #0b1428; }
-.veredicto { text-align: center; font-family: var(--f-titulo); font-size: 34px; line-height: 1.05; animation: rebote 0.7s ease; }
+.veredicto { text-align: center; font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 34px; line-height: 1.05; animation: rebote 0.7s ease; }
 .veredicto.gana { color: var(--sol); }
 .veredicto.pierde { color: #ff9b97; }
 .noche .tarjeta { color: var(--tinta); }
@@ -541,8 +544,8 @@ p { margin: 0; }
 
 /* ── Debate ── */
 .debate-escenario { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 6px; text-align: center; }
-.debate-escenario .atril { display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 900; font-size: 13px; }
-.debate-escenario .vs { font-family: var(--f-titulo); font-size: 26px; color: var(--mal); padding-bottom: 30px; }
+.debate-escenario .atril { display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 700; font-size: 13px; }
+.debate-escenario .vs { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 26px; color: var(--mal); padding-bottom: 30px; }
 .aplausometro { display: flex; align-items: center; gap: 8px; }
 .aplausometro .barra { flex: 1; height: 20px; }
 .aplausometro .barra > i { background: linear-gradient(90deg, var(--mal), var(--sol), var(--bien)); }
@@ -550,26 +553,26 @@ p { margin: 0; }
 .estilos .boton { flex-direction: column; gap: 0; min-height: 76px; }
 .estilos .boton .em { font-size: 28px; }
 .estilos .boton.recomendado { background: var(--sol-claro); }
-.regla { text-align: center; font-size: 13px; font-weight: 900; color: var(--tinta-suave); }
+.regla { text-align: center; font-size: 13px; font-weight: 700; color: var(--tinta-suave); }
 .regla b { font-size: 18px; letter-spacing: 2px; color: var(--tinta); }
-.burbuja { background: var(--papel-2); border: 2px solid var(--tinta); border-radius: 14px; padding: 8px 12px; font-weight: 900; position: relative; }
+.burbuja { background: var(--papel-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 8px 12px; font-weight: 700; position: relative; }
 
 /* ── Diario (historial) ── */
 .historial { display: flex; flex-direction: column; gap: 6px; }
 .historial .item { display: grid; grid-template-columns: 30px 56px minmax(0, 1fr); gap: 8px; align-items: center; font-size: 14px; padding: 6px 8px; border-radius: 10px; background: var(--papel-2); }
 .historial .item .em { font-size: 20px; }
-.historial .item .f { font-size: 12px; color: var(--tinta-suave); font-weight: 900; }
+.historial .item .f { font-size: 12px; color: var(--tinta-suave); font-weight: 700; }
 
 
 /* ── Gobierno: la gente ── */
 .gente { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .persona {
-  border: 2px solid var(--tinta); border-radius: 14px; background: var(--papel-2); padding: 8px 4px 6px;
+  border: 1px solid var(--linea); border-radius: var(--radio); background: var(--papel-2); padding: 8px 4px 6px;
   display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; position: relative; min-width: 0;
 }
 .persona .avatar { border-width: 2px; }
-.persona .nom { font-size: 12px; font-weight: 900; text-align: center; line-height: 1.1; }
-.persona .delta { position: absolute; top: 4px; right: 6px; font-size: 13px; font-weight: 900; }
+.persona .nom { font-size: 12px; font-weight: 700; text-align: center; line-height: 1.1; }
+.persona .delta { position: absolute; top: 4px; right: 6px; font-size: 13px; font-weight: 700; }
 .persona .delta.sube { color: var(--bien); }
 .persona .delta.baja { color: var(--mal); }
 .critico-mini { font-size: 11px; padding: 0 2px; border-radius: 6px; background: var(--mal-claro); border: 1.5px solid var(--mal); }
@@ -586,7 +589,7 @@ p { margin: 0; }
 .motivo .em { font-size: 20px; text-align: center; }
 .motivo .txt { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
 .motivo .txt b { font-size: 14px; }
-.motivo .fijo { white-space: nowrap; display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4px; color: var(--tinta-suave); background: #e3ebf5; border-radius: 6px; padding: 1px 5px; vertical-align: middle; }
+.motivo .fijo { white-space: nowrap; display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700; color: var(--tinta-suave); background: #e3ebf5; border-radius: 6px; padding: 1px 5px; vertical-align: middle; }
 .motivo .txt small { font-size: 12px; color: var(--tinta-suave); font-weight: 700; }
 .balanza-motivo { position: relative; height: 12px; border-radius: 6px; background: #e3ebf5; }
 .balanza-motivo::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; background: var(--tinta); transform: translateX(-50%); }
@@ -597,12 +600,15 @@ p { margin: 0; }
 /* El país en tarjetas */
 .pais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .indicador {
-  text-align: left; border: 2px solid var(--tinta); border-radius: 14px; background: var(--papel-2); padding: 8px 10px;
+  text-align: left; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--papel-2); padding: 8px 10px;
   display: flex; flex-direction: column; gap: 2px; cursor: pointer; min-width: 0;
 }
 .indicador .em { font-size: 24px; }
-.indicador .nom { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tinta-suave); font-weight: 900; }
-.indicador .val { font-family: var(--f-titulo); font-size: 20px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.indicador .nom { font-size: 14px; color: var(--tinta-suave); font-weight: 600; }
+.indicador .tendencia { font-size: 13px; font-weight: 800; }
+.indicador .tendencia.bien { color: var(--bien); }
+.indicador .tendencia.mal { color: var(--mal); }
+.indicador .val { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 20px; line-height: 1.05; font-variant-numeric: tabular-nums; }
 .indicador .sub { font-size: 12px; color: var(--tinta-suave); }
 .indicador .chip { font-size: 11px; padding: 1px 6px; }
 .munecos { display: flex; flex-wrap: wrap; gap: 0; font-size: 13px; line-height: 1.1; max-width: 100%; }
@@ -618,15 +624,15 @@ p { margin: 0; }
 
 /* Resumen del mes */
 .resumen-filas { display: flex; flex-direction: column; gap: 4px; }
-.fila-resumen { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto 38px; gap: 8px; align-items: center; padding: 5px 8px; border-radius: 10px; background: var(--papel-2); }
+.fila-resumen { display: grid; grid-template-columns: minmax(0, 1fr) auto 38px; gap: 8px; align-items: center; padding: 5px 8px; border-radius: 10px; background: var(--papel-2); }
 .fila-resumen .em { font-size: 20px; }
 .fila-resumen .nom { font-size: 14px; }
-.fila-resumen .val { font-weight: 900; }
+.fila-resumen .val { font-weight: 700; }
 .fila-resumen .chip { justify-content: center; }
-.porque { font-size: 15px; padding: 6px 10px; border-radius: 10px; background: var(--sol-claro); border: 2px solid var(--tinta); }
+.porque { font-size: 15px; padding: 2px 0 2px 10px; border-left: 3px solid var(--sol); }
 .dicho { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 8px; align-items: center; }
 .dicho .avatar { border-width: 2px; }
-.globo { position: relative; padding: 8px 12px; border-radius: 14px; border: 2px solid var(--tinta); background: var(--papel); font-size: 15px; }
+.globo { position: relative; padding: 8px 12px; border-radius: var(--radio); border: 1px solid var(--linea); background: var(--papel); font-size: 15px; }
 .globo::before { content: ""; position: absolute; left: -9px; top: 50%; margin-top: -7px; border: 7px solid transparent; border-right-color: var(--tinta); border-left: 0; }
 .globo.bien { background: #effbf3; }
 .globo.mal { background: #fff3f2; }
@@ -639,30 +645,30 @@ p { margin: 0; }
 .balanza .plato:last-child { margin-right: -18px; }
 .balanza .pie { position: absolute; top: 18px; width: 8px; height: 48px; background: var(--tinta); border-radius: 4px; }
 .balanza .pie::after { content: ""; position: absolute; bottom: -4px; left: -18px; width: 44px; height: 8px; border-radius: 4px; background: var(--tinta); }
-.linea-balanza { display: grid; grid-template-columns: 96px minmax(0, 1fr) 54px; gap: 8px; align-items: center; font-weight: 900; font-size: 14px; }
+.linea-balanza { display: grid; grid-template-columns: 96px minmax(0, 1fr) 54px; gap: 8px; align-items: center; font-weight: 700; font-size: 14px; }
 .linea-balanza b { text-align: right; }
 .selector { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.selector .opcion { border: 2px solid var(--tinta); border-radius: 12px; background: var(--papel); padding: 6px 4px; display: flex; flex-direction: column; align-items: center; gap: 1px; cursor: pointer; font-size: 13px; }
+.selector .opcion { border: 1px solid var(--linea); border-radius: 12px; background: var(--papel); padding: 6px 4px; display: flex; flex-direction: column; align-items: center; gap: 1px; cursor: pointer; font-size: 13px; }
 .selector .opcion .em { font-size: 22px; }
 .selector .opcion.elegida { background: var(--sol-claro); box-shadow: inset 0 0 0 2px var(--sol-osc); }
 .selector .opcion[disabled] { opacity: 0.4; cursor: not-allowed; }
-.perilla { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 14px; background: var(--papel-2); }
+.perilla { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: var(--radio); background: var(--papel-2); }
 .puntos-nivel { display: flex; gap: 4px; }
-.puntos-nivel i { flex: 1; height: 10px; border-radius: 5px; border: 2px solid var(--tinta); background: var(--papel); }
+.puntos-nivel i { flex: 1; height: 10px; border-radius: 5px; border: 1px solid var(--linea); background: var(--papel); }
 .puntos-nivel i.lleno { background: var(--sol); }
 
 /* Presupuesto por área */
 .torta-barra { display: flex; height: 28px; border: var(--borde); border-radius: 10px; overflow: hidden; }
-.torta-barra i { display: grid; place-items: center; font-style: normal; font-size: 14px; border-right: 2px solid var(--tinta); min-width: 3px; }
+.torta-barra i { display: grid; place-items: center; font-style: normal; font-size: 14px; border-right: 1px solid var(--linea); min-width: 3px; }
 .torta-barra i:nth-child(1) { background: #b9dcf6; } .torta-barra i:nth-child(2) { background: #ffd6a5; } .torta-barra i:nth-child(3) { background: #ffadad; }
 .torta-barra i:nth-child(4) { background: #caffbf; } .torta-barra i:nth-child(5) { background: #9bf6ff; } .torta-barra i:nth-child(6) { background: #bdb2ff; }
 .torta-barra i:nth-child(7) { background: #fdffb6; } .torta-barra i:nth-child(8) { background: #ffc6ff; } .torta-barra i:nth-child(9) { background: #d0f4de; border-right: 0; }
 .areas { display: flex; flex-direction: column; gap: 8px; }
-.area { border: 2px solid var(--tinta); border-radius: 14px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--papel); }
+.area { border: 1px solid var(--linea); border-radius: var(--radio); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--papel); }
 .area.cambiada { background: #fffaea; box-shadow: inset 0 0 0 2px var(--sol); }
-.area-cab { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.area-cab { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
 .area-cab .em { font-size: 24px; }
-.area-cab .pct { font-family: var(--f-titulo); font-size: 22px; text-align: right; line-height: 1; }
+.area-cab .pct { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 22px; text-align: right; line-height: 1; }
 .area-cab .pct small { display: block; font-family: var(--f-texto); font-size: 11px; color: var(--tinta-suave); }
 .area-control { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; align-items: center; }
 .area-control .boton.mini { font-size: 22px; padding: 0; min-height: 40px; }
@@ -674,7 +680,7 @@ p { margin: 0; }
 /* ── Congreso ── */
 .porotos { position: relative; }
 .linea-necesaria { position: absolute; top: -5px; width: 4px; height: 32px; margin-left: -2px; background: var(--tinta); border-radius: 2px; }
-.conteo { display: flex; justify-content: center; gap: 18px; font-family: var(--f-titulo); font-size: 24px; }
+.conteo { display: flex; justify-content: center; gap: 18px; font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 24px; }
 .conteo .si { color: var(--bien); } .conteo .no { color: var(--mal); }
 .conteo.invertido .si { color: var(--mal); } .conteo.invertido .no { color: var(--bien); }
 .accion.hecha { background: #f1fbf4; }
@@ -682,9 +688,9 @@ p { margin: 0; }
 .acciones-prov .boton { flex: 1 1 140px; }
 
 /* ── Mundo ── */
-.bandera { display: inline-block; vertical-align: middle; border: 2px solid var(--tinta); border-radius: 4px; flex: none; }
+.bandera { display: inline-block; vertical-align: middle; border: 1px solid var(--linea); border-radius: 4px; flex: none; }
 .paises { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.pais-carta { text-align: left; border: var(--borde); border-radius: 14px; background: var(--papel); box-shadow: var(--sombra-chica); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; min-width: 0; }
+.pais-carta { text-align: left; border: var(--borde); border-radius: var(--radio); background: var(--papel); box-shadow: var(--sombra-chica); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; min-width: 0; }
 .pais-carta.anexado { background: #f6efdc; }
 .nombre-pais { font-size: 14px; line-height: 1.1; min-width: 0; }
 .frente { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; }
@@ -695,7 +701,7 @@ p { margin: 0; }
 
 /* ── Logros y legado ── */
 .medallas { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-.medalla { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 14px; border: var(--borde); border-radius: 18px; background: var(--sol-claro); box-shadow: var(--sombra); max-width: 220px; animation: rebote 0.6s ease; }
+.medalla { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 14px; border: var(--borde); border-radius: var(--radio); background: var(--sol-claro); box-shadow: var(--sombra); max-width: 220px; animation: rebote 0.6s ease; }
 .medalla .em { font-size: 44px; }
 .medalla.mala { background: var(--mal-claro); }
 .vitrina { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
@@ -704,36 +710,36 @@ p { margin: 0; }
 .medalla.bloqueada { background: var(--papel-2); color: var(--meh); }
 .legado { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 6px; }
 .estrellas { font-size: 38px; color: var(--sol); letter-spacing: 4px; text-shadow: 0 2px 0 var(--tinta); }
-.titulo-legado { font-family: var(--f-titulo); font-size: 24px; }
+.titulo-legado { font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 24px; }
 
 /* ── Guía de primeros pasos ── */
-.guia { background: var(--sol-claro); margin-bottom: 12px; }
+.guia { background: var(--papel); margin-bottom: 12px; border-left: 4px solid var(--sol); }
 .pasos-guia { display: flex; flex-direction: column; gap: 8px; }
-.paso-guia { display: grid; grid-template-columns: 26px 30px minmax(0, 1fr); gap: 8px; align-items: center; }
-.paso-guia .num { width: 24px; height: 24px; border-radius: 50%; background: var(--tinta); color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 900; }
+.paso-guia { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: center; }
+.paso-guia .num { width: 24px; height: 24px; border-radius: 50%; background: var(--tinta); color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 700; }
 .paso-guia .em { font-size: 24px; }
 
 /* ── Banderas de partido ── */
-.bandera-partido { display: block; border: 2px solid var(--tinta); border-radius: 6px; background: var(--papel); flex: none; box-shadow: var(--sombra-chica); }
+.bandera-partido { display: block; border: 1px solid var(--linea); border-radius: 6px; background: var(--papel); flex: none; box-shadow: var(--sombra-chica); }
 .bandera-partido.sin-borde { border: 0; box-shadow: none; }
 .escudo-bandera { position: relative; flex: none; display: inline-flex; flex-direction: column; align-items: center; }
 .escudo-bandera.grande .bandera-partido { border-width: 3px; border-radius: 8px; box-shadow: var(--sombra); }
-.escudo-bandera .sig { margin-top: -10px; background: var(--tinta); color: #fff; font-size: 14px; font-weight: 900; padding: 2px 10px; border-radius: 8px; position: relative; }
+.escudo-bandera .sig { margin-top: -10px; background: var(--tinta); color: #fff; font-size: 14px; font-weight: 700; padding: 2px 10px; border-radius: 8px; position: relative; }
 .mini-bandera .bandera-partido { border-width: 1.5px; border-radius: 4px; box-shadow: none; }
 .editor-bandera { display: flex; flex-direction: column; gap: 8px; }
 .patrones { display: flex; flex-wrap: wrap; gap: 6px; }
-.patrones .opcion { border: 2px solid var(--tinta); border-radius: 10px; background: var(--papel); padding: 4px; display: grid; place-items: center; cursor: pointer; }
+.patrones .opcion { border: 1px solid var(--linea); border-radius: 10px; background: var(--papel); padding: 4px; display: grid; place-items: center; cursor: pointer; }
 .patrones .opcion.elegida { outline: 3px solid var(--sol); outline-offset: 1px; background: var(--sol-claro); }
 .patrones .opcion .bandera-partido { box-shadow: none; border-width: 1.5px; border-radius: 4px; }
 .slots { display: flex; flex-wrap: wrap; gap: 6px; }
-.slot { display: inline-flex; align-items: center; gap: 5px; border: 2px solid var(--tinta); border-radius: 999px; background: var(--papel); padding: 3px 10px 3px 4px; font-size: 13px; font-weight: 900; cursor: pointer; }
-.slot i { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--tinta); display: block; }
+.slot { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--linea); border-radius: 999px; background: var(--papel); padding: 3px 10px 3px 4px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.slot i { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--linea); display: block; }
 .slot.elegido { background: var(--sol-claro); box-shadow: inset 0 0 0 2px var(--sol-osc); }
 .paleta { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; max-width: 320px; }
-.paleta button { aspect-ratio: 1; width: 100%; border-radius: 8px; border: 2px solid var(--tinta); cursor: pointer; padding: 0; }
+.paleta button { aspect-ratio: 1; width: 100%; border-radius: 8px; border: 1px solid var(--linea); cursor: pointer; padding: 0; }
 .paleta button.elegida { outline: 3px solid var(--sol); outline-offset: 1px; }
 .emblemas { display: flex; gap: 6px; overflow-x: auto; padding: 3px 2px 6px; scrollbar-width: thin; }
-.emblemas button { flex: none; width: 40px; height: 40px; border: 2px solid var(--tinta); border-radius: 10px; background: var(--papel-2); cursor: pointer; font-size: 20px; display: grid; place-items: center; padding: 2px; }
+.emblemas button { flex: none; width: 40px; height: 40px; border: 1px solid var(--linea); border-radius: 10px; background: var(--papel-2); cursor: pointer; font-size: 20px; display: grid; place-items: center; padding: 2px; }
 .emblemas button.elegida { outline: 3px solid var(--sol); outline-offset: 1px; background: var(--sol-claro); }
 .emblemas svg { width: 30px; height: 30px; }
 .oculto-visual { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
@@ -741,29 +747,29 @@ label.boton { cursor: pointer; }
 
 /* ── Riesgos ── */
 .riesgos { display: flex; flex-direction: column; gap: 4px; }
-.riesgo { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 12px; font-weight: 900; padding: 4px 6px; border-radius: 10px; border: 1.5px dashed currentColor; }
-.riesgo.malo { color: #9b1c1f; background: #fff3f2; }
-.riesgo.bueno { color: #146c3a; background: #f0fbf4; }
+.riesgo { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 12px; font-weight: 700; padding: 0; border: 0; }
+.riesgo.malo { color: var(--mal); }
+.riesgo.bueno { color: var(--bien); }
 .riesgo .pct { font-size: 13px; }
 .riesgo .txt { color: var(--tinta); }
 .riesgo .ef { font-size: 12px; padding: 1px 6px 1px 4px; }
 
 /* ── Gráfico de imagen (campaña) ── */
-.grafico-imagen { display: flex; flex-direction: column; gap: 6px; padding: 10px 10px 8px; border-radius: 14px; background: var(--papel); border: 2px solid var(--tinta); }
+.grafico-imagen { display: flex; flex-direction: column; gap: 6px; padding: 10px 10px 8px; border-radius: var(--radio); background: var(--papel); border: 1px solid var(--linea); }
 .linea-imagen { width: 100%; height: auto; display: block; overflow: visible; }
 .linea-imagen text { font-family: var(--f-texto); font-weight: 800; }
 .linea-imagen .eje { font-size: 9px; fill: var(--tinta-suave); }
-.linea-imagen .eje.hoy { fill: var(--tinta); font-weight: 900; }
-.linea-imagen .eje.marca { font-size: 8.5px; fill: var(--tinta); font-weight: 900; }
-.linea-imagen .fin-linea { font-size: 11px; font-weight: 900; paint-order: stroke; stroke: #ffffff; stroke-width: 3px; }
+.linea-imagen .eje.hoy { fill: var(--tinta); font-weight: 700; }
+.linea-imagen .eje.marca { font-size: 8.5px; fill: var(--tinta); font-weight: 700; }
+.linea-imagen .fin-linea { font-size: 11px; font-weight: 700; paint-order: stroke; stroke: #ffffff; stroke-width: 3px; }
 .leyenda-imagen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 10px; }
-.leyenda-imagen .item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 900; min-width: 0; }
+.leyenda-imagen .item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; min-width: 0; }
 .leyenda-imagen .item i { width: 16px; height: 4px; border-radius: 2px; flex: none; }
 .leyenda-imagen .nom { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .leyenda-imagen .delta { font-size: 11px; color: var(--meh); }
 .leyenda-imagen .delta.sube { color: var(--bien); }
 .leyenda-imagen .delta.baja { color: var(--mal); }
-.fila-militancia { display: grid; grid-template-columns: auto minmax(0, 1fr) 40px; gap: 8px; align-items: center; font-size: 13px; font-weight: 900; }
+.fila-militancia { display: grid; grid-template-columns: auto minmax(0, 1fr) 40px; gap: 8px; align-items: center; font-size: 13px; font-weight: 700; }
 .fila-militancia b { text-align: right; }
 
 /* ── Escritorio: dos columnas ── */
@@ -6654,7 +6660,7 @@ label.boton { cursor: pointer; }
     if (sigla) {
       emb.push(S('text', {
         x: 45, y: 38, 'text-anchor': 'middle', fill: contraste,
-        style: `font-family: var(--f-titulo); font-size:${Math.min(24, 110 / Math.max(2, sigla.length))}px; letter-spacing: 0.5px`,
+        style: `font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size:${Math.min(24, 110 / Math.max(2, sigla.length))}px; letter-spacing: 0.5px`,
       }, sigla));
     }
     const ancho = opts.ancho || 60;
@@ -6842,7 +6848,7 @@ label.boton { cursor: pointer; }
       }
     }
     const textos = [];
-    if (opts.centro !== undefined) textos.push(S('text', { x: 0, y: -8, 'text-anchor': 'middle', style: 'font-family: var(--f-titulo); font-size: 26px; fill: currentColor' }, String(opts.centro)));
+    if (opts.centro !== undefined) textos.push(S('text', { x: 0, y: -8, 'text-anchor': 'middle', style: 'font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 26px; fill: currentColor' }, String(opts.centro)));
     if (opts.sub) textos.push(S('text', { x: 0, y: 6, 'text-anchor': 'middle', style: 'font-size: 10px; font-weight: 900; fill: currentColor; opacity: .75' }, opts.sub));
     return S('svg', { class: 'hemiciclo', viewBox: '-104 -104 208 114', role: 'img', 'aria-label': opts.titulo || 'Hemiciclo' }, ...puntos, ...textos);
   };
@@ -6911,6 +6917,24 @@ label.boton { cursor: pointer; }
       h('div', { class: 'item' }, h('span', { class: 'em' }, d.emoji), h('span', { class: 'f' }, R.fechaCorta(d.mes)), h('span', null, d.txt))));
   };
 
+  // Íconos de línea (24×24, trazo) para las pestañas. Si no hay ícono, queda el emoji.
+  const ICONOS = {
+    inicio: 'M4 11l8-6 8 6M6 10v9h12v-9M10 19v-5h4v5',
+    economia: 'M12 4v16M16 7.5c-.8-1.2-2.3-2-4-2-2.2 0-4 1.3-4 3s1.8 2.6 4 3 4 1.3 4 3-1.8 3-4 3c-1.8 0-3.3-.8-4-2',
+    congreso: 'M3 9l9-5 9 5M5 10v8M9.7 10v8M14.3 10v8M19 10v8M3 20h18',
+    provincias: 'M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+    mapa: 'M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+    mundo: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3.5 9h17M3.5 15h17M12 3c2.5 2.6 3.6 5.6 3.6 9s-1.1 6.4-3.6 9M12 3C9.5 5.6 8.4 8.6 8.4 12s1.1 6.4 3.6 9',
+    diario: 'M5 5h11v14H6a1 1 0 0 1-1-1V5zM16 9h3v9a1 1 0 0 1-1 1h-2M8 9h5M8 12h5M8 15h3',
+    acciones: 'M4 10v4h3l6 4V6L7 10H4zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11',
+    encuesta: 'M5 20V10M10 20V5M15 20v-7M20 20v-4M3 20h18',
+  };
+  ui.icono = function (id) {
+    if (!ICONOS[id]) return null;
+    return R.svg('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.9, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' },
+      R.svg('path', { d: ICONOS[id] }));
+  };
+
   // Barra inferior: pestañas + botón grande para pasar el mes.
   ui.navInferior = function (pestanas, activa, alElegir, boton) {
     const nav = document.querySelector('.nav-inf') || document.body.appendChild(h('nav', { class: 'nav-inf' }));
@@ -6919,7 +6943,7 @@ label.boton { cursor: pointer; }
       boton || null,
       pestanas ? h('div', { class: 'pestanas', role: 'tablist' }, pestanas.map((p) =>
         h('button', { class: p.id === activa ? 'activa' : '', role: 'tab', 'aria-selected': p.id === activa ? 'true' : 'false', onclick: () => alElegir(p.id) },
-          h('span', { class: 'ic' }, p.emoji), p.nombre))) : null));
+          h('span', { class: 'ic' }, ui.icono(p.id) || p.emoji), p.nombre))) : null));
     nav.hidden = false;
   };
   ui.ocultarNav = function () {
@@ -6933,9 +6957,9 @@ label.boton { cursor: pointer; }
     ui.abrirCapa(h('div', { class: 'pila' },
       h('h2', null, 'Menú'),
       h('button', { class: 'boton sec ancho', onclick: () => { R.son.alternar(); ui.cerrarCapa(); ui.aviso(R.son.activo ? '🔊 Sonido activado' : '🔇 Sonido apagado'); } }, R.son.activo ? '🔇 Apagar sonido' : '🔊 Prender sonido'),
-      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.comoSeJuega(); } }, '❓ Cómo se juega'),
-      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.verLogros(); } }, '🏅 Logros'),
-      s ? h('button', { class: 'boton sec ancho', onclick: () => { R.guardar(s); ui.cerrarCapa(); ui.irPortada(); } }, '🏠 Volver a la portada') : null,
+      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.comoSeJuega(); } }, 'Cómo se juega'),
+      h('button', { class: 'boton sec ancho', onclick: () => { ui.cerrarCapa(); ui.verLogros(); } }, 'Logros'),
+      s ? h('button', { class: 'boton sec ancho', onclick: () => { R.guardar(s); ui.cerrarCapa(); ui.irPortada(); } }, 'Volver a la portada') : null,
       h('p', { class: 'chico suave centro' }, 'La partida se guarda sola en este dispositivo.')), { cerrable: true });
   };
 
@@ -6947,7 +6971,7 @@ label.boton { cursor: pointer; }
       const todos = R.describirEfectosFase(s, r.ef || {});
       const efs = todos.filter((e) => (r.bueno ? e.bueno : !e.bueno));
       return h('div', { class: 'riesgo ' + (r.bueno ? 'bueno' : 'malo') },
-        h('span', { class: 'pct' }, (r.bueno ? '🍀 ' : '🎲 ') + Math.round(r.p * 100) + '%'),
+        h('span', { class: 'pct' }, Math.round(r.p * 100) + '%'),
         h('span', { class: 'txt' }, r.txt + ':'),
         ui.chipsEfectos(efs.length ? efs : todos, { compacto: true }),
         r.nota ? h('span', { class: 'chico suave' }, r.nota) : null);
@@ -6958,10 +6982,10 @@ label.boton { cursor: pointer; }
   ui.guia = function (clave, titulo, pasos) {
     if (R.pref('guia_' + clave)) return null;
     const caja = h('section', { class: 'tarjeta pila guia' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '👋 ' + titulo),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, titulo),
         h('button', { class: 'boton mini sec', onclick: () => { R.pref('guia_' + clave, true); caja.remove(); } }, '✕')),
       h('div', { class: 'pasos-guia' }, pasos.map(([em, t, d], i) =>
-        h('div', { class: 'paso-guia' }, h('span', { class: 'num' }, String(i + 1)), h('span', { class: 'em' }, em), h('div', null, h('b', null, t), h('div', { class: 'chico' }, d))))),
+        h('div', { class: 'paso-guia' }, h('span', { class: 'num' }, String(i + 1)), h('div', null, h('b', null, t), h('div', { class: 'chico' }, d))))),
       h('button', { class: 'boton ancho', onclick: () => { R.pref('guia_' + clave, true); R.son.toque(); caja.remove(); } }, '¡Entendido!'));
     return caja;
   };
@@ -7001,32 +7025,27 @@ label.boton { cursor: pointer; }
     }
     return S('svg', { viewBox: '0 0 100 100', class: cls || 'sol-mayo', 'aria-hidden': 'true' },
       ...rayos,
-      S('circle', { cx: 50, cy: 50, r: 22, fill: '#f6b40e', stroke: '#a87800', 'stroke-width': 1.5 }),
-      S('path', { d: 'M41 46 Q43.5 43.5 46 46 M54 46 Q56.5 43.5 59 46', stroke: '#7a5200', 'stroke-width': 1.8, fill: 'none', 'stroke-linecap': 'round' }),
-      S('path', { d: 'M42 56 Q50 63 58 56', stroke: '#7a5200', 'stroke-width': 2, fill: 'none', 'stroke-linecap': 'round' }),
-      S('path', { d: 'M50 47 L48.5 53 L51 53.5', stroke: '#7a5200', 'stroke-width': 1.3, fill: 'none', 'stroke-linecap': 'round' }));
+      S('circle', { cx: 50, cy: 50, r: 22, fill: '#f6b40e', stroke: '#a87800', 'stroke-width': 1.5 }));
   };
 
   ui.portada = function () {
     ui.ocultarNav();
     const guardada = R.cargar();
+    // Un afiche: el rosa de la Casa Rosada, el título grande y el sol asomando en la esquina.
     const nodo = h('main', { class: 'portada' },
-      ui.solDeMayo(),
-      h('h1', { class: 'logo' }, 'Camino a', h('span', null, 'la Rosada')),
-      h('p', { class: 'lema' }, 'Fundá tu partido, ganá la elección y sacá el país adelante.'),
+      h('div', { class: 'afiche' },
+        ui.solDeMayo(),
+        h('h1', { class: 'logo' }, 'Camino a', h('span', null, 'la Rosada')),
+        h('p', { class: 'lema' }, 'Fundá un partido, ganá la elección y gobernás.')),
       h('div', { class: 'botones' },
         guardada ? h('button', { class: 'boton grande', onclick: () => { R.son.toque(); ui.continuar(guardada); } },
-          '▶ Continuar', h('span', { class: 'chico', style: { fontFamily: 'var(--f-texto)' } }, ' · ' + guardada.partido.sigla + ' · ' + R.fechaCorta(guardada.mes))) : null,
-        h('button', { class: 'boton grande' + (guardada ? ' sec' : ''), onclick: () => { R.son.toque(); ui.nuevaPartida(guardada); } }, '🏴 Nueva partida'),
-        h('div', { class: 'fila envolver', style: { justifyContent: 'center' } },
-          h('button', { class: 'boton mini sec', onclick: () => ui.comoSeJuega() }, '❓ Cómo se juega'),
-          h('button', { class: 'boton mini sec', onclick: () => ui.verLogros() }, '🏅 Logros'),
-          h('button', { class: 'boton mini sec', id: 'btn-sonido', onclick: (e) => { R.son.alternar(); e.currentTarget.textContent = R.son.activo ? '🔊 Sonido' : '🔇 Sonido'; } }, R.son.activo ? '🔊 Sonido' : '🔇 Sonido'))),
-      h('div', { class: 'pasos-portada' },
-        h('div', { class: 'tarjeta' }, h('div', null, '🏴'), 'Fundá tu partido'),
-        h('div', { class: 'tarjeta' }, h('div', null, '🗳️'), 'Ganá la elección'),
-        h('div', { class: 'tarjeta' }, h('div', null, '🏛️'), 'Gobernás el país')),
-      h('p', { class: 'chico suave' }, 'Partidos reales, candidatos y personajes inventados. Es un juego: no predice nada.'));
+          'Continuar', h('span', { class: 'chip' }, guardada.partido.sigla + ', ' + R.fechaCorta(guardada.mes))) : null,
+        h('button', { class: 'boton grande' + (guardada ? ' sec' : ''), onclick: () => { R.son.toque(); ui.nuevaPartida(guardada); } }, 'Nueva partida'),
+        h('div', { class: 'secundarios' },
+          h('button', { onclick: () => ui.comoSeJuega() }, 'Cómo se juega'),
+          h('button', { onclick: () => ui.verLogros() }, 'Logros'),
+          h('button', { id: 'btn-sonido', onclick: (e) => { R.son.alternar(); e.currentTarget.textContent = R.son.activo ? 'Sonido: sí' : 'Sonido: no'; } }, R.son.activo ? 'Sonido: sí' : 'Sonido: no'))),
+      h('p', { class: 'chico suave' }, 'Partidos reales, personas inventadas. Es un juego.'));
     ui.montar(nodo);
   };
 
@@ -7082,7 +7101,7 @@ label.boton { cursor: pointer; }
         h('button', { class: 'boton sec', onclick: () => { R.son.toque(); if (b.paso === 0) ui.irPortada(); else { b.paso--; pintar(); } } }, b.paso === 0 ? '✕' : '◀'),
         b.paso < 3
           ? h('button', { class: 'boton grande', style: { flex: 1 }, disabled: !valido(b) ? true : null, onclick: () => { R.son.toque(); b.paso++; pintar(); window.scrollTo(0, 0); } }, 'Siguiente ▶')
-          : h('button', { class: 'boton grande verde', style: { flex: 1 }, disabled: !valido(b) ? true : null, onclick: fundar }, '🎉 ¡Fundar el partido!')));
+          : h('button', { class: 'boton grande verde', style: { flex: 1 }, disabled: !valido(b) ? true : null, onclick: fundar }, '¡Fundar el partido!')));
     ui.montar(nodo);
   }
 
@@ -7102,7 +7121,7 @@ label.boton { cursor: pointer; }
       h('h2', null, '¿Cómo se llama tu partido?'),
       h('div', { class: 'campo' }, h('label', { class: 'etiqueta', for: 'in-nombre' }, 'Nombre'), inNombre),
       h('div', { class: 'campo' }, h('label', { class: 'etiqueta', for: 'in-sigla' }, 'Sigla (2 a 5 letras)'), inSigla),
-      h('button', { class: 'boton sec', onclick: () => { const n = R.nombrePartidoAzar(); b.nombre = n.nombre; b.sigla = n.sigla; R.son.toque(); pintar(); } }, '🎲 Inventame uno'));
+      h('button', { class: 'boton sec', onclick: () => { const n = R.nombrePartidoAzar(); b.nombre = n.nombre; b.sigla = n.sigla; R.son.toque(); pintar(); } }, 'Inventame uno'));
   }
 
   function infoBorrador(b) {
@@ -7133,8 +7152,8 @@ label.boton { cursor: pointer; }
     if (B.imagen) {
       return h('section', { class: 'tarjeta pila editor-bandera' },
         h('div', { class: 'fila entre' }, h('h2', null, 'Tu bandera'), subir),
-        h('p', { class: 'chico suave' }, 'Usás tu propia imagen como bandera. Se recorta en forma de bandera.'),
-        h('button', { class: 'boton sec', onclick: () => cambiar(() => { delete B.imagen; delete B.colorImagen; }) }, '✕ Quitar la imagen y diseñarla'));
+        h('p', { class: 'chico suave' }, 'Se recorta en forma de bandera.'),
+        h('button', { class: 'boton sec', onclick: () => cambiar(() => { delete B.imagen; delete B.colorImagen; }) }, 'Quitar la imagen y diseñarla'));
     }
     return h('section', { class: 'tarjeta pila editor-bandera' },
       h('div', { class: 'fila entre' }, h('h2', null, 'Tu bandera'),
@@ -7282,7 +7301,7 @@ label.boton { cursor: pointer; }
         h('div', { class: 'em' }, res.bueno ? '👍' : '😬'),
         h('div', { class: 'txt' }, res.txt || o.txt),
         efectos.length ? ui.chipsEfectos(efectos) : h('p', { class: 'suave' }, 'No cambió nada importante.'),
-        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir ▶')), { clase: 'diario-hoja' });
+        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir')), { clase: 'diario-hoja' });
     };
     const teclas = (e) => {
       const n = parseInt(e.key, 10);
@@ -7290,7 +7309,7 @@ label.boton { cursor: pointer; }
     };
     document.addEventListener('keydown', teclas);
     ui.abrirCapa(h('article', { class: 'pila', style: { gap: '4px' } },
-      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, '📰 EL CAMINO'), h('span', { class: 'chico suave' }, R.fechaTxt(s.mes))),
+      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, 'El Camino'), h('span', { class: 'chico suave' }, R.fechaTxt(s.mes))),
       h('div', { class: 'dibujo-noticia', 'aria-hidden': 'true' }, d.dibujo),
       h('h2', { class: 'titular' }, d.titular),
       d.bajada ? h('p', { class: 'bajada' }, d.bajada) : null,
@@ -7345,9 +7364,9 @@ label.boton { cursor: pointer; }
     pintarMapa();
     const veredicto = h('div');
     const despues = h('div', { class: 'pila' });
-    const saltar = h('button', { class: 'boton mini sec', onclick: () => { t0 = -1e9; } }, '⏩ Ver resultado');
+    const saltar = h('button', { class: 'boton mini sec', onclick: () => { t0 = -1e9; } }, 'Ver resultado');
     const cont = h('div', { class: 'noche' },
-      h('h2', null, '🗳️ ' + res.titulo),
+      h('h2', null, '' + res.titulo),
       h('div', { class: 'escrutinio' }, 'Mesas escrutadas: ', pctEl, '%'),
       h('div', { class: 'barra gorda' }, barraEsc),
       h('div', { class: 'noche-cuerpo' },
@@ -7417,7 +7436,7 @@ label.boton { cursor: pointer; }
       const extras = [];
       if (res.perdidos > 0.3) extras.push(h('div', { class: 'tarjeta chico' }, '⚠️ Te faltaron fiscales: perdiste ' + R.fmt(res.perdidos, 1) + ' puntos en las mesas.'));
       if (res.bancas) extras.push(congresoNuevo(s, res));
-      extras.push(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir ▶'));
+      extras.push(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir'));
       despues.replaceChildren(...extras);
       const btn = despues.querySelector('.boton');
       if (btn) setTimeout(() => btn.focus({ preventScroll: true }), 50);
@@ -7478,7 +7497,7 @@ label.boton { cursor: pointer; }
         const txt = r.r === 'gana' ? '¡Ganaste la ronda! 👏' : r.r === 'pierde' ? 'Te ganó la ronda 😓' : 'Empate';
         partes.push(h('div', { class: 'burbuja centro' },
           'Vos: ' + E[d.historia[d.historia.length - 1].yo].emoji + ' · ' + rival.candidato.nombre.split(' ')[0] + ': ' + E[r.el].emoji + ' ' + E[r.el].nombre,
-          h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '22px', marginTop: '4px', color: r.r === 'gana' ? 'var(--bien)' : r.r === 'pierde' ? 'var(--mal)' : 'inherit' } }, txt),
+          h('div', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '22px', marginTop: '4px', color: r.r === 'gana' ? 'var(--bien)' : r.r === 'pierde' ? 'var(--mal)' : 'inherit' } }, txt),
           r.tema.fuerte === d.historia[d.historia.length - 1].yo ? h('div', { class: 'chico' }, '⭐ Bonus: era el estilo justo para ' + r.tema.nombre.toLowerCase()) : null));
         partes.push(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ultimo = null; if (d.ronda >= 3) fin(); else pintar(); } }, d.ronda >= 3 ? 'Ver cómo te fue ▶' : 'Siguiente tema ▶'));
       } else {
@@ -7507,12 +7526,11 @@ label.boton { cursor: pointer; }
       const res = R.debate.terminar(s, d);
       R.guardar(s);
       if (res.bueno) R.son.genial(); else R.son.abucheo();
-      if (d.puntos >= 2) ui.confeti();
       ui.abrirCapa(h('div', { class: 'resultado-grande' },
         R.ui.avatar(s.lider.avatar, { size: 96, humor: res.bueno ? 'feliz' : 'triste', fondo: ui.aclarar(s.partido.color, 0.6) }),
         h('div', { class: 'txt' }, res.veredicto),
         ui.chipsEfectos(R.describirAplicado(s, res.aplicado)),
-        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir ▶')));
+        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir')));
     }
     pintar();
   };
@@ -7545,22 +7563,22 @@ label.boton { cursor: pointer; }
       acciones: () => [pc ? null : resumen(s), tarjetaAcciones(s)],
       mapa: () => tarjetaMapa(s),
       encuesta: () => tarjetaEncuesta(s),
-      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Lo que pasó'), ui.historial(s)),
+      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Lo que pasó'), ui.historial(s)),
     }[tab]();
     const cuerpo = pc
       ? h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, resumen(s), tarjetaEncuesta(s)), h('div', { class: 'pila' }, contenido))
       : h('div', { class: 'pila' }, contenido);
     const guia = tab === 'acciones' && s.mes <= 2 && !s.gobRival ? ui.guia('campana', 'Cómo hacer campaña', [
-      ['🎯', 'Usá tus acciones del mes', 'Cada carta muestra qué te da: 👁️ conocimiento, ❤️ imagen, 📣 relevancia, 🏴 militancia.'],
-      ['🗺️', 'Hacé actos donde te quieren', 'Las provincias grandes pesan más: Buenos Aires es casi 4 de cada 10 votos.'],
-      ['▶', 'Pasá el mes', 'Llegan noticias, se mueve la encuesta y se acercan las PASO de agosto.'],
+      ['', 'Usá tus acciones del mes', 'Cada una muestra qué te da.'],
+      ['', 'Hacé actos donde te quieren', 'Buenos Aires vale casi 4 de cada 10 votos.'],
+      ['', 'Pasá el mes', 'Las PASO son en agosto.'],
     ]) : null;
     const scroll = ui.montar(h('div', null, ui.barraCampana(s), guia, cuerpo), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
     const b = R.turno.botonPasar(s);
     ui.navInferior(PESTANAS.filter((p) => !(pc && p.soloCelu)), tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
       h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() },
-        b.emoji + ' ' + b.txt, s.camp.agenda > 0 ? h('span', { class: 'chip', style: { fontFamily: 'var(--f-texto)', fontSize: '12px' } }, 'te quedan ' + s.camp.agenda) : null));
+        b.txt, s.camp.agenda > 0 ? h('span', { class: 'chip', style: { fontFamily: 'var(--f-texto)', fontSize: '12px' } }, 'te quedan ' + s.camp.agenda) : null));
   };
 
   // ── Resumen: cuenta regresiva y tus números ──
@@ -7574,10 +7592,10 @@ label.boton { cursor: pointer; }
     return h('section', { class: 'tarjeta pila' },
       prox ? h('div', { class: 'cuenta-regresiva' },
         h('div', { class: 'num' }, prox.faltan ? prox.faltan : prox.emoji),
-        h('div', null, h('div', { class: 'etiqueta' }, prox.faltan ? (prox.faltan === 1 ? 'mes para ' : 'meses para ') + (prox.art || 'las') : '¡Este mes se vota!'), h('div', { class: 'titulo-seccion' }, prox.emoji + ' ' + prox.nombre))) : null,
+        h('div', null, h('div', { class: 'etiqueta' }, prox.faltan ? (prox.faltan === 1 ? 'mes para ' : 'meses para ') + (prox.art || 'las') : '¡Este mes se vota!'), h('div', { class: 'titulo-seccion' }, prox.nombre))) : null,
       h('div', { class: 'fila entre', style: { alignItems: 'flex-end' } },
         h('div', null, h('div', { class: 'etiqueta' }, 'Te votaría'),
-          h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '46px', lineHeight: 1 }, class: 'numero' }, R.fmt(enc.YO, 1), h('span', { style: { fontSize: '24px' } }, ' %'))),
+          h('div', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '46px', lineHeight: 1 }, class: 'numero' }, R.fmt(enc.YO, 1), h('span', { style: { fontSize: '24px' } }, ' %'))),
         h('div', { class: 'pila', style: { alignItems: 'flex-end', gap: '6px' } },
           h('span', { class: 'chip ' + (puesto <= 2 ? 'sol' : '') }, puesto === 1 ? '🥇 Primero' : puesto === 2 ? '🥈 Segundo' : '#' + puesto + ' en la encuesta'),
           Math.abs(dif) >= 0.05 ? h('span', { class: 'chip ' + (dif > 0 ? 'bien' : 'mal') }, (dif > 0 ? '▲ ' : '▼ ') + R.fmt(Math.abs(dif), 1) + ' este mes') : null)),
@@ -7585,7 +7603,7 @@ label.boton { cursor: pointer; }
       h('div', { class: 'fila-militancia' }, h('span', null, '🏴 Militancia y fiscales'),
         h('div', { class: 'barra', style: { height: '10px' } }, h('i', { style: { width: c.militancia + '%', background: s.partido.color } })),
         h('b', { class: 'numero' }, R.fmt(c.militancia) + '%')),
-      c.militancia < 30 && s.mes >= 4 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, '⚠️ Con poca militancia no tenés fiscales: te pueden robar votos.') : null,
+      c.militancia < 30 && s.mes >= 4 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'Con poca militancia no tenés fiscales: te pueden robar votos.') : null,
       s.gobRival ? h('div', { class: 'fila envolver', style: { gap: '6px' } },
         h('span', { class: 'chip' }, '🏛️ Gobierna ' + R.elec.nombre(s, s.gobRival.partido) + ' (' + R.PARTIDOS[s.gobRival.partido].sigla + ')'),
         h('span', { class: 'chip ' + (s.gobRival.aprob < 40 ? 'bien' : s.gobRival.aprob > 55 ? 'mal' : '') }, '👍 ' + Math.round(s.gobRival.aprob) + '% de aprobación'),
@@ -7657,7 +7675,7 @@ label.boton { cursor: pointer; }
 
     const dif = hoy.diferencial;
     return h('div', { class: 'grafico-imagen' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'etiqueta' }, '📈 Tu imagen, mes a mes'),
+      h('div', { class: 'fila entre' }, h('div', { class: 'etiqueta' }, 'Tu imagen, mes a mes'),
         h('span', { class: 'chip ' + (dif >= 0 ? 'bien' : 'mal'), title: 'Imagen positiva menos negativa' }, 'Diferencial ' + R.signo(dif, 0))),
       S('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'linea-imagen', role: 'img',
         'aria-label': 'Imagen hoy: ' + SERIES.map((se) => se.nom + ' ' + Math.round(hoy[se.k]) + '%').join(', ') }, ...partes),
@@ -7668,16 +7686,15 @@ label.boton { cursor: pointer; }
           h('span', { class: 'nom' }, se.nom),
           Math.abs(d) >= 0.5 ? h('span', { class: 'delta ' + ((d > 0) !== !!se.malo ? 'sube' : 'baja') }, (d > 0 ? '▲' : '▼') + R.fmt(Math.abs(d))) : null);
       })),
-      pts.length === 1 ? h('p', { class: 'chico suave' }, 'Acá arranca tu historia: cada mes se suma un punto.') : null,
-      s.encuestas.some((e) => e.imgEstimada) ? h('p', { class: 'chico suave' }, 'Los primeros meses son estimados (tu partida empezó con una versión anterior).') : null);
+      s.encuestas.some((e) => e.imgEstimada) ? h('p', { class: 'chico suave' }, 'Los primeros meses son estimados.') : null);
   }
 
   // ── Acciones ──
   function tarjetaAcciones(s) {
     const c = s.camp;
     return h('section', { class: 'pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🎯 Acciones del mes'), ui.puntosAgenda(c.agendaMax - c.agenda, Math.max(c.agendaMax, c.agenda))),
-      c.agenda <= 0 ? h('div', { class: 'tarjeta plana centro', style: { background: 'var(--sol-claro)' } }, '✅ Agenda completa. Tocá ', h('b', null, R.turno.botonPasar(s).txt), ' para seguir.') : null,
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Acciones del mes'), ui.puntosAgenda(c.agendaMax - c.agenda, Math.max(c.agendaMax, c.agenda))),
+      c.agenda <= 0 ? h('p', { class: 'chico suave' }, 'Agenda completa.') : null,
       h('div', { class: 'acciones' }, R.camp.ACCIONES.map((a) => cartaAccion(s, a))));
   }
 
@@ -7687,10 +7704,9 @@ label.boton { cursor: pointer; }
     const costoTxt = a.elegir === 'figura' ? '💰 20-35' : a.costo ? '💰 ' + a.costo : 'gratis';
     const chipCosto = h('span', { class: 'chip ' + (a.costo || a.elegir === 'figura' ? 'sol' : '') }, costoTxt);
     return h('button', { class: 'accion', disabled: bloq ? true : null, onclick: () => elegirAccion(s, a), 'aria-label': a.nombre + '. ' + a.desc },
-      h('div', { class: 'cab' }, h('span', { class: 'ic' }, a.emoji), h('span', { class: 'nom' }, a.nombre)),
-      h('div', { class: 'desc' }, a.desc),
+      h('div', { class: 'cab' }, h('span', { class: 'nom' }, a.nombre)),
       prev ? ui.chipsEfectos(prev, { compacto: true, antes: chipCosto })
-        : h('div', { class: 'efectos' }, chipCosto, h('span', { class: 'chip' }, a.elegir === 'provincia' ? '📍 Elegís dónde' : '👆 Elegís')),
+        : h('div', { class: 'efectos' }, chipCosto, h('span', { class: 'chip' }, a.elegir === 'provincia' ? 'Elegís dónde' : 'Elegís')),
       a.riesgos && (!a.elegir || a.elegir === 'rival') ? ui.riesgos(s, a.riesgos(s)) : null,
       bloq && bloq !== 'Sin agenda este mes' ? h('div', { class: 'bloq' }, bloq) : null);
   }
@@ -7707,7 +7723,7 @@ label.boton { cursor: pointer; }
     }[a.elegir]();
     ui.abrirCapa(h('div', { class: 'pila' },
       h('h2', null, a.emoji + ' ' + a.nombre),
-      a.elegir === 'aliado' ? h('p', { class: 'chico suave' }, 'Solo una alianza por elección. Si piensa distinto a vos, tu gente se enoja un poco.') : null,
+      a.elegir === 'aliado' ? h('p', { class: 'chico suave' }, 'Una alianza por elección.') : null,
       h('div', { class: 'lista-elegir' }, items.map((it) => h('button', {
         class: 'item-elegir', disabled: it.costo > s.camp.fondos ? true : null,
         onclick: () => { ui.cerrarCapa(); hacer(s, a.id, it.id); },
@@ -7775,7 +7791,7 @@ label.boton { cursor: pointer; }
       },
     });
     ui.abrirCapa(h('div', { class: 'acto-elegir' },
-      h('h2', null, '🎤 ¿Dónde es el acto?'),
+      h('h2', null, '¿Dónde es el acto?'),
       pista,
       h('div', { class: 'acto-cuerpo' }, h('div', { class: 'acto-mapa' }, mapa), panel)),
     { cerrable: true, sinFoco: true, clase: 'hoja-acto' });
@@ -7822,7 +7838,7 @@ label.boton { cursor: pointer; }
       const v = votos[id];
       const orden = Object.keys(v).sort((a, b) => v[b] - v[a]);
       info.replaceChildren(h('div', { class: 'tarjeta plana suave pila', style: { gap: '8px' } },
-        h('div', { class: 'fila entre' }, h('b', { style: { fontFamily: 'var(--f-titulo)', fontWeight: 400, fontSize: '20px' } }, R.PROV[id].nombre),
+        h('div', { class: 'fila entre' }, h('b', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '20px' } }, R.PROV[id].nombre),
           h('span', { class: 'chip' }, '📍 Apoyo local ' + R.fmt(s.camp.presencia[id]) + '%')),
         h('div', { class: 'encuesta' }, orden.slice(0, 3).map((k) => {
           const p = R.partidoInfo(s, k);
@@ -7832,7 +7848,7 @@ label.boton { cursor: pointer; }
         }))));
     };
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, '🗺️ Dónde te votan'),
+      h('div', { class: 'titulo-seccion' }, 'Dónde te votan'),
       R.ui.mapa({
         colorDe: (id) => (R.PROV[id] ? R.ui.colorEscala(s.partido.color, Math.min(100, votos[id].YO * 2.2)) : null),
         valorDe: (id) => (R.PROV[id] ? R.fmt(votos[id].YO, 0) + '%' : null),
@@ -7846,10 +7862,10 @@ label.boton { cursor: pointer; }
     const enc = R.camp.encuesta(s);
     const ant = s.encuestas.length >= 2 ? s.encuestas[s.encuestas.length - 2] : null;
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📊 Encuesta'), h('span', { class: 'chip' }, R.fechaCorta(s.mes))),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Encuesta'), h('span', { class: 'chip' }, R.fechaCorta(s.mes))),
       ui.encuesta(s, enc, { anterior: ant }),
       s.encuestas.length > 1 ? tendencia(s) : null,
-      h('p', { class: 'chico suave' }, 'Las encuestas tienen ± 2 puntos de error.'));
+      null);
   }
 
   // Línea de tu evolución mes a mes.
@@ -7880,7 +7896,7 @@ label.boton { cursor: pointer; }
         h('div', { style: { fontSize: '44px' } }, '⏱️'),
         h('h2', null, 'Te quedan ' + s.camp.agenda + (s.camp.agenda === 1 ? ' acción' : ' acciones')),
         h('p', null, 'Si pasás el mes, se pierden.'),
-        h('button', { class: 'boton ancho', onclick: () => { ui.cerrarCapa(); } }, '🎯 Usarlas'),
+        h('button', { class: 'boton ancho', onclick: () => { ui.cerrarCapa(); } }, 'Usarlas'),
         h('button', { class: 'boton sec ancho', onclick: () => { ui.confirmoPasar = true; ui.cerrarCapa(); ui.pasarMes(); } }, 'Pasar igual ▶')), { cerrable: true });
       return;
     }
@@ -7925,19 +7941,18 @@ label.boton { cursor: pointer; }
     const paneles = {
       inicio: () => panelInicio(s, pc),
       economia: () => ui.panelEconomia(s),
-      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Lo que pasó'), ui.historial(s, 60)),
+      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Lo que pasó'), ui.historial(s, 60)),
     };
     Object.assign(paneles, ui.panelesGob);
     const guia = tab === 'inicio' ? ui.guia('gobierno', 'Cómo gobernar', [
-      ['👥', 'Mirá a la gente', 'Tocá cada cara para ver qué le importa y por qué está contenta o enojada.'],
-      ['💰', 'La economía va en %', 'Más plata a un área contenta a alguien, pero sube el déficit. Déficit pagado con emisión = inflación.'],
-      ['⭐', 'Gastá capital político', 'En acciones, leyes, gobernadores y el mundo. Se recarga cada mes según tu aprobación.'],
-      ['🔥', 'Cuidado con la crisis', 'Cada problema grave suma una llamita. Con 6 o más puede haber un estallido.'],
+      ['', 'Mirá a la gente', 'Tocá cada cara para ver qué le pasa.'],
+      ['', 'Repartí el presupuesto', 'Más gasto sin plata es inflación.'],
+      ['', 'Usá tus ⭐', 'Leyes, acciones y gobernadores.'],
     ]) : null;
     const scroll = ui.montar(h('div', null, barraGobierno(s), guia, paneles[tab](s)), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
     ui.navInferior(ui.PESTANAS_GOB, tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
-      h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() }, '▶ Pasar el mes',
+      h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() }, 'Pasar el mes',
         h('span', { class: 'chip', style: { fontFamily: 'var(--f-texto)', fontSize: '12px' } }, '⭐ ' + s.gob.pc)));
   };
 
@@ -7976,12 +7991,12 @@ label.boton { cursor: pointer; }
     return h('section', { class: 'tarjeta pila' },
       h('div', { class: 'fila entre', style: { alignItems: 'flex-end' } },
         h('div', null, h('div', { class: 'etiqueta' }, 'Aprobación'),
-          h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '48px', lineHeight: 1, color: G.aprob >= 50 ? 'var(--bien)' : G.aprob < 30 ? 'var(--mal)' : 'var(--tinta)' }, class: 'numero' },
+          h('div', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '48px', lineHeight: 1, color: G.aprob >= 50 ? 'var(--bien)' : G.aprob < 30 ? 'var(--mal)' : 'var(--tinta)' }, class: 'numero' },
             R.fmt(G.aprob), h('span', { style: { fontSize: '24px' } }, ' %'))),
         h('button', { class: 'chip toque', style: { cursor: 'pointer', background: llamas.length >= 4 ? 'var(--mal-claro)' : llamas.length ? 'var(--sol-claro)' : 'var(--bien-claro)' }, onclick: () => verLlamas(s) },
-          llamas.length ? '🔥'.repeat(Math.min(5, llamas.length)) + (llamas.length > 5 ? ' ×' + llamas.length : '') + ' Crisis' : '🧯 Sin crisis')),
+          llamas.length ? '🔥'.repeat(Math.min(5, llamas.length)) + (llamas.length > 5 ? ' ×' + llamas.length : '') + ' Crisis' : 'Sin crisis')),
       ui.sparkline(G.historia.map((x) => x.aprob), { color: 'var(--celeste)', max: 100, alto: 54, etiqueta: '%' }),
-      prox ? h('div', { class: 'fila', style: { gap: '8px' } }, h('span', { style: { fontSize: '22px' } }, prox.emoji),
+      prox ? h('div', { class: 'fila', style: { gap: '8px' } },
         h('div', null, h('b', null, prox.nombre), h('div', { class: 'chico suave' }, prox.faltan === 0 ? '¡Este mes!' : 'Faltan ' + prox.faltan + (prox.faltan === 1 ? ' mes' : ' meses')))) : null);
   }
 
@@ -8003,8 +8018,8 @@ label.boton { cursor: pointer; }
     const llamas = R.gob.llamas(s);
     const vistos = new Set();
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', null, '🔥 Termómetro de crisis'),
-      h('p', { class: 'chico suave' }, 'Cada llamita es un problema grave. Con 6 o más, puede haber un estallido.'),
+      h('h2', null, 'Termómetro de crisis'),
+      h('p', { class: 'chico suave' }, 'Con 6 llamas puede haber un estallido.'),
       h('div', { class: 'barra gorda' }, h('i', { style: { width: Math.min(100, llamas.length * 10) + '%', background: llamas.length >= 6 ? 'var(--mal)' : 'var(--sol)' } })),
       llamas.length ? h('div', { class: 'lista-elegir' }, llamas.filter((l) => !vistos.has(l.id) && vistos.add(l.id)).map((l) =>
         h('div', { class: 'item-elegir', style: { cursor: 'default' } }, h('span', { class: 'ic' }, l.emoji),
@@ -8016,7 +8031,7 @@ label.boton { cursor: pointer; }
   function tarjetaGente(s) {
     const G = s.gob;
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '👥 La gente'), h('span', { class: 'chico suave' }, 'Tocá a cada uno · ', h('span', { class: 'critico-mini' }, '🛒'), ' = lo que más lo enoja')),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'La gente'), h('span', { class: 'chico suave' }, h('span', { class: 'critico-mini' }, '🛒'), ' lo que más lo enoja')),
       h('div', { class: 'gente' }, R.GRUPOS.map((g) => {
         const st = G.grupos[g.id];
         const d = st.humor - (st.antes ?? st.humor);
@@ -8024,7 +8039,7 @@ label.boton { cursor: pointer; }
         return h('button', { class: 'persona toque', onclick: () => verGrupo(s, g.id), 'aria-label': g.nombre + ': ' + Math.round(st.humor) + ' de 100' + (peor ? '. Lo que más lo enoja: ' + RAZON(peor.k)[1] : '') },
           peor ? h('span', { class: 'critico', title: 'Lo que más lo enoja: ' + RAZON(peor.k)[1] }, RAZON(peor.k)[0]) : null,
           R.ui.avatar(g.avatar, { size: 56, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
-          h('span', { class: 'nom' }, g.emoji + ' ' + g.nombre),
+          h('span', { class: 'nom' }, g.nombre),
           h('span', { class: 'barra', style: { height: '8px', width: '100%' } }, h('i', { style: { width: st.humor + '%', background: colorHumorFuerte(st.humor) } })),
           Math.abs(d) >= 1 ? h('span', { class: 'delta ' + (d > 0 ? 'sube' : 'baja') }, d > 0 ? '▲' : '▼') : null);
       })));
@@ -8123,7 +8138,7 @@ label.boton { cursor: pointer; }
       suma.length ? h('div', { class: 'etiqueta' }, '🙂 Le suma') : null,
       suma.length ? h('div', { class: 'motivos' }, suma.map(fila)) : null,
       igual.length ? h('p', { class: 'chico suave' }, '😐 Por ahora no le pesan: ' + igual.map((p) => RAZON(p.k).join(' ')).join(' · ')) : null,
-      h('p', { class: 'chico suave' }, '🗳️ ' + g.nombre + ': pesa ' + g.peso + ' de cada 100 votos. La rayita negra de arriba es hacia dónde va su humor.')), { cerrable: true });
+      h('p', { class: 'chico suave' }, 'Pesa ' + g.peso + ' de cada 100 votos.')), { cerrable: true });
   }
 
 
@@ -8150,21 +8165,20 @@ label.boton { cursor: pointer; }
   function tarjetaPais(s) {
     const e = s.eco;
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🇦🇷 El país'), h('span', { class: 'chico suave' }, 'Tocá para ver por qué')),
+      h('div', { class: 'titulo-seccion' }, 'El país'),
       h('div', { class: 'pais' }, ui.indicadores(s).map((x) => {
         const mejora = x.malo ? x.d < -x.umbral : x.d > x.umbral;
         const empeora = x.malo ? x.d > x.umbral : x.d < -x.umbral;
         return h('button', { class: 'indicador toque', onclick: () => ui.porQue(s, x.id) },
-          h('div', { class: 'fila entre' }, h('span', { class: 'em' }, x.emoji), mejora ? h('span', { class: 'chip bien' }, '▲ mejora') : empeora ? h('span', { class: 'chip mal' }, '▼ empeora') : null),
-          h('div', { class: 'nom' }, x.nombre),
+          h('div', { class: 'fila entre' }, h('span', { class: 'nom' }, x.nombre), mejora ? h('span', { class: 'tendencia bien' }, '▲') : empeora ? h('span', { class: 'tendencia mal' }, '▼') : null),
           h('div', { class: 'val' }, x.valor),
           h('div', { class: 'sub' }, x.sub),
           x.extra || null);
       })),
       h('div', { class: 'fila envolver chico', style: { gap: '6px' } },
-        h('span', { class: 'chip' }, '💳 Deuda ' + R.fmt(e.deuda) + '% del PBI'),
-        h('span', { class: 'chip' }, '📊 Riesgo país ' + R.fmt(e.riesgo)),
-        h('span', { class: 'chip ' + (R.eco.resultado(s) >= 0 ? 'bien' : 'mal') }, '⚖️ ' + (R.eco.resultado(s) >= 0 ? 'Superávit ' : 'Déficit ') + R.fmt(Math.abs(R.eco.resultado(s)), 1) + '%')));
+        h('span', { class: 'chip' }, 'Deuda ' + R.fmt(e.deuda) + '% del PBI'),
+        h('span', { class: 'chip' }, 'Riesgo país ' + R.fmt(e.riesgo)),
+        h('span', { class: 'chip ' + (R.eco.resultado(s) >= 0 ? 'bien' : 'mal') }, (R.eco.resultado(s) >= 0 ? 'Superávit ' : 'Déficit ') + R.fmt(Math.abs(R.eco.resultado(s)), 1) + '%')));
   }
 
   // «¿Por qué?»: las causas de cada indicador, con barras.
@@ -8200,13 +8214,12 @@ label.boton { cursor: pointer; }
   // ── Acciones de gobierno (⭐) ──
   function tarjetaAcciones(s) {
     return h('section', { class: 'pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '⭐ Acciones de gobierno'), h('span', { class: 'chip sol' }, '⭐ ' + s.gob.pc + ' disponibles')),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Acciones de gobierno'), h('span', { class: 'chip sol' }, '⭐ ' + s.gob.pc + ' disponibles')),
       h('div', { class: 'acciones' }, R.gob.ACCIONES.map((a) => {
         const b = R.gob.bloqueoAccion(s, a);
         const ef = Object.assign({}, a.ef, a.gasto ? { gastoExtra: a.gasto } : {});
         return h('button', { class: 'accion', disabled: b ? true : null, onclick: () => hacerAccion(s, a.id) },
-          h('div', { class: 'cab' }, h('span', { class: 'ic' }, a.emoji), h('span', { class: 'nom' }, a.nombre)),
-          h('div', { class: 'desc' }, a.desc),
+          h('div', { class: 'cab' }, h('span', { class: 'nom' }, a.nombre)),
           ui.chipsEfectos(R.gob.describirEfectos(s, ef), { compacto: true, antes: h('span', { class: 'chip sol' }, '⭐ ' + a.pc) }),
           a.azar ? ui.riesgos(s, [{ p: a.azar.p, bueno: false, txt: 'Puede salir mal', ef: a.azar.ef }]) : null,
           b ? h('div', { class: 'bloq' }, b) : null);
@@ -8256,7 +8269,7 @@ label.boton { cursor: pointer; }
   // ── Momentos del gobierno ──
   ui.momentos.ministro = function (s, m, listo) {
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', { class: 'centro' }, '🧑‍💼 ¿Quién maneja la economía?'),
+      h('h2', { class: 'centro' }, '¿Quién maneja la economía?'),
       h('p', { class: 'centro chico suave' }, 'Tu primera gran decisión. Se puede cambiar después (cuesta ⭐ 4).'),
       h('div', { class: 'lista-elegir' }, Object.entries(R.MINISTROS).map(([id, mi]) =>
         h('button', { class: 'item-elegir', style: { gridTemplateColumns: '64px minmax(0,1fr)' }, onclick: () => {
@@ -8280,7 +8293,7 @@ label.boton { cursor: pointer; }
       const sube = dif > (umbral || 0.05);
       const baja = dif < -(umbral || 0.05);
       const bueno = malo ? baja : sube;
-      return h('div', { class: 'fila-resumen' }, h('span', { class: 'em' }, em), h('span', { class: 'nom' }, nom), h('span', { class: 'val numero' }, fmt(vd)),
+      return h('div', { class: 'fila-resumen' }, h('span', { class: 'nom' }, nom), h('span', { class: 'val numero' }, fmt(vd)),
         h('span', { class: 'chip ' + (sube || baja ? (bueno ? 'bien' : 'mal') : '') }, sube ? '▲' : baja ? '▼' : '='));
     };
     const causaInfl = (s.eco.causas.inflacion || []).filter((x) => x.k !== 'inercia').sort((x, y) => Math.abs(y.v) - Math.abs(x.v))[0];
@@ -8288,18 +8301,18 @@ label.boton { cursor: pointer; }
     const porque = [];
     if (causaInfl && Math.abs(causaInfl.v) > 0.1) {
       const c = R.CAUSAS.inflacion[causaInfl.k];
-      porque.push(h('div', { class: 'porque' }, '🛒 Precios ', h('b', { style: { color: causaInfl.v > 0 ? 'var(--mal)' : 'var(--bien)' } }, causaInfl.v > 0 ? '▲' : '▼'), ' por ', c[0] + ' ' + c[1].toLowerCase()));
+      porque.push(h('div', { class: 'porque' }, 'Precios ', h('b', { style: { color: causaInfl.v > 0 ? 'var(--mal)' : 'var(--bien)' } }, causaInfl.v > 0 ? '▲' : '▼'), ' por ', c[1].toLowerCase()));
     }
     if (causaCrec && Math.abs(causaCrec.v) > 0.2) {
       const c = R.CAUSAS.crecimiento[causaCrec.k];
-      porque.push(h('div', { class: 'porque' }, '📈 Economía ', h('b', { style: { color: causaCrec.v > 0 ? 'var(--bien)' : 'var(--mal)' } }, causaCrec.v > 0 ? '▲' : '▼'), ' por ', c[0] + ' ' + c[1].toLowerCase()));
+      porque.push(h('div', { class: 'porque' }, 'Economía ', h('b', { style: { color: causaCrec.v > 0 ? 'var(--bien)' : 'var(--mal)' } }, causaCrec.v > 0 ? '▲' : '▼'), ' por ', c[1].toLowerCase()));
     }
     const da = m.aprobDespues - m.aprobAntes;
     const reaccion = m.reaccion && Object.keys(m.reaccion).length ? R.gob.describirEfectos(s, m.reaccion) : null;
     const contenido = h('div', { class: 'pila' },
-      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, '📅 ' + R.fechaTxt(s.mes)), h('span', { class: 'chico suave' }, 'Resumen del mes')),
+      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, R.fechaTxt(s.mes)), h('span', { class: 'chico suave' }, 'Resumen del mes')),
       h('div', { class: 'fila entre' },
-        h('div', null, h('div', { class: 'etiqueta' }, 'Aprobación'), h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '40px', lineHeight: 1 }, class: 'numero' }, R.fmt(m.aprobDespues), h('span', { style: { fontSize: '20px' } }, ' %'))),
+        h('div', null, h('div', { class: 'etiqueta' }, 'Aprobación'), h('div', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '40px', lineHeight: 1 }, class: 'numero' }, R.fmt(m.aprobDespues), h('span', { style: { fontSize: '20px' } }, ' %'))),
         h('span', { class: 'chip ' + (da >= 0 ? 'bien' : 'mal'), style: { fontSize: '16px' } }, (da >= 0 ? '▲ ' : '▼ ') + R.fmt(Math.abs(da), 1))),
       reaccion ? h('div', { class: 'pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta' }, 'Reacción a tus cambios'), ui.chipsEfectos(reaccion)) : null,
       h('div', { class: 'resumen-filas' },
@@ -8309,14 +8322,14 @@ label.boton { cursor: pointer; }
         fila('🏚️', 'Pobreza', a.pobreza, d.pobreza, (v) => R.fmt(v, 1) + '%', true, 0.1),
         fila('🏦', 'Reservas', a.reservas, d.reservas, (v) => 'US$ ' + R.fmt(v, 0) + ' mil M', false, 0.3)),
       porque.length ? h('div', { class: 'pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta' }, '¿Por qué?'), porque) : null,
-      m.frases && m.frases.length ? h('div', { class: 'pila', style: { gap: '8px' } }, h('div', { class: 'etiqueta' }, '🗣️ La gente dice'),
+      m.frases && m.frases.length ? h('div', { class: 'pila', style: { gap: '8px' } }, h('div', { class: 'etiqueta' }, 'La gente dice'),
         m.frases.map((f) => {
           const g = R.GRUPO[f.grupo];
           const st = s.gob.grupos[f.grupo];
           return h('div', { class: 'dicho' }, R.ui.avatar(g.avatar, { size: 44, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
             h('div', { class: 'globo ' + (f.bueno ? 'bien' : 'mal') }, h('b', null, g.personaje + ': '), f.txt));
         })) : null,
-      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶'));
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir'));
     ui.abrirCapa(contenido, { clase: 'diario-hoja' });
     if (da <= -3) ui.temblor(document.querySelector('.hoja'));
   };
@@ -8351,7 +8364,7 @@ label.boton { cursor: pointer; }
     const extra = e.gastoExtraAnio;
     const inclina = R.clamp(-res * 4, -14, 14);
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '⚖️ Presupuesto del año'), h('span', { class: 'chip ' + (res >= 0 ? 'bien' : 'mal'), style: { fontSize: '15px' } }, (res >= 0 ? '✅ Superávit ' : '⚠️ Déficit ') + R.fmt(Math.abs(res), 1) + '%')),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Presupuesto del año'), h('span', { class: 'chip ' + (res >= 0 ? 'bien' : 'mal'), style: { fontSize: '15px' } }, (res >= 0 ? '✅ Superávit ' : '⚠️ Déficit ') + R.fmt(Math.abs(res), 1) + '%')),
       h('div', { class: 'balanza', 'aria-hidden': 'true' },
         h('div', { class: 'brazo', style: { transform: 'rotate(' + inclina + 'deg)' } },
           h('span', { class: 'plato' }, '💰'), h('span', { class: 'plato' }, '💸')),
@@ -8359,8 +8372,8 @@ label.boton { cursor: pointer; }
       h('div', { class: 'pila', style: { gap: '6px' } },
         h('div', { class: 'linea-balanza' }, h('span', null, '💰 Recaudás'), h('div', { class: 'barra gorda' }, h('i', { style: { width: (rec / max) * 100 + '%', background: 'var(--bien)' } })), h('b', { class: 'numero' }, R.fmt(rec, 1) + '%')),
         h('div', { class: 'linea-balanza' }, h('span', null, '💸 Gastás'), h('div', { class: 'barra gorda' }, h('i', { style: { width: (tot / max) * 100 + '%', background: res >= 0 ? 'var(--celeste)' : 'var(--mal)' } })), h('b', { class: 'numero' }, R.fmt(tot, 1) + '%'))),
-      h('p', { class: 'chico suave' }, 'En % del PBI (todo lo que produce el país en un año). Incluye ' + R.fmt(int, 1) + '% de intereses de la deuda.'),
-      extra > 0.05 ? h('p', { class: 'chico' }, '🧾 Gastos extra de este año (bonos, emergencias): ' + R.fmt(extra, 2) + '% del PBI') : null,
+      h('p', { class: 'chico suave' }, 'En % del PBI. Incluye ' + R.fmt(int, 1) + '% de intereses.'),
+      extra > 0.05 ? h('p', { class: 'chico' }, 'Gastos extra del año: ' + R.fmt(extra, 2) + '% del PBI') : null,
       res < 0 ? tarjetaFinanciamiento(s) : null);
   }
 
@@ -8372,7 +8385,7 @@ label.boton { cursor: pointer; }
       h('div', { class: 'selector' }, R.eco.FINANCIAMIENTO.map((f, i) =>
         h('button', { class: 'opcion' + (e.financiamiento === i ? ' elegida' : ''), disabled: dolarizado && i < 2 ? true : null, onclick: () => { e.financiamiento = i; R.son.toque(); R.guardar(s); ui.refrescar(); } },
           h('span', { class: 'em' }, f.emoji), h('b', null, f.nombre), h('span', { class: 'chico' }, f.desc)))),
-      e.financiamiento < 2 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, '🖨️ Emitir plata sin respaldo hace subir los precios.') : h('p', { class: 'chico suave' }, '🏦 Pedir prestado sube la deuda y, si es mucha, el riesgo país.'));
+      e.financiamiento < 2 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'Emitir sube los precios.') : h('p', { class: 'chico suave' }, 'Pedir prestado sube la deuda.'));
   }
 
   // 🧾 Impuestos y retenciones.
@@ -8395,11 +8408,11 @@ label.boton { cursor: pointer; }
     const D = (ef) => R.gob.describirEfectos(s, ef);
     const cambio = (k, v) => { e[k] = v; R.son.toque(); R.guardar(s); ui.aviso('🧾 ' + (k === 'impuestos' ? 'Impuestos: ' + R.eco.IMPUESTOS[v].nombre : 'Retenciones: ' + R.eco.RETENCIONES[v].nombre) + ' · la gente reacciona a fin de mes', { dur: 1800 }); ui.refrescar(); };
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, '🧾 Lo que cobrás'),
+      h('div', { class: 'titulo-seccion' }, 'Lo que cobrás'),
       perilla('Impuestos', '🧾', e.impuestos, R.eco.IMPUESTOS, (v) => cambio('impuestos', v),
-        D({ empresarios: -7, media: -5, crec: -0.7 }), D({ empresarios: 4, media: 3, crec: 0.7 }), 'Cada nivel mueve ~1,2% del PBI de recaudación.'),
+        D({ empresarios: -7, media: -5, crec: -0.7 }), D({ empresarios: 4, media: 3, crec: 0.7 })),
       perilla('Retenciones al campo', '🌾', e.retenciones, R.eco.RETENCIONES, (v) => cambio('retenciones', v),
-        D({ campo: -9, expo: -0.06 }), D({ campo: 6, expo: 0.06 }), 'Menos retenciones = más exportaciones y dólares, pero recaudás menos.'));
+        D({ campo: -9, expo: -0.06 }), D({ campo: 6, expo: 0.06 })));
   }
 
   // 💸 Gasto por área en % del presupuesto.
@@ -8407,10 +8420,9 @@ label.boton { cursor: pointer; }
     const e = s.eco;
     const gp = R.eco.gastoPrimario(e);
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '💸 ¿En qué gastás?'), h('span', { class: 'chico suave' }, 'Total ' + R.fmt(gp, 1) + '% del PBI')),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '¿En qué gastás?'), h('span', { class: 'chico suave' }, 'Total ' + R.fmt(gp, 1) + '% del PBI')),
       h('div', { class: 'torta-barra', 'aria-hidden': 'true' }, R.AREAS.map((a) => h('i', { style: { width: R.eco.participacion(e, a.id) + '%' }, title: a.nombre }, R.eco.participacion(e, a.id) > 7 ? a.emoji : ''))),
       lineaTorta(s),
-      h('p', { class: 'chico suave' }, 'Tocá − o + (de a 10 %). La gente reacciona a fin de mes; si te arrepentís antes, no pasa nada.'),
       h('div', { class: 'areas' }, R.AREAS.map((a) => filaArea(s, a))));
   }
 
@@ -8460,7 +8472,6 @@ label.boton { cursor: pointer; }
     const cal = a.calidad ? e.calidad[a.calidad] : null;
     return h('div', { class: 'area' + (pend ? ' cambiada' : '') },
       h('div', { class: 'area-cab' },
-        h('span', { class: 'em' }, a.emoji),
         h('div', { style: { minWidth: 0 } }, h('b', null, a.nombre), h('div', { class: 'chico suave' }, R.eco.nivelTxt(nivel) + (cal !== null ? ' · calidad ' + Math.round(cal) + '/100' : '')),
           plataReal(s, nivel)),
         h('div', { class: 'pct numero' }, R.fmt(part, 1) + '%', h('small', null, 'del gasto'))),
@@ -8471,10 +8482,10 @@ label.boton { cursor: pointer; }
             h('b', { class: 'marca-hoy', style: { left: ((1 - R.eco.NIVEL_MIN) / (R.eco.NIVEL_MAX - R.eco.NIVEL_MIN)) * 100 + '%' }, title: 'Como estaba al asumir' }))),
         h('button', { class: 'boton mini sec', disabled: nivel >= R.eco.NIVEL_MAX ? true : null, 'aria-label': 'Más plata para ' + a.nombre, onclick: () => cambiar(0.1) }, '+')),
       h('div', { class: 'fila envolver', style: { gap: '6px' } },
-        h('span', { class: 'chico suave' }, '+10 % te da:'),
+        h('span', { class: 'chico suave' }, '+10 %:'),
         ui.chipsEfectos(a.gana.map(([em, nom, f]) => ({ emoji: em, nombre: nom, sube: f > 0, bueno: (f > 0) !== (nom === 'Pobreza'), flechas: Math.abs(f) }))),
         h('span', { class: 'chip mal' }, '💸 ' + R.fmt(costoPaso, 2) + '% PBI')),
-      pend ? h('div', { class: 'chico', style: { color: 'var(--sol-osc)', fontWeight: 900 } }, '⏳ Cambiado este mes: la gente reacciona a fin de mes') : null);
+      pend ? h('div', { class: 'chico', style: { color: 'var(--sol-osc)', fontWeight: 900 } }, 'Cambiado este mes') : null);
   }
 
   // 💥 Medidas fuertes.
@@ -8483,7 +8494,7 @@ label.boton { cursor: pointer; }
     const caja = h('section', { class: 'tarjeta pila' });
     const pintar = () => {
       caja.replaceChildren(
-        h('div', { class: 'titulo-seccion' }, '💥 Medidas fuertes'),
+        h('div', { class: 'titulo-seccion' }, 'Medidas fuertes'),
         h('div', { class: 'lista-elegir' }, R.gob.MEDIDAS.filter((m) => !m.si || m.si(s)).map((m) => {
           const b = R.gob.bloqueoMedida(s, m);
           const ef = R.gob.describirEfectos(s, R.gob.efectoMedida(s, m));
@@ -8496,8 +8507,7 @@ label.boton { cursor: pointer; }
                 h('button', { class: 'boton mini sec', onclick: () => { confirmar = null; pintar(); } }, 'Mejor no')));
           }
           return h('button', { class: 'item-elegir', disabled: b ? true : null, onclick: () => { confirmar = m.id; R.son.toque(); pintar(); } },
-            h('span', { class: 'ic' }, m.emoji),
-            h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, m.nombre), h('span', { class: 'chico suave' }, m.desc), ui.chipsEfectos(ef, { compacto: true }), b ? h('span', { class: 'bloq chico', style: { color: 'var(--mal)' } }, b) : null),
+            h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, m.nombre), ui.chipsEfectos(ef, { compacto: true }), b ? h('span', { class: 'bloq chico', style: { color: 'var(--mal)' } }, b) : null),
             h('span', { class: 'chip' }, 'gratis'));
         })));
     };
@@ -8538,13 +8548,13 @@ label.boton { cursor: pointer; }
       h('div', { class: 'centro chico' }, (comp.YO || 0) >= nec ? '✅ Mayoría propia' : 'Mayoría: ' + nec));
     const mayoria = con.mayoria(s);
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🏛️ El Congreso'), mayoria ? h('span', { class: 'chip bien' }, '+1 ⭐ por mes') : null),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'El Congreso'), mayoria ? h('span', { class: 'chip bien' }, '+1 ⭐ por mes') : null),
       h('div', { class: 'bancas-ganadas' }, camara('Diputados', dip, 257, 129), camara('Senado', sen, 72, 37)),
       h('div', { class: 'leyenda' }, R.ui.gruposCamara(s, dip).map((g) => {
         const p = R.partidoInfo(s, g.id);
         return h('span', { class: 'chip', style: { background: ui.aclarar(p.color, 0.55) } }, p.simbolo + ' ' + p.sigla + ' ' + g.n + '/' + (sen[g.id] || 0));
       })),
-      h('p', { class: 'chico suave centro' }, 'Diputados / Senadores de cada bloque'));
+      h('p', { class: 'chico suave centro' }, 'Diputados / senadores'));
   }
 
   // 🤝 Cómo te llevás con cada bloque: una fila de caritas; tocás y se abre el detalle.
@@ -8555,7 +8565,7 @@ label.boton { cursor: pointer; }
     const sen = R.composicion(s, 'senado');
     const bloques = con.BLOQUES.filter((b) => (dip[b] || 0) + (sen[b] || 0) > 0);
     return h('button', { class: 'tarjeta toque fila-bloques', onclick: () => verBloques(s) },
-      h('span', { class: 'titulo-seccion' }, '🤝 Bloques'),
+      h('span', { class: 'titulo-seccion' }, 'Bloques'),
       h('span', { class: 'caritas' }, bloques.map((b) => {
         const p = R.partidoInfo(s, b);
         return h('span', { class: 'carita', title: p.sigla + ': ' + relTxt(G.rel[b])[1] }, h('b', null, p.sigla), relTxt(G.rel[b])[0]);
@@ -8568,7 +8578,7 @@ label.boton { cursor: pointer; }
     const dip = R.composicion(s, 'diputados');
     const sen = R.composicion(s, 'senado');
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', null, '🤝 Cómo te llevás con cada bloque'),
+      h('h2', null, 'Cómo te llevás con cada bloque'),
       h('div', { class: 'razones' }, con.BLOQUES.filter((b) => (dip[b] || 0) + (sen[b] || 0) > 0).map((b) => {
         const p = R.partidoInfo(s, b);
         const r = G.rel[b];
@@ -8578,7 +8588,7 @@ label.boton { cursor: pointer; }
           h('span', { class: 'barrita' }, h('i', { style: { width: r + '%', background: r >= 60 ? 'var(--bien)' : r >= 35 ? 'var(--sol)' : 'var(--mal)' } })),
           h('span', { class: 'chico', style: { fontWeight: 900, textAlign: 'right' } }, cara + ' ' + txt));
       })),
-      h('p', { class: 'chico suave' }, 'Diputados + senadores de cada bloque. Mejora si negociás, si les gusta tu ley o si tu aprobación sube. Los gobernadores también mueven a sus legisladores.')), { cerrable: true });
+      h('p', { class: 'chico suave' }, 'Diputados + senadores. Mejora negociando o con leyes que les gustan.')), { cerrable: true });
   }
 
   // 📜 Leyes: dos botones de filtro (tema e ideas) que abren una ventanita, y filas compactas.
@@ -8594,12 +8604,12 @@ label.boton { cursor: pointer; }
     const te = R.TEMAS_LEY.find((x) => x.id === tema);
     const ia = R.IDEAS_LEY.find((x) => x.id === idea);
     return h('section', { class: 'pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📜 Leyes'), h('span', { class: 'chip sol' }, '⭐ ' + G.pc + ' · cada ley ⭐' + con.COSTO_PRESENTAR)),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Leyes'), h('span', { class: 'chip sol' }, '⭐ ' + G.pc + ' · cada ley ⭐' + con.COSTO_PRESENTAR)),
       h('div', { class: 'filtros-ley' },
         h('button', { class: 'filtro-btn', onclick: () => elegirFiltro(s, 'temaLey') }, h('small', null, 'Tema'), h('b', null, te ? te.emoji + ' ' + te.nombre : 'Todos'), '▾'),
         h('button', { class: 'filtro-btn', onclick: () => elegirFiltro(s, 'ideaLey') }, h('small', null, 'Ideas'), h('b', null, ia ? ia.emoji + ' ' + ia.nombre : 'Todas'), '▾')),
       leyes.length ? h('div', { class: 'leyes-lista' }, leyes.map((ley) => filaLey(s, ley))) : h('p', { class: 'suave centro' }, 'No hay leyes con esos filtros.'),
-      h('p', { class: 'chico suave centro' }, '⏳ = llega con el tiempo · tocá una ley para ver todo'));
+      null);
   }
 
   function elegirFiltro(s, clave) {
@@ -8665,9 +8675,9 @@ label.boton { cursor: pointer; }
       h('div', { class: 'plazos' },
         ef.ya.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⚡ Al firmar'), ui.chipsEfectos(ef.ya)) : null,
         ef.luego.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⏳ Con el tiempo'), ui.chipsEfectos(ef.luego)) : null),
-      fiscal < -0.15 ? h('div', { class: 'chico nota-proy mal' }, '💸 Te deja menos plata en las cuentas: si no recortás otra cosa, se paga emitiendo (inflación) o con deuda.',
-        comp.length ? h('div', { style: { marginTop: '4px' } }, '🧩 Combinala con: ', comp.map((x, i) => h('b', null, (i ? ' · ' : '') + x.emoji + ' ' + x.nombre))) : null) : null,
-      fiscal > 0.15 ? h('div', { class: 'chico nota-proy bien' }, '💰 Te deja más plata en las cuentas: podés gastarla en otra cosa sin déficit.') : null);
+      fiscal < -0.15 ? h('div', { class: 'chico nota-proy mal' }, 'Te deja menos plata: si no recortás otra cosa, es inflación o deuda.',
+        comp.length ? h('div', { style: { marginTop: '4px' } }, 'Combinala con: ', comp.map((x, i) => h('b', null, (i ? ' · ' : '') + x.emoji + ' ' + x.nombre))) : null) : null,
+      fiscal > 0.15 ? h('div', { class: 'chico nota-proy bien' }, 'Te deja más plata para gastar sin déficit.') : null);
   }
 
   // ⏳ Leyes que todavía no dieron todo: una línea por ley con su barra.
@@ -8678,7 +8688,7 @@ label.boton { cursor: pointer; }
     const ids = Object.keys(porLey);
     if (!ids.length) return null;
     return h('section', { class: 'tarjeta pila', style: { gap: '6px' } },
-      h('div', { class: 'titulo-seccion' }, '⏳ Tus leyes, llegando'),
+      h('div', { class: 'titulo-seccion' }, 'Tus leyes, llegando'),
       ids.map((id) => h('button', { class: 'en-camino toque', onclick: () => abrirLey(s, R.LEY[id]) },
         h('span', { class: 'nom' }, R.LEY[id].emoji + ' ' + R.LEY[id].nombre),
         h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(4, porLey[id] * 100) + '%', background: 'var(--celeste)' } })),
@@ -8708,7 +8718,7 @@ label.boton { cursor: pointer; }
       h('p', null, ley.desc + (ley.nota ? ' · ' + ley.nota : '')),
       h('div', { class: 'fila envolver', style: { gap: '6px' } }, h('span', { class: 'chip idea-' + ia.id }, ia.emoji + ' ' + ia.nombre), te ? h('span', { class: 'chip' }, te.emoji + ' ' + te.nombre) : null),
       queHaceLey(s, ley),
-      h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '🗳️ ¿Te alcanzan los votos?'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
+      h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '¿Te alcanzan los votos?'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
       h('div', { class: 'etiqueta' }, 'Bloques'),
       h('div', { class: 'lista-elegir' }, Object.values(bloques).filter((b) => b.id !== 'YO').map((b) => {
         const info = R.partidoInfo(s, b.id);
@@ -8732,11 +8742,11 @@ label.boton { cursor: pointer; }
               R.son.moneda(); R.guardar(s); ui.aviso('🤝 Negociaste con ' + info.sigla + ' (⭐ −' + r.costo + ')', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley);
             } }, '🤝 ⭐' + costo));
       })),
-      h('button', { class: 'boton sec ancho', onclick: () => { con.fondosGobernadores(s, ley); R.son.moneda(); R.guardar(s); ui.aviso('💸 Fondos a las provincias: los gobernadores empujan', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley); } }, '💸 Fondos a las provincias · 1,5% del presupuesto'),
+      h('button', { class: 'boton sec ancho', onclick: () => { con.fondosGobernadores(s, ley); R.son.moneda(); R.guardar(s); ui.aviso('💸 Fondos a las provincias: los gobernadores empujan', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley); } }, 'Fondos a las provincias · 1,5% del presupuesto'),
       h('div', { class: 'fila' },
-        h('button', { class: 'boton grande', style: { flex: '1.3 1 0' }, disabled: G.pc < con.COSTO_PRESENTAR ? true : null, onclick: () => votar(s, ley) }, '🗳️ Votar · ⭐' + con.COSTO_PRESENTAR),
-        ley.dnu ? h('button', { class: 'boton sec', style: { flex: '1 1 0' }, disabled: G.pc < con.COSTO_DNU ? true : null, title: 'Sin pasar por el Congreso, pero a la clase media no le gusta', onclick: () => decreto(s, ley) }, '📜 Decreto · ⭐' + con.COSTO_DNU) : null),
-      G.pc < con.COSTO_PRESENTAR ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'No tenés ⭐ suficientes: pasá el mes para juntar más.') : null), { cerrable: true });
+        h('button', { class: 'boton grande', style: { flex: '1.3 1 0' }, disabled: G.pc < con.COSTO_PRESENTAR ? true : null, onclick: () => votar(s, ley) }, 'Votar · ⭐' + con.COSTO_PRESENTAR),
+        ley.dnu ? h('button', { class: 'boton sec', style: { flex: '1 1 0' }, disabled: G.pc < con.COSTO_DNU ? true : null, title: 'Sin pasar por el Congreso, pero a la clase media no le gusta', onclick: () => decreto(s, ley) }, 'Decreto · ⭐' + con.COSTO_DNU) : null),
+      G.pc < con.COSTO_PRESENTAR ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'Te faltan ⭐: se recargan cada mes.') : null), { cerrable: true });
   }
 
   function decreto(s, ley) {
@@ -8806,12 +8816,12 @@ label.boton { cursor: pointer; }
     };
     const final = () => {
       const ok = opts.invertir ? !res.aprobada : res.aprobada;
-      if (ok) { R.son.aplausos(); ui.confeti(['#1c9a50', '#ffffff', '#f6b40e']); } else R.son.abucheo();
+      if (ok) R.son.aplausos(); else R.son.abucheo();
       cont.appendChild(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, ok ? '🎉 ¡Seguir!' : 'Seguir'));
       const b = cont.querySelector('.boton');
       if (b) b.focus({ preventScroll: true });
     };
-    ui.abrirCapa(h('div', { class: 'pila' }, h('h2', { class: 'centro' }, '🗳️ ' + titulo), cont), { sinFoco: true });
+    ui.abrirCapa(h('div', { class: 'pila' }, h('h2', { class: 'centro' }, titulo), cont), { sinFoco: true });
     siguiente();
   };
 
@@ -8831,15 +8841,15 @@ label.boton { cursor: pointer; }
       });
     };
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', null, '📒 ' + ley.nombre),
+      h('h2', null, '' + ley.nombre),
       h('p', null, 'Cada noviembre el Congreso vota tu presupuesto. ' + (def > 1 ? 'Con mucho déficit cuesta más que lo aprueben.' : 'Con las cuentas ordenadas es más fácil.')),
       h('div', { class: 'tarjeta plana suave pila' },
         h('div', { class: 'fila entre' }, h('b', null, 'Diputados'), h('span', { class: 'chip ' + (p.diputados.si >= p.diputados.necesarios ? 'bien' : 'mal') }, '~' + p.diputados.si + ' de ' + p.diputados.necesarios)),
         h('div', { class: 'fila entre' }, h('b', null, 'Senado'), h('span', { class: 'chip ' + (p.senado.si >= p.senado.necesarios ? 'bien' : 'mal') }, '~' + p.senado.si + ' de ' + p.senado.necesarios))),
       h('div', { class: 'fila envolver chico' }, h('span', null, 'Si se aprueba:'), ui.chipsEfectos(R.gob.describirEfectos(s, con.EF_PRESUPUESTO.si), { compacto: true })),
       h('div', { class: 'fila envolver chico' }, h('span', null, 'Si se rechaza:'), ui.chipsEfectos(R.gob.describirEfectos(s, con.EF_PRESUPUESTO.no), { compacto: true })),
-      h('button', { class: 'boton grande ancho', onclick: () => votarYa(false) }, '🗳️ Que voten'),
-      h('button', { class: 'boton sec ancho', onclick: () => votarYa(true) }, '💸 Repartir fondos a provincias y votar (1,5%)')));
+      h('button', { class: 'boton grande ancho', onclick: () => votarYa(false) }, 'Que voten'),
+      h('button', { class: 'boton sec ancho', onclick: () => votarYa(true) }, 'Repartir fondos a provincias y votar (1,5%)')));
   };
 
   ui.momentos.juicio = function (s, m, listo) {
@@ -8852,7 +8862,7 @@ label.boton { cursor: pointer; }
         h('h2', { class: 'titular' }, '¡La oposición pide tu juicio político!'),
         h('p', { class: 'bajada' }, 'Por los escándalos. Necesitan 2/3 en las dos cámaras.'),
         h('div', { class: 'tarjeta plana suave pila' }, cam('Diputados', p.diputados), cam('Senado', p.senado)),
-        h('button', { class: 'boton sec ancho', disabled: s.gob.juicioFondos ? true : null, onclick: () => { s.gob.juicioFondos = 1; R.gob.aplicarEfectos(s, { gastoExtra: 3 }); for (const pr of R.PROVINCIAS) s.gob.gobernadores[pr.id].rel = R.clamp(s.gob.gobernadores[pr.id].rel + 8, 0, 100); R.son.moneda(); pintar(); } }, '💸 Fondos a gobernadores · 3% del presupuesto'),
+        h('button', { class: 'boton sec ancho', disabled: s.gob.juicioFondos ? true : null, onclick: () => { s.gob.juicioFondos = 1; R.gob.aplicarEfectos(s, { gastoExtra: 3 }); for (const pr of R.PROVINCIAS) s.gob.gobernadores[pr.id].rel = R.clamp(s.gob.gobernadores[pr.id].rel + 8, 0, 100); R.son.moneda(); pintar(); } }, 'Fondos a gobernadores · 3% del presupuesto'),
         h('button', { class: 'boton grande ancho', onclick: () => {
           const res = con.votarJuicio(s);
           R.guardar(s);
@@ -8881,7 +8891,7 @@ label.boton { cursor: pointer; }
       h('div', { class: 'txt' }, 'La oposición y los jueces cuestionan tu decreto de ' + ley.nombre.toLowerCase()),
       ui.chipsEfectos(R.describirAplicado(s, aplicado)),
       h('p', { class: 'chico suave' }, 'El decreto sigue vigente, pero te costó caro.'),
-      h('button', { class: 'boton grande ancho', onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶')));
+      h('button', { class: 'boton grande ancho', onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir')));
   };
 })(globalThis.R = globalThis.R || {});
 
@@ -8930,7 +8940,7 @@ label.boton { cursor: pointer; }
     const pedidos = R.PROVINCIAS.filter((p) => G.gobernadores[p.id].rel < 40).length;
     const pc = ui.esPC();
     const izq = h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, '🗺️ Gobernadores'),
+      h('div', { class: 'titulo-seccion' }, 'Gobernadores'),
       h('div', { class: 'fila envolver', style: { gap: '6px' } },
         h('span', { class: 'chip bien' }, '😊 ' + aliados + ' aliados'),
         h('span', { class: 'chip mal' }, '😠 ' + pedidos + ' enojados')),
@@ -8939,8 +8949,8 @@ label.boton { cursor: pointer; }
         const p = R.partidoInfo(s, id);
         return h('span', { class: 'chip', style: { background: ui.aclarar(p.color, id === 'YO' ? 0.1 : 0.45) } }, p.simbolo + ' ' + p.sigla + ' ' + n);
       })));
-    const der = h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '🤝 Hablá con un gobernador'), info,
-      h('p', { class: 'chico suave' }, 'Un gobernador contento hace que sus diputados y senadores te voten las leyes. Si le das justo lo que pide, rinde más.'));
+    const der = h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Hablá con un gobernador'), info,
+      h('p', { class: 'chico suave' }, 'Gobernador contento: sus legisladores te votan.'));
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
     return h('div', { class: 'pila' }, izq, der);
   }
@@ -8955,7 +8965,7 @@ label.boton { cursor: pointer; }
       h('div', { class: 'fila' },
         R.ui.avatar(g.avatar, { size: 64, humor: g.rel >= 70 ? 'feliz' : g.rel >= 40 ? 'normal' : 'enojado', fondo: ui.aclarar(p.color, 0.6) }),
         h('div', { style: { minWidth: 0 } },
-          h('b', { style: { fontFamily: 'var(--f-titulo)', fontWeight: 400, fontSize: '20px' } }, R.PROV[id].nombre),
+          h('b', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '20px' } }, R.PROV[id].nombre),
           h('div', { class: 'chico' }, 'Gobernador/a ' + g.nombre),
           h('span', { class: 'chip', style: { background: ui.aclarar(p.color, 0.5) } }, p.simbolo + ' ' + p.sigla))),
       h('div', { class: 'fila entre' }, h('span', { class: 'chico', style: { fontWeight: 900 } }, relTxt(g.rel)),
@@ -8978,7 +8988,7 @@ label.boton { cursor: pointer; }
           alHacer();
         } }, (justo ? '🙏 ' : '') + a.emoji + ' ' + a.nombre + ' · ' + (a.costo.pc ? '⭐' + a.costo.pc : '💸' + R.fmt(a.costo.gasto, 1) + '%'));
       })),
-      con.bloqueoProv(s, id, con.ACC_PROV[2]) && s.mes - g.enfr < 3 ? h('p', { class: 'chico suave' }, '⏳ Ya hablaste hace poco con este gobernador.') : null);
+      con.bloqueoProv(s, id, con.ACC_PROV[2]) && s.mes - g.enfr < 3 ? h('p', { class: 'chico suave' }, 'Ya hablaste hace poco.') : null);
   }
 })(globalThis.R = globalThis.R || {});
 
@@ -9013,22 +9023,21 @@ label.boton { cursor: pointer; }
     const tratados = R.PAISES.filter((p) => s.mundo.paises[p.id].tratado);
     const anexados = R.PAISES.filter((p) => s.mundo.paises[p.id].anexado);
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, R.ui.bandera('ARG', 34), ' Argentina en el mundo')),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Argentina en el mundo')),
       h('div', { class: 'fila', style: { gap: '10px' } },
-        h('span', { style: { fontSize: '30px' } }, '⚔️'),
         h('div', { style: { flex: 1 } }, h('div', { class: 'fila entre' }, h('b', null, 'Poder militar'), h('b', { class: 'numero' }, String(poder))),
           h('div', { class: 'barra' }, h('i', { style: { width: Math.min(100, poder) + '%', background: 'var(--celeste)' } })))),
       h('div', { class: 'fila envolver', style: { gap: '6px' } },
-        h('span', { class: 'chip' }, '🛡️ Aliados: ', aliados.length ? aliados.map((p) => R.ui.bandera(p.id, 20)) : 'ninguno'),
-        h('span', { class: 'chip' }, '📦 Tratados: ' + tratados.length),
+        h('span', { class: 'chip' }, 'Aliados: ', aliados.length ? aliados.map((p) => R.ui.bandera(p.id, 20)) : 'ninguno'),
+        h('span', { class: 'chip' }, 'Tratados: ' + tratados.length),
         anexados.length ? h('span', { class: 'chip sol' }, '🏴 Anexaste: ' + anexados.map((p) => p.nombre).join(', ')) : null),
-      h('p', { class: 'chico suave' }, 'El poder sube con más plata para 🪖 Defensa, el servicio militar y comprando aviones.'),
-      h('button', { class: 'boton sec ancho', onclick: () => elegirProveedor(s) }, '🛩️ Comprar aviones · ⭐1 · 💸4%'));
+      h('p', { class: 'chico suave' }, 'Sube con Defensa y aviones.'),
+      h('button', { class: 'boton sec ancho', onclick: () => elegirProveedor(s) }, 'Comprar aviones (⭐1, 4% del presupuesto)'));
   }
 
   function elegirProveedor(s) {
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', null, '🛩️ ¿A quién le comprás?'),
+      h('h2', null, '¿A quién le comprás?'),
       h('p', { class: 'chico suave' }, 'Poder militar +' + mun.COMPRA.poder + ' · cuesta 4% del presupuesto · mejora la relación con el que te vende.'),
       h('div', { class: 'lista-elegir' }, ['USA', 'CHN', 'RUS', 'UE'].map((id) => h('button', { class: 'item-elegir', onclick: () => {
         const res = mun.comprarArmas(s, id);
@@ -9049,15 +9058,15 @@ label.boton { cursor: pointer; }
       h('div', { class: 'fila entre chico' },
         h('span', null, '💪 Vos: ' + F.yo + (F.misAliados.length ? ' (con ' + F.misAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '')),
         h('span', null, R.PAIS[W.pais].nombre + ': ' + F.el + (F.susAliados.length ? ' (+' + F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : ''))),
-      h('div', { class: 'chico suave' }, 'Llegá a la derecha para ganar. Si el frente llega a tu bandera, perdés.'));
+      h('div', { class: 'chico suave' }, 'Empujá el frente hasta su bandera.'));
   };
 
   function tarjetaGuerra(s) {
     const W = s.mundo.guerra;
     return h('section', { class: 'tarjeta pila', style: { background: '#fff5f4' } },
-      h('div', { class: 'titulo-seccion' }, '⚔️ Guerra con ' + R.PAIS[W.pais].nombre + ' · mes ' + (W.meses + 1)),
+      h('div', { class: 'titulo-seccion' }, 'Guerra con ' + R.PAIS[W.pais].nombre + ' · mes ' + (W.meses + 1)),
       ui.frente(s, W),
-      h('p', { class: 'chico' }, 'Cada mes, al pasar, das una orden: atacar, defender o pedir la paz.'));
+      h('p', { class: 'chico' }, 'Cada mes das una orden.'));
   }
 
   function tarjetaMalvinas(s) {
@@ -9065,8 +9074,8 @@ label.boton { cursor: pointer; }
     const confirmar = ui.vista && ui.vista.confirmarMalvinas;
     const F = mun.fuerzas(s, 'GBR');
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, '🏝️ Islas Malvinas'),
-      M.recuperadas ? h('div', { class: 'centro pila' }, R.ui.bandera('ARG', 90), h('b', { style: { fontFamily: 'var(--f-titulo)', fontSize: '24px', fontWeight: 400 } }, '¡Son argentinas!'))
+      h('div', { class: 'titulo-seccion' }, 'Islas Malvinas'),
+      M.recuperadas ? h('div', { class: 'centro pila' }, R.ui.bandera('ARG', 90), h('b', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '24px' } }, '¡Son argentinas!'))
         : h('div', { class: 'pila', style: { gap: '8px' } },
           h('div', { class: 'fila entre' }, h('b', null, 'Camino a la soberanía'), h('b', { class: 'numero' }, M.soberania + '%')),
           h('div', { class: 'barra gorda' }, h('i', { style: { width: M.soberania + '%', background: 'repeating-linear-gradient(90deg, #74acdf 0 14px, #ffffff 14px 28px)' } })),
@@ -9084,14 +9093,14 @@ label.boton { cursor: pointer; }
               h('b', null, '⚓ ¿Recuperarlas por la fuerza?'),
               h('div', { class: 'chico' }, '💪 Vos ' + F.yo + ' contra 🇬🇧 ' + F.el + ' (con ' + (F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') || 'nadie') + '). ' + (F.ratio >= 1.1 ? 'Tenés chances.' : F.ratio >= 0.8 ? 'Muy parejo y arriesgado.' : 'Es casi imposible: conseguí aliados fuertes.')),
               h('div', { class: 'fila' },
-                h('button', { class: 'boton mini rojo', onclick: () => { ui.vista.confirmarMalvinas = false; const r = mun.recuperarMalvinas(s); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); ui.refrescar(); return; } R.son.tambor(); ui.mostrarResultado(s, r); } }, '⚔️ ¡A la guerra! · ⭐5'),
+                h('button', { class: 'boton mini rojo', onclick: () => { ui.vista.confirmarMalvinas = false; const r = mun.recuperarMalvinas(s); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); ui.refrescar(); return; } R.son.tambor(); ui.mostrarResultado(s, r); } }, '¡A la guerra! · ⭐5'),
                 h('button', { class: 'boton mini sec', onclick: () => { ui.vista.confirmarMalvinas = false; ui.refrescar(); } }, 'Mejor no')))
-            : h('button', { class: 'boton sec ancho', onclick: () => { ui.vista = Object.assign({}, ui.vista, { confirmarMalvinas: true }); ui.refrescar(); } }, '⚓ Recuperarlas por la fuerza…')) : null));
+            : h('button', { class: 'boton sec ancho', onclick: () => { ui.vista = Object.assign({}, ui.vista, { confirmarMalvinas: true }); ui.refrescar(); } }, 'Recuperarlas por la fuerza…')) : null));
   }
 
   function tarjetaPaises(s) {
     return h('section', { class: 'pila' },
-      h('div', { class: 'titulo-seccion' }, '🌎 Países'),
+      h('div', { class: 'titulo-seccion' }, 'Países'),
       h('div', { class: 'paises' }, R.PAISES.map((p) => {
         const st = s.mundo.paises[p.id];
         return h('button', { class: 'pais-carta toque' + (st.anexado ? ' anexado' : ''), onclick: () => verPais(s, p.id) },
@@ -9136,7 +9145,7 @@ label.boton { cursor: pointer; }
               (F.ratio >= 1.3 ? 'Tenés todas las de ganar.' : F.ratio >= 1 ? 'Ventaja chica: puede salir mal.' : 'Te superan: es muy arriesgado.')),
             h('div', { class: 'chico' }, 'Todo el mundo se va a enojar con vos. Si ganás, ' + p.nombre + ' pasa a ser parte del país.'),
             h('div', { class: 'fila' },
-              h('button', { class: 'boton mini rojo', onclick: () => { const r = mun.hacer(s, id, 'guerra'); ui.cerrarCapa(); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; } R.son.tambor(); ui.temblor(); ui.mostrarResultado(s, r); } }, '⚔️ ¡A la guerra!'),
+              h('button', { class: 'boton mini rojo', onclick: () => { const r = mun.hacer(s, id, 'guerra'); ui.cerrarCapa(); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; } R.son.tambor(); ui.temblor(); ui.mostrarResultado(s, r); } }, '¡A la guerra!'),
               h('button', { class: 'boton mini sec', onclick: () => verPais(s, id, false) }, 'Mejor no')));
         }
         return h('button', { class: 'item-elegir', disabled: b ? true : null, onclick: () => {
@@ -9159,7 +9168,7 @@ label.boton { cursor: pointer; }
     if (!W) return listo();
     const P = R.PAIS[W.pais];
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', { class: 'centro' }, '⚔️ Guerra con ' + P.nombre),
+      h('h2', { class: 'centro' }, 'Guerra con ' + P.nombre),
       h('div', { class: 'centro chico suave' }, 'Mes ' + (W.meses + 1) + ' · ' + (W.objetivo === 'malvinas' ? 'Objetivo: recuperar Malvinas' : 'Objetivo: anexar ' + P.nombre)),
       ui.frente(s, W),
       h('div', { class: 'lista-elegir' }, mun.ORDENES.map((o) => h('button', { class: 'item-elegir', onclick: () => {
@@ -9188,7 +9197,7 @@ label.boton { cursor: pointer; }
       !fin || fin === 'victoria' || fin === 'derrota' ? ui.frente(s, Object.assign({}, W2, { frente: antesFrente })) : null,
       efectos.length ? ui.chipsEfectos(efectos) : null,
       h('div', { class: 'chico', style: { fontWeight: 900 } }, '👍 Aprobación: ' + R.fmt(aprobAntes, 1) + '% → ' + R.fmt(s.gob.aprob, 1) + '%'),
-      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶'));
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir'));
     ui.abrirCapa(cont);
     // Animar el marcador desde donde estaba hasta donde quedó.
     const marc = cont.querySelector('.marcador');
@@ -9219,12 +9228,12 @@ label.boton { cursor: pointer; }
     if (!nuevos.length) return false;
     R.guardar(s);
     const malos = nuevos.every((l) => l.malo);
-    if (malos) R.son.mal(); else { R.son.genial(); ui.confeti(['#f6b40e', '#ffe08a', '#ffffff']); }
+    if (malos) R.son.mal(); else R.son.genial();
     ui.abrirCapa(h('div', { class: 'pila centro' },
       h('div', { class: 'etiqueta' }, nuevos.length > 1 ? '¡Logros desbloqueados!' : '¡Logro desbloqueado!'),
       h('div', { class: 'medallas' }, nuevos.map((l) => h('div', { class: 'medalla' + (l.malo ? ' mala' : '') }, h('span', { class: 'em' }, l.emoji), h('b', null, l.nombre)))),
       h('p', { class: 'chico suave' }, R.LOGROS.filter((l) => R.logrosGuardados()[l.id]).length + ' de ' + R.LOGROS.length + ' logros'),
-      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); ui.procesarCola(); } }, '¡Bien! ▶')));
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); ui.procesarCola(); } }, 'Seguir')));
     return true;
   };
 
@@ -9232,7 +9241,7 @@ label.boton { cursor: pointer; }
     const g = R.logrosGuardados();
     const n = R.LOGROS.filter((l) => g[l.id]).length;
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', null, '🏅 Logros · ' + n + '/' + R.LOGROS.length),
+      h('h2', null, 'Logros · ' + n + '/' + R.LOGROS.length),
       h('div', { class: 'barra' }, h('i', { style: { width: (n / R.LOGROS.length) * 100 + '%', background: 'var(--sol)' } })),
       h('div', { class: 'vitrina' }, R.LOGROS.map((l) => h('div', { class: 'medalla chica' + (g[l.id] ? '' : ' bloqueada') + (l.malo ? ' mala' : '') },
         h('span', { class: 'em' }, g[l.id] ? l.emoji : '🔒'), h('span', null, l.nombre))))), { cerrable: true });
@@ -9257,8 +9266,8 @@ label.boton { cursor: pointer; }
       h('div', { class: 'etiqueta' }, '10 de diciembre de ' + R.anio(s.mes)),
       h('h2', { style: { fontSize: '30px' } }, '¡' + s.lider.nombre + ' asume la Presidencia!'),
       h('div', { class: 'fila', style: { justifyContent: 'center' } }, R.ui.avatar(s.lider.avatar, { size: 120, humor: 'feliz', banda: true, fondo: '#dbeefb' })),
-      h('p', null, '🏆 ' + comoGano + '. Banda y bastón: ahora te toca gobernar.'),
-      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, '🏛️ Entrar a la Rosada')));
+      h('p', null, comoGano + '. Ahora te toca gobernar.'),
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Entrar a la Rosada')));
   };
 
   // Pantalla de fin: perder una elección, caer o terminar el mandato.
@@ -9286,7 +9295,7 @@ label.boton { cursor: pointer; }
           h('span', { class: 'val numero' }, fmt(a) + ' → ' + fmt(b)), h('span', { class: 'chip ' + (mejor ? 'bien' : 'mal') }, mejor ? '▲' : '▼'));
       };
       filas.push(h('section', { class: 'tarjeta pila' },
-        h('div', { class: 'titulo-seccion' }, '📊 Cómo dejaste el país'),
+        h('div', { class: 'titulo-seccion' }, 'Cómo dejaste el país'),
         h('p', { class: 'chico suave' }, 'Gobernaste ' + s.gob.meses + ' meses.'),
         h('div', { class: 'resumen-filas' },
           dato('👍', 'Aprobación', ini.aprob ?? 55, s.gob.aprob, (v) => R.fmt(v) + '%'),
@@ -9317,13 +9326,13 @@ label.boton { cursor: pointer; }
       R.oposicion && R.oposicion.puede(s) ? h('section', { class: 'tarjeta pila centro', style: { background: 'var(--sol-claro)' } },
         h('b', null, '🔄 ¿Seguís en la oposición?'),
         h('p', { class: 'chico' }, 'Tu partido ya existe y tiene ' + ((R.composicion(s, 'diputados').YO || 0)) + ' diputados. Medio término en 2029 y presidenciales en 2031.'),
-        h('button', { class: 'boton grande ancho', onclick: () => { R.oposicion.iniciar(s); R.guardar(s); ui.vista = { tab: 'acciones' }; R.son.genial(); ui.render(); window.scrollTo(0, 0); } }, '🗳️ Seguir en la oposición')) : null,
+        h('button', { class: 'boton grande ancho', onclick: () => { R.oposicion.iniciar(s); R.guardar(s); ui.vista = { tab: 'acciones' }; R.son.genial(); ui.render(); window.scrollTo(0, 0); } }, 'Seguir en la oposición')) : null,
       filas,
-      logrosPartida.length ? h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '🏅 Logros de esta partida'),
+      logrosPartida.length ? h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Logros de esta partida'),
         h('div', { class: 'vitrina' }, logrosPartida.map((l) => h('div', { class: 'medalla chica' + (l.malo ? ' mala' : '') }, h('span', { class: 'em' }, l.emoji), h('span', null, l.nombre))))) : null,
-      h('button', { class: 'boton grande ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.crear(); } }, '🏴 Fundar otro partido'),
-      h('button', { class: 'boton sec ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.irPortada(); } }, '🏠 Portada'),
-      h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Tu camino'), ui.historial(s, 25))));
+      h('button', { class: 'boton grande ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.crear(); } }, 'Fundar otro partido'),
+      h('button', { class: 'boton sec ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.irPortada(); } }, 'Portada'),
+      h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Tu camino'), ui.historial(s, 25))));
   };
 })(globalThis.R = globalThis.R || {});
 

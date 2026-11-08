@@ -27,13 +27,13 @@
       h('div', { class: 'centro chico' }, (comp.YO || 0) >= nec ? '✅ Mayoría propia' : 'Mayoría: ' + nec));
     const mayoria = con.mayoria(s);
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🏛️ El Congreso'), mayoria ? h('span', { class: 'chip bien' }, '+1 ⭐ por mes') : null),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'El Congreso'), mayoria ? h('span', { class: 'chip bien' }, '+1 ⭐ por mes') : null),
       h('div', { class: 'bancas-ganadas' }, camara('Diputados', dip, 257, 129), camara('Senado', sen, 72, 37)),
       h('div', { class: 'leyenda' }, R.ui.gruposCamara(s, dip).map((g) => {
         const p = R.partidoInfo(s, g.id);
         return h('span', { class: 'chip', style: { background: ui.aclarar(p.color, 0.55) } }, p.simbolo + ' ' + p.sigla + ' ' + g.n + '/' + (sen[g.id] || 0));
       })),
-      h('p', { class: 'chico suave centro' }, 'Diputados / Senadores de cada bloque'));
+      h('p', { class: 'chico suave centro' }, 'Diputados / senadores'));
   }
 
   // 🤝 Cómo te llevás con cada bloque: una fila de caritas; tocás y se abre el detalle.
@@ -44,7 +44,7 @@
     const sen = R.composicion(s, 'senado');
     const bloques = con.BLOQUES.filter((b) => (dip[b] || 0) + (sen[b] || 0) > 0);
     return h('button', { class: 'tarjeta toque fila-bloques', onclick: () => verBloques(s) },
-      h('span', { class: 'titulo-seccion' }, '🤝 Bloques'),
+      h('span', { class: 'titulo-seccion' }, 'Bloques'),
       h('span', { class: 'caritas' }, bloques.map((b) => {
         const p = R.partidoInfo(s, b);
         return h('span', { class: 'carita', title: p.sigla + ': ' + relTxt(G.rel[b])[1] }, h('b', null, p.sigla), relTxt(G.rel[b])[0]);
@@ -57,7 +57,7 @@
     const dip = R.composicion(s, 'diputados');
     const sen = R.composicion(s, 'senado');
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', null, '🤝 Cómo te llevás con cada bloque'),
+      h('h2', null, 'Cómo te llevás con cada bloque'),
       h('div', { class: 'razones' }, con.BLOQUES.filter((b) => (dip[b] || 0) + (sen[b] || 0) > 0).map((b) => {
         const p = R.partidoInfo(s, b);
         const r = G.rel[b];
@@ -67,7 +67,7 @@
           h('span', { class: 'barrita' }, h('i', { style: { width: r + '%', background: r >= 60 ? 'var(--bien)' : r >= 35 ? 'var(--sol)' : 'var(--mal)' } })),
           h('span', { class: 'chico', style: { fontWeight: 900, textAlign: 'right' } }, cara + ' ' + txt));
       })),
-      h('p', { class: 'chico suave' }, 'Diputados + senadores de cada bloque. Mejora si negociás, si les gusta tu ley o si tu aprobación sube. Los gobernadores también mueven a sus legisladores.')), { cerrable: true });
+      h('p', { class: 'chico suave' }, 'Diputados + senadores. Mejora negociando o con leyes que les gustan.')), { cerrable: true });
   }
 
   // 📜 Leyes: dos botones de filtro (tema e ideas) que abren una ventanita, y filas compactas.
@@ -83,12 +83,12 @@
     const te = R.TEMAS_LEY.find((x) => x.id === tema);
     const ia = R.IDEAS_LEY.find((x) => x.id === idea);
     return h('section', { class: 'pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📜 Leyes'), h('span', { class: 'chip sol' }, '⭐ ' + G.pc + ' · cada ley ⭐' + con.COSTO_PRESENTAR)),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Leyes'), h('span', { class: 'chip sol' }, '⭐ ' + G.pc + ' · cada ley ⭐' + con.COSTO_PRESENTAR)),
       h('div', { class: 'filtros-ley' },
         h('button', { class: 'filtro-btn', onclick: () => elegirFiltro(s, 'temaLey') }, h('small', null, 'Tema'), h('b', null, te ? te.emoji + ' ' + te.nombre : 'Todos'), '▾'),
         h('button', { class: 'filtro-btn', onclick: () => elegirFiltro(s, 'ideaLey') }, h('small', null, 'Ideas'), h('b', null, ia ? ia.emoji + ' ' + ia.nombre : 'Todas'), '▾')),
       leyes.length ? h('div', { class: 'leyes-lista' }, leyes.map((ley) => filaLey(s, ley))) : h('p', { class: 'suave centro' }, 'No hay leyes con esos filtros.'),
-      h('p', { class: 'chico suave centro' }, '⏳ = llega con el tiempo · tocá una ley para ver todo'));
+      null);
   }
 
   function elegirFiltro(s, clave) {
@@ -154,9 +154,9 @@
       h('div', { class: 'plazos' },
         ef.ya.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⚡ Al firmar'), ui.chipsEfectos(ef.ya)) : null,
         ef.luego.length ? h('div', { class: 'plazo' }, h('span', { class: 'cuando' }, '⏳ Con el tiempo'), ui.chipsEfectos(ef.luego)) : null),
-      fiscal < -0.15 ? h('div', { class: 'chico nota-proy mal' }, '💸 Te deja menos plata en las cuentas: si no recortás otra cosa, se paga emitiendo (inflación) o con deuda.',
-        comp.length ? h('div', { style: { marginTop: '4px' } }, '🧩 Combinala con: ', comp.map((x, i) => h('b', null, (i ? ' · ' : '') + x.emoji + ' ' + x.nombre))) : null) : null,
-      fiscal > 0.15 ? h('div', { class: 'chico nota-proy bien' }, '💰 Te deja más plata en las cuentas: podés gastarla en otra cosa sin déficit.') : null);
+      fiscal < -0.15 ? h('div', { class: 'chico nota-proy mal' }, 'Te deja menos plata: si no recortás otra cosa, es inflación o deuda.',
+        comp.length ? h('div', { style: { marginTop: '4px' } }, 'Combinala con: ', comp.map((x, i) => h('b', null, (i ? ' · ' : '') + x.emoji + ' ' + x.nombre))) : null) : null,
+      fiscal > 0.15 ? h('div', { class: 'chico nota-proy bien' }, 'Te deja más plata para gastar sin déficit.') : null);
   }
 
   // ⏳ Leyes que todavía no dieron todo: una línea por ley con su barra.
@@ -167,7 +167,7 @@
     const ids = Object.keys(porLey);
     if (!ids.length) return null;
     return h('section', { class: 'tarjeta pila', style: { gap: '6px' } },
-      h('div', { class: 'titulo-seccion' }, '⏳ Tus leyes, llegando'),
+      h('div', { class: 'titulo-seccion' }, 'Tus leyes, llegando'),
       ids.map((id) => h('button', { class: 'en-camino toque', onclick: () => abrirLey(s, R.LEY[id]) },
         h('span', { class: 'nom' }, R.LEY[id].emoji + ' ' + R.LEY[id].nombre),
         h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(4, porLey[id] * 100) + '%', background: 'var(--celeste)' } })),
@@ -197,7 +197,7 @@
       h('p', null, ley.desc + (ley.nota ? ' · ' + ley.nota : '')),
       h('div', { class: 'fila envolver', style: { gap: '6px' } }, h('span', { class: 'chip idea-' + ia.id }, ia.emoji + ' ' + ia.nombre), te ? h('span', { class: 'chip' }, te.emoji + ' ' + te.nombre) : null),
       queHaceLey(s, ley),
-      h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '🗳️ ¿Te alcanzan los votos?'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
+      h('div', { class: 'tarjeta plana suave pila' }, h('div', { class: 'titulo-seccion' }, '¿Te alcanzan los votos?'), camara('Diputados', p.diputados), camara('Senado', p.senado)),
       h('div', { class: 'etiqueta' }, 'Bloques'),
       h('div', { class: 'lista-elegir' }, Object.values(bloques).filter((b) => b.id !== 'YO').map((b) => {
         const info = R.partidoInfo(s, b.id);
@@ -221,11 +221,11 @@
               R.son.moneda(); R.guardar(s); ui.aviso('🤝 Negociaste con ' + info.sigla + ' (⭐ −' + r.costo + ')', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley);
             } }, '🤝 ⭐' + costo));
       })),
-      h('button', { class: 'boton sec ancho', onclick: () => { con.fondosGobernadores(s, ley); R.son.moneda(); R.guardar(s); ui.aviso('💸 Fondos a las provincias: los gobernadores empujan', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley); } }, '💸 Fondos a las provincias · 1,5% del presupuesto'),
+      h('button', { class: 'boton sec ancho', onclick: () => { con.fondosGobernadores(s, ley); R.son.moneda(); R.guardar(s); ui.aviso('💸 Fondos a las provincias: los gobernadores empujan', { tipo: 'bien', dur: 1600 }); abrirLey(s, ley); } }, 'Fondos a las provincias · 1,5% del presupuesto'),
       h('div', { class: 'fila' },
-        h('button', { class: 'boton grande', style: { flex: '1.3 1 0' }, disabled: G.pc < con.COSTO_PRESENTAR ? true : null, onclick: () => votar(s, ley) }, '🗳️ Votar · ⭐' + con.COSTO_PRESENTAR),
-        ley.dnu ? h('button', { class: 'boton sec', style: { flex: '1 1 0' }, disabled: G.pc < con.COSTO_DNU ? true : null, title: 'Sin pasar por el Congreso, pero a la clase media no le gusta', onclick: () => decreto(s, ley) }, '📜 Decreto · ⭐' + con.COSTO_DNU) : null),
-      G.pc < con.COSTO_PRESENTAR ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'No tenés ⭐ suficientes: pasá el mes para juntar más.') : null), { cerrable: true });
+        h('button', { class: 'boton grande', style: { flex: '1.3 1 0' }, disabled: G.pc < con.COSTO_PRESENTAR ? true : null, onclick: () => votar(s, ley) }, 'Votar · ⭐' + con.COSTO_PRESENTAR),
+        ley.dnu ? h('button', { class: 'boton sec', style: { flex: '1 1 0' }, disabled: G.pc < con.COSTO_DNU ? true : null, title: 'Sin pasar por el Congreso, pero a la clase media no le gusta', onclick: () => decreto(s, ley) }, 'Decreto · ⭐' + con.COSTO_DNU) : null),
+      G.pc < con.COSTO_PRESENTAR ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'Te faltan ⭐: se recargan cada mes.') : null), { cerrable: true });
   }
 
   function decreto(s, ley) {
@@ -295,12 +295,12 @@
     };
     const final = () => {
       const ok = opts.invertir ? !res.aprobada : res.aprobada;
-      if (ok) { R.son.aplausos(); ui.confeti(['#1c9a50', '#ffffff', '#f6b40e']); } else R.son.abucheo();
+      if (ok) R.son.aplausos(); else R.son.abucheo();
       cont.appendChild(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, ok ? '🎉 ¡Seguir!' : 'Seguir'));
       const b = cont.querySelector('.boton');
       if (b) b.focus({ preventScroll: true });
     };
-    ui.abrirCapa(h('div', { class: 'pila' }, h('h2', { class: 'centro' }, '🗳️ ' + titulo), cont), { sinFoco: true });
+    ui.abrirCapa(h('div', { class: 'pila' }, h('h2', { class: 'centro' }, titulo), cont), { sinFoco: true });
     siguiente();
   };
 
@@ -320,15 +320,15 @@
       });
     };
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', null, '📒 ' + ley.nombre),
+      h('h2', null, '' + ley.nombre),
       h('p', null, 'Cada noviembre el Congreso vota tu presupuesto. ' + (def > 1 ? 'Con mucho déficit cuesta más que lo aprueben.' : 'Con las cuentas ordenadas es más fácil.')),
       h('div', { class: 'tarjeta plana suave pila' },
         h('div', { class: 'fila entre' }, h('b', null, 'Diputados'), h('span', { class: 'chip ' + (p.diputados.si >= p.diputados.necesarios ? 'bien' : 'mal') }, '~' + p.diputados.si + ' de ' + p.diputados.necesarios)),
         h('div', { class: 'fila entre' }, h('b', null, 'Senado'), h('span', { class: 'chip ' + (p.senado.si >= p.senado.necesarios ? 'bien' : 'mal') }, '~' + p.senado.si + ' de ' + p.senado.necesarios))),
       h('div', { class: 'fila envolver chico' }, h('span', null, 'Si se aprueba:'), ui.chipsEfectos(R.gob.describirEfectos(s, con.EF_PRESUPUESTO.si), { compacto: true })),
       h('div', { class: 'fila envolver chico' }, h('span', null, 'Si se rechaza:'), ui.chipsEfectos(R.gob.describirEfectos(s, con.EF_PRESUPUESTO.no), { compacto: true })),
-      h('button', { class: 'boton grande ancho', onclick: () => votarYa(false) }, '🗳️ Que voten'),
-      h('button', { class: 'boton sec ancho', onclick: () => votarYa(true) }, '💸 Repartir fondos a provincias y votar (1,5%)')));
+      h('button', { class: 'boton grande ancho', onclick: () => votarYa(false) }, 'Que voten'),
+      h('button', { class: 'boton sec ancho', onclick: () => votarYa(true) }, 'Repartir fondos a provincias y votar (1,5%)')));
   };
 
   ui.momentos.juicio = function (s, m, listo) {
@@ -341,7 +341,7 @@
         h('h2', { class: 'titular' }, '¡La oposición pide tu juicio político!'),
         h('p', { class: 'bajada' }, 'Por los escándalos. Necesitan 2/3 en las dos cámaras.'),
         h('div', { class: 'tarjeta plana suave pila' }, cam('Diputados', p.diputados), cam('Senado', p.senado)),
-        h('button', { class: 'boton sec ancho', disabled: s.gob.juicioFondos ? true : null, onclick: () => { s.gob.juicioFondos = 1; R.gob.aplicarEfectos(s, { gastoExtra: 3 }); for (const pr of R.PROVINCIAS) s.gob.gobernadores[pr.id].rel = R.clamp(s.gob.gobernadores[pr.id].rel + 8, 0, 100); R.son.moneda(); pintar(); } }, '💸 Fondos a gobernadores · 3% del presupuesto'),
+        h('button', { class: 'boton sec ancho', disabled: s.gob.juicioFondos ? true : null, onclick: () => { s.gob.juicioFondos = 1; R.gob.aplicarEfectos(s, { gastoExtra: 3 }); for (const pr of R.PROVINCIAS) s.gob.gobernadores[pr.id].rel = R.clamp(s.gob.gobernadores[pr.id].rel + 8, 0, 100); R.son.moneda(); pintar(); } }, 'Fondos a gobernadores · 3% del presupuesto'),
         h('button', { class: 'boton grande ancho', onclick: () => {
           const res = con.votarJuicio(s);
           R.guardar(s);
@@ -370,6 +370,6 @@
       h('div', { class: 'txt' }, 'La oposición y los jueces cuestionan tu decreto de ' + ley.nombre.toLowerCase()),
       ui.chipsEfectos(R.describirAplicado(s, aplicado)),
       h('p', { class: 'chico suave' }, 'El decreto sigue vigente, pero te costó caro.'),
-      h('button', { class: 'boton grande ancho', onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶')));
+      h('button', { class: 'boton grande ancho', onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir')));
   };
 })(globalThis.R = globalThis.R || {});

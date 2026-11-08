@@ -13,8 +13,8 @@
       h('div', { class: 'etiqueta' }, '10 de diciembre de ' + R.anio(s.mes)),
       h('h2', { style: { fontSize: '30px' } }, '¡' + s.lider.nombre + ' asume la Presidencia!'),
       h('div', { class: 'fila', style: { justifyContent: 'center' } }, R.ui.avatar(s.lider.avatar, { size: 120, humor: 'feliz', banda: true, fondo: '#dbeefb' })),
-      h('p', null, '🏆 ' + comoGano + '. Banda y bastón: ahora te toca gobernar.'),
-      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, '🏛️ Entrar a la Rosada')));
+      h('p', null, comoGano + '. Ahora te toca gobernar.'),
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Entrar a la Rosada')));
   };
 
   // Pantalla de fin: perder una elección, caer o terminar el mandato.
@@ -42,7 +42,7 @@
           h('span', { class: 'val numero' }, fmt(a) + ' → ' + fmt(b)), h('span', { class: 'chip ' + (mejor ? 'bien' : 'mal') }, mejor ? '▲' : '▼'));
       };
       filas.push(h('section', { class: 'tarjeta pila' },
-        h('div', { class: 'titulo-seccion' }, '📊 Cómo dejaste el país'),
+        h('div', { class: 'titulo-seccion' }, 'Cómo dejaste el país'),
         h('p', { class: 'chico suave' }, 'Gobernaste ' + s.gob.meses + ' meses.'),
         h('div', { class: 'resumen-filas' },
           dato('👍', 'Aprobación', ini.aprob ?? 55, s.gob.aprob, (v) => R.fmt(v) + '%'),
@@ -73,12 +73,12 @@
       R.oposicion && R.oposicion.puede(s) ? h('section', { class: 'tarjeta pila centro', style: { background: 'var(--sol-claro)' } },
         h('b', null, '🔄 ¿Seguís en la oposición?'),
         h('p', { class: 'chico' }, 'Tu partido ya existe y tiene ' + ((R.composicion(s, 'diputados').YO || 0)) + ' diputados. Medio término en 2029 y presidenciales en 2031.'),
-        h('button', { class: 'boton grande ancho', onclick: () => { R.oposicion.iniciar(s); R.guardar(s); ui.vista = { tab: 'acciones' }; R.son.genial(); ui.render(); window.scrollTo(0, 0); } }, '🗳️ Seguir en la oposición')) : null,
+        h('button', { class: 'boton grande ancho', onclick: () => { R.oposicion.iniciar(s); R.guardar(s); ui.vista = { tab: 'acciones' }; R.son.genial(); ui.render(); window.scrollTo(0, 0); } }, 'Seguir en la oposición')) : null,
       filas,
-      logrosPartida.length ? h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '🏅 Logros de esta partida'),
+      logrosPartida.length ? h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Logros de esta partida'),
         h('div', { class: 'vitrina' }, logrosPartida.map((l) => h('div', { class: 'medalla chica' + (l.malo ? ' mala' : '') }, h('span', { class: 'em' }, l.emoji), h('span', null, l.nombre))))) : null,
-      h('button', { class: 'boton grande ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.crear(); } }, '🏴 Fundar otro partido'),
-      h('button', { class: 'boton sec ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.irPortada(); } }, '🏠 Portada'),
-      h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Tu camino'), ui.historial(s, 25))));
+      h('button', { class: 'boton grande ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.crear(); } }, 'Fundar otro partido'),
+      h('button', { class: 'boton sec ancho', onclick: () => { R.borrarPartida(); ui.s = null; ui.irPortada(); } }, 'Portada'),
+      h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Tu camino'), ui.historial(s, 25))));
   };
 })(globalThis.R = globalThis.R || {});

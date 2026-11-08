@@ -28,7 +28,7 @@
         const txt = r.r === 'gana' ? '¡Ganaste la ronda! 👏' : r.r === 'pierde' ? 'Te ganó la ronda 😓' : 'Empate';
         partes.push(h('div', { class: 'burbuja centro' },
           'Vos: ' + E[d.historia[d.historia.length - 1].yo].emoji + ' · ' + rival.candidato.nombre.split(' ')[0] + ': ' + E[r.el].emoji + ' ' + E[r.el].nombre,
-          h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '22px', marginTop: '4px', color: r.r === 'gana' ? 'var(--bien)' : r.r === 'pierde' ? 'var(--mal)' : 'inherit' } }, txt),
+          h('div', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '22px', marginTop: '4px', color: r.r === 'gana' ? 'var(--bien)' : r.r === 'pierde' ? 'var(--mal)' : 'inherit' } }, txt),
           r.tema.fuerte === d.historia[d.historia.length - 1].yo ? h('div', { class: 'chico' }, '⭐ Bonus: era el estilo justo para ' + r.tema.nombre.toLowerCase()) : null));
         partes.push(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ultimo = null; if (d.ronda >= 3) fin(); else pintar(); } }, d.ronda >= 3 ? 'Ver cómo te fue ▶' : 'Siguiente tema ▶'));
       } else {
@@ -57,12 +57,11 @@
       const res = R.debate.terminar(s, d);
       R.guardar(s);
       if (res.bueno) R.son.genial(); else R.son.abucheo();
-      if (d.puntos >= 2) ui.confeti();
       ui.abrirCapa(h('div', { class: 'resultado-grande' },
         R.ui.avatar(s.lider.avatar, { size: 96, humor: res.bueno ? 'feliz' : 'triste', fondo: ui.aclarar(s.partido.color, 0.6) }),
         h('div', { class: 'txt' }, res.veredicto),
         ui.chipsEfectos(R.describirAplicado(s, res.aplicado)),
-        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir ▶')));
+        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir')));
     }
     pintar();
   };

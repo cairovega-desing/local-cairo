@@ -16,32 +16,27 @@
     }
     return S('svg', { viewBox: '0 0 100 100', class: cls || 'sol-mayo', 'aria-hidden': 'true' },
       ...rayos,
-      S('circle', { cx: 50, cy: 50, r: 22, fill: '#f6b40e', stroke: '#a87800', 'stroke-width': 1.5 }),
-      S('path', { d: 'M41 46 Q43.5 43.5 46 46 M54 46 Q56.5 43.5 59 46', stroke: '#7a5200', 'stroke-width': 1.8, fill: 'none', 'stroke-linecap': 'round' }),
-      S('path', { d: 'M42 56 Q50 63 58 56', stroke: '#7a5200', 'stroke-width': 2, fill: 'none', 'stroke-linecap': 'round' }),
-      S('path', { d: 'M50 47 L48.5 53 L51 53.5', stroke: '#7a5200', 'stroke-width': 1.3, fill: 'none', 'stroke-linecap': 'round' }));
+      S('circle', { cx: 50, cy: 50, r: 22, fill: '#f6b40e', stroke: '#a87800', 'stroke-width': 1.5 }));
   };
 
   ui.portada = function () {
     ui.ocultarNav();
     const guardada = R.cargar();
+    // Un afiche: el rosa de la Casa Rosada, el título grande y el sol asomando en la esquina.
     const nodo = h('main', { class: 'portada' },
-      ui.solDeMayo(),
-      h('h1', { class: 'logo' }, 'Camino a', h('span', null, 'la Rosada')),
-      h('p', { class: 'lema' }, 'Fundá tu partido, ganá la elección y sacá el país adelante.'),
+      h('div', { class: 'afiche' },
+        ui.solDeMayo(),
+        h('h1', { class: 'logo' }, 'Camino a', h('span', null, 'la Rosada')),
+        h('p', { class: 'lema' }, 'Fundá un partido, ganá la elección y gobernás.')),
       h('div', { class: 'botones' },
         guardada ? h('button', { class: 'boton grande', onclick: () => { R.son.toque(); ui.continuar(guardada); } },
-          '▶ Continuar', h('span', { class: 'chico', style: { fontFamily: 'var(--f-texto)' } }, ' · ' + guardada.partido.sigla + ' · ' + R.fechaCorta(guardada.mes))) : null,
-        h('button', { class: 'boton grande' + (guardada ? ' sec' : ''), onclick: () => { R.son.toque(); ui.nuevaPartida(guardada); } }, '🏴 Nueva partida'),
-        h('div', { class: 'fila envolver', style: { justifyContent: 'center' } },
-          h('button', { class: 'boton mini sec', onclick: () => ui.comoSeJuega() }, '❓ Cómo se juega'),
-          h('button', { class: 'boton mini sec', onclick: () => ui.verLogros() }, '🏅 Logros'),
-          h('button', { class: 'boton mini sec', id: 'btn-sonido', onclick: (e) => { R.son.alternar(); e.currentTarget.textContent = R.son.activo ? '🔊 Sonido' : '🔇 Sonido'; } }, R.son.activo ? '🔊 Sonido' : '🔇 Sonido'))),
-      h('div', { class: 'pasos-portada' },
-        h('div', { class: 'tarjeta' }, h('div', null, '🏴'), 'Fundá tu partido'),
-        h('div', { class: 'tarjeta' }, h('div', null, '🗳️'), 'Ganá la elección'),
-        h('div', { class: 'tarjeta' }, h('div', null, '🏛️'), 'Gobernás el país')),
-      h('p', { class: 'chico suave' }, 'Partidos reales, candidatos y personajes inventados. Es un juego: no predice nada.'));
+          'Continuar', h('span', { class: 'chip' }, guardada.partido.sigla + ', ' + R.fechaCorta(guardada.mes))) : null,
+        h('button', { class: 'boton grande' + (guardada ? ' sec' : ''), onclick: () => { R.son.toque(); ui.nuevaPartida(guardada); } }, 'Nueva partida'),
+        h('div', { class: 'secundarios' },
+          h('button', { onclick: () => ui.comoSeJuega() }, 'Cómo se juega'),
+          h('button', { onclick: () => ui.verLogros() }, 'Logros'),
+          h('button', { id: 'btn-sonido', onclick: (e) => { R.son.alternar(); e.currentTarget.textContent = R.son.activo ? 'Sonido: sí' : 'Sonido: no'; } }, R.son.activo ? 'Sonido: sí' : 'Sonido: no'))),
+      h('p', { class: 'chico suave' }, 'Partidos reales, personas inventadas. Es un juego.'));
     ui.montar(nodo);
   };
 

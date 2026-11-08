@@ -35,9 +35,9 @@
     pintarMapa();
     const veredicto = h('div');
     const despues = h('div', { class: 'pila' });
-    const saltar = h('button', { class: 'boton mini sec', onclick: () => { t0 = -1e9; } }, '⏩ Ver resultado');
+    const saltar = h('button', { class: 'boton mini sec', onclick: () => { t0 = -1e9; } }, 'Ver resultado');
     const cont = h('div', { class: 'noche' },
-      h('h2', null, '🗳️ ' + res.titulo),
+      h('h2', null, '' + res.titulo),
       h('div', { class: 'escrutinio' }, 'Mesas escrutadas: ', pctEl, '%'),
       h('div', { class: 'barra gorda' }, barraEsc),
       h('div', { class: 'noche-cuerpo' },
@@ -107,7 +107,7 @@
       const extras = [];
       if (res.perdidos > 0.3) extras.push(h('div', { class: 'tarjeta chico' }, '⚠️ Te faltaron fiscales: perdiste ' + R.fmt(res.perdidos, 1) + ' puntos en las mesas.'));
       if (res.bancas) extras.push(congresoNuevo(s, res));
-      extras.push(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir ▶'));
+      extras.push(h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir'));
       despues.replaceChildren(...extras);
       const btn = despues.querySelector('.boton');
       if (btn) setTimeout(() => btn.focus({ preventScroll: true }), 50);

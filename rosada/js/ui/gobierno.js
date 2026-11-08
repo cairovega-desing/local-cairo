@@ -19,19 +19,18 @@
     const paneles = {
       inicio: () => panelInicio(s, pc),
       economia: () => ui.panelEconomia(s),
-      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Lo que pasó'), ui.historial(s, 60)),
+      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Lo que pasó'), ui.historial(s, 60)),
     };
     Object.assign(paneles, ui.panelesGob);
     const guia = tab === 'inicio' ? ui.guia('gobierno', 'Cómo gobernar', [
-      ['👥', 'Mirá a la gente', 'Tocá cada cara para ver qué le importa y por qué está contenta o enojada.'],
-      ['💰', 'La economía va en %', 'Más plata a un área contenta a alguien, pero sube el déficit. Déficit pagado con emisión = inflación.'],
-      ['⭐', 'Gastá capital político', 'En acciones, leyes, gobernadores y el mundo. Se recarga cada mes según tu aprobación.'],
-      ['🔥', 'Cuidado con la crisis', 'Cada problema grave suma una llamita. Con 6 o más puede haber un estallido.'],
+      ['', 'Mirá a la gente', 'Tocá cada cara para ver qué le pasa.'],
+      ['', 'Repartí el presupuesto', 'Más gasto sin plata es inflación.'],
+      ['', 'Usá tus ⭐', 'Leyes, acciones y gobernadores.'],
     ]) : null;
     const scroll = ui.montar(h('div', null, barraGobierno(s), guia, paneles[tab](s)), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
     ui.navInferior(ui.PESTANAS_GOB, tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
-      h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() }, '▶ Pasar el mes',
+      h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() }, 'Pasar el mes',
         h('span', { class: 'chip', style: { fontFamily: 'var(--f-texto)', fontSize: '12px' } }, '⭐ ' + s.gob.pc)));
   };
 
@@ -70,12 +69,12 @@
     return h('section', { class: 'tarjeta pila' },
       h('div', { class: 'fila entre', style: { alignItems: 'flex-end' } },
         h('div', null, h('div', { class: 'etiqueta' }, 'Aprobación'),
-          h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '48px', lineHeight: 1, color: G.aprob >= 50 ? 'var(--bien)' : G.aprob < 30 ? 'var(--mal)' : 'var(--tinta)' }, class: 'numero' },
+          h('div', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '48px', lineHeight: 1, color: G.aprob >= 50 ? 'var(--bien)' : G.aprob < 30 ? 'var(--mal)' : 'var(--tinta)' }, class: 'numero' },
             R.fmt(G.aprob), h('span', { style: { fontSize: '24px' } }, ' %'))),
         h('button', { class: 'chip toque', style: { cursor: 'pointer', background: llamas.length >= 4 ? 'var(--mal-claro)' : llamas.length ? 'var(--sol-claro)' : 'var(--bien-claro)' }, onclick: () => verLlamas(s) },
-          llamas.length ? '🔥'.repeat(Math.min(5, llamas.length)) + (llamas.length > 5 ? ' ×' + llamas.length : '') + ' Crisis' : '🧯 Sin crisis')),
+          llamas.length ? '🔥'.repeat(Math.min(5, llamas.length)) + (llamas.length > 5 ? ' ×' + llamas.length : '') + ' Crisis' : 'Sin crisis')),
       ui.sparkline(G.historia.map((x) => x.aprob), { color: 'var(--celeste)', max: 100, alto: 54, etiqueta: '%' }),
-      prox ? h('div', { class: 'fila', style: { gap: '8px' } }, h('span', { style: { fontSize: '22px' } }, prox.emoji),
+      prox ? h('div', { class: 'fila', style: { gap: '8px' } },
         h('div', null, h('b', null, prox.nombre), h('div', { class: 'chico suave' }, prox.faltan === 0 ? '¡Este mes!' : 'Faltan ' + prox.faltan + (prox.faltan === 1 ? ' mes' : ' meses')))) : null);
   }
 
@@ -97,8 +96,8 @@
     const llamas = R.gob.llamas(s);
     const vistos = new Set();
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', null, '🔥 Termómetro de crisis'),
-      h('p', { class: 'chico suave' }, 'Cada llamita es un problema grave. Con 6 o más, puede haber un estallido.'),
+      h('h2', null, 'Termómetro de crisis'),
+      h('p', { class: 'chico suave' }, 'Con 6 llamas puede haber un estallido.'),
       h('div', { class: 'barra gorda' }, h('i', { style: { width: Math.min(100, llamas.length * 10) + '%', background: llamas.length >= 6 ? 'var(--mal)' : 'var(--sol)' } })),
       llamas.length ? h('div', { class: 'lista-elegir' }, llamas.filter((l) => !vistos.has(l.id) && vistos.add(l.id)).map((l) =>
         h('div', { class: 'item-elegir', style: { cursor: 'default' } }, h('span', { class: 'ic' }, l.emoji),
@@ -110,7 +109,7 @@
   function tarjetaGente(s) {
     const G = s.gob;
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '👥 La gente'), h('span', { class: 'chico suave' }, 'Tocá a cada uno · ', h('span', { class: 'critico-mini' }, '🛒'), ' = lo que más lo enoja')),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'La gente'), h('span', { class: 'chico suave' }, h('span', { class: 'critico-mini' }, '🛒'), ' lo que más lo enoja')),
       h('div', { class: 'gente' }, R.GRUPOS.map((g) => {
         const st = G.grupos[g.id];
         const d = st.humor - (st.antes ?? st.humor);
@@ -118,7 +117,7 @@
         return h('button', { class: 'persona toque', onclick: () => verGrupo(s, g.id), 'aria-label': g.nombre + ': ' + Math.round(st.humor) + ' de 100' + (peor ? '. Lo que más lo enoja: ' + RAZON(peor.k)[1] : '') },
           peor ? h('span', { class: 'critico', title: 'Lo que más lo enoja: ' + RAZON(peor.k)[1] }, RAZON(peor.k)[0]) : null,
           R.ui.avatar(g.avatar, { size: 56, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
-          h('span', { class: 'nom' }, g.emoji + ' ' + g.nombre),
+          h('span', { class: 'nom' }, g.nombre),
           h('span', { class: 'barra', style: { height: '8px', width: '100%' } }, h('i', { style: { width: st.humor + '%', background: colorHumorFuerte(st.humor) } })),
           Math.abs(d) >= 1 ? h('span', { class: 'delta ' + (d > 0 ? 'sube' : 'baja') }, d > 0 ? '▲' : '▼') : null);
       })));
@@ -217,7 +216,7 @@
       suma.length ? h('div', { class: 'etiqueta' }, '🙂 Le suma') : null,
       suma.length ? h('div', { class: 'motivos' }, suma.map(fila)) : null,
       igual.length ? h('p', { class: 'chico suave' }, '😐 Por ahora no le pesan: ' + igual.map((p) => RAZON(p.k).join(' ')).join(' · ')) : null,
-      h('p', { class: 'chico suave' }, '🗳️ ' + g.nombre + ': pesa ' + g.peso + ' de cada 100 votos. La rayita negra de arriba es hacia dónde va su humor.')), { cerrable: true });
+      h('p', { class: 'chico suave' }, 'Pesa ' + g.peso + ' de cada 100 votos.')), { cerrable: true });
   }
 
 
@@ -244,21 +243,20 @@
   function tarjetaPais(s) {
     const e = s.eco;
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🇦🇷 El país'), h('span', { class: 'chico suave' }, 'Tocá para ver por qué')),
+      h('div', { class: 'titulo-seccion' }, 'El país'),
       h('div', { class: 'pais' }, ui.indicadores(s).map((x) => {
         const mejora = x.malo ? x.d < -x.umbral : x.d > x.umbral;
         const empeora = x.malo ? x.d > x.umbral : x.d < -x.umbral;
         return h('button', { class: 'indicador toque', onclick: () => ui.porQue(s, x.id) },
-          h('div', { class: 'fila entre' }, h('span', { class: 'em' }, x.emoji), mejora ? h('span', { class: 'chip bien' }, '▲ mejora') : empeora ? h('span', { class: 'chip mal' }, '▼ empeora') : null),
-          h('div', { class: 'nom' }, x.nombre),
+          h('div', { class: 'fila entre' }, h('span', { class: 'nom' }, x.nombre), mejora ? h('span', { class: 'tendencia bien' }, '▲') : empeora ? h('span', { class: 'tendencia mal' }, '▼') : null),
           h('div', { class: 'val' }, x.valor),
           h('div', { class: 'sub' }, x.sub),
           x.extra || null);
       })),
       h('div', { class: 'fila envolver chico', style: { gap: '6px' } },
-        h('span', { class: 'chip' }, '💳 Deuda ' + R.fmt(e.deuda) + '% del PBI'),
-        h('span', { class: 'chip' }, '📊 Riesgo país ' + R.fmt(e.riesgo)),
-        h('span', { class: 'chip ' + (R.eco.resultado(s) >= 0 ? 'bien' : 'mal') }, '⚖️ ' + (R.eco.resultado(s) >= 0 ? 'Superávit ' : 'Déficit ') + R.fmt(Math.abs(R.eco.resultado(s)), 1) + '%')));
+        h('span', { class: 'chip' }, 'Deuda ' + R.fmt(e.deuda) + '% del PBI'),
+        h('span', { class: 'chip' }, 'Riesgo país ' + R.fmt(e.riesgo)),
+        h('span', { class: 'chip ' + (R.eco.resultado(s) >= 0 ? 'bien' : 'mal') }, (R.eco.resultado(s) >= 0 ? 'Superávit ' : 'Déficit ') + R.fmt(Math.abs(R.eco.resultado(s)), 1) + '%')));
   }
 
   // «¿Por qué?»: las causas de cada indicador, con barras.
@@ -294,13 +292,12 @@
   // ── Acciones de gobierno (⭐) ──
   function tarjetaAcciones(s) {
     return h('section', { class: 'pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '⭐ Acciones de gobierno'), h('span', { class: 'chip sol' }, '⭐ ' + s.gob.pc + ' disponibles')),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Acciones de gobierno'), h('span', { class: 'chip sol' }, '⭐ ' + s.gob.pc + ' disponibles')),
       h('div', { class: 'acciones' }, R.gob.ACCIONES.map((a) => {
         const b = R.gob.bloqueoAccion(s, a);
         const ef = Object.assign({}, a.ef, a.gasto ? { gastoExtra: a.gasto } : {});
         return h('button', { class: 'accion', disabled: b ? true : null, onclick: () => hacerAccion(s, a.id) },
-          h('div', { class: 'cab' }, h('span', { class: 'ic' }, a.emoji), h('span', { class: 'nom' }, a.nombre)),
-          h('div', { class: 'desc' }, a.desc),
+          h('div', { class: 'cab' }, h('span', { class: 'nom' }, a.nombre)),
           ui.chipsEfectos(R.gob.describirEfectos(s, ef), { compacto: true, antes: h('span', { class: 'chip sol' }, '⭐ ' + a.pc) }),
           a.azar ? ui.riesgos(s, [{ p: a.azar.p, bueno: false, txt: 'Puede salir mal', ef: a.azar.ef }]) : null,
           b ? h('div', { class: 'bloq' }, b) : null);
@@ -350,7 +347,7 @@
   // ── Momentos del gobierno ──
   ui.momentos.ministro = function (s, m, listo) {
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', { class: 'centro' }, '🧑‍💼 ¿Quién maneja la economía?'),
+      h('h2', { class: 'centro' }, '¿Quién maneja la economía?'),
       h('p', { class: 'centro chico suave' }, 'Tu primera gran decisión. Se puede cambiar después (cuesta ⭐ 4).'),
       h('div', { class: 'lista-elegir' }, Object.entries(R.MINISTROS).map(([id, mi]) =>
         h('button', { class: 'item-elegir', style: { gridTemplateColumns: '64px minmax(0,1fr)' }, onclick: () => {
@@ -374,7 +371,7 @@
       const sube = dif > (umbral || 0.05);
       const baja = dif < -(umbral || 0.05);
       const bueno = malo ? baja : sube;
-      return h('div', { class: 'fila-resumen' }, h('span', { class: 'em' }, em), h('span', { class: 'nom' }, nom), h('span', { class: 'val numero' }, fmt(vd)),
+      return h('div', { class: 'fila-resumen' }, h('span', { class: 'nom' }, nom), h('span', { class: 'val numero' }, fmt(vd)),
         h('span', { class: 'chip ' + (sube || baja ? (bueno ? 'bien' : 'mal') : '') }, sube ? '▲' : baja ? '▼' : '='));
     };
     const causaInfl = (s.eco.causas.inflacion || []).filter((x) => x.k !== 'inercia').sort((x, y) => Math.abs(y.v) - Math.abs(x.v))[0];
@@ -382,18 +379,18 @@
     const porque = [];
     if (causaInfl && Math.abs(causaInfl.v) > 0.1) {
       const c = R.CAUSAS.inflacion[causaInfl.k];
-      porque.push(h('div', { class: 'porque' }, '🛒 Precios ', h('b', { style: { color: causaInfl.v > 0 ? 'var(--mal)' : 'var(--bien)' } }, causaInfl.v > 0 ? '▲' : '▼'), ' por ', c[0] + ' ' + c[1].toLowerCase()));
+      porque.push(h('div', { class: 'porque' }, 'Precios ', h('b', { style: { color: causaInfl.v > 0 ? 'var(--mal)' : 'var(--bien)' } }, causaInfl.v > 0 ? '▲' : '▼'), ' por ', c[1].toLowerCase()));
     }
     if (causaCrec && Math.abs(causaCrec.v) > 0.2) {
       const c = R.CAUSAS.crecimiento[causaCrec.k];
-      porque.push(h('div', { class: 'porque' }, '📈 Economía ', h('b', { style: { color: causaCrec.v > 0 ? 'var(--bien)' : 'var(--mal)' } }, causaCrec.v > 0 ? '▲' : '▼'), ' por ', c[0] + ' ' + c[1].toLowerCase()));
+      porque.push(h('div', { class: 'porque' }, 'Economía ', h('b', { style: { color: causaCrec.v > 0 ? 'var(--bien)' : 'var(--mal)' } }, causaCrec.v > 0 ? '▲' : '▼'), ' por ', c[1].toLowerCase()));
     }
     const da = m.aprobDespues - m.aprobAntes;
     const reaccion = m.reaccion && Object.keys(m.reaccion).length ? R.gob.describirEfectos(s, m.reaccion) : null;
     const contenido = h('div', { class: 'pila' },
-      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, '📅 ' + R.fechaTxt(s.mes)), h('span', { class: 'chico suave' }, 'Resumen del mes')),
+      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, R.fechaTxt(s.mes)), h('span', { class: 'chico suave' }, 'Resumen del mes')),
       h('div', { class: 'fila entre' },
-        h('div', null, h('div', { class: 'etiqueta' }, 'Aprobación'), h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '40px', lineHeight: 1 }, class: 'numero' }, R.fmt(m.aprobDespues), h('span', { style: { fontSize: '20px' } }, ' %'))),
+        h('div', null, h('div', { class: 'etiqueta' }, 'Aprobación'), h('div', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '40px', lineHeight: 1 }, class: 'numero' }, R.fmt(m.aprobDespues), h('span', { style: { fontSize: '20px' } }, ' %'))),
         h('span', { class: 'chip ' + (da >= 0 ? 'bien' : 'mal'), style: { fontSize: '16px' } }, (da >= 0 ? '▲ ' : '▼ ') + R.fmt(Math.abs(da), 1))),
       reaccion ? h('div', { class: 'pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta' }, 'Reacción a tus cambios'), ui.chipsEfectos(reaccion)) : null,
       h('div', { class: 'resumen-filas' },
@@ -403,14 +400,14 @@
         fila('🏚️', 'Pobreza', a.pobreza, d.pobreza, (v) => R.fmt(v, 1) + '%', true, 0.1),
         fila('🏦', 'Reservas', a.reservas, d.reservas, (v) => 'US$ ' + R.fmt(v, 0) + ' mil M', false, 0.3)),
       porque.length ? h('div', { class: 'pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta' }, '¿Por qué?'), porque) : null,
-      m.frases && m.frases.length ? h('div', { class: 'pila', style: { gap: '8px' } }, h('div', { class: 'etiqueta' }, '🗣️ La gente dice'),
+      m.frases && m.frases.length ? h('div', { class: 'pila', style: { gap: '8px' } }, h('div', { class: 'etiqueta' }, 'La gente dice'),
         m.frases.map((f) => {
           const g = R.GRUPO[f.grupo];
           const st = s.gob.grupos[f.grupo];
           return h('div', { class: 'dicho' }, R.ui.avatar(g.avatar, { size: 44, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
             h('div', { class: 'globo ' + (f.bueno ? 'bien' : 'mal') }, h('b', null, g.personaje + ': '), f.txt));
         })) : null,
-      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶'));
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir'));
     ui.abrirCapa(contenido, { clase: 'diario-hoja' });
     if (da <= -3) ui.temblor(document.querySelector('.hoja'));
   };
