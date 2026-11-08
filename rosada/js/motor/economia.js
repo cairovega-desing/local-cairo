@@ -88,6 +88,18 @@
     return e;
   };
 
+  // ── Ritmo del juego ──
+  // Un mandato son 48 turnos y se juega en más o menos una hora. Por eso las cosas pasan más rápido
+  // y pegan más fuerte que en la vida real: para que lo que hacés se note dentro del mandato.
+  // Acá se ajusta todo junto.
+  eco.RITMO = {
+    madura: 1 / 3, // las leyes dan todo su efecto en un tercio del tiempo (18 meses → 6)
+    impacto: 1.5, // y pegan un 50 % más fuerte (lo bueno y lo malo)
+    reaccion: 2.2, // empleo, pobreza, calidad, inversión y confianza se acomodan ~2 veces más rápido
+  };
+  const RX = (k) => Math.min(0.6, k * eco.RITMO.reaccion);
+  eco.mesesMadura = (meses) => Math.max(2, Math.round((meses || 18) * eco.RITMO.madura));
+
   // ── Mediano plazo ──
   // Bonos permanentes (leyes, tratados). Los de las leyes «maduran»: llegan de a poco en 1-2 años
   // (una fábrica nueva no aparece el mismo mes que se firma la ley).
@@ -122,7 +134,7 @@
     for (const sh of e.shocks) if (sh.k === 'expo') f += sh.v;
     // Leyes y tratados: suman exportaciones, con techo (no se puede exportar el doble por decreto).
     const bExpo = eco.bonus(s, 'bonusExpo');
-    f += Math.sign(bExpo) * 0.3 * (1 - Math.exp(-Math.abs(bExpo) / 0.3));
+    f += Math.sign(bExpo) * 0.45 * (1 - Math.exp(-Math.abs(bExpo) / 0.45));
     return Math.max(0.5, f);
   };
   eco.recaudacion = (s) => {
@@ -183,7 +195,9 @@
     // Con inflación casi cero el efecto se apaga (los precios no bajan para siempre).
     const pOferta = -R.clamp((e.oferta || 0) * 0.03, -0.08, 0.1) * R.clamp(e.inflMes / 1.5, 0, 1);
     // Leyes que mueven los precios: competencia, apertura, acuerdos (bajan) o protección, controles que rebotan (suben).
-    const pLeyesInfl = eco.bonus(s, 'bonusPrecios');
+    // (lo que baja los precios se apaga cerca de cero: no hay deflación por ley)
+    let pLeyesInfl = eco.bonus(s, 'bonusPrecios');
+    if (pLeyesInfl < 0) pLeyesInfl *= R.clamp(e.inflMes / 1.2, 0, 1);
     let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + pLeyesInfl + R.gauss(s) * 0.12;
     infl = R.clamp(infl, -0.5, 60);
     C.inflacion = [
@@ -213,8 +227,8 @@
 
     // 4) Crecimiento (anualizado)
     const pPot = 1.4;
-    const pObras = 2.2 * (m.obras - 1) + (e.calidad.infra - 50) / 30;
-    const pFuturo = (e.calidad.educacion - 50) / 45 + (e.calidad.ciencia - 50) / 45;
+    const pObras = 3.2 * (m.obras - 1) + (e.calidad.infra - 50) / 22;
+    const pFuturo = (e.calidad.educacion - 50) / 30 + (e.calidad.ciencia - 50) / 30;
     const pConfianza = -(e.riesgo - 650) / 420;
     const pImpuestos = -0.7 * ((e.impEf ?? e.impuestos) - 2) - 0.3 * ((e.retEf ?? e.retenciones) - 2);
     const pInflacion = -Math.max(0, e.inflAnual - 35) / 25;
@@ -225,13 +239,13 @@
     const pMin = min && min.crec ? min.crec : 0;
     // Leyes: cada una suma, pero con rendimientos decrecientes (no se crece al infinito a fuerza de leyes).
     const bCrec = eco.bonus(s, 'bonusCrec');
-    const pLeyes = Math.sign(bCrec) * 1.8 * (1 - Math.exp(-Math.abs(bCrec) / 1.8));
+    const pLeyes = Math.sign(bCrec) * 3 * (1 - Math.exp(-Math.abs(bCrec) / 3));
     let crecMes = pPot + pObras + pFuturo + pConfianza + pImpuestos + pInflacion + pCepo + pExpo + pGasto + pShockCrec + pMin + pLeyes + R.gauss(s) * 0.6;
     crecMes = R.clamp(crecMes, -15, 12);
     e.pbi *= 1 + crecMes / 1200;
-    e.crec = e.crec * 0.82 + crecMes * 0.18;
+    e.crec = e.crec * (1 - RX(0.18)) + crecMes * RX(0.18);
     const oferta = pObras + pFuturo + pConfianza + pImpuestos + pExpo + pMin + pLeyes;
-    e.oferta = (e.oferta || 0) * 0.85 + oferta * 0.15;
+    e.oferta = (e.oferta || 0) * (1 - RX(0.15)) + oferta * RX(0.15);
     C.crecimiento = [
       { k: 'obras', v: pObras }, { k: 'futuro', v: pFuturo }, { k: 'confianza', v: pConfianza }, { k: 'impuestos', v: pImpuestos },
       { k: 'inflacion', v: pInflacion }, { k: 'cepo', v: pCepo }, { k: 'expo', v: pExpo }, { k: 'gasto', v: pGasto },
@@ -241,13 +255,13 @@
     // 5) Empleo
     const desObj = R.clamp(7.5 - 0.5 * (e.crec - 1.5) - eco.bonus(s, 'bonusEmpleo'), 2.5, 30);
     const desAntes = e.desempleo;
-    e.desempleo = R.clamp(e.desempleo + (desObj - e.desempleo) * 0.09 + shock('desempleo'), 2, 35);
+    e.desempleo = R.clamp(e.desempleo + (desObj - e.desempleo) * RX(0.09) + shock('desempleo'), 2, 35);
     C.desempleo = [{ k: 'crecimiento', v: (e.desempleo - desAntes) }];
 
     // 6) Salario real: las paritarias corren detrás de la inflación. Y a mediano plazo los sueldos siguen
     // a la productividad: si la economía crece y falta gente para trabajar, las empresas pagan más.
     const paritaria = 0.75 * inflAntes + 0.25 * Math.min(infl, inflAntes * 1.5) + 0.04 + (g && g.grupos.trabajadores.humor < 35 ? 0.1 : 0) + shock('salario');
-    const tiron = 0.05 * e.crec + 0.03 * (7.5 - e.desempleo) + eco.bonus(s, 'bonusSalario');
+    const tiron = 0.08 * e.crec + 0.05 * (7.5 - e.desempleo) + eco.bonus(s, 'bonusSalario');
     const salAntes = e.salarioReal;
     e.salarioReal = R.clamp(e.salarioReal * (1 + (paritaria + tiron - infl) / 100), 45, 160);
     C.salario = [{ k: 'inflacion', v: (salAntes * (paritaria - infl)) / 100 }, { k: 'productividad', v: (salAntes * tiron) / 100 }];
@@ -257,9 +271,9 @@
     const pSal = 0.4 * (100 - e.salarioReal);
     const pInf = 0.12 * Math.max(0, e.inflAnual - 15);
     const torta = eco.torta(s);
-    const pSocial = -6 * (m.social * torta - 1) - 3 * (m.jubilaciones * torta - 1);
-    const pobObj = R.clamp(29 + pDes + pSal + pInf + pSocial, 3, 75);
-    e.pobreza = R.clamp(e.pobreza + (pobObj - e.pobreza) * 0.1, 3, 75);
+    const pSocial = -9 * (m.social * torta - 1) - 4.5 * (m.jubilaciones * torta - 1);
+    const pobObj = R.clamp(29 + pDes + pSal + pInf + pSocial, 7, 75);
+    e.pobreza = R.clamp(e.pobreza + (pobObj - e.pobreza) * RX(0.1), 3, 75);
     C.pobreza = [{ k: 'desempleo', v: pDes }, { k: 'salario', v: pSal }, { k: 'inflacion', v: pInf }, { k: 'social', v: pSocial }];
 
     // 8) Reservas (miles de millones de dólares)
@@ -277,18 +291,18 @@
     const defAnual = -eco.resultado(s);
     const riesgoObj = R.clamp(320 + 7 * Math.max(0, e.deuda - 45) + 70 * Math.max(0, defAnual) + 3.5 * Math.max(0, e.inflAnual - 20)
       - 5 * (e.reservas - 25) + (e.cepo ? 120 : 0) + shock('riesgo') + (min && min.riesgo ? min.riesgo : 0) - (ley('bcra') ? 80 : 0) + eco.bonus(s, 'bonusRiesgo'), 150, 5000);
-    e.riesgo = R.clamp(e.riesgo + (riesgoObj - e.riesgo) * 0.2, 150, 5000);
+    e.riesgo = R.clamp(e.riesgo + (riesgoObj - e.riesgo) * RX(0.16), 150, 5000);
 
     // 10) Calidad de cada área: va lento hacia lo que le das.
     for (const a of R.AREAS) {
       if (!a.calidad) continue;
       const obj = R.clamp(50 + 48 * (m[a.id] * torta - 1) - Math.max(0, e.inflAnual - 40) * 0.08 + eco.bonus(s, 'bonusCalidad', a.calidad), 5, 97);
-      e.calidad[a.calidad] = R.clamp(e.calidad[a.calidad] + (obj - e.calidad[a.calidad]) * 0.06, 0, 100);
+      e.calidad[a.calidad] = R.clamp(e.calidad[a.calidad] + (obj - e.calidad[a.calidad]) * RX(0.06), 0, 100);
     }
 
-    // 10 bis) Impuestos y retenciones: la producción se acomoda de a poco (≈ 8 % por mes).
-    e.impEf = (e.impEf ?? e.impuestos) + (e.impuestos - (e.impEf ?? e.impuestos)) * 0.08;
-    e.retEf = (e.retEf ?? e.retenciones) + (e.retenciones - (e.retEf ?? e.retenciones)) * 0.08;
+    // 10 bis) Impuestos y retenciones: la producción se acomoda de a poco.
+    e.impEf = (e.impEf ?? e.impuestos) + (e.impuestos - (e.impEf ?? e.impuestos)) * RX(0.08);
+    e.retEf = (e.retEf ?? e.retenciones) + (e.retenciones - (e.retEf ?? e.retenciones)) * RX(0.08);
 
     // 11) Los shocks se gastan y las leyes que ya maduraron dejan de estar «en camino»
     if (g && g.madurando) {

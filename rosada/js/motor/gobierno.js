@@ -245,14 +245,14 @@
   // Sale de la definición de la ley (ef, perm y lo que cambia en el presupuesto), no de efectos indirectos.
   // [emoji, nombre, paso de una flecha, signo: +1 si que suba es bueno, −1 si es malo, 0 neutro]
   const PERM_META = {
-    bonusCrec: ['📈', 'Economía', 0.2, 1],
-    bonusEmpleo: ['🚪', 'Desempleo', 0.3, -1], // positivo = baja el desempleo
-    bonusExpo: ['🚢', 'Exportaciones', 0.025, 1],
-    bonusImpo: ['📦', 'Importaciones', 0.025, 0],
-    bonusRecauda: ['🧾', 'Recaudación', 0.15, 1],
-    bonusPrecios: ['🛒', 'Inflación', 0.02, -1],
-    bonusSalario: ['💰', 'Sueldos', 0.015, 1],
-    bonusRiesgo: ['📊', 'Riesgo país', 15, -1],
+    bonusCrec: ['📈', 'Economía', 0.3, 1],
+    bonusEmpleo: ['🚪', 'Desempleo', 0.45, -1], // positivo = baja el desempleo
+    bonusExpo: ['🚢', 'Exportaciones', 0.035, 1],
+    bonusImpo: ['📦', 'Importaciones', 0.035, 0],
+    bonusRecauda: ['🧾', 'Recaudación', 0.2, 1],
+    bonusPrecios: ['🛒', 'Inflación', 0.03, -1],
+    bonusSalario: ['💰', 'Sueldos', 0.02, 1],
+    bonusRiesgo: ['📊', 'Riesgo país', 22, -1],
   };
   // Lo que cambia el `hacer` de una ley en el presupuesto y en las perillas (sin tocar la partida).
   gob.impactoHacer = function (s, ley) {
@@ -280,7 +280,7 @@
   // Plata que deja (+) o se come (−) la ley en las cuentas, en % del PBI, cuando ya dio todo.
   gob.fiscalLey = function (s, ley) {
     const im = gob.impactoHacer(s, ley);
-    return im.dRec + ((ley.perm && ley.perm.bonusRecauda) || 0) - im.dGasto;
+    return im.dRec + ((ley.perm && ley.perm.bonusRecauda) || 0) * R.eco.RITMO.impacto - im.dGasto;
   };
   gob.efectosLey = function (s, ley, max) {
     max = max || 3;
@@ -305,13 +305,13 @@
     if (Math.abs(im.dReservas) > 0.5) add(ya, 'reservas', '🏦', 'Reservas', im.dReservas, 2, 1);
     // Con el tiempo: lo que la ley cambia en el motor.
     for (const [k, [em, nom, paso, signo]] of Object.entries(PERM_META)) {
-      let v = p[k] || 0;
+      let v = (p[k] || 0) * R.eco.RITMO.impacto;
       if (k === 'bonusEmpleo') v = -v; // se muestra como «Desempleo ▼»
       if (k === 'bonusCrec') v += im.dCrec;
       if (k === 'bonusExpo') v += im.dExpo;
       add(luego, k, em, nom, v, paso, signo);
     }
-    for (const [c, v] of Object.entries(p.bonusCalidad || {})) add(luego, c, R.EF_GOB[c].emoji, R.EF_GOB[c].nombre, v, 5, 1);
+    for (const [c, v] of Object.entries(p.bonusCalidad || {})) add(luego, c, R.EF_GOB[c].emoji, R.EF_GOB[c].nombre, v * R.eco.RITMO.impacto, 5, 1);
     const lista = (obj) => Object.values(obj)
       .filter((x) => Math.abs(x.v) >= x.paso * (R.GRUPO[x.k] ? 0.85 : 0.4))
       .map((x) => ({
@@ -329,11 +329,11 @@
   // Un cambio permanente en el motor que llega de a poco (lo usan las noticias que dejan huella).
   gob.bono = function (s, k, v, meses, sub) {
     const G = s.gob;
+    v *= R.eco.RITMO.impacto;
+    if (meses) meses = R.eco.mesesMadura(meses);
     if (sub) { G[k] = G[k] || {}; G[k][sub] = (G[k][sub] || 0) + v; } else G[k] = (G[k] || 0) + v;
     if (meses) { G.madurando = G.madurando || []; G.madurando.push({ ley: 'noticia', k, v, sub, desde: s.mes, meses }); }
   };
-  // Cuánto tarda en llegar, en palabras.
-  gob.plazoTxt = (meses) => (meses <= 12 ? '1 año' : meses <= 18 ? '1 año y medio' : '2 años');
 
   gob.bloqueoCosto = function (s, costo) {
     if (!s.gob) return null;
@@ -482,7 +482,7 @@
       st.partes = partes;
       st.objetivo = obj;
       st.antes = humorAntes[g.id];
-      st.humor = R.clamp(st.humor + (obj - st.humor) * 0.2 + R.gauss(s) * 0.6, 0, 100);
+      st.humor = R.clamp(st.humor + (obj - st.humor) * 0.28 + R.gauss(s) * 0.6, 0, 100);
     }
     G.lunaMiel *= 0.88;
     G.meses++;

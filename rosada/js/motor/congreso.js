@@ -210,14 +210,16 @@
     if (ley.costo && ley.costo.gasto) ef.gastoExtra = ley.costo.gasto;
     if (ley.perm) {
       // Lo económico madura de a poco (ley.madura meses); lo que siente cada grupo (bonusGrupo) es desde ya.
+      // Ritmo del juego: llegan en un tercio del tiempo y pegan más fuerte (R.eco.RITMO).
       const p = ley.perm;
-      const meses = ley.madura || 18;
+      const meses = R.eco.mesesMadura(ley.madura);
+      const x = R.eco.RITMO.impacto;
       G.madurando = G.madurando || [];
       const madura = (k, v, sub) => G.madurando.push({ ley: ley.id, k, v, sub, desde: s.mes, meses });
       for (const k of ['bonusEmpleo', 'bonusCrec', 'bonusExpo', 'bonusRecauda', 'bonusImpo', 'bonusPrecios', 'bonusSalario', 'bonusRiesgo']) {
-        if (p[k]) { G[k] = (G[k] || 0) + p[k]; madura(k, p[k]); }
+        if (p[k]) { G[k] = (G[k] || 0) + p[k] * x; madura(k, p[k] * x); }
       }
-      if (p.bonusCalidad) { G.bonusCalidad = G.bonusCalidad || {}; for (const [k, v] of Object.entries(p.bonusCalidad)) { G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) + v; madura('bonusCalidad', v, k); } }
+      if (p.bonusCalidad) { G.bonusCalidad = G.bonusCalidad || {}; for (const [k, v] of Object.entries(p.bonusCalidad)) { G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) + v * x; madura('bonusCalidad', v * x, k); } }
       if (p.bonusGrupo) { G.bonusGrupo = G.bonusGrupo || {}; for (const [k, v] of Object.entries(p.bonusGrupo)) G.bonusGrupo[k] = (G.bonusGrupo[k] || 0) + v; }
     }
     if (ley.hacer) ley.hacer(s);

@@ -1,6 +1,7 @@
 // Leyes que podés mandar al Congreso. ideo: −1 (Estado presente) … +1 (mercado). polemica: 0 … 1.
 // cat: tema (para los filtros). ef: lo que pasa al firmarla (la gente reacciona, algún golpe a la economía).
-// perm: lo que cambia en el motor para siempre. Lo económico madura de a poco en `madura` meses (18 si no dice):
+// perm: lo que cambia en el motor para siempre. Lo económico madura de a poco: `madura` meses «de la vida real»
+// (18 si no dice), que el juego acelera con R.eco.RITMO (llega en un tercio del tiempo y pega más fuerte):
 //   bonusCrec (crecimiento), bonusEmpleo (baja el desempleo), bonusExpo (exportaciones), bonusImpo (importaciones),
 //   bonusRecauda (recaudación, % PBI), bonusPrecios (inflación por mes), bonusSalario (sueldo real por mes),
 //   bonusRiesgo (riesgo país), bonusCalidad {área}. bonusGrupo {grupo}: cómo lo siente cada grupo, desde ya.
@@ -96,7 +97,7 @@
     // ── 🏭 Producción ──
     { id: 'retenciones_cero', cat: 'produccion', emoji: '🌾', nombre: 'Retenciones cero', desc: 'El campo no paga más retenciones', ideo: 0.7, polemica: 0.5, madura: 24,
       ef: { campo: 15, humildes: -2 }, perm: { bonusExpo: 0.03, bonusCrec: 0.25, bonusRecauda: 0.3 },
-      hacer: (s) => { s.eco.retenciones = 0; s.eco.retencionesInicioMes = 0; }, nota: 'Recaudás menos ya; la cosecha crece en 1-2 años' },
+      hacer: (s) => { s.eco.retenciones = 0; s.eco.retencionesInicioMes = 0; }, nota: 'Recaudás menos ya; en unos meses crece la cosecha' },
     { id: 'vaca_muerta', cat: 'produccion', emoji: '🛢️', nombre: 'Régimen de hidrocarburos', desc: 'Más inversión en Vaca Muerta', ideo: 0.3, polemica: 0.35, madura: 24,
       ef: { empresarios: 5, trabajadores: 2, media: -2 }, perm: { bonusExpo: 0.08, bonusCrec: 0.35, bonusRecauda: 0.05 } },
     { id: 'glaciares', cat: 'produccion', emoji: '⛰️', nombre: 'Reforma de glaciares', desc: 'Minería cerca de la cordillera', ideo: 0.6, polemica: 0.6, madura: 24,

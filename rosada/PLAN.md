@@ -394,6 +394,7 @@ Cada vuelta: **hacer → probar automáticamente → mirar capturas en celular y
 | 9 · Congreso coherente: cada bloque vota según si la ley va para su lado (no por distancia pura), su bandera la empuja aunque esté peleado con vos, y se ve el motivo de cada voto | ✅ |
 | 10 · Corto vs mediano plazo: las leyes muestran «⚡ Ahora» y «⏳ En 1-2 años» y maduran de a poco (tarjeta «Tus leyes, en camino»); el crecimiento llega a sueldos, precios y, por la «torta», a jubilados y ayuda social en plata real | ✅ |
 | 11 · Leyes con motor: 54 leyes con filtros por tema e ideología (botones que abren una ventanita), filas compactas, «Al firmar» / «Con el tiempo» con pocos carteles directos; caminos viables para Estado presente, Centro y Mercado; retenciones e impuestos con efecto gradual en exportaciones e inversión; 36 noticias que dependen de ideología, leyes y economía | ✅ |
+| 12 · Ritmo de juego: un mandato se juega en ~1 hora, así que las leyes llegan en meses, pegan ×1,5 y la economía reacciona ~2× más rápido (`R.eco.RITMO`); al año ya se notan los cambios | ✅ |
 
 **Criterios de terminado:** se juega de punta a punta en celu y PC sin errores de consola (Playwright); 2000 campañas y 100 gobiernos
 de dos mandatos simulados sin NaN; 150 noticias, 23 leyes, 12 países y 32 logros; ningún titular pasa de 9 palabras ni opción de 4.
