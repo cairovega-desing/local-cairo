@@ -564,6 +564,27 @@ p { margin: 0; }
 .persona .delta { position: absolute; top: 4px; right: 6px; font-size: 13px; font-weight: 900; }
 .persona .delta.sube { color: var(--bien); }
 .persona .delta.baja { color: var(--mal); }
+.critico-mini { font-size: 11px; padding: 0 2px; border-radius: 6px; background: var(--mal-claro); border: 1.5px solid var(--mal); }
+.persona .critico { position: absolute; top: 3px; left: 5px; font-size: 14px; line-height: 1; padding: 2px 3px; border-radius: 8px; background: var(--mal-claro); border: 1.5px solid var(--mal); }
+/* Ficha de un grupo */
+.humor-medidor { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-top: 6px; }
+.humor-medidor .barra { position: relative; height: 12px; overflow: visible; }
+.humor-medidor .marca-va { position: absolute; top: -4px; width: 3px; height: 20px; background: var(--tinta); border-radius: 2px; transform: translateX(-50%); }
+.critico-caja { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; border-radius: var(--radio-chico); background: var(--mal-claro); }
+.critico-caja.bien { background: var(--bien-claro); }
+.critico-caja .chip { white-space: normal; margin: 0 4px 4px 0; }
+.motivos { display: flex; flex-direction: column; gap: 4px; }
+.motivo { display: grid; grid-template-columns: 26px minmax(0, 1fr) minmax(80px, 38%); gap: 8px; align-items: center; padding: 5px 8px; border-radius: 10px; background: var(--papel-2); }
+.motivo .em { font-size: 20px; text-align: center; }
+.motivo .txt { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
+.motivo .txt b { font-size: 14px; }
+.motivo .fijo { white-space: nowrap; display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4px; color: var(--tinta-suave); background: #e3ebf5; border-radius: 6px; padding: 1px 5px; vertical-align: middle; }
+.motivo .txt small { font-size: 12px; color: var(--tinta-suave); font-weight: 700; }
+.balanza-motivo { position: relative; height: 12px; border-radius: 6px; background: #e3ebf5; }
+.balanza-motivo::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; background: var(--tinta); transform: translateX(-50%); }
+.balanza-motivo i { position: absolute; top: 0; bottom: 0; }
+.balanza-motivo i.suma { background: var(--bien); border-radius: 0 6px 6px 0; }
+.balanza-motivo i.resta { background: var(--mal); border-radius: 6px 0 0 6px; }
 
 /* El país en tarjetas */
 .pais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }

@@ -110,11 +110,13 @@
   function tarjetaGente(s) {
     const G = s.gob;
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, '👥 La gente'),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '👥 La gente'), h('span', { class: 'chico suave' }, 'Tocá a cada uno · ', h('span', { class: 'critico-mini' }, '🛒'), ' = lo que más lo enoja')),
       h('div', { class: 'gente' }, R.GRUPOS.map((g) => {
         const st = G.grupos[g.id];
         const d = st.humor - (st.antes ?? st.humor);
-        return h('button', { class: 'persona toque', onclick: () => verGrupo(s, g.id), 'aria-label': g.nombre + ': ' + Math.round(st.humor) + ' de 100' },
+        const peor = puntoCritico(s, g.id);
+        return h('button', { class: 'persona toque', onclick: () => verGrupo(s, g.id), 'aria-label': g.nombre + ': ' + Math.round(st.humor) + ' de 100' + (peor ? '. Lo que más lo enoja: ' + RAZON(peor.k)[1] : '') },
+          peor ? h('span', { class: 'critico', title: 'Lo que más lo enoja: ' + RAZON(peor.k)[1] }, RAZON(peor.k)[0]) : null,
           R.ui.avatar(g.avatar, { size: 56, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
           h('span', { class: 'nom' }, g.emoji + ' ' + g.nombre),
           h('span', { class: 'barra', style: { height: '8px', width: '100%' } }, h('i', { style: { width: st.humor + '%', background: colorHumorFuerte(st.humor) } })),
@@ -129,39 +131,96 @@
     inflacion: ['🛒', 'Precios'], empleo: ['🚪', 'Trabajo'], salario: ['💰', 'Sueldo'], obras: ['🏗️', 'Obra pública'], retenciones: ['🌾', 'Retenciones'],
     cepo: ['🔒', 'Cepo'], crecimiento: ['📈', 'Economía'], rutas: ['🛣️', 'Rutas'], impuestos: ['🧾', 'Impuestos'], riesgo: ['📊', 'Confianza'],
     seguridad: ['👮', 'Seguridad'], educacion: ['🎓', 'Escuelas'], salud: ['🏥', 'Salud'], social: ['🤲', 'Ayuda social'], subsidios: ['💡', 'Tarifas'],
-    pobreza: ['🏚️', 'Pobreza'], jubilaciones: ['👵', 'Lo que cobra'], ideas: ['💭', 'Piensa como vos'], leyes: ['📜', 'Tus leyes'],
+    pobreza: ['🏚️', 'Pobreza'], jubilaciones: ['👵', 'Lo que cobra'], ideas: ['💭', 'Tus ideas'], leyes: ['📜', 'Tus leyes'],
   };
+  const RAZON = (k) => R.RAZONES[k] || ['•', k];
+  // Lo que más lo enoja (si de verdad lo enoja). «Tus ideas» no cuenta: es fijo, no es algo que pase.
+  function puntoCritico(s, id) {
+    const { partes } = R.gob.objetivoGrupo(s, id);
+    const peor = partes.filter((p) => p.k !== 'ideas').sort((a, b) => a.v - b.v)[0];
+    return peor && peor.v <= -4 ? peor : null;
+  }
+  const humorTxt = (v) => (v >= 70 ? 'Contento' : v >= 56 ? 'Conforme' : v >= 42 ? 'Ni fu ni fa' : v >= 28 ? 'Enojado' : 'Furioso');
 
+  // El dato concreto detrás de cada motivo («34 % al año», «8 de cada 100 sin trabajo»…).
+  function datoRazon(s, id, k) {
+    const e = s.eco;
+    const q = e.calidad;
+    const m = e.niveles;
+    const nivel = (a) => R.eco.nivelTxt(m[a]);
+    const calidad = (x) => 'calidad ' + Math.round(x) + '/100';
+    const real = (a) => {
+      const d = (m[a] * R.eco.torta(s) - 1) * 100;
+      return Math.abs(d) < 0.5 ? 'igual que al asumir' : R.fmt(Math.abs(d), 0) + '% ' + (d > 0 ? 'más' : 'menos') + ' que al asumir';
+    };
+    switch (k) {
+      case 'inflacion': return R.fmt(e.inflAnual) + '% al año';
+      case 'empleo': return R.fmt(e.desempleo, 1) + '% sin trabajo';
+      case 'salario': { const d = e.salarioReal - 100; return Math.abs(d) < 0.5 ? 'rinde igual que al asumir' : 'rinde ' + R.fmt(Math.abs(d), 0) + '% ' + (d > 0 ? 'más' : 'menos') + ' que al asumir'; }
+      case 'obras': return nivel('obras');
+      case 'retenciones': return R.eco.RETENCIONES[e.retenciones].nombre;
+      case 'cepo': return e.cepo ? 'hay cepo al dólar' : 'sin cepo';
+      case 'crecimiento': return (e.crec >= 0 ? 'crece ' : 'cae ') + R.fmt(Math.abs(e.crec), 1) + '% por año';
+      case 'rutas': return calidad(q.infra);
+      case 'impuestos': return 'impuestos ' + R.eco.IMPUESTOS[e.impuestos].nombre.toLowerCase();
+      case 'riesgo': return 'riesgo país ' + R.fmt(e.riesgo);
+      case 'seguridad': return calidad(q.seguridad);
+      case 'educacion': return calidad(q.educacion);
+      case 'salud': return calidad(q.salud);
+      case 'social': return id === 'humildes' ? 'plata real: ' + real('social') : nivel('social');
+      case 'subsidios': return nivel('subsidios');
+      case 'jubilaciones': return 'plata real: ' + real('jubilaciones');
+      case 'pobreza': return R.fmt(e.pobreza) + '% de pobres';
+      case 'ideas': { const d = Math.abs(R.GRUPO[id].ideo - s.partido.ideo); return d < 0.3 ? 'piensa parecido a vos' : d < 0.7 ? 'piensa algo distinto a vos' : 'piensa muy distinto a vos'; }
+      case 'leyes': return 'por leyes que pasaste';
+      default: return '';
+    }
+  }
+
+  // Ficha de un grupo: cómo está, a dónde va, lo que más lo enoja y, motivo por motivo, cuánto le suma o le resta
+  // (barra que sale del centro: a la izquierda en rojo le resta, a la derecha en verde le suma), con el dato real.
   function verGrupo(s, id) {
     const g = R.GRUPO[id];
     const st = s.gob.grupos[id];
     const { obj, partes } = R.gob.objetivoGrupo(s, id);
-    const orden = partes.slice().sort((a, b) => Math.abs(b.v) - Math.abs(a.v));
-    const max = Math.max(5, ...orden.map((p) => Math.abs(p.v)));
+    const ESCALA = 16; // puntos de humor que llenan media barra (raíz: las chicas también se ven)
+    const ideas = partes.find((p) => p.k === 'ideas');
+    const resta = partes.filter((p) => p.v <= -1).sort((a, b) => a.v - b.v);
+    const suma = partes.filter((p) => p.v >= 1).sort((a, b) => b.v - a.v);
+    const igual = partes.filter((p) => Math.abs(p.v) < 1 && p.k !== 'ideas');
+    const fila = (p) => {
+      const r = RAZON(p.k);
+      const ancho = Math.min(50, Math.sqrt(Math.abs(p.v) / ESCALA) * 50);
+      return h('div', { class: 'motivo' },
+        h('span', { class: 'em' }, r[0]),
+        h('span', { class: 'txt' }, h('b', null, r[1], p.k === 'ideas' ? h('span', { class: 'fijo' }, 'no cambia') : null), h('small', null, datoRazon(s, id, p.k))),
+        h('span', { class: 'balanza-motivo', title: (p.v > 0 ? 'Le suma ' : 'Le resta ') + Math.round(Math.abs(p.v)) },
+          h('i', { class: p.v > 0 ? 'suma' : 'resta', style: p.v > 0 ? { left: '50%', width: ancho + '%' } : { right: '50%', width: ancho + '%' } })));
+    };
+    const va = obj - st.humor;
+    const peores = resta.filter((p) => p.v <= -3 && p.k !== 'ideas').slice(0, 2);
+    const porIdeas = !peores.length && ideas && ideas.v <= -3;
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('div', { class: 'fila' }, R.ui.avatar(g.avatar, { size: 84, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
-        h('div', null, h('h2', null, g.personaje), h('div', { class: 'suave' }, g.emoji + ' ' + g.oficio + ' · ' + g.nombre),
-          h('div', { class: 'chip', style: { marginTop: '6px' } }, R.cara(st.humor) + ' ' + Math.round(st.humor) + '/100'))),
-      h('p', { class: 'chico' }, obj > st.humor + 2 ? '📈 Está mejorando: va hacia ' + Math.round(obj) : obj < st.humor - 2 ? '📉 Está empeorando: va hacia ' + Math.round(obj) : '➡️ Está estable'),
-      h('div', { class: 'etiqueta' }, 'Lo que le importa'),
-      h('div', { class: 'razones' }, orden.map((p) => {
-        const r = R.RAZONES[p.k] || ['•', p.k];
-        return h('div', { class: 'razon' }, h('span', { class: 'em' }, r[0]), h('span', null, r[1]),
-          h('span', { class: 'barrita' }, h('i', { style: { width: Math.max(6, (Math.abs(p.v) / max) * 100) + '%', background: Math.abs(p.v) < 1 ? 'var(--meh)' : p.v > 0 ? 'var(--bien)' : 'var(--mal)' } })),
-          h('span', { style: { fontWeight: 900 } }, Math.abs(p.v) < 1 ? '😐' : p.v > 0 ? '🙂' : '😠'));
-      })),
-      plataRealGrupo(s, id),
-      h('p', { class: 'chico suave' }, 'Pesa ' + g.peso + ' de cada 100 votos.')), { cerrable: true });
+      h('div', { class: 'fila', style: { alignItems: 'center' } }, R.ui.avatar(g.avatar, { size: 76, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
+        h('div', { style: { minWidth: 0, flex: 1 } }, h('h2', { style: { margin: 0 } }, g.personaje), h('div', { class: 'chico suave' }, g.emoji + ' ' + g.oficio + ' · ' + g.nombre),
+          h('div', { class: 'humor-medidor' },
+            h('span', { class: 'barra' }, h('i', { style: { width: st.humor + '%', background: colorHumorFuerte(st.humor) } }), h('b', { class: 'marca-va', style: { left: R.clamp(obj, 0, 100) + '%' }, title: 'Hacia dónde va' })),
+            h('span', { class: 'chico', style: { fontWeight: 900 } }, R.cara(st.humor) + ' ' + humorTxt(st.humor))),
+          h('div', { class: 'chico', style: { fontWeight: 800, color: va > 2 ? 'var(--bien)' : va < -2 ? 'var(--mal)' : 'var(--tinta-suave)' } },
+            va > 2 ? '📈 Va a mejorar' : va < -2 ? '📉 Va a empeorar' : '➡️ Se mantiene'))),
+      peores.length ? h('div', { class: 'critico-caja' }, h('b', null, '😠 Lo que más lo enoja'),
+        h('div', null, peores.map((p) => h('span', { class: 'chip mal' }, RAZON(p.k)[0] + ' ' + RAZON(p.k)[1] + ': ' + datoRazon(s, id, p.k)))))
+        : porIdeas ? h('div', { class: 'critico-caja' }, h('b', null, '💭 Lo que más le resta: no le gustan tus ideas'), h('span', { class: 'chico' }, 'Eso no cambia; lo podés compensar con lo que sí le importa.'))
+          : h('div', { class: 'critico-caja bien' }, h('b', null, '🙂 No tiene quejas grandes')),
+      resta.length ? h('div', { class: 'etiqueta' }, '😠 Le resta') : null,
+      resta.length ? h('div', { class: 'motivos' }, resta.map(fila)) : null,
+      suma.length ? h('div', { class: 'etiqueta' }, '🙂 Le suma') : null,
+      suma.length ? h('div', { class: 'motivos' }, suma.map(fila)) : null,
+      igual.length ? h('p', { class: 'chico suave' }, '😐 Por ahora no le pesan: ' + igual.map((p) => RAZON(p.k).join(' ')).join(' · ')) : null,
+      h('p', { class: 'chico suave' }, '🗳️ ' + g.nombre + ': pesa ' + g.peso + ' de cada 100 votos. La rayita negra de arriba es hacia dónde va su humor.')), { cerrable: true });
   }
 
-  // Jubilados y barrios: lo que cobran en plata de verdad (el % del gasto × el tamaño de la torta).
-  function plataRealGrupo(s, id) {
-    const area = { jubilados: ['jubilaciones', 'Cobra'], humildes: ['social', 'La ayuda social rinde'] }[id];
-    if (!area) return null;
-    const d = (s.eco.niveles[area[0]] * R.eco.torta(s) - 1) * 100;
-    const cuanto = Math.abs(d) < 0.5 ? ' lo mismo en plata real' : ' ' + R.fmt(Math.abs(d), 0) + '% ' + (d > 0 ? 'más' : 'menos') + ' en plata real';
-    return h('p', { class: 'chico tarjeta plana suave' }, '💰 ' + area[1] + cuanto + ' que cuando asumiste. Si la economía crece, sube aunque no toques el %.');
-  }
+
 
   // ── El país en 6 tarjetas tangibles ──
   ui.indicadores = function (s) {
