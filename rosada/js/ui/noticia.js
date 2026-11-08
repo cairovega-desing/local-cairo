@@ -31,7 +31,7 @@
         h('div', { class: 'em' }, res.bueno ? '👍' : '😬'),
         h('div', { class: 'txt' }, res.txt || o.txt),
         efectos.length ? ui.chipsEfectos(efectos) : h('p', { class: 'suave' }, 'No cambió nada importante.'),
-        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir')), { clase: 'diario-hoja' });
+        h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); alTerminar(); } }, 'Seguir ▶')), { clase: 'diario-hoja' });
     };
     const teclas = (e) => {
       const n = parseInt(e.key, 10);
@@ -39,7 +39,7 @@
     };
     document.addEventListener('keydown', teclas);
     ui.abrirCapa(h('article', { class: 'pila', style: { gap: '4px' } },
-      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, 'El Camino'), h('span', { class: 'chico suave' }, R.fechaTxt(s.mes))),
+      h('div', { class: 'diario-cab' }, h('span', { class: 'marca' }, '📰 EL CAMINO'), h('span', { class: 'chico suave' }, R.fechaTxt(s.mes))),
       h('div', { class: 'dibujo-noticia', 'aria-hidden': 'true' }, d.dibujo),
       h('h2', { class: 'titular' }, d.titular),
       d.bajada ? h('p', { class: 'bajada' }, d.bajada) : null,

@@ -43,7 +43,7 @@
       }
     }
     const textos = [];
-    if (opts.centro !== undefined) textos.push(S('text', { x: 0, y: -8, 'text-anchor': 'middle', style: 'font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size: 26px; fill: currentColor' }, String(opts.centro)));
+    if (opts.centro !== undefined) textos.push(S('text', { x: 0, y: -8, 'text-anchor': 'middle', style: 'font-family: var(--f-titulo); font-size: 26px; fill: currentColor' }, String(opts.centro)));
     if (opts.sub) textos.push(S('text', { x: 0, y: 6, 'text-anchor': 'middle', style: 'font-size: 10px; font-weight: 900; fill: currentColor; opacity: .75' }, opts.sub));
     return S('svg', { class: 'hemiciclo', viewBox: '-104 -104 208 114', role: 'img', 'aria-label': opts.titulo || 'Hemiciclo' }, ...puntos, ...textos);
   };

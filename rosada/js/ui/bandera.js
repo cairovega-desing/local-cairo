@@ -138,7 +138,7 @@
     if (sigla) {
       emb.push(S('text', {
         x: 45, y: 38, 'text-anchor': 'middle', fill: contraste,
-        style: `font-family: var(--f-titulo); font-stretch: 75%; font-weight: 800; font-size:${Math.min(24, 110 / Math.max(2, sigla.length))}px; letter-spacing: 0.5px`,
+        style: `font-family: var(--f-titulo); font-size:${Math.min(24, 110 / Math.max(2, sigla.length))}px; letter-spacing: 0.5px`,
       }, sigla));
     }
     const ancho = opts.ancho || 60;

@@ -26,21 +26,22 @@
     const tratados = R.PAISES.filter((p) => s.mundo.paises[p.id].tratado);
     const anexados = R.PAISES.filter((p) => s.mundo.paises[p.id].anexado);
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Argentina en el mundo')),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, R.ui.bandera('ARG', 34), ' Argentina en el mundo')),
       h('div', { class: 'fila', style: { gap: '10px' } },
+        h('span', { style: { fontSize: '30px' } }, '⚔️'),
         h('div', { style: { flex: 1 } }, h('div', { class: 'fila entre' }, h('b', null, 'Poder militar'), h('b', { class: 'numero' }, String(poder))),
           h('div', { class: 'barra' }, h('i', { style: { width: Math.min(100, poder) + '%', background: 'var(--celeste)' } })))),
       h('div', { class: 'fila envolver', style: { gap: '6px' } },
-        h('span', { class: 'chip' }, 'Aliados: ', aliados.length ? aliados.map((p) => R.ui.bandera(p.id, 20)) : 'ninguno'),
-        h('span', { class: 'chip' }, 'Tratados: ' + tratados.length),
+        h('span', { class: 'chip' }, '🛡️ Aliados: ', aliados.length ? aliados.map((p) => R.ui.bandera(p.id, 20)) : 'ninguno'),
+        h('span', { class: 'chip' }, '📦 Tratados: ' + tratados.length),
         anexados.length ? h('span', { class: 'chip sol' }, '🏴 Anexaste: ' + anexados.map((p) => p.nombre).join(', ')) : null),
-      h('p', { class: 'chico suave' }, 'Sube con Defensa y aviones.'),
-      h('button', { class: 'boton sec ancho', onclick: () => elegirProveedor(s) }, 'Comprar aviones (⭐1, 4% del presupuesto)'));
+      h('p', { class: 'chico suave' }, '🪖 Sube con Defensa y aviones.'),
+      h('button', { class: 'boton sec ancho', onclick: () => elegirProveedor(s) }, '🛩️ Comprar aviones · ⭐1 · 💸4%'));
   }
 
   function elegirProveedor(s) {
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', null, '¿A quién le comprás?'),
+      h('h2', null, '🛩️ ¿A quién le comprás?'),
       h('p', { class: 'chico suave' }, 'Poder militar +' + mun.COMPRA.poder + ' · cuesta 4% del presupuesto · mejora la relación con el que te vende.'),
       h('div', { class: 'lista-elegir' }, ['USA', 'CHN', 'RUS', 'UE'].map((id) => h('button', { class: 'item-elegir', onclick: () => {
         const res = mun.comprarArmas(s, id);
@@ -67,7 +68,7 @@
   function tarjetaGuerra(s) {
     const W = s.mundo.guerra;
     return h('section', { class: 'tarjeta pila', style: { background: '#fff5f4' } },
-      h('div', { class: 'titulo-seccion' }, 'Guerra con ' + R.PAIS[W.pais].nombre + ' · mes ' + (W.meses + 1)),
+      h('div', { class: 'titulo-seccion' }, '⚔️ Guerra con ' + R.PAIS[W.pais].nombre + ' · mes ' + (W.meses + 1)),
       ui.frente(s, W),
       h('p', { class: 'chico' }, 'Cada mes das una orden.'));
   }
@@ -77,8 +78,8 @@
     const confirmar = ui.vista && ui.vista.confirmarMalvinas;
     const F = mun.fuerzas(s, 'GBR');
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, 'Islas Malvinas'),
-      M.recuperadas ? h('div', { class: 'centro pila' }, R.ui.bandera('ARG', 90), h('b', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '24px' } }, '¡Son argentinas!'))
+      h('div', { class: 'titulo-seccion' }, '🏝️ Islas Malvinas'),
+      M.recuperadas ? h('div', { class: 'centro pila' }, R.ui.bandera('ARG', 90), h('b', { style: { fontFamily: 'var(--f-titulo)', fontSize: '24px', fontWeight: 400 } }, '¡Son argentinas!'))
         : h('div', { class: 'pila', style: { gap: '8px' } },
           h('div', { class: 'fila entre' }, h('b', null, 'Camino a la soberanía'), h('b', { class: 'numero' }, M.soberania + '%')),
           h('div', { class: 'barra gorda' }, h('i', { style: { width: M.soberania + '%', background: 'repeating-linear-gradient(90deg, #74acdf 0 14px, #ffffff 14px 28px)' } })),
@@ -96,14 +97,14 @@
               h('b', null, '⚓ ¿Recuperarlas por la fuerza?'),
               h('div', { class: 'chico' }, '💪 Vos ' + F.yo + ' contra 🇬🇧 ' + F.el + ' (con ' + (F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') || 'nadie') + '). ' + (F.ratio >= 1.1 ? 'Tenés chances.' : F.ratio >= 0.8 ? 'Muy parejo y arriesgado.' : 'Es casi imposible: conseguí aliados fuertes.')),
               h('div', { class: 'fila' },
-                h('button', { class: 'boton mini rojo', onclick: () => { ui.vista.confirmarMalvinas = false; const r = mun.recuperarMalvinas(s); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); ui.refrescar(); return; } R.son.tambor(); ui.mostrarResultado(s, r); } }, '¡A la guerra! · ⭐5'),
+                h('button', { class: 'boton mini rojo', onclick: () => { ui.vista.confirmarMalvinas = false; const r = mun.recuperarMalvinas(s); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); ui.refrescar(); return; } R.son.tambor(); ui.mostrarResultado(s, r); } }, '⚔️ ¡A la guerra! · ⭐5'),
                 h('button', { class: 'boton mini sec', onclick: () => { ui.vista.confirmarMalvinas = false; ui.refrescar(); } }, 'Mejor no')))
-            : h('button', { class: 'boton sec ancho', onclick: () => { ui.vista = Object.assign({}, ui.vista, { confirmarMalvinas: true }); ui.refrescar(); } }, 'Recuperarlas por la fuerza…')) : null));
+            : h('button', { class: 'boton sec ancho', onclick: () => { ui.vista = Object.assign({}, ui.vista, { confirmarMalvinas: true }); ui.refrescar(); } }, '⚓ Recuperarlas por la fuerza…')) : null));
   }
 
   function tarjetaPaises(s) {
     return h('section', { class: 'pila' },
-      h('div', { class: 'titulo-seccion' }, 'Países'),
+      h('div', { class: 'titulo-seccion' }, '🌎 Países'),
       h('div', { class: 'paises' }, R.PAISES.map((p) => {
         const st = s.mundo.paises[p.id];
         return h('button', { class: 'pais-carta toque' + (st.anexado ? ' anexado' : ''), onclick: () => verPais(s, p.id) },
@@ -148,7 +149,7 @@
               (F.ratio >= 1.3 ? 'Tenés todas las de ganar.' : F.ratio >= 1 ? 'Ventaja chica: puede salir mal.' : 'Te superan: es muy arriesgado.')),
             h('div', { class: 'chico' }, 'Todo el mundo se va a enojar con vos. Si ganás, ' + p.nombre + ' pasa a ser parte del país.'),
             h('div', { class: 'fila' },
-              h('button', { class: 'boton mini rojo', onclick: () => { const r = mun.hacer(s, id, 'guerra'); ui.cerrarCapa(); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; } R.son.tambor(); ui.temblor(); ui.mostrarResultado(s, r); } }, '¡A la guerra!'),
+              h('button', { class: 'boton mini rojo', onclick: () => { const r = mun.hacer(s, id, 'guerra'); ui.cerrarCapa(); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; } R.son.tambor(); ui.temblor(); ui.mostrarResultado(s, r); } }, '⚔️ ¡A la guerra!'),
               h('button', { class: 'boton mini sec', onclick: () => verPais(s, id, false) }, 'Mejor no')));
         }
         return h('button', { class: 'item-elegir', disabled: b ? true : null, onclick: () => {
@@ -171,7 +172,7 @@
     if (!W) return listo();
     const P = R.PAIS[W.pais];
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', { class: 'centro' }, 'Guerra con ' + P.nombre),
+      h('h2', { class: 'centro' }, '⚔️ Guerra con ' + P.nombre),
       h('div', { class: 'centro chico suave' }, 'Mes ' + (W.meses + 1) + ' · ' + (W.objetivo === 'malvinas' ? 'Objetivo: recuperar Malvinas' : 'Objetivo: anexar ' + P.nombre)),
       ui.frente(s, W),
       h('div', { class: 'lista-elegir' }, mun.ORDENES.map((o) => h('button', { class: 'item-elegir', onclick: () => {
@@ -200,7 +201,7 @@
       !fin || fin === 'victoria' || fin === 'derrota' ? ui.frente(s, Object.assign({}, W2, { frente: antesFrente })) : null,
       efectos.length ? ui.chipsEfectos(efectos) : null,
       h('div', { class: 'chico', style: { fontWeight: 900 } }, '👍 Aprobación: ' + R.fmt(aprobAntes, 1) + '% → ' + R.fmt(s.gob.aprob, 1) + '%'),
-      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir'));
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶'));
     ui.abrirCapa(cont);
     // Animar el marcador desde donde estaba hasta donde quedó.
     const marc = cont.querySelector('.marcador');

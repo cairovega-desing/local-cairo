@@ -21,22 +21,22 @@
       acciones: () => [pc ? null : resumen(s), tarjetaAcciones(s)],
       mapa: () => tarjetaMapa(s),
       encuesta: () => tarjetaEncuesta(s),
-      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Lo que pasó'), ui.historial(s)),
+      diario: () => h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '📰 Lo que pasó'), ui.historial(s)),
     }[tab]();
     const cuerpo = pc
       ? h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, resumen(s), tarjetaEncuesta(s)), h('div', { class: 'pila' }, contenido))
       : h('div', { class: 'pila' }, contenido);
     const guia = tab === 'acciones' && s.mes <= 2 && !s.gobRival ? ui.guia('campana', 'Cómo hacer campaña', [
-      ['', 'Usá tus acciones del mes', 'Cada una muestra qué te da.'],
-      ['', 'Hacé actos donde te quieren', 'Buenos Aires vale casi 4 de cada 10 votos.'],
-      ['', 'Pasá el mes', 'Las PASO son en agosto.'],
+      ['🎯', 'Usá tus acciones del mes', 'Cada una muestra qué te da.'],
+      ['🗺️', 'Hacé actos donde te quieren', 'Buenos Aires vale casi 4 de cada 10 votos.'],
+      ['▶', 'Pasá el mes', 'Las PASO son en agosto.'],
     ]) : null;
     const scroll = ui.montar(h('div', null, ui.barraCampana(s), guia, cuerpo), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
     const b = R.turno.botonPasar(s);
     ui.navInferior(PESTANAS.filter((p) => !(pc && p.soloCelu)), tab, (id) => { R.son.toque(); ui.vista = { tab: id }; ui.render(); window.scrollTo(0, 0); },
       h('button', { class: 'boton grande ancho', id: 'btn-pasar', onclick: () => ui.pasarMes() },
-        b.txt, s.camp.agenda > 0 ? h('span', { class: 'chip', style: { fontFamily: 'var(--f-texto)', fontSize: '12px' } }, 'te quedan ' + s.camp.agenda) : null));
+        b.emoji + ' ' + b.txt, s.camp.agenda > 0 ? h('span', { class: 'chip', style: { fontFamily: 'var(--f-texto)', fontSize: '12px' } }, 'te quedan ' + s.camp.agenda) : null));
   };
 
   // ── Resumen: cuenta regresiva y tus números ──
@@ -50,10 +50,10 @@
     return h('section', { class: 'tarjeta pila' },
       prox ? h('div', { class: 'cuenta-regresiva' },
         h('div', { class: 'num' }, prox.faltan ? prox.faltan : prox.emoji),
-        h('div', null, h('div', { class: 'etiqueta' }, prox.faltan ? (prox.faltan === 1 ? 'mes para ' : 'meses para ') + (prox.art || 'las') : '¡Este mes se vota!'), h('div', { class: 'titulo-seccion' }, prox.nombre))) : null,
+        h('div', null, h('div', { class: 'etiqueta' }, prox.faltan ? (prox.faltan === 1 ? 'mes para ' : 'meses para ') + (prox.art || 'las') : '¡Este mes se vota!'), h('div', { class: 'titulo-seccion' }, prox.emoji + ' ' + prox.nombre))) : null,
       h('div', { class: 'fila entre', style: { alignItems: 'flex-end' } },
         h('div', null, h('div', { class: 'etiqueta' }, 'Te votaría'),
-          h('div', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '46px', lineHeight: 1 }, class: 'numero' }, R.fmt(enc.YO, 1), h('span', { style: { fontSize: '24px' } }, ' %'))),
+          h('div', { style: { fontFamily: 'var(--f-titulo)', fontSize: '46px', lineHeight: 1 }, class: 'numero' }, R.fmt(enc.YO, 1), h('span', { style: { fontSize: '24px' } }, ' %'))),
         h('div', { class: 'pila', style: { alignItems: 'flex-end', gap: '6px' } },
           h('span', { class: 'chip ' + (puesto <= 2 ? 'sol' : '') }, puesto === 1 ? '🥇 Primero' : puesto === 2 ? '🥈 Segundo' : '#' + puesto + ' en la encuesta'),
           Math.abs(dif) >= 0.05 ? h('span', { class: 'chip ' + (dif > 0 ? 'bien' : 'mal') }, (dif > 0 ? '▲ ' : '▼ ') + R.fmt(Math.abs(dif), 1) + ' este mes') : null)),
@@ -61,7 +61,7 @@
       h('div', { class: 'fila-militancia' }, h('span', null, '🏴 Militancia y fiscales'),
         h('div', { class: 'barra', style: { height: '10px' } }, h('i', { style: { width: c.militancia + '%', background: s.partido.color } })),
         h('b', { class: 'numero' }, R.fmt(c.militancia) + '%')),
-      c.militancia < 30 && s.mes >= 4 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, 'Con poca militancia no tenés fiscales: te pueden robar votos.') : null,
+      c.militancia < 30 && s.mes >= 4 ? h('p', { class: 'chico', style: { color: 'var(--mal)' } }, '⚠️ Con poca militancia no tenés fiscales: te pueden robar votos.') : null,
       s.gobRival ? h('div', { class: 'fila envolver', style: { gap: '6px' } },
         h('span', { class: 'chip' }, '🏛️ Gobierna ' + R.elec.nombre(s, s.gobRival.partido) + ' (' + R.PARTIDOS[s.gobRival.partido].sigla + ')'),
         h('span', { class: 'chip ' + (s.gobRival.aprob < 40 ? 'bien' : s.gobRival.aprob > 55 ? 'mal' : '') }, '👍 ' + Math.round(s.gobRival.aprob) + '% de aprobación'),
@@ -133,7 +133,7 @@
 
     const dif = hoy.diferencial;
     return h('div', { class: 'grafico-imagen' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'etiqueta' }, 'Tu imagen, mes a mes'),
+      h('div', { class: 'fila entre' }, h('div', { class: 'etiqueta' }, '📈 Tu imagen, mes a mes'),
         h('span', { class: 'chip ' + (dif >= 0 ? 'bien' : 'mal'), title: 'Imagen positiva menos negativa' }, 'Diferencial ' + R.signo(dif, 0))),
       S('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'linea-imagen', role: 'img',
         'aria-label': 'Imagen hoy: ' + SERIES.map((se) => se.nom + ' ' + Math.round(hoy[se.k]) + '%').join(', ') }, ...partes),
@@ -151,8 +151,8 @@
   function tarjetaAcciones(s) {
     const c = s.camp;
     return h('section', { class: 'pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Acciones del mes'), ui.puntosAgenda(c.agendaMax - c.agenda, Math.max(c.agendaMax, c.agenda))),
-      c.agenda <= 0 ? h('p', { class: 'chico suave' }, 'Agenda completa.') : null,
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🎯 Acciones del mes'), ui.puntosAgenda(c.agendaMax - c.agenda, Math.max(c.agendaMax, c.agenda))),
+      c.agenda <= 0 ? h('div', { class: 'tarjeta plana centro', style: { background: 'var(--sol-claro)' } }, '✅ Agenda completa') : null,
       h('div', { class: 'acciones' }, R.camp.ACCIONES.map((a) => cartaAccion(s, a))));
   }
 
@@ -162,9 +162,9 @@
     const costoTxt = a.elegir === 'figura' ? '💰 20-35' : a.costo ? '💰 ' + a.costo : 'gratis';
     const chipCosto = h('span', { class: 'chip ' + (a.costo || a.elegir === 'figura' ? 'sol' : '') }, costoTxt);
     return h('button', { class: 'accion', disabled: bloq ? true : null, onclick: () => elegirAccion(s, a), 'aria-label': a.nombre + '. ' + a.desc },
-      h('div', { class: 'cab' }, h('span', { class: 'nom' }, a.nombre)),
+      h('div', { class: 'cab' }, h('span', { class: 'ic' }, a.emoji), h('span', { class: 'nom' }, a.nombre)),
       prev ? ui.chipsEfectos(prev, { compacto: true, antes: chipCosto })
-        : h('div', { class: 'efectos' }, chipCosto, h('span', { class: 'chip' }, a.elegir === 'provincia' ? 'Elegís dónde' : 'Elegís')),
+        : h('div', { class: 'efectos' }, chipCosto, h('span', { class: 'chip' }, a.elegir === 'provincia' ? '📍 Elegís dónde' : '👆 Elegís')),
       a.riesgos && (!a.elegir || a.elegir === 'rival') ? ui.riesgos(s, a.riesgos(s)) : null,
       bloq && bloq !== 'Sin agenda este mes' ? h('div', { class: 'bloq' }, bloq) : null);
   }
@@ -249,7 +249,7 @@
       },
     });
     ui.abrirCapa(h('div', { class: 'acto-elegir' },
-      h('h2', null, '¿Dónde es el acto?'),
+      h('h2', null, '🎤 ¿Dónde es el acto?'),
       pista,
       h('div', { class: 'acto-cuerpo' }, h('div', { class: 'acto-mapa' }, mapa), panel)),
     { cerrable: true, sinFoco: true, clase: 'hoja-acto' });
@@ -296,7 +296,7 @@
       const v = votos[id];
       const orden = Object.keys(v).sort((a, b) => v[b] - v[a]);
       info.replaceChildren(h('div', { class: 'tarjeta plana suave pila', style: { gap: '8px' } },
-        h('div', { class: 'fila entre' }, h('b', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '20px' } }, R.PROV[id].nombre),
+        h('div', { class: 'fila entre' }, h('b', { style: { fontFamily: 'var(--f-titulo)', fontWeight: 400, fontSize: '20px' } }, R.PROV[id].nombre),
           h('span', { class: 'chip' }, '📍 Apoyo local ' + R.fmt(s.camp.presencia[id]) + '%')),
         h('div', { class: 'encuesta' }, orden.slice(0, 3).map((k) => {
           const p = R.partidoInfo(s, k);
@@ -306,7 +306,7 @@
         }))));
     };
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, 'Dónde te votan'),
+      h('div', { class: 'titulo-seccion' }, '🗺️ Dónde te votan'),
       R.ui.mapa({
         colorDe: (id) => (R.PROV[id] ? R.ui.colorEscala(s.partido.color, Math.min(100, votos[id].YO * 2.2)) : null),
         valorDe: (id) => (R.PROV[id] ? R.fmt(votos[id].YO, 0) + '%' : null),
@@ -320,7 +320,7 @@
     const enc = R.camp.encuesta(s);
     const ant = s.encuestas.length >= 2 ? s.encuestas[s.encuestas.length - 2] : null;
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, 'Encuesta'), h('span', { class: 'chip' }, R.fechaCorta(s.mes))),
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '📊 Encuesta'), h('span', { class: 'chip' }, R.fechaCorta(s.mes))),
       ui.encuesta(s, enc, { anterior: ant }),
       s.encuestas.length > 1 ? tendencia(s) : null,
       null);
@@ -354,7 +354,7 @@
         h('div', { style: { fontSize: '44px' } }, '⏱️'),
         h('h2', null, 'Te quedan ' + s.camp.agenda + (s.camp.agenda === 1 ? ' acción' : ' acciones')),
         h('p', null, 'Si pasás el mes, se pierden.'),
-        h('button', { class: 'boton ancho', onclick: () => { ui.cerrarCapa(); } }, 'Usarlas'),
+        h('button', { class: 'boton ancho', onclick: () => { ui.cerrarCapa(); } }, '🎯 Usarlas'),
         h('button', { class: 'boton sec ancho', onclick: () => { ui.confirmoPasar = true; ui.cerrarCapa(); ui.pasarMes(); } }, 'Pasar igual ▶')), { cerrable: true });
       return;
     }

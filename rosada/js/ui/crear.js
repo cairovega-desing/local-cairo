@@ -36,7 +36,7 @@
         h('button', { class: 'boton sec', onclick: () => { R.son.toque(); if (b.paso === 0) ui.irPortada(); else { b.paso--; pintar(); } } }, b.paso === 0 ? '✕' : '◀'),
         b.paso < 3
           ? h('button', { class: 'boton grande', style: { flex: 1 }, disabled: !valido(b) ? true : null, onclick: () => { R.son.toque(); b.paso++; pintar(); window.scrollTo(0, 0); } }, 'Siguiente ▶')
-          : h('button', { class: 'boton grande verde', style: { flex: 1 }, disabled: !valido(b) ? true : null, onclick: fundar }, '¡Fundar el partido!')));
+          : h('button', { class: 'boton grande verde', style: { flex: 1 }, disabled: !valido(b) ? true : null, onclick: fundar }, '🎉 ¡Fundar el partido!')));
     ui.montar(nodo);
   }
 
@@ -56,7 +56,7 @@
       h('h2', null, '¿Cómo se llama tu partido?'),
       h('div', { class: 'campo' }, h('label', { class: 'etiqueta', for: 'in-nombre' }, 'Nombre'), inNombre),
       h('div', { class: 'campo' }, h('label', { class: 'etiqueta', for: 'in-sigla' }, 'Sigla (2 a 5 letras)'), inSigla),
-      h('button', { class: 'boton sec', onclick: () => { const n = R.nombrePartidoAzar(); b.nombre = n.nombre; b.sigla = n.sigla; R.son.toque(); pintar(); } }, 'Inventame uno'));
+      h('button', { class: 'boton sec', onclick: () => { const n = R.nombrePartidoAzar(); b.nombre = n.nombre; b.sigla = n.sigla; R.son.toque(); pintar(); } }, '🎲 Inventame uno'));
   }
 
   function infoBorrador(b) {
@@ -88,7 +88,7 @@
       return h('section', { class: 'tarjeta pila editor-bandera' },
         h('div', { class: 'fila entre' }, h('h2', null, 'Tu bandera'), subir),
         h('p', { class: 'chico suave' }, 'Se recorta en forma de bandera.'),
-        h('button', { class: 'boton sec', onclick: () => cambiar(() => { delete B.imagen; delete B.colorImagen; }) }, 'Quitar la imagen y diseñarla'));
+        h('button', { class: 'boton sec', onclick: () => cambiar(() => { delete B.imagen; delete B.colorImagen; }) }, '✕ Quitar la imagen y diseñarla'));
     }
     return h('section', { class: 'tarjeta pila editor-bandera' },
       h('div', { class: 'fila entre' }, h('h2', null, 'Tu bandera'),

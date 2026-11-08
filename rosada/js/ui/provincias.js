@@ -40,7 +40,7 @@
     const pedidos = R.PROVINCIAS.filter((p) => G.gobernadores[p.id].rel < 40).length;
     const pc = ui.esPC();
     const izq = h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'titulo-seccion' }, 'Gobernadores'),
+      h('div', { class: 'titulo-seccion' }, '🗺️ Gobernadores'),
       h('div', { class: 'fila envolver', style: { gap: '6px' } },
         h('span', { class: 'chip bien' }, '😊 ' + aliados + ' aliados'),
         h('span', { class: 'chip mal' }, '😠 ' + pedidos + ' enojados')),
@@ -49,7 +49,7 @@
         const p = R.partidoInfo(s, id);
         return h('span', { class: 'chip', style: { background: ui.aclarar(p.color, id === 'YO' ? 0.1 : 0.45) } }, p.simbolo + ' ' + p.sigla + ' ' + n);
       })));
-    const der = h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, 'Hablá con un gobernador'), info,
+    const der = h('section', { class: 'tarjeta pila' }, h('div', { class: 'titulo-seccion' }, '🤝 Hablá con un gobernador'), info,
       h('p', { class: 'chico suave' }, 'Gobernador contento: sus legisladores te votan.'));
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
     return h('div', { class: 'pila' }, izq, der);
@@ -65,7 +65,7 @@
       h('div', { class: 'fila' },
         R.ui.avatar(g.avatar, { size: 64, humor: g.rel >= 70 ? 'feliz' : g.rel >= 40 ? 'normal' : 'enojado', fondo: ui.aclarar(p.color, 0.6) }),
         h('div', { style: { minWidth: 0 } },
-          h('b', { style: { fontFamily: 'var(--f-titulo)', fontStretch: '75%', fontWeight: 800, fontSize: '20px' } }, R.PROV[id].nombre),
+          h('b', { style: { fontFamily: 'var(--f-titulo)', fontWeight: 400, fontSize: '20px' } }, R.PROV[id].nombre),
           h('div', { class: 'chico' }, 'Gobernador/a ' + g.nombre),
           h('span', { class: 'chip', style: { background: ui.aclarar(p.color, 0.5) } }, p.simbolo + ' ' + p.sigla))),
       h('div', { class: 'fila entre' }, h('span', { class: 'chico', style: { fontWeight: 900 } }, relTxt(g.rel)),
@@ -88,6 +88,6 @@
           alHacer();
         } }, (justo ? '🙏 ' : '') + a.emoji + ' ' + a.nombre + ' · ' + (a.costo.pc ? '⭐' + a.costo.pc : '💸' + R.fmt(a.costo.gasto, 1) + '%'));
       })),
-      con.bloqueoProv(s, id, con.ACC_PROV[2]) && s.mes - g.enfr < 3 ? h('p', { class: 'chico suave' }, 'Ya hablaste hace poco.') : null);
+      con.bloqueoProv(s, id, con.ACC_PROV[2]) && s.mes - g.enfr < 3 ? h('p', { class: 'chico suave' }, '⏳ Ya hablaste hace poco.') : null);
   }
 })(globalThis.R = globalThis.R || {});

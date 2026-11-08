@@ -396,7 +396,7 @@ Cada vuelta: **hacer → probar automáticamente → mirar capturas en celular y
 | 11 · Leyes con motor: 54 leyes con filtros por tema e ideología (botones que abren una ventanita), filas compactas, «Al firmar» / «Con el tiempo» con pocos carteles directos; caminos viables para Estado presente, Centro y Mercado; retenciones e impuestos con efecto gradual en exportaciones e inversión; 36 noticias que dependen de ideología, leyes y economía | ✅ |
 | 12 · Ritmo de juego: un mandato se juega en ~1 hora, así que las leyes llegan en meses, pegan ×1,5 y la economía reacciona ~2× más rápido (`R.eco.RITMO`); al año ya se notan los cambios | ✅ |
 | 13 · Ficha de cada grupo más clara: humor con hacia dónde va, «lo que más lo enoja» con el dato real, barras que salen del centro (rojo resta, verde suma), «Tus ideas» marcada como fija y punto crítico visible en la pantalla de inicio | ✅ |
-| 14 · Rediseño para que no parezca hecho por IA: estilo afiche (Archivo condensada, rosa Casa Rosada), portada como afiche, cajas planas sin sombras duras, sin emojis en títulos ni botones, íconos de línea en la barra, menos textos de ayuda y menos confeti | ✅ |
+| 14 · Menos texto: se probó un estilo «afiche» y el usuario prefirió el de figuritas; queda ese estilo pero sin los textos de ayuda que sobraban (guías cortas, acciones sin descripción, notas recortadas) | ✅ |
 
 **Criterios de terminado:** se juega de punta a punta en celu y PC sin errores de consola (Playwright); 2000 campañas y 100 gobiernos
 de dos mandatos simulados sin NaN; 150 noticias, 23 leyes, 12 países y 32 logros; ningún titular pasa de 9 palabras ni opción de 4.
