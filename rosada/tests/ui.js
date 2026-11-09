@@ -178,7 +178,7 @@ fs.mkdirSync(OUT, { recursive: true });
         await page.evaluate(() => { window.R.ui.s.gob.pc = 20; });
         await page.click('.pestanas button:has-text("Mundo")');
         await foto('mundo', true);
-        await page.click('.pais-carta:has-text("Uruguay")');
+        await page.click('.pais-fila:has-text("Uruguay")');
         await foto('pais');
         await page.click('#capa .item-elegir:has-text("Declarar")');
         await foto('pais-guerra');

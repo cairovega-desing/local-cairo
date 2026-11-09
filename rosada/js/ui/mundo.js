@@ -14,34 +14,40 @@
 
   function panelMundo(s) {
     const pc = ui.esPC();
-    const izq = [tarjetaPoder(s), s.mundo.guerra ? tarjetaGuerra(s) : null, s.mundo.crisis && !s.mundo.guerra ? tarjetaCrisis(s) : null, tarjetaNoticiasMundo(s), tarjetaMalvinas(s)];
-    const der = [tarjetaPaises(s)];
-    if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
-    return h('div', { class: 'pila' }, izq, der);
+    const mapa = tarjetaMapa(s);
+    const conflicto = [s.mundo.guerra ? tarjetaGuerra(s) : null, s.mundo.crisis && !s.mundo.guerra ? tarjetaCrisis(s) : null];
+    const izq = [tarjetaResumen(s), ...conflicto, tarjetaNoticiasMundo(s), tarjetaMalvinas(s)];
+    const der = [listaPaises(s)];
+    if (pc) return h('div', { class: 'pila' }, mapa, h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der)));
+    return h('div', { class: 'pila' }, mapa, izq[0], ...conflicto, der[0], tarjetaNoticiasMundo(s), tarjetaMalvinas(s));
   }
 
-  function tarjetaPoder(s) {
-    const poder = mun.poder(s);
+  // 🌍 El mapa del mundo
+  function tarjetaMapa(s) {
+    return h('section', { class: 'tarjeta pila mm-tarjeta' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🌍 El mundo'), h('span', { class: 'chico suave' }, 'Tocá un país')),
+      ui.mapamundi(s, { alTocar: (id) => verPais(s, id), alCambiar: () => ui.refrescar() }));
+  }
+
+  // Resumen en mosaicos: ranking, poder, prestigio, pánico, aliados y tratados.
+  function tarjetaResumen(s) {
+    const M = s.mundo;
     const aliados = mun.aliados(s);
-    const tratados = R.PAISES.filter((p) => s.mundo.paises[p.id].tratado);
-    const anexados = R.PAISES.filter((p) => s.mundo.paises[p.id].anexado);
+    const tratados = R.PAISES.filter((p) => M.paises[p.id].tratado && !M.paises[p.id].anexado);
+    const anexados = R.PAISES.filter((p) => M.paises[p.id].anexado);
+    const panico = Math.round(M.panico || 0);
+    const mosaico = (em, grande, chico, onclick, clase) => h(onclick ? 'button' : 'div', { class: 'mosaico' + (onclick ? ' toque' : '') + (clase ? ' ' + clase : ''), onclick },
+      h('span', { class: 'em' }, em), h('b', null, grande), h('small', null, chico));
     return h('section', { class: 'tarjeta pila' },
-      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, R.ui.bandera('ARG', 34), ' Argentina en el mundo')),
-      ui.filaRanking ? ui.filaRanking(s) : null,
-      h('div', { class: 'fila', style: { gap: '10px' } },
-        h('span', { style: { fontSize: '30px' } }, '⚔️'),
-        h('div', { style: { flex: 1 } }, h('div', { class: 'fila entre' }, h('b', null, 'Poder militar'), h('b', { class: 'numero' }, String(poder))),
-          h('div', { class: 'barra' }, h('i', { style: { width: Math.min(100, poder) + '%', background: 'var(--celeste)' } })))),
-      h('div', { class: 'fila envolver', style: { gap: '6px' } },
-        h('span', { class: 'chip' }, '🛡️ Aliados: ', aliados.length ? aliados.map((p) => R.ui.bandera(p.id, 20)) : 'ninguno'),
-        h('span', { class: 'chip' }, '📦 Tratados: ' + tratados.length),
-        anexados.length ? h('span', { class: 'chip sol' }, '🏴 Anexaste: ' + anexados.map((p) => p.nombre).join(', ')) : null),
-      (s.mundo.panico || 0) >= 1 ? h('div', { class: 'pila', style: { gap: '4px' } },
-        h('div', { class: 'fila entre' }, h('b', null, '😱 Pánico mundial'), h('b', { class: 'numero' }, Math.round(s.mundo.panico) + '%')),
-        h('div', { class: 'barra' }, h('i', { style: { width: s.mundo.panico + '%', background: 'var(--mal)' } })),
-        h('span', { class: 'chico suave' }, 'Te sube el riesgo país y te compran menos. Baja con el tiempo.')) : null,
-      h('p', { class: 'chico suave' }, '🪖 Sube con Defensa y aviones.'),
-      h('button', { class: 'boton sec ancho', onclick: () => elegirProveedor(s) }, '🛩️ Comprar aviones · ⭐1 · 💸4%'));
+      h('div', { class: 'titulo-seccion' }, R.ui.bandera('ARG', 30), ' Argentina en el mundo'),
+      h('div', { class: 'mosaicos' },
+        mosaico('🏆', mun.puesto(s, true) + '° en Sudamérica', mun.puesto(s) + '° del mundo ›', () => ui.verRanking(s)),
+        mosaico('⚔️', 'Poder ' + mun.poder(s), '🛩️ Comprar aviones ›', () => elegirProveedor(s)),
+        mosaico('✨', 'Prestigio ' + Math.round(M.prestigio || 0), 'Sube con metas', () => ui.verRanking(s)),
+        mosaico('😱', 'Pánico ' + panico + '%', panico ? 'Riesgo ▲ · ventas ▼' : 'El mundo está tranquilo', null, panico >= 20 ? 'malo' : ''),
+        mosaico('🛡️', aliados.length ? h('span', { class: 'banderitas' }, aliados.map((p) => R.ui.bandera(p.id, 22))) : 'Sin aliados', aliados.length + (aliados.length === 1 ? ' alianza' : ' alianzas')),
+        mosaico('📦', tratados.length ? h('span', { class: 'banderitas' }, tratados.map((p) => R.ui.bandera(p.id, 22))) : 'Sin tratados', tratados.length + (tratados.length === 1 ? ' tratado' : ' tratados'))),
+      anexados.length ? h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chico suave' }, '🏴 Anexaste:'), anexados.map((p) => R.ui.bandera(p.id, 22))) : null);
   }
 
   // 📰 Lo que pasa en el mundo (alianzas entre países, pedidos de protección, ofertas).
@@ -228,23 +234,36 @@
             : h('button', { class: 'boton sec ancho', onclick: () => { ui.vista = Object.assign({}, ui.vista, { confirmarMalvinas: true }); ui.refrescar(); } }, '⚓ Recuperarlas por la fuerza…')) : null));
   }
 
-  function tarjetaPaises(s) {
-    return h('section', { class: 'pila' },
+  // 🌎 Países en filas: los que importan primero (guerra, reclamo, ofertas, aliados), después por relación.
+  function listaPaises(s) {
+    const M = s.mundo;
+    const orden = (p) => {
+      const st = M.paises[p.id];
+      if (st.anexado) return -1000;
+      return (mun.enGuerraCon(s, p.id) ? 900 : 0) + (M.crisis && M.crisis.pais === p.id ? 800 : 0) + (mun.ofreceAlianza(s, p.id) ? 500 : 0) + (st.alianza ? 300 : 0) + st.rel;
+    };
+    const lista = R.PAISES.slice().sort((a, b) => orden(b) - orden(a));
+    return h('section', { class: 'tarjeta pila' },
       h('div', { class: 'titulo-seccion' }, '🌎 Países'),
-      h('div', { class: 'paises' }, R.PAISES.map((p) => {
-        const st = s.mundo.paises[p.id];
-        return h('button', { class: 'pais-carta toque' + (st.anexado ? ' anexado' : ''), onclick: () => verPais(s, p.id) },
-          h('div', { class: 'fila', style: { gap: '8px' } }, R.ui.bandera(p.id, 40), h('b', { class: 'nombre-pais' }, p.nombre)),
-          st.anexado ? h('span', { class: 'chip sol' }, '🏴 Anexado')
-            : h('div', { class: 'fila', style: { gap: '6px' } }, h('span', null, relCara(st.rel)), h('div', { class: 'barra', style: { flex: 1, height: '8px' } }, h('i', { style: { width: st.rel + '%', background: relColor(st.rel) } }))),
-          h('div', { class: 'fila envolver', style: { gap: '4px' } },
-            h('span', { class: 'chip', style: { fontSize: '11px' } }, '⚔️ ' + p.poder),
-            R.COMPRA && R.COMPRA[p.id] ? h('span', { class: 'chip', style: { fontSize: '11px' }, title: 'Te compra' }, '🛒' + R.COMPRA[p.id].map((k) => R.PRODUCTOS[k].emoji).join('')) : null,
-            st.tratado ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '📦') : null,
-            st.alianza ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '🛡️') : null,
-            st.sancion ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '🚫') : null,
-            mun.enGuerraCon(s, p.id) ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '⚔️ guerra') : null,
-            !st.anexado && mun.ofreceAlianza(s, p.id) ? h('span', { class: 'chip sol', style: { fontSize: '11px' } }, '🤝 te ofrece alianza') : null));
+      h('div', { class: 'paises-filas' }, lista.map((p) => {
+        const st = M.paises[p.id];
+        const chips = [];
+        if (mun.enGuerraCon(s, p.id)) chips.push(h('span', { class: 'chip mal' }, '⚔️ Guerra'));
+        if (M.crisis && M.crisis.pais === p.id) chips.push(h('span', { class: 'chip sol' }, '😤 Reclamo'));
+        if (!st.anexado && mun.ofreceAlianza(s, p.id)) chips.push(h('span', { class: 'chip sol' }, '🤝 Te ofrece alianza'));
+        if (st.alianza) chips.push(h('span', { class: 'chip bien' }, '🛡️'));
+        if (st.tratado && !st.anexado) chips.push(h('span', { class: 'chip bien' }, '📦'));
+        if (st.sancion) chips.push(h('span', { class: 'chip mal' }, '🚫'));
+        if (!st.anexado && R.COMPRA && R.COMPRA[p.id]) chips.push(h('span', { class: 'chip' }, '🛒' + R.COMPRA[p.id].map((k) => R.PRODUCTOS[k].emoji).join('')));
+        chips.push(h('span', { class: 'chip' }, '⚔️ ' + p.poder));
+        return h('button', { class: 'pais-fila toque' + (st.anexado ? ' anexado' : ''), onclick: () => verPais(s, p.id) },
+          R.ui.bandera(p.id, 40),
+          h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } },
+            h('div', { class: 'fila entre', style: { gap: '6px' } }, h('b', { class: 'nombre-pais' }, p.nombre),
+              st.anexado ? h('span', { class: 'chip sol' }, '🏴 Anexado') : h('span', { class: 'chico', style: { fontWeight: 900 } }, relCara(st.rel) + ' ' + Math.round(st.rel))),
+            st.anexado ? null : h('div', { class: 'barra', style: { height: '7px' } }, h('i', { style: { width: st.rel + '%', background: relColor(st.rel) } })),
+            h('div', { class: 'fila envolver', style: { gap: '4px' } }, chips)),
+          h('span', { class: 'chico suave' }, '›'));
       })));
   }
 

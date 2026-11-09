@@ -847,3 +847,61 @@ label.boton { cursor: pointer; }
 .barra.rutas .marca-umbral.ok { filter: none; opacity: 1; }
 .barra.rutas .marca-va { position: absolute; top: -3px; bottom: -3px; width: 3px; background: var(--tinta); transform: translateX(-50%); border-radius: 2px; }
 .meta-fila .falta { font-size: 12px; font-weight: 800; color: var(--tinta-suave); line-height: 1.1; }
+
+/* ── Mapamundi y panel del mundo (vuelta 19) ── */
+.mapamundi { display: flex; flex-direction: column; gap: 8px; }
+.mm-lentes, .mm-vistas { display: flex; flex-wrap: wrap; gap: 6px; }
+.mm-lentes .chip, .mm-vistas .chip { font: inherit; font-weight: 900; font-size: 13px; cursor: pointer; border: 2px solid var(--tinta); }
+.mm-lentes .chip.elegida, .mm-vistas .chip.elegida { background: var(--sol-claro); box-shadow: 0 2px 0 var(--tinta); }
+.mm-caja { position: relative; width: 100%; border: var(--borde); border-radius: 16px; overflow: hidden; background: #a9d6f5; box-shadow: var(--sombra-chica); }
+.mm-svg { display: block; width: 100%; height: 100%; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+.mm-svg:active { cursor: grabbing; }
+.mm-oceano { fill: #9fd0f3; }
+.mm-grilla { fill: none; stroke: rgba(255, 255, 255, 0.55); stroke-width: 0.8; vector-effect: non-scaling-stroke; }
+.mm-resto { fill: #efe6cf; stroke: #c4b38a; stroke-width: 0.6; vector-effect: non-scaling-stroke; }
+.mm-pais { stroke: var(--tinta); stroke-width: 1; vector-effect: non-scaling-stroke; cursor: pointer; transition: filter 0.15s; }
+.mm-pais:hover, .mm-pais:focus { filter: brightness(1.08) saturate(1.2); outline: none; stroke-width: 2.2; }
+.mm-arg { stroke-width: 1.8; cursor: default; }
+.mm-malvinas { stroke-width: 1.2; cursor: default; }
+.mm-linea { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; pointer-events: none; }
+.mm-linea.alianza { stroke: #1c9a50; stroke-width: 3; }
+.mm-linea.tratado { stroke: #2f7fd0; stroke-width: 2.4; stroke-dasharray: 7 5; }
+.mm-linea.pacto { stroke: #6b7790; stroke-width: 1.6; stroke-dasharray: 2 4; }
+.mm-linea.guerra { stroke: #d5383a; stroke-width: 4.5; }
+.mm-linea.crisis { stroke: #f08c00; stroke-width: 3; stroke-dasharray: 9 5; }
+.mm-panico { pointer-events: none; }
+.mm-marco { fill: #ffffff; stroke: var(--tinta); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.mm-marca { cursor: pointer; }
+.mm-marca.yo .mm-marco { stroke: #f6b40e; stroke-width: 2.6; }
+.mm-insignia { fill: #ffffff; stroke: var(--tinta); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.mm-insignia-txt { font-family: var(--f-texto); font-weight: 900; fill: var(--tinta); pointer-events: none; }
+.mm-icono-fondo { fill: #ffffff; stroke: var(--tinta); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.mm-texto { font-family: var(--f-texto); font-weight: 900; fill: var(--tinta); paint-order: stroke; stroke: #ffffff; stroke-width: 3px; }
+.mm-zoom { position: absolute; right: 8px; bottom: 8px; display: flex; flex-direction: column; gap: 6px; }
+.mm-zoom .boton { min-width: 38px; padding: 4px 0; font-size: 18px; line-height: 1; }
+.mm-chip-panico { position: absolute; left: 8px; top: 8px; }
+.mm-leyenda { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; font-weight: 800; color: var(--tinta-suave); }
+.mm-ley { display: inline-flex; align-items: center; gap: 4px; }
+.mm-ley i { width: 14px; height: 14px; border-radius: 4px; border: 2px solid var(--tinta); display: inline-block; }
+.mm-ley-linea { display: inline-block; width: 22px; height: 0; border-top: 3px solid #1c9a50; }
+.mm-ley-linea.tratado { border-top: 3px dashed #2f7fd0; }
+.mm-ley-linea.pacto { border-top: 2px dotted #6b7790; }
+.mosaicos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.mosaico { font: inherit; color: var(--tinta); text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: center; padding: 8px 10px; border: var(--borde); border-radius: 14px; background: var(--papel); box-shadow: var(--sombra-chica); min-width: 0; }
+.mosaico.toque { cursor: pointer; }
+.mosaico.toque:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
+.mosaico.malo { background: var(--mal-claro); }
+.mosaico .em { grid-row: span 2; font-size: 26px; line-height: 1; }
+.mosaico b { font-size: 14px; line-height: 1.15; min-width: 0; }
+.mosaico small { font-size: 12px; font-weight: 800; color: var(--tinta-suave); line-height: 1.15; }
+.banderitas { display: flex; flex-wrap: wrap; gap: 3px; }
+.paises-filas { display: flex; flex-direction: column; gap: 8px; }
+.pais-fila { font: inherit; color: var(--tinta); text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border: var(--borde); border-radius: 14px; background: var(--papel); box-shadow: var(--sombra-chica); cursor: pointer; }
+.pais-fila:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
+.pais-fila.anexado { background: #f6efdc; }
+.pais-fila .chip { font-size: 11px; padding: 1px 6px; }
+@media (min-width: 900px) { .mosaicos { grid-template-columns: repeat(3, minmax(0, 1fr)); } .paises-filas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.mm-linea.guerra { stroke-dasharray: 14 6; animation: mm-hormigas 0.8s linear infinite; }
+.mm-linea.crisis { animation: mm-hormigas 1.4s linear infinite; }
+@keyframes mm-hormigas { to { stroke-dashoffset: -20; } }
+@media (prefers-reduced-motion: reduce) { .mm-linea.guerra, .mm-linea.crisis { animation: none; } }
