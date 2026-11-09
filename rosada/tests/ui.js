@@ -61,6 +61,19 @@ fs.mkdirSync(OUT, { recursive: true });
       if (!capturados.has(tipo)) { capturados.add(tipo); await foto(tipo); }
       if (tipo === 'noticia') { await capa.locator('.opcion-noticia:not([disabled])').first().click(); continue; }
       if (tipo === 'debate') { await capa.locator('.estilos .boton').first().click(); continue; }
+      if (tipo === 'guerra') {
+        // Usa las acciones con ⭐ que pueda (abre el detalle y la hace) y después da la orden de atacar.
+        const acc = capa.locator('.acc-g:not(.orden):not(.apagada)');
+        if (await acc.count()) {
+          await acc.first().click();
+          if (!capturados.has('guerra-detalle')) { capturados.add('guerra-detalle'); await foto('guerra-detalle'); }
+          await capa.locator('.boton:has-text("Hacerlo")').click();
+          await page.waitForTimeout(200);
+          continue;
+        }
+        await capa.locator('.acc-g.orden').first().click();
+        continue;
+      }
       if (tipo === 'presupuesto' && (await capa.locator('text=Que voten').count())) {
         await capa.locator('text=Que voten').click();
         await capa.locator('.boton:has-text("eguir")').waitFor({ timeout: 20000 });

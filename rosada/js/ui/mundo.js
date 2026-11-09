@@ -75,15 +75,73 @@
       h('div', { class: 'fila entre chico' },
         h('span', null, '💪 Vos: ' + F.yo + (F.misAliados.length ? ' (con ' + F.misAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '')),
         h('span', null, R.PAIS[W.pais].nombre + ': ' + F.el + (F.susAliados.length ? ' (+' + F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : ''))),
-      h('div', { class: 'chico suave' }, 'Empujá el frente hasta su bandera.'));
+      W.meses === 0 ? h('div', { class: 'chico suave' }, 'Empujá el frente hasta su bandera.') : null);
   };
+
+  // Chances de ganar desde donde está el frente ahora.
+  function chipChances(s, W) {
+    const ch = mun.chances(s, W.pais, W.frente);
+    const pct = Math.round(ch.gana * 100);
+    if (ch.gana < 0.05 && ch.pierde < 0.05) return h('span', { class: 'chip sol' }, '🤝 Parejos: se traba');
+    return h('span', { class: 'chip ' + (pct >= 60 ? 'bien' : pct >= 30 ? 'sol' : 'mal') }, '🎲 Chances de ganar: ' + pct + '%');
+  }
+
+  // ── Inclinar la guerra con ⭐: una grilla de 6 botones; el detalle se abre arriba ──
+  ui.accionesGuerra = function (s, volver, opts) {
+    return h('div', { class: 'pila', style: { gap: '6px' } },
+      h('b', null, '⭐ Inclinar la guerra'),
+      h('div', { class: 'acc-guerra' }, mun.ACC_GUERRA.map((a) => {
+        const b = mun.bloqueoGuerra(s, a.id);
+        const pais = a.pais && a.pais(s, s.mundo.guerra);
+        const espera = b && b.startsWith('De nuevo') ? '⏳ ' + b.replace(/\D+/g, '') + ' m' : null;
+        const etiqueta = b === 'Ya lo hiciste' ? '✔️ Hecho' : espera || (b && b !== 'Falta ⭐' ? '—' : '⭐ ' + mun.costoAccGuerra(s, a));
+        return h('button', { class: 'acc-g' + (b ? ' apagada' : ''), onclick: () => detalleAccGuerra(s, a.id, volver, opts) },
+          h('span', { class: 'ic' }, a.emoji, pais ? R.ui.bandera(pais, 18) : null),
+          h('b', null, a.corto),
+          h('span', { class: 'chip precio ' + (b === 'Falta ⭐' ? 'mal' : b ? '' : 'sol') }, etiqueta));
+      })));
+  };
+
+  function detalleAccGuerra(s, id, volver, opts) {
+    R.son.toque();
+    const W = s.mundo.guerra;
+    const a = mun.ACC_GUERRA.find((x) => x.id === id);
+    const b = mun.bloqueoGuerra(s, id);
+    const pc = mun.costoAccGuerra(s, a);
+    const pais = a.pais && a.pais(s, W);
+    const sePuede = !b || b === 'Falta ⭐';
+    const pv = sePuede ? mun.previaGuerra(s, id) : null;
+    const efectos = sePuede ? R.gob.describirEfectos(s, mun.efAccGuerra(s, a)) : [];
+    const pct = (x) => Math.round(x * 100) + '%';
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('div', { class: 'fila' }, h('span', { style: { fontSize: '36px', lineHeight: 1 } }, a.emoji), pais ? R.ui.bandera(pais, 36) : null),
+      h('h2', { style: { fontSize: '22px' } }, mun.nombreAccGuerra(s, a)),
+      pv ? h('div', { class: 'fila envolver', style: { gap: '6px' } },
+        pv.yo[0] !== pv.yo[1] ? h('span', { class: 'chip bien' }, '💪 Vos: ' + pv.yo[0] + ' → ' + pv.yo[1]) : null,
+        pv.el[0] !== pv.el[1] ? h('span', { class: 'chip bien' }, '⚔️ ' + R.PAIS[W.pais].nombre + ': ' + pv.el[0] + ' → ' + pv.el[1]) : null,
+        Math.round(pv.antes * 100) !== Math.round(pv.despues * 100) ? h('span', { class: 'chip ' + (pv.despues > pv.antes ? 'bien' : '') }, '🎲 Ganar: ' + pct(pv.antes) + ' → ' + pct(pv.despues)) : null) : null,
+      efectos.length ? ui.chipsEfectos(efectos) : null,
+      a.cada ? h('div', { class: 'chico suave' }, '🔁 Se repite cada ' + a.cada + ' meses') : null,
+      b ? h('div', { class: 'chico', style: { color: 'var(--mal)', fontWeight: 800 } }, '🚫 ' + b) : null,
+      h('div', { class: 'fila' },
+        h('button', { class: 'boton', disabled: b ? true : null, onclick: () => {
+          const r = mun.accionGuerra(s, id);
+          if (r.error) { R.son.mal(); ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+          R.guardar(s);
+          R.son.bien();
+          volver();
+          ui.aviso(r.txt, { tipo: 'bien', efectos: R.describirAplicado(s, r.aplicado) });
+        } }, 'Hacerlo ⭐' + pc),
+        h('button', { class: 'boton sec', onclick: () => volver() }, 'Volver'))), opts);
+  }
 
   function tarjetaGuerra(s) {
     const W = s.mundo.guerra;
     return h('section', { class: 'tarjeta pila', style: { background: '#fff5f4' } },
       h('div', { class: 'titulo-seccion' }, '⚔️ Guerra con ' + R.PAIS[W.pais].nombre + ' · mes ' + (W.meses + 1)),
       ui.frente(s, W),
-      h('p', { class: 'chico' }, 'Cada mes das una orden.'));
+      h('div', null, chipChances(s, W)),
+      ui.accionesGuerra(s, () => { ui.cerrarCapa(); ui.refrescar(); }, { cerrable: true }));
   }
 
   function tarjetaMalvinas(s) {
@@ -193,21 +251,24 @@
     const W = s.mundo.guerra;
     if (!W) return listo();
     const P = R.PAIS[W.pais];
+    const volver = () => ui.momentos.guerra(s, m, listo);
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', { class: 'centro' }, '⚔️ Guerra con ' + P.nombre),
-      h('div', { class: 'centro chico suave' }, 'Mes ' + (W.meses + 1) + ' · ' + (W.objetivo === 'malvinas' ? 'Objetivo: recuperar Malvinas' : 'Objetivo: anexar ' + P.nombre)),
+      h('h2', { class: 'centro' }, W.objetivo === 'malvinas' ? '⚔️ Guerra por Malvinas' : '⚔️ Guerra con ' + P.nombre),
       ui.frente(s, W),
-      h('div', { class: 'lista-elegir' }, mun.ORDENES.map((o) => h('button', { class: 'item-elegir', onclick: () => {
+      h('div', { class: 'fila envolver', style: { gap: '6px', justifyContent: 'center' } }, h('span', { class: 'chip' }, 'Mes ' + (W.meses + 1)), chipChances(s, W)),
+      ui.accionesGuerra(s, volver),
+      h('div', { class: 'fila entre' }, h('b', null, '🎖️ Orden del mes'), h('span', { class: 'chico suave' }, '🎲 = retroceder')),
+      h('div', { class: 'acc-guerra' }, mun.ORDENES.map((o) => h('button', { class: 'acc-g orden', onclick: () => {
         const antesFrente = W.frente;
         const antes = s.gob.aprob;
         const r = mun.orden(s, o.id);
         R.guardar(s);
         mostrarParte(s, W, antesFrente, r, antes, listo);
       } }, h('span', { class: 'ic' }, o.emoji),
-        h('div', { class: 'pila', style: { gap: '4px' } }, h('b', null, o.nombre), h('div', { class: 'chico suave' }, o.desc),
-          o.id !== 'paz' ? h('div', { class: 'riesgo malo' }, h('span', { class: 'pct' }, '🎲 ' + Math.round(mun.probRetroceso(s, o.id) * 100) + '%'), h('span', { class: 'txt' }, 'de retroceder:'), h('span', { class: 'ef mal' }, '⚔️ frente ◀'), h('span', { class: 'ef mal' }, '👥 ▼'))
-            : h('div', { class: 'riesgo ' + (W.frente >= 55 ? 'bueno' : 'malo') }, h('span', { class: 'txt' }, W.frente >= 55 ? 'Ganás una indemnización' : 'Pagás una indemnización'))),
-        h('span', { class: 'chip ' + (o.costo.gasto ? 'mal' : '') }, o.costo.gasto ? '💸 ' + o.costo.gasto + '%' : 'gratis'))))));
+        h('b', null, o.nombre),
+        o.id !== 'paz' ? h('span', { class: 'chip mal' }, '🎲 ' + Math.round(mun.probRetroceso(s, o.id) * 100) + '%')
+          : h('span', { class: 'chip ' + (W.frente >= 55 ? 'bien' : 'mal') }, W.frente >= 55 ? 'Te pagan' : 'Pagás'),
+        o.costo.gasto ? h('span', { class: 'chip precio' }, '💸' + o.costo.gasto + '%') : null)))), { sinFoco: true });
   };
 
   function mostrarParte(s, W, antesFrente, r, aprobAntes, listo) {

@@ -683,6 +683,15 @@ p { margin: 0; }
 .cuerda { position: relative; height: 22px; border: var(--borde); border-radius: 999px; background: #f7c6c3; }
 .cuerda > i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #74acdf, #bfe0f7); transition: width 1s cubic-bezier(.3,1.3,.5,1); }
 .cuerda .marcador { position: absolute; top: 50%; transform: translate(-50%, -50%); font-size: 22px; transition: left 1s cubic-bezier(.3,1.3,.5,1); filter: drop-shadow(0 2px 0 var(--tinta)); }
+/* Inclinar la guerra con ⭐: 6 botones en grilla de 3 */
+.acc-guerra { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 8px; padding-top: 4px; }
+.acc-g { position: relative; font: inherit; color: var(--tinta); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; padding: 6px 4px; border: var(--borde); border-radius: 12px; background: var(--papel); box-shadow: var(--sombra-chica); cursor: pointer; }
+.acc-g .precio { position: absolute; top: -9px; right: -5px; box-shadow: 0 2px 0 var(--tinta); }
+.acc-g:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
+.acc-g .ic { font-size: 24px; line-height: 1; display: flex; align-items: center; gap: 3px; }
+.acc-g b { font-size: 13px; line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
+.acc-g .chip { font-size: 11px; padding: 1px 6px; }
+.acc-g.apagada { opacity: 0.55; box-shadow: none; }
 @media (min-width: 900px) { .paises { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
 /* ── Logros y legado ── */

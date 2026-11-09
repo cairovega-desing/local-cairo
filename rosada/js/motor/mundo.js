@@ -39,6 +39,8 @@
   // Fuerza total en una guerra contra «enemigo»: tu poder + aliados que se suman; el enemigo + su bloque.
   mun.fuerzas = function (s, enemigo) {
     const E = R.PAIS[enemigo];
+    // Lo que hiciste en esta guerra para inclinarla (armas, movilización, sabotaje, apoyos, aislar).
+    const W = s.mundo.guerra && s.mundo.guerra.pais === enemigo ? s.mundo.guerra : {};
     let yo = mun.poder(s);
     const misAliados = [];
     for (const a of mun.aliados(s)) {
@@ -46,14 +48,21 @@
       yo += a.poder * 0.35;
       misAliados.push(a.id);
     }
+    for (const id of W.apoyos || []) {
+      if (misAliados.includes(id) || s.mundo.paises[id].anexado) continue;
+      yo += R.PAIS[id].poder * 0.2; // manda armas y asesores, no entra de lleno
+      misAliados.push(id);
+    }
+    yo = yo * (W.multYo || 1) + (W.extraYo || 0);
     let el = E.poder;
     const susAliados = [];
     for (const p of R.PAISES) {
-      if (p.id === enemigo || s.mundo.paises[p.id].anexado || misAliados.includes(p.id) || s.mundo.paises[p.id].alianza) continue;
+      if (p.id === enemigo || s.mundo.paises[p.id].anexado || misAliados.includes(p.id) || s.mundo.paises[p.id].alianza || (W.neutrales || []).includes(p.id)) continue;
       if (!((E.bloque && p.bloque === E.bloque) || mun.tienePacto(s, enemigo, p.id))) continue;
       el += p.poder * 0.35;
       susAliados.push(p.id);
     }
+    el *= 1 - (W.sabotaje || 0);
     return { yo: Math.round(yo), el: Math.round(el), misAliados, susAliados, ratio: yo / Math.max(1, el) };
   };
 
@@ -215,6 +224,81 @@
     return { txt: '⚓ La flota zarpa hacia Malvinas', bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
   };
 
+  // ── Inclinar la guerra (cuestan ⭐) ──
+  // Cada una se usa una vez por guerra, salvo las que tienen «cada»: se repiten cada tantos meses.
+  const mejorApoyo = (s, W) => R.PAISES.filter((p) => p.id !== W.pais && !s.mundo.paises[p.id].anexado && !s.mundo.paises[p.id].alianza
+    && !(W.apoyos || []).includes(p.id) && s.mundo.paises[p.id].rel >= 60 && !mun.amigosDe(s, W.pais).includes(p.id)).sort((a, b) => b.poder - a.poder)[0];
+  const apoyoDelEnemigo = (s, W) => mun.fuerzas(s, W.pais).susAliados.filter((id) => s.mundo.paises[id].rel >= 40).sort((a, b) => R.PAIS[b].poder - R.PAIS[a].poder)[0];
+  mun.ACC_GUERRA = [
+    { id: 'armas', emoji: '🛩️', corto: 'Armas', nombre: 'Armas de urgencia', pc: 2, gasto: 3, cada: 3,
+      hacer: (s, W) => { W.extraYo = (W.extraYo || 0) + 8; } },
+    { id: 'movilizar', emoji: '🪖', corto: 'Movilizar', nombre: 'Movilización general', pc: 3, ef: { trabajadores: -4, media: -3, crec: -0.5 },
+      hacer: (s, W) => { W.multYo = 1.15; } },
+    { id: 'sabotaje', emoji: '🕵️', corto: 'Sabotaje', nombre: 'Sabotaje e inteligencia', pc: 2,
+      hacer: (s, W) => { W.sabotaje = 0.1; } },
+    { id: 'apoyo', emoji: '🤝', corto: 'Pedir ayuda', nombre: (s, W) => { const p = mejorApoyo(s, W); return p ? 'Pedirle ayuda a ' + p.nombre : 'Pedir ayuda'; }, pc: 3,
+      pais: (s, W) => (mejorApoyo(s, W) || {}).id,
+      si: (s, W) => !!mejorApoyo(s, W), siTxt: 'Ningún país te quiere tanto (🤝 60+)',
+      ef: (s, W) => ({ rel: { [mejorApoyo(s, W).id]: -5 } }), // le cuesta un poco
+      hacer: (s, W) => {
+        const p = mejorApoyo(s, W);
+        W.apoyos = (W.apoyos || []).concat(p.id);
+        return p.nombre + ' te manda armas 🤝';
+      } },
+    { id: 'aislar', emoji: '🚫', corto: 'Aislarlo', nombre: (s, W) => { const id = apoyoDelEnemigo(s, W); return id ? 'Que ' + R.PAIS[id].nombre + ' no se meta' : 'Dejarlo solo'; },
+      pc: (s, W) => { const id = apoyoDelEnemigo(s, W); return 2 + Math.round((id ? R.PAIS[id].poder : 0) / 30); }, // más caro cuanto más fuerte es
+      pais: (s, W) => apoyoDelEnemigo(s, W),
+      si: (s, W) => !!apoyoDelEnemigo(s, W), siTxt: 'Nadie lo ayuda o no te escuchan (🤝 40+)',
+      hacer: (s, W) => { const id = apoyoDelEnemigo(s, W); W.neutrales = (W.neutrales || []).concat(id); return R.PAIS[id].nombre + ' no se mete 🚫'; } },
+    { id: 'cadena', emoji: '📢', corto: 'Cadena', nombre: 'Cadena patriótica', pc: 1, cada: 2, ef: { todos: 3 },
+      hacer: () => {} },
+  ];
+  mun.nombreAccGuerra = (s, a) => (typeof a.nombre === 'function' ? a.nombre(s, s.mundo.guerra) : a.nombre);
+  // Efectos en la gente y la economía (se calculan antes de hacerla: el apoyo cambia de país después).
+  mun.efAccGuerra = (s, a) => Object.assign({}, typeof a.ef === 'function' ? a.ef(s, s.mundo.guerra) : a.ef || {}, a.gasto ? { gastoExtra: a.gasto } : {});
+  mun.costoAccGuerra = (s, a) => (typeof a.pc === 'function' ? a.pc(s, s.mundo.guerra) : a.pc);
+  mun.bloqueoGuerra = function (s, id) {
+    const W = s.mundo.guerra;
+    const a = mun.ACC_GUERRA.find((x) => x.id === id);
+    if (!W) return 'No hay guerra';
+    const usada = (W.usadas || {})[id];
+    if (usada !== undefined && !a.cada) return 'Ya lo hiciste';
+    if (usada !== undefined && a.cada && W.meses - usada < a.cada) return 'De nuevo en ' + (a.cada - (W.meses - usada)) + (a.cada - (W.meses - usada) === 1 ? ' mes' : ' meses');
+    if (a.si && !a.si(s, W)) return a.siTxt;
+    if (s.gob.pc < mun.costoAccGuerra(s, a)) return 'Falta ⭐';
+    return null;
+  };
+  // Chances de ganar ahora y si hacés la acción (sin tocar la partida).
+  mun.previaGuerra = function (s, id) {
+    const W = s.mundo.guerra;
+    const a = mun.ACC_GUERRA.find((x) => x.id === id);
+    const F0 = mun.fuerzas(s, W.pais);
+    const antes = mun.chances(s, W.pais, W.frente).gana;
+    const copia = JSON.parse(JSON.stringify(W));
+    a.hacer(s, copia);
+    s.mundo.guerra = copia;
+    try {
+      const F1 = mun.fuerzas(s, W.pais);
+      return { antes, despues: mun.chances(s, W.pais, W.frente).gana, yo: [F0.yo, F1.yo], el: [F0.el, F1.el] };
+    } finally { s.mundo.guerra = W; }
+  };
+  mun.accionGuerra = function (s, id) {
+    const b = mun.bloqueoGuerra(s, id);
+    if (b) return { error: b };
+    const W = s.mundo.guerra;
+    const a = mun.ACC_GUERRA.find((x) => x.id === id);
+    const nombre = mun.nombreAccGuerra(s, a);
+    const ef = mun.efAccGuerra(s, a);
+    s.gob.pc -= mun.costoAccGuerra(s, a);
+    W.usadas = W.usadas || {};
+    W.usadas[id] = W.meses;
+    const txt = a.hacer(s, W) || nombre + ' ' + a.emoji;
+    const antes = s.gob.aprob;
+    const aplicado = R.gob.aplicarEfectos(s, ef);
+    R.diario(s, a.emoji, nombre, 'mundo');
+    return { txt, bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
+
   mun.ORDENES = [
     { id: 'ofensiva', emoji: '⚔️', nombre: 'Ofensiva', desc: 'Avanzás fuerte', costo: { gasto: 3 } },
     { id: 'defender', emoji: '🛡️', nombre: 'Defender', desc: 'Aguantás y gastás poco', costo: { gasto: 1 } },
@@ -239,7 +323,7 @@
     return orden === 'ofensiva' ? { media: 12 * lr, desvio: 2.5 } : { media: 5 * lr - 1, desvio: 1.5 };
   };
   // Chances de ganar atacando todos los meses (simulación rápida con su propio azar: no toca la partida).
-  mun.chances = function (s, paisId) {
+  mun.chances = function (s, paisId, desde) {
     const F = mun.fuerzas(s, paisId);
     const { media, desvio } = mun.avance(F.ratio, 'ofensiva');
     let semilla = 12345;
@@ -255,7 +339,7 @@
     let meses = 0;
     const N = 300;
     for (let i = 0; i < N; i++) {
-      let f = 50;
+      let f = desde ?? 50;
       let m = 0;
       while (f > 0 && f < 100 && m < 36) { f += media + gauss() * desvio; m++; }
       if (f >= 100) { ganadas++; meses += m; } else if (f <= 0) perdidas++;
