@@ -192,7 +192,7 @@
       const ancho = Math.min(50, Math.sqrt(Math.abs(p.v) / ESCALA) * 50);
       return h('div', { class: 'motivo' },
         h('span', { class: 'em' }, r[0]),
-        h('span', { class: 'txt' }, h('b', null, r[1], p.k === 'ideas' ? h('span', { class: 'fijo' }, 'no cambia') : null), h('small', null, datoRazon(s, id, p.k))),
+        h('span', { class: 'txt' }, h('b', null, r[1], p.k === 'ideas' ? h('span', { class: 'fijo' }, 'pesa ' + Math.round(R.gob.pesoIdeas(s) * 100) + '%') : null), h('small', null, datoRazon(s, id, p.k))),
         h('span', { class: 'balanza-motivo', title: (p.v > 0 ? 'Le suma ' : 'Le resta ') + Math.round(Math.abs(p.v)) },
           h('i', { class: p.v > 0 ? 'suma' : 'resta', style: p.v > 0 ? { left: '50%', width: ancho + '%' } : { right: '50%', width: ancho + '%' } })));
     };
@@ -209,7 +209,7 @@
             va > 2 ? '📈 Va a mejorar' : va < -2 ? '📉 Va a empeorar' : '➡️ Se mantiene'))),
       peores.length ? h('div', { class: 'critico-caja' }, h('b', null, '😠 Lo que más lo enoja'),
         h('div', null, peores.map((p) => h('span', { class: 'chip mal' }, RAZON(p.k)[0] + ' ' + RAZON(p.k)[1] + ': ' + datoRazon(s, id, p.k)))))
-        : porIdeas ? h('div', { class: 'critico-caja' }, h('b', null, '💭 Lo que más le resta: no le gustan tus ideas'), h('span', { class: 'chico' }, 'Eso no cambia; lo podés compensar con lo que sí le importa.'))
+        : porIdeas ? h('div', { class: 'critico-caja' }, h('b', null, '💭 Lo que más le resta: no le gustan tus ideas'), h('span', { class: 'chico' }, 'Con el tiempo pesa menos y mira más los resultados.'))
           : h('div', { class: 'critico-caja bien' }, h('b', null, '🙂 No tiene quejas grandes')),
       resta.length ? h('div', { class: 'etiqueta' }, '😠 Le resta') : null,
       resta.length ? h('div', { class: 'motivos' }, resta.map(fila)) : null,

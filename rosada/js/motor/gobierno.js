@@ -56,6 +56,8 @@
     return aplicado;
   };
 
+  gob.pesoIdeas = (s) => 0.4 + 0.6 * Math.exp(-((s.gob && s.gob.meses) || 0) / 18);
+
   // ── Lo que quiere cada grupo ──
   // Devuelve { obj, partes: [{k, v}] } — cada parte es una razón de su humor (sirve para las frases y el «¿por qué?»).
   gob.objetivoGrupo = function (s, id) {
@@ -72,7 +74,9 @@
     const torta = R.eco.torta(s);
     const p = [];
     const add = (k, v) => p.push({ k, v });
-    add('ideas', 12 * (0.45 - Math.abs(g.ideo - ideoGob)));
+    // Tus ideas pesan mucho al principio; con el tiempo la gente te juzga más por los resultados que por la ideología
+    // (al año pesan ~70 %, a los dos años ~55 %, nunca menos del 40 %). Vale para el rechazo y para el apoyo.
+    add('ideas', 12 * (0.45 - Math.abs(g.ideo - ideoGob)) * gob.pesoIdeas(s));
     switch (id) {
       case 'trabajadores':
         add('salario', S * 1.2); add('empleo', -Pdes * 1.3); add('inflacion', -Pinf * 0.5); add('obras', 12 * (m.obras - 1));

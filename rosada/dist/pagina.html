@@ -2693,6 +2693,8 @@ label.boton { cursor: pointer; }
     return aplicado;
   };
 
+  gob.pesoIdeas = (s) => 0.4 + 0.6 * Math.exp(-((s.gob && s.gob.meses) || 0) / 18);
+
   // ── Lo que quiere cada grupo ──
   // Devuelve { obj, partes: [{k, v}] } — cada parte es una razón de su humor (sirve para las frases y el «¿por qué?»).
   gob.objetivoGrupo = function (s, id) {
@@ -2709,7 +2711,9 @@ label.boton { cursor: pointer; }
     const torta = R.eco.torta(s);
     const p = [];
     const add = (k, v) => p.push({ k, v });
-    add('ideas', 12 * (0.45 - Math.abs(g.ideo - ideoGob)));
+    // Tus ideas pesan mucho al principio; con el tiempo la gente te juzga más por los resultados que por la ideología
+    // (al año pesan ~70 %, a los dos años ~55 %, nunca menos del 40 %). Vale para el rechazo y para el apoyo.
+    add('ideas', 12 * (0.45 - Math.abs(g.ideo - ideoGob)) * gob.pesoIdeas(s));
     switch (id) {
       case 'trabajadores':
         add('salario', S * 1.2); add('empleo', -Pdes * 1.3); add('inflacion', -Pinf * 0.5); add('obras', 12 * (m.obras - 1));
@@ -8127,7 +8131,7 @@ label.boton { cursor: pointer; }
       const ancho = Math.min(50, Math.sqrt(Math.abs(p.v) / ESCALA) * 50);
       return h('div', { class: 'motivo' },
         h('span', { class: 'em' }, r[0]),
-        h('span', { class: 'txt' }, h('b', null, r[1], p.k === 'ideas' ? h('span', { class: 'fijo' }, 'no cambia') : null), h('small', null, datoRazon(s, id, p.k))),
+        h('span', { class: 'txt' }, h('b', null, r[1], p.k === 'ideas' ? h('span', { class: 'fijo' }, 'pesa ' + Math.round(R.gob.pesoIdeas(s) * 100) + '%') : null), h('small', null, datoRazon(s, id, p.k))),
         h('span', { class: 'balanza-motivo', title: (p.v > 0 ? 'Le suma ' : 'Le resta ') + Math.round(Math.abs(p.v)) },
           h('i', { class: p.v > 0 ? 'suma' : 'resta', style: p.v > 0 ? { left: '50%', width: ancho + '%' } : { right: '50%', width: ancho + '%' } })));
     };
@@ -8144,7 +8148,7 @@ label.boton { cursor: pointer; }
             va > 2 ? '📈 Va a mejorar' : va < -2 ? '📉 Va a empeorar' : '➡️ Se mantiene'))),
       peores.length ? h('div', { class: 'critico-caja' }, h('b', null, '😠 Lo que más lo enoja'),
         h('div', null, peores.map((p) => h('span', { class: 'chip mal' }, RAZON(p.k)[0] + ' ' + RAZON(p.k)[1] + ': ' + datoRazon(s, id, p.k)))))
-        : porIdeas ? h('div', { class: 'critico-caja' }, h('b', null, '💭 Lo que más le resta: no le gustan tus ideas'), h('span', { class: 'chico' }, 'Eso no cambia; lo podés compensar con lo que sí le importa.'))
+        : porIdeas ? h('div', { class: 'critico-caja' }, h('b', null, '💭 Lo que más le resta: no le gustan tus ideas'), h('span', { class: 'chico' }, 'Con el tiempo pesa menos y mira más los resultados.'))
           : h('div', { class: 'critico-caja bien' }, h('b', null, '🙂 No tiene quejas grandes')),
       resta.length ? h('div', { class: 'etiqueta' }, '😠 Le resta') : null,
       resta.length ? h('div', { class: 'motivos' }, resta.map(fila)) : null,
