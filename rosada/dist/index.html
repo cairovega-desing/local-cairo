@@ -813,6 +813,40 @@ label.boton { cursor: pointer; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
+/* ── Producción, metas, protestas y ranking (vuelta 17) ── */
+.sectores { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sector-carta { font: inherit; color: var(--tinta); text-align: left; display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 8px 10px; border: var(--borde); border-radius: 14px; background: var(--papel); box-shadow: var(--sombra-chica); cursor: pointer; }
+.sector-carta:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
+.sector-carta .em { font-size: 24px; line-height: 1; }
+.sector-carta .nom { flex: 1; min-width: 0; font-size: 14px; line-height: 1.1; }
+.sector-carta .nivel { font-family: var(--f-titulo); font-size: 24px; line-height: 1; }
+.sector-carta .chip { font-size: 11px; padding: 1px 6px; }
+.banner-aviso { font: inherit; color: var(--tinta); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left; width: 100%; padding: 8px 12px; border: var(--borde); border-radius: 14px; box-shadow: var(--sombra-chica); cursor: pointer; background: var(--mal-claro); }
+.banner-aviso.bueno { background: var(--bien-claro); }
+.banner-aviso .em { font-size: 26px; }
+.banner-aviso b { display: block; line-height: 1.15; }
+.banner-aviso small { display: block; font-weight: 800; color: var(--tinta-suave); }
+.precio-fila { display: grid; grid-template-columns: 26px minmax(0, 1fr) 64px 44px; gap: 8px; align-items: center; }
+.precio-fila .em { font-size: 22px; }
+.precio-fila b { font-size: 13px; line-height: 1.1; overflow-wrap: anywhere; }
+.novedad { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 6px; align-items: center; font-weight: 800; font-size: 14px; }
+.novedad small { grid-column: 2; color: var(--tinta-suave); font-size: 12px; }
+.novedad.bien > span:nth-child(2) { color: var(--bien); }
+.novedad.mal > span:nth-child(2) { color: var(--mal); }
+.meta-fila { font: inherit; color: var(--tinta); display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 8px; align-items: center; text-align: left; width: 100%; padding: 6px 8px; border: var(--borde); border-radius: 12px; background: var(--papel); box-shadow: var(--sombra-chica); cursor: pointer; }
+.meta-fila.grande { background: var(--sol-claro); }
+.meta-fila .em { font-size: 26px; text-align: center; }
+.meta-fila b { font-size: 14px; line-height: 1.15; }
+.bronca-mini { position: absolute; top: -6px; left: -4px; font-size: 18px; filter: drop-shadow(0 2px 0 var(--tinta)); animation: latido 1.4s ease-in-out infinite; }
+@keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+.ranking-btn { font: inherit; color: var(--tinta); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left; width: 100%; padding: 8px 12px; border: var(--borde); border-radius: 14px; background: var(--sol-claro); box-shadow: var(--sombra-chica); cursor: pointer; }
+.ranking-btn .em { font-size: 26px; }
+.ranking-btn b { display: block; line-height: 1.15; }
+.ranking-btn small { display: block; font-weight: 800; color: var(--tinta-suave); }
+.ranking-fila { display: grid; grid-template-columns: 32px auto minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 4px 8px; border-radius: 10px; font-weight: 800; }
+.ranking-fila.yo { background: var(--sol-claro); border: var(--borde); }
+@media (min-width: 900px) { .sectores { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
 </style>
 </head>
 <body>
@@ -2413,6 +2447,8 @@ label.boton { cursor: pointer; }
     // Leyes y tratados: suman exportaciones, con techo (no se puede exportar el doble por decreto).
     const bExpo = eco.bonus(s, 'bonusExpo');
     f += Math.sign(bExpo) * 0.45 * (1 - Math.exp(-Math.abs(bExpo) / 0.45));
+    // Sectores: más campos, pozos y fábricas = más para vender (× el precio del mundo).
+    if (R.prod && s.prod) f += R.prod.expoExtra(s);
     return Math.max(0.5, f);
   };
   eco.recaudacion = (s) => {
@@ -2476,7 +2512,9 @@ label.boton { cursor: pointer; }
     // (lo que baja los precios se apaga cerca de cero: no hay deflación por ley)
     let pLeyesInfl = eco.bonus(s, 'bonusPrecios');
     if (pLeyesInfl < 0) pLeyesInfl *= R.clamp(e.inflMes / 1.2, 0, 1);
-    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + pLeyesInfl + R.gauss(s) * 0.12;
+    // Recalentamiento: si la economía crece muy rápido y no hay gente para trabajar, suben precios y sueldos.
+    const pRecal = Math.max(0, e.crec - 5) * 0.05 + Math.max(0, 4 - e.desempleo) * 0.05;
+    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + pLeyesInfl + pRecal + R.gauss(s) * 0.12;
     infl = R.clamp(infl, -0.5, 60);
     C.inflacion = [
       { k: 'inercia', v: inercia + base },
@@ -2486,6 +2524,7 @@ label.boton { cursor: pointer; }
       { k: 'ancla', v: ancla },
       { k: 'oferta', v: pOferta },
       { k: 'leyes', v: pLeyesInfl },
+      { k: 'recalentamiento', v: pRecal },
       { k: 'shock', v: pShock + pParitarias },
     ];
     const inflAntes = e.inflMes;
@@ -2511,23 +2550,28 @@ label.boton { cursor: pointer; }
     const pImpuestos = -0.7 * ((e.impEf ?? e.impuestos) - 2) - 0.3 * ((e.retEf ?? e.retenciones) - 2);
     const pInflacion = -Math.max(0, e.inflAnual - 35) / 25;
     const pCepo = e.cepo ? -0.7 : 0;
-    const pExpo = (eco.factorExpo(s) - 1) * 6;
+    // Exportar más empuja, pero con techo: duplicar lo que vendés no duplica el crecimiento.
+    const pExpo = 3.2 * Math.tanh((eco.factorExpo(s) - 1) / 0.45);
     const pGasto = 0.5 * (eco.gastoPrimario(e) - 14.6);
     const pShockCrec = shock('crec');
     const pMin = min && min.crec ? min.crec : 0;
     // Leyes: cada una suma, pero con rendimientos decrecientes (no se crece al infinito a fuerza de leyes).
     const bCrec = eco.bonus(s, 'bonusCrec');
     const pLeyes = Math.sign(bCrec) * 3 * (1 - Math.exp(-Math.abs(bCrec) / 3));
-    let crecMes = pPot + pObras + pFuturo + pConfianza + pImpuestos + pInflacion + pCepo + pExpo + pGasto + pShockCrec + pMin + pLeyes + R.gauss(s) * 0.6;
+    // Sectores: la tecnología sube la productividad; si falta energía, la industria frena.
+    const pSectores = R.prod && s.prod ? R.prod.crecExtra(s) : 0;
+    // Techo: con casi todos trabajando no se puede crecer mucho más rápido (falta gente).
+    const pCapacidad = -Math.max(0, 5 - e.desempleo) * 1.8;
+    let crecMes = pPot + pObras + pFuturo + pConfianza + pImpuestos + pInflacion + pCepo + pExpo + pGasto + pShockCrec + pMin + pLeyes + pSectores + pCapacidad + R.gauss(s) * 0.6;
     crecMes = R.clamp(crecMes, -15, 12);
     e.pbi *= 1 + crecMes / 1200;
     e.crec = e.crec * (1 - RX(0.18)) + crecMes * RX(0.18);
-    const oferta = pObras + pFuturo + pConfianza + pImpuestos + pExpo + pMin + pLeyes;
+    const oferta = pObras + pFuturo + pConfianza + pImpuestos + pExpo + pMin + pLeyes + pSectores;
     e.oferta = (e.oferta || 0) * (1 - RX(0.15)) + oferta * RX(0.15);
     C.crecimiento = [
       { k: 'obras', v: pObras }, { k: 'futuro', v: pFuturo }, { k: 'confianza', v: pConfianza }, { k: 'impuestos', v: pImpuestos },
       { k: 'inflacion', v: pInflacion }, { k: 'cepo', v: pCepo }, { k: 'expo', v: pExpo }, { k: 'gasto', v: pGasto },
-      { k: 'shock', v: pShockCrec }, { k: 'ministro', v: pMin + pLeyes },
+      { k: 'shock', v: pShockCrec }, { k: 'ministro', v: pMin + pLeyes }, { k: 'sectores', v: pSectores }, { k: 'capacidad', v: pCapacidad },
     ];
 
     // 5) Empleo
@@ -2560,9 +2604,10 @@ label.boton { cursor: pointer; }
     const pagos = 0.55 + (e.deuda / 100) * 0.15;
     const fuga = e.cepo ? 0 : Math.max(0, (e.riesgo - 900) / 1000) * 0.6 + Math.max(0, e.inflAnual - 60) / 200;
     const prestamos = shock('reservas');
-    const dRes = expo - impo - pagos - fuga + prestamos;
+    const pEnergia = R.prod && s.prod ? R.prod.costoEnergia(s) : 0; // si falta energía, se compra afuera
+    const dRes = expo - impo - pagos - fuga + prestamos + pEnergia;
     e.reservas = R.clamp(e.reservas + dRes, -5, 250);
-    C.reservas = [{ k: 'comercio', v: expo - impo }, { k: 'pagos', v: -pagos }, { k: 'fuga', v: -fuga }, { k: 'prestamos', v: prestamos }];
+    C.reservas = [{ k: 'comercio', v: expo - impo }, { k: 'energia', v: pEnergia }, { k: 'pagos', v: -pagos }, { k: 'fuga', v: -fuga }, { k: 'prestamos', v: prestamos }];
 
     // 9) Deuda y riesgo país
     // La deuda sube con el déficit que no se emite, baja con superávit (se paga sola) y, si la economía crece,
@@ -2629,12 +2674,13 @@ label.boton { cursor: pointer; }
     inflacion: {
       inercia: ['🔁', 'Los precios vienen subiendo'], emision: ['🖨️', 'Emitiste para pagar el déficit'], tarifas: ['⚡', 'Subieron las tarifas'],
       dolar: ['💵', 'Saltó el dólar'], ancla: ['⚓', 'Confían en tu plan'], shock: ['💥', 'Golpes de este mes'],
-      oferta: ['🏭', 'Más producción y competencia'], leyes: ['📜', 'Tus leyes'],
+      oferta: ['🏭', 'Más producción y competencia'], leyes: ['📜', 'Tus leyes'], recalentamiento: ['🔥', 'Economía recalentada'],
     },
     crecimiento: {
       obras: ['🏗️', 'Obra pública y rutas'], futuro: ['🎓', 'Educación y ciencia'], confianza: ['📊', 'Riesgo país'],
       impuestos: ['🧾', 'Impuestos y retenciones'], inflacion: ['🛒', 'La inflación frena todo'], cepo: ['🔒', 'El cepo'],
-      expo: ['🚢', 'Exportaciones'], gasto: ['💸', 'Gasto del Estado'], shock: ['💥', 'Clima y sorpresas'], ministro: ['🧑‍💼', 'Tu ministro y tus leyes'],
+      expo: ['🚢', 'Exportaciones'], gasto: ['💸', 'Gasto del Estado'], shock: ['💥', 'Clima, obras y sorpresas'], ministro: ['🧑‍💼', 'Tu ministro y tus leyes'],
+      sectores: ['🏭', 'Tecnología y energía'], capacidad: ['🧑‍🏭', 'Falta gente para trabajar'],
     },
     pobreza: {
       desempleo: ['👷', 'Falta de trabajo'], salario: ['💰', 'Sueldos que no alcanzan'], inflacion: ['🛒', 'Precios altos'], social: ['🤲', 'Ayuda social y jubilaciones'],
@@ -2648,7 +2694,7 @@ label.boton { cursor: pointer; }
       crecimiento: ['📈', 'La economía crece: pesa menos'], shock: ['💥', 'Préstamos y acuerdos'],
     },
     reservas: {
-      comercio: ['🚢', 'Exportaciones menos importaciones'], pagos: ['🏦', 'Pago de deuda'], fuga: ['✈️', 'Gente que se lleva los dólares'], prestamos: ['🤝', 'Préstamos'],
+      comercio: ['🚢', 'Exportaciones menos importaciones'], energia: ['⛽', 'Energía que comprás afuera'], pagos: ['🏦', 'Pago de deuda'], fuga: ['✈️', 'Gente que se lleva los dólares'], prestamos: ['🤝', 'Préstamos'],
     },
   };
 })(globalThis.R = globalThis.R || {});
@@ -2700,9 +2746,12 @@ label.boton { cursor: pointer; }
     gob.actualizarAprob(s);
     if (R.congreso) R.congreso.iniciar(s);
     if (R.mundo) R.mundo.iniciar(s);
+    if (R.prod) R.prod.asegurar(s);
+    if (R.metas) { R.metas.asegurar(s); s.metas.ofrecido = true; }
     s.gob.historia.push(R.eco.foto(s));
     R.diario(s, '🎖️', 'Asumís la Presidencia', 'gobierno');
     s.cola.push({ tipo: 'ministro' });
+    if (R.metas) s.cola.push({ tipo: 'legado' });
   };
 
   gob.elegirMinistro = function (s, id) {
@@ -2762,8 +2811,21 @@ label.boton { cursor: pointer; }
     }
     const bonus = s.gob && s.gob.bonusGrupo ? s.gob.bonusGrupo[id] || 0 : 0;
     if (bonus) add('leyes', bonus);
+    // La vara sube: la gente se acostumbra a lo bueno. Lo que ganó pasa a ser «lo normal» y pide más.
+    const st = s.gob && s.gob.grupos[id];
+    if (st && st.espera > 0.5) add('vara', -gob.VARA * st.espera);
     const obj = R.clamp(50 + R.sum(p.map((x) => x.v)), 3, 97);
     return { obj, partes: p };
+  };
+  // Cuánto de lo bueno se «normaliza» y qué tan rápido (sube ~3,5 %/mes: a los 2 años ya se acostumbró a más de la mitad;
+  // baja más lento: después de una bonanza, la gente se acuerda de lo bien que estaba).
+  gob.VARA = 0.7;
+  gob.actualizarEspera = function (s, id) {
+    const st = s.gob.grupos[id];
+    const { partes } = gob.objetivoGrupo(s, id);
+    const meta = Math.max(0, R.sum(partes.filter((x) => x.k !== 'ideas' && x.k !== 'vara').map((x) => x.v)));
+    const e = st.espera || 0;
+    st.espera = e + (meta - e) * (meta > e ? 0.035 : 0.02);
   };
 
   gob.actualizarAprob = function (s) {
@@ -2774,7 +2836,8 @@ label.boton { cursor: pointer; }
       tot += G.grupos[g.id].humor * g.peso;
       w += g.peso;
     }
-    const desgaste = Math.min(7, G.meses * 0.08);
+    // Desgaste del poder: cada mes gobernando cuesta un poco (y más en el segundo mandato).
+    const desgaste = Math.min(15, G.meses * 0.18) + (G.mandato >= 2 ? 3 : 0);
     const dif = { facil: 5, normal: 0, dificil: -5 }[s.dif] || 0;
     G.aprob = R.clamp(tot / w + G.lunaMiel - desgaste - G.escandalo * 0.6 + dif, 2, 96);
     return G.aprob;
@@ -2786,6 +2849,7 @@ label.boton { cursor: pointer; }
     let pc = 2 + Math.round((G.aprob - 40) / 15);
     if (G.ministro && R.MINISTROS[G.ministro].pcExtra) pc += R.MINISTROS[G.ministro].pcExtra;
     if (R.congreso && R.congreso.mayoria && R.congreso.mayoria(s)) pc += 1;
+    if (s.mundo && (s.mundo.prestigio || 0) >= 50) pc += 1; // con prestigio, te escuchan más
     return Math.max(1, pc);
   };
 
@@ -2842,6 +2906,7 @@ label.boton { cursor: pointer; }
     infra: { emoji: '🛣️', nombre: 'Rutas', paso: 3 },
     ciencia: { emoji: '🔬', nombre: 'Ciencia', paso: 3 },
     soberania: { emoji: '🏝️', nombre: 'Malvinas', paso: 4 },
+    prestigio: { emoji: '✨', nombre: 'Prestigio', paso: 5 },
   };
   const CALIDADES = ['salud', 'educacion', 'seguridad', 'defensa', 'infra', 'ciencia'];
   const MESES_SHOCK = { crec: 6, expo: 8, riesgo: 4 };
@@ -2866,6 +2931,7 @@ label.boton { cursor: pointer; }
     for (const { k, v, sub } of lista) {
       if (k === 'rel') { if (s.mundo && s.mundo.paises[sub]) s.mundo.paises[sub].rel = R.clamp(s.mundo.paises[sub].rel + v, 0, 100); continue; }
       if (k === 'soberania') { if (s.mundo) s.mundo.malvinas.soberania = R.clamp(s.mundo.malvinas.soberania + v, 0, 99); continue; }
+      if (k === 'prestigio') { if (s.mundo) s.mundo.prestigio = R.clamp((s.mundo.prestigio || 0) + v, 0, 200); continue; }
       if (R.GRUPO[k]) G.grupos[k].humor = R.clamp(G.grupos[k].humor + v, 0, 100);
       else if (k === 'todos') R.GRUPOS.forEach((g) => (G.grupos[g.id].humor = R.clamp(G.grupos[g.id].humor + v, 0, 100)));
       else if (k === 'pc') G.pc = R.clamp(G.pc + v, 0, G.pcMax);
@@ -3139,6 +3205,9 @@ label.boton { cursor: pointer; }
     if (Object.keys(reaccion).length) gob.aplicarEfectos(s, reaccion);
 
     R.eco.mes(s);
+    // Producción: obras, inversión privada, precios del mundo y ciclos (pueden avisar una crisis; se muestra después del resumen).
+    const avisos = [];
+    if (R.prod) R.prod.mes(s, avisos);
 
     // La gente se acomoda de a poco a cómo le va
     for (const g of R.GRUPOS) {
@@ -3149,6 +3218,7 @@ label.boton { cursor: pointer; }
       st.objetivo = obj;
       st.antes = humorAntes[g.id];
       st.humor = R.clamp(st.humor + (obj - st.humor) * 0.28 + R.gauss(s) * 0.6, 0, 100);
+      gob.actualizarEspera(s, g.id);
     }
     G.lunaMiel *= 0.88;
     G.meses++;
@@ -3174,7 +3244,12 @@ label.boton { cursor: pointer; }
     G.llamas = gob.llamas(s).map((l) => l.id);
     G.aprobBajaMeses = G.aprob < 12 ? (G.aprobBajaMeses || 0) + 1 : 0;
 
-    momentos.push({ tipo: 'resumen', antes, despues, aprobAntes, aprobDespues: G.aprob, humorAntes, reaccion, frases: gob.frases(s, humorAntes, 3) });
+    momentos.push({ tipo: 'resumen', antes, despues, aprobAntes, aprobDespues: G.aprob, humorAntes, reaccion, frases: gob.frases(s, humorAntes, 3),
+      novedades: s.prod ? s.prod.novedades.slice() : [] });
+    momentos.push(...avisos);
+    // Los grupos muy enojados salen a la calle; las metas se cumplen o vencen.
+    if (R.protestas) R.protestas.mes(s, momentos);
+    if (R.metas) R.metas.mes(s, momentos);
 
     if (G.aprobBajaMeses >= 3) {
       gob.terminar(s, momentos, 'helicoptero');
@@ -3906,6 +3981,10 @@ label.boton { cursor: pointer; }
     { id: 'UE', nombre: 'Unión Europea', poder: 70, ideo: 0.0, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 8, potencia: true, noConquistable: 'Es un bloque de 27 países' },
   ];
   R.PAIS = Object.fromEntries(R.PAISES.map((p) => [p.id, p]));
+  // PBI de cada país en miles de millones de dólares (aproximado) para el ranking de potencias.
+  R.PBI_PAIS = { BRA: 2200, CHL: 330, URY: 80, PRY: 45, BOL: 48, PER: 270, VEN: 100, USA: 28000, CHN: 18500, RUS: 2000, GBR: 3300, UE: 19000 };
+  R.SUDAMERICA = ['BRA', 'CHL', 'URY', 'PRY', 'BOL', 'PER', 'VEN'];
+  R.VECINOS = ['BRA', 'CHL', 'URY', 'PRY', 'BOL'];
   R.BLOQUES_MUNDO = {
     mercosur: { nombre: 'Mercosur', emoji: '🤝' },
     pacifico: { nombre: 'Pacífico', emoji: '🌊' },
@@ -3969,6 +4048,23 @@ label.boton { cursor: pointer; }
       paises[p.id] = { rel: R.clamp(Math.round(p.rel + afin), 0, 100), tratado: false, alianza: false, sancion: false, anexado: false, enfr: {} };
     }
     s.mundo = { paises, guerra: null, malvinas: { soberania: 0, recuperadas: false }, poderExtra: 0, resistencia: 0, panico: 0, pactos: [], noticias: [] };
+  };
+
+  // ── Ranking de potencias ──
+  // Puntos = economía (raíz del PBI en dólares) + poder militar + prestigio. Los anexados ya no cuentan.
+  mun.puntos = function (s, id) {
+    if (id === 'ARG') return Math.round(Math.sqrt(R.eco.pbiUSD(s)) * 2 + mun.poder(s) + (s.mundo.prestigio || 0));
+    return Math.round(Math.sqrt(R.PBI_PAIS[id] || 50) * 2 + R.PAIS[id].poder);
+  };
+  mun.ranking = function (s, soloSudamerica) {
+    const ids = ['ARG'].concat(R.PAISES.filter((p) => !s.mundo.paises[p.id].anexado && (!soloSudamerica || R.SUDAMERICA.includes(p.id))).map((p) => p.id));
+    return ids.map((id) => ({ id, puntos: mun.puntos(s, id) })).sort((a, b) => b.puntos - a.puntos);
+  };
+  mun.puesto = (s, soloSudamerica) => mun.ranking(s, soloSudamerica).findIndex((x) => x.id === 'ARG') + 1;
+  // Tus puntos contra el más fuerte de Sudamérica (1 = sos el primero).
+  mun.ventajaRegional = function (s) {
+    const otros = mun.ranking(s, true).filter((x) => x.id !== 'ARG');
+    return otros.length ? mun.puntos(s, 'ARG') / otros[0].puntos : 2;
   };
 
   // ── Relaciones entre los otros países ──
@@ -4335,11 +4431,19 @@ label.boton { cursor: pointer; }
     s.mundo.guerra = null;
     let ef = {};
     let txt = '';
-    if (como === 'victoria') {
+    if (como === 'victoria' && W.objetivo === 'defensa') {
+      ef = { todos: 12, reservas: 4, prestigio: 12 };
+      txt = '🛡️ ¡Rechazamos el ataque de ' + P.nombre + '!';
+      st.rel = 25;
+    } else if (como === 'derrota' && W.objetivo === 'defensa') {
+      ef = { todos: -20, reservas: -10, deuda: 6, riesgo: 400, prestigio: -15 };
+      txt = '💀 ' + P.nombre + ' nos ganó: hay que pagarle';
+      st.rel = 15;
+    } else if (como === 'victoria') {
       if (W.objetivo === 'malvinas') {
         s.mundo.malvinas.recuperadas = true;
         s.mundo.malvinas.soberania = 100;
-        ef = { todos: 18, riesgo: 200 };
+        ef = { todos: 18, riesgo: 200, prestigio: 25 };
         txt = '🇦🇷 ¡RECUPERAMOS LAS MALVINAS!';
       } else {
         const amigos = mun.amigosDe(s, P.id);
@@ -4353,19 +4457,19 @@ label.boton { cursor: pointer; }
         }
         mun.sumarPanico(s, 25 + 10 * Math.min(3, P.tam || 0.1));
         mun.noticia(s, '🏴', 'Argentina anexó a ' + P.nombre + ': pánico en el mundo');
-        ef = { todos: 10, reservas: 4 + (P.tam || 0.1) * 10, riesgo: 250 };
+        ef = { todos: 10, reservas: 4 + (P.tam || 0.1) * 10, riesgo: 250, prestigio: 15 };
         txt = '🏴 ¡Ganaste la guerra! ' + P.nombre + ' ahora es parte de la Argentina';
       }
     } else if (como === 'derrota') {
-      ef = { todos: -22, reservas: -8, deuda: 5, riesgo: 500, escandalo: 3 };
+      ef = { todos: -22, reservas: -8, deuda: 5, riesgo: 500, escandalo: 3, prestigio: -20 };
       txt = '💀 Perdiste la guerra contra ' + P.nombre;
       st.rel = 10;
     } else if (como === 'paz_buena') {
-      ef = { todos: 4, reservas: 3 };
+      ef = { todos: 4, reservas: 3, prestigio: 5 };
       txt = '🕊️ Paz con ventaja: ' + P.nombre + ' paga una indemnización';
       st.rel = 20;
     } else {
-      ef = { todos: -6, reservas: -4 };
+      ef = { todos: -6, reservas: -4, prestigio: -8 };
       txt = '🕊️ Paz con derrota: pagás una indemnización a ' + P.nombre;
       st.rel = 25;
     }
@@ -4387,12 +4491,36 @@ label.boton { cursor: pointer; }
       const st = s.mundo.paises[p.id];
       if (st.anexado) continue;
       const base = st.alianza ? 70 : R.clamp(p.rel + 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo)), 0, 100);
-      const meta = base - panico * (st.alianza ? 0.15 : 0.4);
+      const meta = base - panico * (st.alianza ? 0.15 : 0.4) + Math.min(10, (s.mundo.prestigio || 0) * 0.08);
       st.rel = R.clamp(st.rel + (meta - st.rel) * 0.03, 0, 100);
     }
     mun.mundoSeMueve(s);
     // El pánico baja solo (a la mitad en ~10 meses).
     s.mundo.panico = Math.max(0, panico * 0.93 - 0.3);
+    // Un vecino que te odia y es bastante más fuerte te puede atacar (más si hay pánico por tus guerras).
+    if (!s.mundo.guerra && s.gob && s.gob.meses >= 6) {
+      for (const id of R.VECINOS) {
+        const st = s.mundo.paises[id];
+        if (st.anexado || st.alianza || st.rel >= 15) continue;
+        if (mun.fuerzas(s, id).ratio > 0.8) continue;
+        if (R.chance(s, 0.015 + (s.mundo.panico || 0) / 2000)) {
+          mun.serAtacado(s, id, momentos);
+          break;
+        }
+      }
+    }
+  };
+
+  // Te atacan: guerra para defenderte (si ganás, cobrás; si perdés, pagás).
+  mun.serAtacado = function (s, paisId, momentos) {
+    const P = R.PAIS[paisId];
+    s.mundo.guerra = { pais: paisId, objetivo: 'defensa', frente: 50, meses: 0 };
+    s.mundo.paises[paisId].rel = 0;
+    mun.sumarPanico(s, 10);
+    mun.noticia(s, '🚨', P.nombre + ' atacó a la Argentina');
+    R.diario(s, '🚨', '¡' + P.nombre + ' nos atacó!', 'mundo');
+    const aplicado = R.gob.aplicarEfectos(s, { todos: 8, riesgo: 250, crec: -1 });
+    if (momentos) momentos.push({ tipo: 'atacado', pais: paisId, aplicado });
   };
 
   // Los otros países también juegan: firman y rompen pactos, piden protección si hay pánico y te ofrecen alianzas.
@@ -4444,6 +4572,658 @@ label.boton { cursor: pointer; }
     const out = [];
     for (const p of R.PAISES) if (s.mundo.paises[p.id].anexado && p.fichas) for (const f of p.fichas) out.push({ id: f.id, hex: f.hex, abrev: f.abrev, nombre: p.nombre + ' (anexado)', pais: p.id });
     return out;
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/datos/sectores.js ──
+// Producción por sectores. Cada sector tiene un nivel (como «cuántos campos, pozos, fábricas u oficinas hay»).
+// Subir un nivel = más PBI, más empleo y, si exporta, más dólares. Lo sube el Estado con obras o los privados si les conviene.
+(function (R) {
+  'use strict';
+
+  // Lo que se vende al mundo: cada producto tiene un precio que sube y baja (1 = normal).
+  R.PRODUCTOS = {
+    granos: { emoji: '🌽', nombre: 'Granos y carne' },
+    energia: { emoji: '🛢️', nombre: 'Petróleo, gas y litio' },
+    manufacturas: { emoji: '⚙️', nombre: 'Manufacturas' },
+    software: { emoji: '💾', nombre: 'Software' },
+  };
+
+  // nivel0: nivel al asumir. pbi: % de PBI que suma cada nivel. empleo: puntos de desempleo que baja cada nivel.
+  // expo: cuánto suma a las exportaciones cada nivel (× el precio del mundo). meses y gasto: lo que tarda y cuesta
+  // (en % del presupuesto por mes) una obra del Estado. leyes: cuánto atraen a los privados las leyes que pasaste.
+  R.SECTORES = [
+    {
+      id: 'campo', emoji: '🌾', nombre: 'Campo', producto: 'granos', grupo: 'campo', nivel0: 6,
+      pbi: 0.8, empleo: 0.12, expo: 0.035, meses: 4, gasto: 0.5, obra: 'Silos, puertos y caminos rurales',
+      leyes: { retenciones_cero: 0.5, trenes: 0.25, junta_granos: -0.4, humedales: -0.25, reforma_laboral: 0.1 },
+    },
+    {
+      id: 'energia', emoji: '⛽', nombre: 'Energía', producto: 'energia', grupo: 'empresarios', nivel0: 4,
+      pbi: 1.0, empleo: 0.08, expo: 0.04, meses: 6, gasto: 0.8, obra: 'Pozos, gasoductos y represas',
+      leyes: { vaca_muerta: 0.7, litio: 0.45, glaciares: 0.35, renovables: 0.3, inversiones: 0.45, privatizar: 0.2, estatizar: -0.5 },
+    },
+    {
+      id: 'industria', emoji: '🏭', nombre: 'Industria', producto: 'manufacturas', grupo: 'trabajadores', nivel0: 6,
+      pbi: 1.2, empleo: 0.3, expo: 0.012, meses: 5, gasto: 0.7, obra: 'Parques industriales',
+      leyes: { industria_nacional: 0.35, banco_desarrollo: 0.45, educacion_tecnica: 0.3, pymes: 0.3, reforma_laboral: 0.25, inversiones: 0.3, acuerdo_social: 0.15, apertura: -0.4 },
+    },
+    {
+      id: 'tecno', emoji: '💻', nombre: 'Tecnología', producto: 'software', grupo: 'media', nivel0: 3,
+      pbi: 1.0, empleo: 0.1, expo: 0.02, meses: 4, gasto: 0.5, obra: 'Polos tecnológicos',
+      leyes: { conocimiento: 0.7, ciencia: 0.35, universidades: 0.3, reforma_laboral: 0.15, competencia_monedas: 0.1 },
+    },
+  ];
+  R.SECTOR = Object.fromEntries(R.SECTORES.map((x) => [x.id, x]));
+  R.NIVEL_MAX_SECTOR = 15;
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/produccion.js ──
+// Producción: sectores con nivel, obras del Estado, inversión privada, energía, precios del mundo y ciclos
+// (crisis y bonanzas que se avisan antes). Motor sin DOM.
+(function (R) {
+  'use strict';
+
+  const prod = (R.prod = {});
+
+  // Crea lo que falta (partidas nuevas y guardadas antes de que existiera la producción).
+  prod.asegurar = function (s) {
+    if (!s.prod) {
+      s.prod = { sec: {}, obras: [], novedades: [], invertido: 0 };
+      for (const x of R.SECTORES) s.prod.sec[x.id] = { nivel: x.nivel0 };
+    }
+    if (s.mundo) {
+      if (!s.mundo.precios) {
+        s.mundo.precios = {};
+        s.mundo.preciosAntes = {};
+        for (const k of Object.keys(R.PRODUCTOS)) { s.mundo.precios[k] = 1; s.mundo.preciosAntes[k] = 1; }
+      }
+      if (!s.mundo.ciclos) s.mundo.ciclos = { proximo: null, activos: [], ultimo: s.mes };
+    }
+    return s.prod;
+  };
+
+  prod.nivel = (s, id) => (s.prod ? s.prod.sec[id].nivel : R.SECTOR[id].nivel0);
+  prod.precio = (s, producto) => (s.mundo && s.mundo.precios ? s.mundo.precios[producto] : 1);
+
+  // ── Ciclos del mundo ──
+  // precios: cuánto se mueve el precio de cada producto. shocks: golpes mientras dura (crec en puntos por año,
+  // riesgo en puntos, reservas por mes). sector: cuánto produce un sector (−0,45 = 45 % menos).
+  // prep: lo que podés hacer cuando te avisan (mitiga = parte del golpe que te ahorrás; atrae = más inversión privada).
+  prod.CICLOS = [
+    { id: 'recesion', emoji: '📉', nombre: 'Recesión mundial', peso: 3, aviso: 2, dura: [8, 12],
+      precios: { granos: -0.18, energia: -0.3, manufacturas: -0.25, software: -0.12 }, shocks: { crec: -1.4, riesgo: 120 },
+      prep: { txt: 'Ahorrar para el golpe', costo: { pc: 2 }, mitiga: 0.5 } },
+    { id: 'boom', emoji: '🚀', nombre: 'Boom de materias primas', peso: 2, bueno: true, aviso: 2, dura: [8, 14],
+      precios: { granos: 0.3, energia: 0.35 }, shocks: { crec: 0.6 },
+      prep: { txt: 'Atraer inversiones', costo: { pc: 2 }, atrae: { campo: 0.6, energia: 0.6 } } },
+    { id: 'sequia', emoji: '🌵', nombre: 'Sequía', peso: 2, aviso: 1, dura: [5, 8],
+      sector: { campo: -0.45 }, shocks: { crec: -0.8 }, grupos: { campo: -6 },
+      prep: { txt: 'Seguro agrícola', costo: { pc: 1, gasto: 2 }, mitiga: 0.5 } },
+    { id: 'fed', emoji: '🏦', nombre: 'Suben las tasas en EE.UU.', peso: 2, aviso: 2, dura: [8, 10],
+      shocks: { riesgo: 220, reservas: -0.5 },
+      prep: { txt: 'Pedir prestado antes', costo: { pc: 1 }, ef: { reservas: 5, deuda: 1.5 }, mitiga: 0.35 } },
+    { id: 'brasil', emoji: '🦜', nombre: 'Crisis en Brasil', peso: 2, aviso: 1, dura: [6, 9],
+      precios: { manufacturas: -0.35 }, shocks: { crec: -0.7 }, grupos: { trabajadores: -3 },
+      prep: { txt: 'Proteger la industria', costo: { pc: 1 }, ef: { rel: { BRA: -5 } }, mitiga: 0.5 } },
+    { id: 'petroleo', emoji: '🛢️', nombre: 'El petróleo se dispara', peso: 2, aviso: 1, dura: [6, 10],
+      precios: { energia: 0.55 }, shocks: { infl: 0.15 },
+      prep: { txt: 'Más pozos ya', costo: { pc: 2 }, atrae: { energia: 0.9 }, mitiga: 0.5 } },
+    { id: 'chips', emoji: '🤖', nombre: 'Fiebre tecnológica', peso: 1, bueno: true, aviso: 2, dura: [8, 12],
+      precios: { software: 0.45 }, shocks: { crec: 0.3 },
+      prep: { txt: 'Atraer empresas', costo: { pc: 2 }, atrae: { tecno: 0.9 } } },
+  ];
+  prod.CICLO = Object.fromEntries(prod.CICLOS.map((c) => [c.id, c]));
+
+  const activos = (s) => (s.mundo && s.mundo.ciclos ? s.mundo.ciclos.activos : []);
+  // Cuánto produce un sector ahora (1 = normal; una sequía lo baja).
+  prod.mult = function (s, id) {
+    let m = 1;
+    for (const c of activos(s)) {
+      const X = prod.CICLO[c.id];
+      if (X.sector && X.sector[id]) m *= 1 + X.sector[id] * (1 - (c.mitiga || 0));
+    }
+    return m;
+  };
+  // Inversión extra por haberte preparado para una bonanza.
+  prod.bonusCiclo = (s, id) => R.sum(activos(s).map((c) => (c.atrae && c.atrae[id]) || 0));
+
+  // ── ⚡ Energía ──
+  // La producen los pozos y las represas; la consumen la industria, la tecnología y un país que crece.
+  // Si falta se importa (se van dólares y la industria frena); si sobra se exporta.
+  prod.energia = function (s) {
+    const P = s.prod.sec;
+    const oferta = P.energia.nivel;
+    const demanda = 2 + P.industria.nivel * 0.35 + P.tecno.nivel * 0.1 + Math.max(0, (s.eco.pbi - 100) / 40);
+    return { oferta, demanda, saldo: oferta - demanda };
+  };
+  prod.costoEnergia = function (s) {
+    if (!s.prod) return 0;
+    const en = prod.energia(s);
+    return en.saldo < 0 ? en.saldo * 0.3 * prod.precio(s, 'energia') : 0; // miles de millones de dólares por mes
+  };
+
+  // Lo que los sectores suman a las exportaciones (se suma a eco.factorExpo). Al asumir da 0.
+  prod.expoExtra = function (s) {
+    if (!s.prod) return 0;
+    let f = 0;
+    for (const x of R.SECTORES) {
+      if (x.id === 'energia') continue;
+      const nivel = s.prod.sec[x.id].nivel * prod.mult(s, x.id);
+      f += x.expo * (nivel * prod.precio(s, x.producto) - x.nivel0);
+    }
+    const en = prod.energia(s);
+    if (en.saldo > 0) f += R.SECTOR.energia.expo * en.saldo * prod.precio(s, 'energia');
+    return R.clamp(f, -0.35, 0.6);
+  };
+  // Lo que suman al crecimiento: la tecnología empuja la productividad; la falta de energía frena.
+  prod.crecExtra = function (s) {
+    if (!s.prod) return 0;
+    const en = prod.energia(s);
+    return (s.prod.sec.tecno.nivel - R.SECTOR.tecno.nivel0) * 0.12 + (en.saldo < 0 ? Math.max(-1.5, en.saldo * 0.35) : 0);
+  };
+
+  // ── Inversión privada ──
+  // El clima general (riesgo país, impuestos, cepo, inflación, estabilidad) y lo propio de cada sector
+  // (precio del mundo, tus leyes, retenciones, energía, talento). Da la chance por mes de que un privado suba un nivel.
+  prod.clima = function (s) {
+    const e = s.eco;
+    return [
+      { k: 'riesgo', v: -(e.riesgo - 600) / 1200 },
+      { k: 'impuestos', v: -0.12 * ((e.impEf ?? e.impuestos) - 2) },
+      { k: 'cepo', v: e.cepo ? -0.25 : 0 },
+      { k: 'inflacion', v: -Math.max(0, e.inflAnual - 40) / 150 },
+      { k: 'estabilidad', v: s.gob ? (s.gob.aprob - 50) / 250 : 0 },
+    ];
+  };
+  prod.atractivo = function (s, id) {
+    const x = R.SECTOR[id];
+    const e = s.eco;
+    const partes = prod.clima(s);
+    partes.push({ k: 'precio', v: (prod.precio(s, x.producto) - 1) * 1.2 });
+    let leyes = 0;
+    for (const [ley, v] of Object.entries(x.leyes)) if (s.gob && s.gob.leyes[ley]) leyes += v;
+    partes.push({ k: 'leyes', v: leyes });
+    if (id === 'campo') partes.push({ k: 'retenciones', v: -0.15 * ((e.retEf ?? e.retenciones) - 1.5) });
+    if (id === 'industria') { const en = prod.energia(s); partes.push({ k: 'energia', v: en.saldo < 0 ? Math.max(-0.5, en.saldo * 0.25) : 0.1 }); }
+    if (id === 'tecno') partes.push({ k: 'talento', v: (e.calidad.educacion - 50) / 110 + (e.calidad.ciencia - 50) / 160 });
+    partes.push({ k: 'mundo', v: prod.bonusCiclo(s, id) });
+    // Cuanto más grande es el sector, más le cuesta crecer (ya se hicieron las inversiones fáciles).
+    partes.push({ k: 'tamano', v: -Math.max(0, s.prod.sec[id].nivel - x.nivel0) * 0.09 });
+    const total = R.sum(partes.map((p) => p.v));
+    const chance = R.clamp(0.035 * (1 + total), 0, 0.12);
+    const cierre = total < -0.5 ? R.clamp((-0.5 - total) * 0.04, 0, 0.06) : 0;
+    return { partes, total, chance, cierre };
+  };
+  R.CAUSAS_INVERSION = {
+    riesgo: ['📊', 'Riesgo país'], impuestos: ['🧾', 'Impuestos'], cepo: ['🔒', 'Cepo'], inflacion: ['🛒', 'Inflación'],
+    estabilidad: ['👍', 'Aprobación'], precio: ['🌍', 'Precio en el mundo'], leyes: ['📜', 'Tus leyes'], retenciones: ['🌾', 'Retenciones'],
+    energia: ['⚡', 'Energía'], talento: ['🎓', 'Gente preparada'], mundo: ['🚀', 'Bonanza'], tamano: ['📏', 'Ya es grande'],
+  };
+
+  // ── Obras del Estado ──
+  // Cada nivel nuevo cuesta un poco más y tarda un poco más que el anterior (lo fácil ya se hizo).
+  prod.COSTO_PC = 2;
+  prod.extra = (s, id) => Math.max(0, s.prod.sec[id].nivel - R.SECTOR[id].nivel0);
+  prod.cuadrillas = (s) => 1 + Math.floor(s.eco.calidad.infra / 40);
+  prod.mesesObra = (s, id) => Math.max(2, Math.round(R.SECTOR[id].meses * (1.25 - s.eco.calidad.infra / 200) * (1 + 0.08 * prod.extra(s, id))));
+  prod.gastoObra = (s, id) => R.round(R.SECTOR[id].gasto * (1 + 0.12 * prod.extra(s, id)), 2); // % del presupuesto por mes
+  // Lo que suma cada nivel al PBI baja a medida que el sector crece.
+  prod.pbiNivel = (s, id) => R.SECTOR[id].pbi * Math.sqrt(R.SECTOR[id].nivel0 / Math.max(R.SECTOR[id].nivel0, s.prod.sec[id].nivel));
+  prod.bloqueoConstruir = function (s, id) {
+    const P = s.prod;
+    if (P.sec[id].nivel + P.obras.filter((o) => o.id === id).length >= R.NIVEL_MAX_SECTOR) return 'Ya está al máximo';
+    if (P.obras.length >= prod.cuadrillas(s)) return 'No hay cuadrillas libres (mejorá las rutas)';
+    if (s.gob.pc < prod.COSTO_PC) return 'Falta ⭐';
+    return null;
+  };
+  prod.construir = function (s, id) {
+    prod.asegurar(s);
+    const b = prod.bloqueoConstruir(s, id);
+    if (b) return { error: b };
+    const x = R.SECTOR[id];
+    s.gob.pc -= prod.COSTO_PC;
+    const meses = prod.mesesObra(s, id);
+    s.prod.obras.push({ id, meses, total: meses, gasto: prod.gastoObra(s, id) });
+    R.diario(s, '🔨', 'Arrancó una obra: ' + x.obra.toLowerCase(), 'gobierno');
+    return { txt: '🔨 Arrancó la obra: ' + x.emoji + ' ' + x.nombre + ' en ' + meses + ' meses', bueno: true, aplicado: [], aprobAntes: s.gob.aprob, aprobDespues: s.gob.aprob };
+  };
+
+  // Un sector sube o baja un nivel.
+  prod.subir = function (s, id, quien) {
+    const x = R.SECTOR[id];
+    const st = s.prod.sec[id];
+    if (st.nivel >= R.NIVEL_MAX_SECTOR) return false;
+    const pbi = prod.pbiNivel(s, id);
+    st.nivel++;
+    st.pbiSumado = (st.pbiSumado || []).concat(pbi);
+    s.eco.pbi *= 1 + pbi / 100;
+    s.eco.shocks.push({ k: 'crec', v: 0.4, meses: 3 });
+    if (s.gob) {
+      s.gob.bonusEmpleo = (s.gob.bonusEmpleo || 0) + x.empleo;
+      const g = s.gob.grupos[x.grupo];
+      if (g) g.humor = R.clamp(g.humor + 2, 0, 100);
+    }
+    const txt = quien === 'estado' ? 'Terminó la obra' : quien === 'privado' ? 'Inversión privada' : 'Inversión extranjera';
+    R.diario(s, x.emoji, txt + ': ' + x.nombre + ' sube a nivel ' + st.nivel, 'gobierno');
+    s.prod.novedades.push({ id, sube: true, quien });
+    return true;
+  };
+  prod.bajar = function (s, id) {
+    const x = R.SECTOR[id];
+    const st = s.prod.sec[id];
+    if (st.nivel <= 1) return false;
+    st.nivel--;
+    const pbi = (st.pbiSumado && st.pbiSumado.length ? st.pbiSumado.pop() : x.pbi);
+    s.eco.pbi /= 1 + pbi / 100;
+    if (s.gob) {
+      s.gob.bonusEmpleo = (s.gob.bonusEmpleo || 0) - x.empleo;
+      const g = s.gob.grupos[x.grupo];
+      if (g) g.humor = R.clamp(g.humor - 3, 0, 100);
+    }
+    R.diario(s, '🏚️', x.nombre + ': cierran empresas, baja a nivel ' + st.nivel, 'gobierno');
+    s.prod.novedades.push({ id, sube: false });
+    return true;
+  };
+
+  // ── Precios del mundo ──
+  prod.precios = function (s) {
+    const M = s.mundo;
+    for (const k of Object.keys(R.PRODUCTOS)) {
+      M.preciosAntes[k] = M.precios[k];
+      let meta = 1;
+      for (const c of M.ciclos.activos) {
+        const X = prod.CICLO[c.id];
+        if (X.precios && X.precios[k]) meta += X.precios[k];
+      }
+      M.precios[k] = R.clamp(M.precios[k] + (meta - M.precios[k]) * 0.18 + R.gauss(s) * 0.025, 0.45, 1.9);
+    }
+  };
+
+  // ── Ciclos: se avisan, se preparan, pegan y terminan ──
+  prod.ciclos = function (s, momentos) {
+    const C = s.mundo.ciclos;
+    for (const c of C.activos) c.quedan--;
+    for (const c of C.activos.filter((x) => x.quedan <= 0)) {
+      R.diario(s, '✅', prod.CICLO[c.id].nombre + ': ya pasó', 'mundo');
+      s.prod.novedades.push({ ciclo: c.id, fin: true });
+    }
+    C.activos = C.activos.filter((c) => c.quedan > 0);
+    if (C.proximo) {
+      C.proximo.en--;
+      if (C.proximo.en <= 0) {
+        prod.activarCiclo(s, C.proximo);
+        C.proximo = null;
+      }
+    } else if (s.mes - C.ultimo >= 7 && R.chance(s, 0.14)) {
+      const op = prod.CICLOS.filter((x) => !C.activos.some((a) => a.id === x.id));
+      let r = R.rand(s) * R.sum(op.map((x) => x.peso));
+      let elegido = op[0];
+      for (const x of op) { r -= x.peso; if (r <= 0) { elegido = x; break; } }
+      C.proximo = { id: elegido.id, en: elegido.aviso, prep: false };
+      C.ultimo = s.mes;
+      R.diario(s, '📡', 'Se viene: ' + elegido.nombre, 'mundo');
+      if (momentos) momentos.push({ tipo: 'aviso_mundo', id: elegido.id });
+    }
+  };
+  prod.bloqueoPreparar = function (s) {
+    const C = s.mundo && s.mundo.ciclos;
+    if (!C || !C.proximo) return 'No hay nada que preparar';
+    if (C.proximo.prep) return 'Ya te preparaste';
+    const X = prod.CICLO[C.proximo.id];
+    if (s.gob.pc < (X.prep.costo.pc || 0)) return 'Falta ⭐';
+    return null;
+  };
+  prod.preparar = function (s) {
+    const b = prod.bloqueoPreparar(s);
+    if (b) return { error: b };
+    const C = s.mundo.ciclos;
+    const X = prod.CICLO[C.proximo.id];
+    C.proximo.prep = true;
+    s.gob.pc -= X.prep.costo.pc || 0;
+    const ef = Object.assign({}, X.prep.ef || {}, X.prep.costo.gasto ? { gastoExtra: X.prep.costo.gasto } : {});
+    const antes = s.gob.aprob;
+    const aplicado = R.gob.aplicarEfectos(s, ef);
+    R.diario(s, X.emoji, 'Te preparaste: ' + X.prep.txt.toLowerCase(), 'mundo');
+    return { txt: X.prep.txt + ' ✅', bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
+  prod.activarCiclo = function (s, prox) {
+    const X = prod.CICLO[prox.id];
+    const mitiga = prox.prep ? X.prep.mitiga || 0 : 0;
+    const dura = X.dura[0] + Math.floor(R.rand(s) * (X.dura[1] - X.dura[0] + 1));
+    s.mundo.ciclos.activos.push({ id: X.id, quedan: dura, mitiga, atrae: prox.prep ? X.prep.atrae || null : null });
+    for (const [k, v] of Object.entries(X.shocks || {})) s.eco.shocks.push({ k, v: v * (X.bueno ? 1 : 1 - mitiga), meses: dura });
+    if (X.grupos) {
+      const ef = {};
+      for (const [g, v] of Object.entries(X.grupos)) ef[g] = v * (1 - mitiga);
+      R.gob.aplicarEfectos(s, ef);
+    }
+    R.diario(s, X.emoji, X.nombre + (mitiga ? ' (te preparaste: pega menos)' : ''), 'mundo');
+    s.prod.novedades.push({ ciclo: X.id, empieza: true });
+  };
+  // Para mostrar: qué hace un ciclo (precios y golpes), en chips de efectos.
+  prod.efectosCiclo = function (X) {
+    const precios = Object.entries(X.precios || {}).map(([k, v]) => ({ k, v }));
+    const ef = {};
+    if (X.shocks) {
+      if (X.shocks.crec) ef.crec = X.shocks.crec;
+      if (X.shocks.riesgo) ef.riesgo = X.shocks.riesgo;
+      if (X.shocks.reservas) ef.reservas = X.shocks.reservas * 6;
+      if (X.shocks.infl) ef.inflacion = X.shocks.infl * 4;
+    }
+    Object.assign(ef, X.grupos || {});
+    if (X.sector && X.sector.campo) ef.expo = -0.1;
+    return { precios, ef };
+  };
+
+  // ── El mes de la producción ──
+  prod.mes = function (s, momentos) {
+    prod.asegurar(s);
+    const P = s.prod;
+    const e = s.eco;
+    P.novedades = [];
+    // 1) Obras: cuestan plata cada mes; al terminar, el sector sube.
+    for (const o of P.obras) {
+      const pct = o.gasto ?? R.SECTOR[o.id].gasto;
+      const g = R.eco.gastoComoPBI(s, pct);
+      e.gastoExtraMes += g;
+      e.gastoExtraAnio += g;
+      P.invertido = (P.invertido || 0) + pct;
+      o.meses--;
+      if (o.meses <= 0) prod.subir(s, o.id, 'estado');
+    }
+    P.obras = P.obras.filter((o) => o.meses > 0);
+    // 2) Inversión privada (y cierres si el clima es muy malo).
+    for (const x of R.SECTORES) {
+      const a = prod.atractivo(s, x.id);
+      if (R.chance(s, a.chance)) prod.subir(s, x.id, 'privado');
+      else if (a.cierre && R.chance(s, a.cierre)) prod.bajar(s, x.id);
+    }
+    // 3) El mundo: precios y ciclos.
+    if (s.mundo) {
+      prod.precios(s);
+      prod.ciclos(s, momentos);
+    }
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/protestas.js ──
+// Grupos con poder: cada grupo tiene 💪 poder (cuánto puede presionar, no cuántos votos tiene) y, si está muy enojado,
+// junta 😡 bronca hasta que arma su jugada (paro, tractorazo, fuga de capitales…). Vos elegís: ceder, negociar o aguantar.
+(function (R) {
+  'use strict';
+
+  const pro = (R.protestas = {});
+
+  // 💪 Poder: lo cambian los sectores (más industria = sindicatos más fuertes, más campo = el campo pesa más) y algunas leyes.
+  pro.poder = function (s) {
+    const n = (id) => (R.prod && s.prod ? R.prod.nivel(s, id) : R.SECTOR[id].nivel0);
+    const L = (id) => !!(s.gob && s.gob.leyes[id]);
+    const e = s.eco;
+    const crudo = {
+      trabajadores: 16 + n('industria') * 1.6 - (L('reforma_sindical') ? 8 : 0) + (L('reforma_laboral') ? -3 : 0),
+      campo: 7 + n('campo') * 1.5,
+      empresarios: 7 + n('energia') * 1.0 + n('industria') * 0.5 + n('tecno') * 0.6,
+      media: 15 + n('tecno') * 1.2,
+      humildes: 9 + Math.max(0, e.pobreza - 20) * 0.35,
+      jubilados: 9,
+    };
+    const tot = R.sum(Object.values(crudo));
+    return Object.fromEntries(Object.entries(crudo).map(([k, v]) => [k, (v / tot) * 100]));
+  };
+  // Qué tan fuerte pega una protesta de ese grupo (0,6 a ~1,9).
+  pro.fuerza = (s, id) => 0.6 + pro.poder(s)[id] / 25;
+
+  pro.UMBRAL = 36; // por debajo de este humor el grupo empieza a juntar bronca
+  pro.LIMITE = 10; // con esta bronca sale a la calle
+
+  // Lo que hace cada grupo cuando explota. aguantar se multiplica por la fuerza del grupo.
+  pro.TIPOS = {
+    trabajadores: {
+      emoji: '✊', titulo: 'Paro general de la CGT', dibujo: '🏭 ✊ 🚫', pide: 'Sueldos que alcancen',
+      ceder: { txt: 'Bono y paritaria', ef: { trabajadores: 10, gastoExtra: 3, inflacion: 0.3 } },
+      negociar: { txt: 'Mesa con la CGT', pc: 2, ef: { trabajadores: 5 } },
+      aguantar: { txt: 'No ceder', ef: { crec: -1.2, trabajadores: -4, empresarios: 2 } },
+    },
+    campo: {
+      emoji: '🚜', titulo: 'Tractorazo y paro del campo', dibujo: '🚜 🌾 🛑', pide: 'Menos retenciones',
+      ceder: { txt: 'Bajar retenciones', ef: { campo: 9 }, hacer: (s) => { if (s.eco.retenciones > 0) s.eco.retenciones--; }, si: (s) => s.eco.retenciones > 0,
+        alt: { txt: 'Créditos para el campo', ef: { campo: 8, gastoExtra: 2 } } },
+      negociar: { txt: 'Mesa de enlace', pc: 2, ef: { campo: 5 } },
+      aguantar: { txt: 'No ceder', ef: { expo: -0.08, reservas: -3, campo: -4 } },
+    },
+    empresarios: {
+      emoji: '💸', titulo: 'Fuga de capitales', dibujo: '💼 💸 ✈️', pide: 'Reglas claras y menos impuestos',
+      ceder: { txt: 'Bajar impuestos', ef: { empresarios: 9 }, hacer: (s) => { if (s.eco.impuestos > 0) s.eco.impuestos--; }, si: (s) => s.eco.impuestos > 0,
+        alt: { txt: 'Exenciones', ef: { empresarios: 8, gastoExtra: 2 } } },
+      negociar: { txt: 'Reunión en la Rosada', pc: 2, ef: { empresarios: 5, riesgo: -40 } },
+      aguantar: { txt: 'No ceder', ef: { reservas: -5, riesgo: 150, dolar: 6, empresarios: -3 } },
+    },
+    media: {
+      emoji: '🍳', titulo: 'Cacerolazo en todo el país', dibujo: '🍳 🏙️ 📢', pide: 'Que se note una mejora',
+      ceder: { txt: 'Alivio para la clase media', ef: { media: 9, gastoExtra: 2 } },
+      negociar: { txt: 'Cadena nacional', pc: 2, ef: { media: 5 } },
+      aguantar: { txt: 'Ignorarlo', ef: { media: -4, todos: -1, escandalo: 1 } },
+    },
+    humildes: {
+      emoji: '🔥', titulo: 'Piquetes y cortes de ruta', dibujo: '🔥 🛣️ 🪧', pide: 'Comida y trabajo',
+      ceder: { txt: 'Más ayuda social', ef: { humildes: 10, gastoExtra: 3, media: -2 } },
+      negociar: { txt: 'Acuerdo con los movimientos', pc: 2, ef: { humildes: 5 } },
+      aguantar: { txt: 'Despejar las rutas', ef: { crec: -0.6, humildes: -5, media: 2, escandalo: 1 } },
+    },
+    jubilados: {
+      emoji: '👵', titulo: 'Marcha de jubilados al Congreso', dibujo: '👵 🏛️ 🪧', pide: 'Que la jubilación alcance',
+      ceder: { txt: 'Bono para jubilados', ef: { jubilados: 10, gastoExtra: 2 } },
+      negociar: { txt: 'Recibirlos', pc: 1, ef: { jubilados: 5 } },
+      aguantar: { txt: 'No recibirlos', ef: { jubilados: -5, media: -2, escandalo: 1 } },
+    },
+  };
+
+  // Las 3 opciones de una protesta, ya con los números finales (aguantar pega según el poder del grupo).
+  pro.opciones = function (s, grupo) {
+    const T = pro.TIPOS[grupo];
+    const f = pro.fuerza(s, grupo);
+    const ceder = T.ceder.si && !T.ceder.si(s) ? T.ceder.alt : T.ceder;
+    const aguantarEf = {};
+    for (const [k, v] of Object.entries(T.aguantar.ef)) aguantarEf[k] = k === 'escandalo' ? v : R.round(v * f, 2);
+    return [
+      { id: 'ceder', emoji: '🤝', txt: ceder.txt, ef: ceder.ef, hacer: ceder.hacer, costo: {} },
+      { id: 'negociar', emoji: '🗣️', txt: T.negociar.txt, ef: T.negociar.ef, costo: { pc: T.negociar.pc } },
+      { id: 'aguantar', emoji: '🧱', txt: T.aguantar.txt, ef: aguantarEf, costo: {} },
+    ];
+  };
+  pro.bloqueo = (s, op) => (op.costo.pc && s.gob.pc < op.costo.pc ? 'Falta ⭐' : null);
+
+  pro.resolver = function (s, grupo, id) {
+    const op = pro.opciones(s, grupo).find((o) => o.id === id);
+    const b = pro.bloqueo(s, op);
+    if (b) return { error: b };
+    const T = pro.TIPOS[grupo];
+    const st = s.gob.grupos[grupo];
+    if (op.costo.pc) s.gob.pc -= op.costo.pc;
+    if (op.hacer) op.hacer(s);
+    const antes = s.gob.aprob;
+    const aplicado = R.gob.aplicarEfectos(s, op.ef);
+    st.bronca = id === 'ceder' ? 0 : id === 'negociar' ? 2 : 5;
+    s.gob.protestas = (s.gob.protestas || 0) + 1;
+    const txt = id === 'ceder' ? T.emoji + ' Cediste: se levanta la protesta' : id === 'negociar' ? '🗣️ Negociaste: se calma por ahora' : '🧱 Aguantaste: la protesta pegó fuerte';
+    R.diario(s, T.emoji, T.titulo + ': ' + op.txt.toLowerCase(), 'gobierno');
+    return { txt, bueno: id !== 'aguantar', aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
+
+  // Cada mes: los grupos muy enojados juntan bronca; el más caliente puede salir a la calle (una protesta cada 3 meses como mucho).
+  pro.mes = function (s, momentos) {
+    const G = s.gob;
+    const pod = pro.poder(s);
+    let candidato = null;
+    for (const g of R.GRUPOS) {
+      const st = G.grupos[g.id];
+      st.bronca = st.bronca || 0;
+      // Un golpe fuerte de un mes para el otro (una reforma, un ajuste) también calienta, aunque el grupo esté bien.
+      // (los primeros meses no cuentan: la gente se está acomodando al gobierno nuevo).
+      const golpe = G.meses >= 4 ? Math.max(0, (st.antes ?? st.humor) - st.humor - 2) * 0.9 * (0.5 + pod[g.id] / 25) : 0;
+      if (st.humor < pro.UMBRAL) st.bronca += ((pro.UMBRAL - st.humor) / 6) * (0.5 + pod[g.id] / 25) + golpe;
+      else st.bronca = Math.max(0, st.bronca + golpe - (st.humor > 50 ? 1.2 : 0.5));
+      // Un grupo contento no sale a la calle aunque venga calentito.
+      if (st.bronca >= pro.LIMITE && st.humor < 50 && (!candidato || st.bronca > G.grupos[candidato].bronca)) candidato = g.id;
+    }
+    if (candidato && s.mes - (G.protestaMes ?? -99) >= 3) {
+      G.protestaMes = s.mes;
+      momentos.push({ tipo: 'protesta', grupo: candidato });
+    }
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/datos/metas.js ──
+// Metas con plazo. dato: el número que se mira; objetivo: a dónde hay que llevarlo; baja: true si hay que bajarlo.
+// Las «grandes» se eligen al asumir (una, según tu ideología) y duran el mandato. Las otras aparecen solas cuando
+// pasa algo (si) y tienen unos meses (plazo). premio y castigo son efectos de gobierno.
+(function (R) {
+  'use strict';
+  const e = (s) => s.eco;
+  const nivel = (id) => (s) => (R.prod && s.prod ? R.prod.nivel(s, id) : R.SECTOR[id].nivel0);
+
+  R.METAS_GRANDES = [
+    // Estado presente
+    { id: 'g_pobreza', idea: 'estado', emoji: '🏘️', nombre: 'Pobreza bajo 15 %', dato: (s) => e(s).pobreza, objetivo: 15, baja: true, fmt: (v) => R.fmt(v) + '%' },
+    { id: 'g_industria', idea: 'estado', emoji: '🏭', nombre: 'Industria a nivel 10', dato: nivel('industria'), objetivo: 10, fmt: (v) => 'nivel ' + v },
+    { id: 'g_empleo', idea: 'estado', emoji: '👷', nombre: 'Desempleo bajo 4 %', dato: (s) => e(s).desempleo, objetivo: 4, baja: true, fmt: (v) => R.fmt(v, 1) + '%' },
+    // Centro
+    { id: 'g_energia', idea: 'centro', emoji: '⛽', nombre: 'Energía a nivel 9', dato: nivel('energia'), objetivo: 9, fmt: (v) => 'nivel ' + v },
+    { id: 'g_pbipc', idea: 'centro', emoji: '💵', nombre: 'PBI por persona de US$ 18.000', dato: (s) => R.eco.pbiPorHabitante(s), objetivo: 18000, fmt: (v) => 'US$ ' + R.fmt(Math.round(v / 100) * 100) },
+    { id: 'g_potencia', idea: 'centro', emoji: '🏆', nombre: 'Primera potencia de Sudamérica', dato: (s) => (R.mundo && R.mundo.ventajaRegional ? R.mundo.ventajaRegional(s) : 0.5), objetivo: 1, fmt: (v) => Math.round(v * 100) + '% del primero' },
+    // Mercado
+    { id: 'g_inflacion', idea: 'mercado', emoji: '🛒', nombre: 'Inflación bajo 5 % al año', dato: (s) => e(s).inflAnual, objetivo: 5, baja: true, fmt: (v) => R.fmt(v, 1) + '%' },
+    { id: 'g_riesgo', idea: 'mercado', emoji: '📊', nombre: 'Riesgo país bajo 300', dato: (s) => e(s).riesgo, objetivo: 300, baja: true, fmt: (v) => R.fmt(v) + ' puntos' },
+    { id: 'g_expo', idea: 'mercado', emoji: '🚢', nombre: 'Exportar 50 % más', dato: (s) => R.eco.factorExpo(s), objetivo: 1.5, fmt: (v) => '+' + Math.round((v - 1) * 100) + '%' },
+  ];
+  R.METAS_GRANDES.forEach((m) => {
+    m.grande = true;
+    m.premio = { pc: 5, todos: 6, prestigio: 15 };
+    m.castigo = { todos: -3, media: -3 };
+  });
+
+  R.METAS = [
+    { id: 'inflacion', emoji: '🛒', nombre: 'Domar la inflación', si: (s) => e(s).inflAnual > 50, dato: (s) => e(s).inflAnual, objetivo: 25, baja: true, plazo: 24,
+      fmt: (v) => R.fmt(v) + '%', premio: { pc: 3, todos: 4, prestigio: 5 }, castigo: { todos: -4 } },
+    { id: 'cepo', emoji: '🔓', nombre: 'Salir del cepo', si: (s) => e(s).cepo, dato: (s) => (e(s).cepo ? 1 : 0), objetivo: 0, baja: true, plazo: 18,
+      fmt: (v) => (v ? 'con cepo' : 'sin cepo'), premio: { pc: 2, empresarios: 6, campo: 4 }, castigo: { empresarios: -4, campo: -3 } },
+    { id: 'energia', emoji: '⚡', nombre: 'Autoabastecimiento energético', si: (s) => s.prod && s.gob.meses >= 3 && R.prod.energia(s).saldo < -0.3,
+      dato: (s) => R.prod.energia(s).saldo, objetivo: 0.5, plazo: 30, fmt: (v) => (v >= 0 ? 'sobra ' : 'falta ') + R.fmt(Math.abs(v), 1),
+      premio: { pc: 3, reservas: 4, todos: 2, prestigio: 5 }, castigo: { todos: -2 } },
+    { id: 'deuda', emoji: '💳', nombre: 'Bajar la deuda', si: (s) => e(s).deuda > 85, dato: (s) => e(s).deuda, objetivo: 65, baja: true, plazo: 36,
+      fmt: (v) => R.fmt(v) + '% del PBI', premio: { pc: 3, riesgo: -100 }, castigo: { riesgo: 100 } },
+    { id: 'crecer', emoji: '📈', nombre: 'Volver a crecer', si: (s) => e(s).crec < -1.5, dato: (s) => e(s).crec, objetivo: 2, plazo: 12,
+      fmt: (v) => R.fmt(v, 1) + '% al año', premio: { pc: 2, todos: 3 }, castigo: { todos: -3 } },
+    { id: 'reservas', emoji: '🏦', nombre: 'Juntar reservas', si: (s) => e(s).reservas < 12, dato: (s) => e(s).reservas, objetivo: 30, plazo: 18,
+      fmt: (v) => 'US$ ' + R.fmt(v) + ' mil M', premio: { pc: 2, riesgo: -80 }, castigo: { riesgo: 100 } },
+    { id: 'pobreza', emoji: '🏚️', nombre: 'Bajar la pobreza', si: (s) => e(s).pobreza > 40, dato: (s) => e(s).pobreza, objetivo: 30, baja: true, plazo: 30,
+      fmt: (v) => R.fmt(v) + '%', premio: { pc: 3, humildes: 6 }, castigo: { humildes: -5, todos: -2 } },
+    { id: 'desempleo', emoji: '🚪', nombre: 'Crear trabajo', si: (s) => e(s).desempleo > 11, dato: (s) => e(s).desempleo, objetivo: 8, baja: true, plazo: 18,
+      fmt: (v) => R.fmt(v, 1) + '%', premio: { pc: 2, trabajadores: 6 }, castigo: { trabajadores: -5 } },
+    { id: 'cuentas', emoji: '⚖️', nombre: 'Ordenar las cuentas', si: (s) => s.gob.meses >= 4 && R.eco.resultado(s) < -1.5, dato: (s) => R.eco.resultado(s), objetivo: 0, plazo: 18,
+      fmt: (v) => (v >= 0 ? 'superávit ' : 'déficit ') + R.fmt(Math.abs(v), 1) + '%', premio: { pc: 2, riesgo: -80 }, castigo: { riesgo: 80 } },
+    // Oportunidades (para tener qué buscar cuando las cosas andan bien)
+    { id: 'polo_tecno', emoji: '💻', nombre: 'Polo tecnológico de la región', si: (s) => s.prod && R.prod.nivel(s, 'tecno') >= 5, dato: nivel('tecno'), objetivo: 8, plazo: 24,
+      fmt: (v) => 'nivel ' + v, premio: { pc: 3, media: 4, prestigio: 8 }, castigo: {} },
+    { id: 'granero', emoji: '🌾', nombre: 'Granero del mundo', si: (s) => s.mundo && s.mundo.precios && s.mundo.precios.granos > 1.15, dato: nivel('campo'), objetivo: 10, plazo: 20,
+      fmt: (v) => 'nivel ' + v, premio: { pc: 3, campo: 5, prestigio: 6 }, castigo: {} },
+    { id: 'malvinas', emoji: '🏝️', nombre: 'Malvinas: mitad del camino', si: (s) => s.mundo && !s.mundo.malvinas.recuperadas && s.mundo.malvinas.soberania >= 20,
+      dato: (s) => s.mundo.malvinas.soberania, objetivo: 50, plazo: 24, fmt: (v) => v + '%', premio: { pc: 3, todos: 4, prestigio: 10 }, castigo: {} },
+  ];
+  R.META = Object.fromEntries(R.METAS.concat(R.METAS_GRANDES).map((m) => [m.id, m]));
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/motor/metas.js ──
+// Motor de metas: el gran objetivo del mandato y las metas que aparecen solas, con barra, plazo, premio y castigo.
+(function (R) {
+  'use strict';
+
+  const met = (R.metas = {});
+
+  met.asegurar = function (s) {
+    if (!s.metas) s.metas = { grande: null, activas: [], hechas: {}, fallidas: {} };
+    return s.metas;
+  };
+
+  // Tu ideología decide qué grandes objetivos te ofrecen.
+  met.ideaDe = (s) => (s.partido.ideo <= -0.2 ? 'estado' : s.partido.ideo >= 0.2 ? 'mercado' : 'centro');
+  met.opcionesGrandes = (s) => R.METAS_GRANDES.filter((m) => m.idea === met.ideaDe(s));
+
+  met.FIN_GRANDE = 44; // meses desde que asumís: se define antes de la elección
+
+  met.elegirGrande = function (s, id) {
+    met.asegurar(s);
+    const M = R.META[id];
+    s.metas.grande = id;
+    s.metas.activas = s.metas.activas.filter((a) => !R.META[a.id].grande);
+    s.metas.activas.unshift({ id, desde: s.mes, hasta: s.gob.inicio + met.FIN_GRANDE, base: M.dato(s) });
+    R.diario(s, '👑', 'Tu gran objetivo: ' + M.nombre, 'gobierno');
+  };
+
+  // 0 a 1: cuánto del camino recorriste desde que apareció la meta.
+  met.progreso = function (s, a) {
+    const M = R.META[a.id];
+    const v = M.dato(s);
+    const desde = a.base;
+    const hasta = M.objetivo;
+    if (met.cumplida(s, a.id)) return 1;
+    const tramo = hasta - desde;
+    if (Math.abs(tramo) < 1e-9) return 0;
+    return R.clamp((v - desde) / tramo, 0, 1);
+  };
+  met.cumplida = function (s, id) {
+    const M = R.META[id];
+    const v = M.dato(s);
+    return M.baja ? v <= M.objetivo : v >= M.objetivo;
+  };
+  met.quedan = (s, a) => Math.max(0, a.hasta - s.mes);
+
+  // Cada mes: se cumplen, vencen o aparecen metas. Devuelve los momentos para mostrar.
+  met.mes = function (s, momentos) {
+    met.asegurar(s);
+    const S = s.metas;
+    // Partidas guardadas antes de que existieran las metas: se ofrece el gran objetivo una vez.
+    if (!S.grande && !S.ofrecido) { S.ofrecido = true; momentos.push({ tipo: 'legado' }); }
+    const seguir = [];
+    for (const a of S.activas) {
+      const M = R.META[a.id];
+      if (met.cumplida(s, a.id)) {
+        const aplicado = R.gob.aplicarEfectos(s, M.premio);
+        S.hechas[a.id] = s.mes;
+        R.diario(s, '🎯', '¡Meta cumplida! ' + M.nombre, 'gobierno');
+        momentos.push({ tipo: 'meta', id: a.id, ok: true, aplicado });
+      } else if (s.mes >= a.hasta) {
+        const aplicado = R.gob.aplicarEfectos(s, M.castigo || {});
+        S.fallidas[a.id] = s.mes;
+        R.diario(s, '⌛', 'No llegaste: ' + M.nombre, 'gobierno');
+        momentos.push({ tipo: 'meta', id: a.id, ok: false, aplicado });
+      } else seguir.push(a);
+    }
+    S.activas = seguir;
+    // Nuevas (como mucho 3 a la vez, además del gran objetivo; la misma no vuelve antes de 2 años).
+    const chicas = () => S.activas.filter((a) => !R.META[a.id].grande).length;
+    for (const M of R.METAS) {
+      if (chicas() >= 3) break;
+      if (S.activas.some((a) => a.id === M.id)) continue;
+      const ultima = Math.max(S.hechas[M.id] ?? -99, S.fallidas[M.id] ?? -99);
+      if (s.mes - ultima < 24) continue;
+      let ok = false;
+      try { ok = M.si(s); } catch (err) { ok = false; }
+      if (!ok || met.cumplida(s, M.id)) continue;
+      S.activas.push({ id: M.id, desde: s.mes, hasta: s.mes + M.plazo, base: M.dato(s) });
+      R.diario(s, '🎯', 'Nueva meta: ' + M.nombre, 'gobierno');
+    }
   };
 })(globalThis.R = globalThis.R || {});
 
@@ -6226,6 +7006,137 @@ label.boton { cursor: pointer; }
 
 </script>
 <script>
+// ── js/datos/eventos_agenda.js ──
+// La agenda del mundo: los países te piden cosas, te ofrecen negocios y te presionan según cómo te llevás con ellos
+// y lo que producís. Algunas opciones suben un sector (inversión extranjera).
+(function (R) {
+  'use strict';
+  const rel = (id) => (s) => (s.mundo ? s.mundo.paises[id].rel : 50);
+  const libre = (id) => (s) => s.mundo && !s.mundo.paises[id].anexado && !(s.mundo.guerra && s.mundo.guerra.pais === id);
+  const nivel = (id) => (s) => (s.prod ? R.prod.nivel(s, id) : R.SECTOR[id].nivel0);
+  const subir = (id) => (s) => { if (s.prod) R.prod.subir(s, id, 'extranjera'); };
+
+  R.ev.registrar([
+    {
+      id: 'a_usa_base', fase: 'gobierno', peso: 2, cuando: (s) => libre('USA')(s) && rel('USA')(s) >= 35 && s.gob.meses >= 4, dibujo: '🦅 ⚓ 🏔️',
+      titular: 'Estados Unidos pide una base en Ushuaia',
+      opciones: [
+        { txt: 'Aceptar', ef: { defensa: 6, reservas: 3, trabajadores: -2, rel: { USA: 15, CHN: -12, RUS: -10 } }, res: 'Marines en Tierra del Fuego ⚓' },
+        { txt: 'Solo ejercicios', costo: { pc: 1 }, ef: { defensa: 2, rel: { USA: 4 } }, res: 'Maniobras conjuntas, sin base' },
+        { txt: 'Rechazar', ef: { trabajadores: 2, rel: { USA: -10, CHN: 5 } }, res: '«La soberanía no se negocia»' },
+      ],
+    },
+    {
+      id: 'a_china_litio', fase: 'gobierno', peso: 2, repite: 24, cuando: (s) => libre('CHN')(s) && rel('CHN')(s) >= 40 && nivel('energia')(s) < R.NIVEL_MAX_SECTOR, dibujo: '🐉 🔋 ⛰️',
+      titular: 'China quiere invertir en el litio',
+      opciones: [
+        { txt: 'Aceptar', ef: { empresarios: 3, rel: { CHN: 8, USA: -6 } }, despues: subir('energia'), res: 'Minas nuevas en la Puna ⛽ +1' },
+        { txt: 'Con socios locales', costo: { pc: 2 }, ef: { empresarios: 5, trabajadores: 2, rel: { CHN: 3 } }, despues: subir('energia'), res: 'Mitad china, mitad nacional ⛽ +1' },
+        { txt: 'Rechazar', ef: { rel: { CHN: -8 } }, res: 'El litio espera' },
+      ],
+    },
+    {
+      id: 'a_brasil_aranceles', fase: 'gobierno', peso: 2, repite: 30, cuando: (s) => libre('BRA')(s) && rel('BRA')(s) >= 30, dibujo: '🦜 📦 🤝',
+      titular: 'Brasil pide bajar los aranceles del Mercosur',
+      opciones: [
+        { txt: 'Bajarlos', ef: { expo: 0.04, media: 2, trabajadores: -4, rel: { BRA: 10 } }, res: 'Más comercio con Brasil 🚚' },
+        { txt: 'Mantenerlos', ef: { trabajadores: 2, rel: { BRA: -6 } }, res: 'Brasilia se enoja' },
+      ],
+    },
+    {
+      id: 'a_bolivia_gas', fase: 'gobierno', peso: 3, cuando: (s) => libre('BOL')(s) && s.prod && R.prod.energia(s).saldo < 0 && rel('BOL')(s) >= 30, dibujo: '🔥 🚰 🇧🇴',
+      titular: 'Bolivia ofrece gas barato por diez años',
+      opciones: [
+        { txt: 'Firmar', ef: { reservas: 2, rel: { BOL: 10 } }, despues: subir('energia'), res: 'Gasoducto lleno ⛽ +1' },
+        { txt: 'Rechazar', ef: { rel: { BOL: -5 } }, res: 'Seguimos importando barcos de gas' },
+      ],
+    },
+    {
+      id: 'a_fmi', fase: 'gobierno', peso: 3, repite: 24, cuando: (s) => s.eco.reservas < 20, dibujo: '🌐 💵 📋',
+      titular: 'El FMI ofrece plata con condiciones',
+      opciones: [
+        { txt: 'Aceptar', ef: { reservas: 10, deuda: 3, riesgo: -100, humildes: -4, jubilados: -4, trabajadores: -3 }, res: 'Llegan los dólares… y el ajuste' },
+        { txt: 'Rechazar', ef: { riesgo: 80, trabajadores: 2 }, res: '«Nos arreglamos solos»' },
+      ],
+    },
+    {
+      id: 'a_refugiados', fase: 'gobierno', peso: 1, repite: 36, cuando: (s) => s.gob.meses >= 6, dibujo: '🧳 🌎 🤲',
+      titular: 'Llegan miles de refugiados venezolanos',
+      opciones: [
+        { txt: 'Recibirlos', ef: { humildes: -2, salud: -2, prestigio: 3, rel: { USA: 3, VEN: -3 } }, res: 'El mundo aplaude 👏' },
+        { txt: 'Cerrar la frontera', ef: { media: 2, prestigio: -3, rel: { VEN: -2 } }, res: 'Polémica internacional' },
+      ],
+    },
+    {
+      id: 'a_chile_corredor', fase: 'gobierno', peso: 2, cuando: (s) => libre('CHL')(s) && rel('CHL')(s) >= 40, dibujo: '🏔️ 🚛 🌊',
+      titular: 'Chile propone un corredor bioceánico',
+      opciones: [
+        { txt: 'Construirlo', ef: { gastoExtra: 3, campo: 3, rel: { CHL: 10 } }, despues: subir('campo'), res: 'Del Atlántico al Pacífico 🌾 +1' },
+        { txt: 'Más adelante', ef: { rel: { CHL: -2 } }, res: 'Queda en carpeta' },
+      ],
+    },
+    {
+      id: 'a_ue_ambiente', fase: 'gobierno', peso: 2, repite: 30, cuando: (s) => rel('UE')(s) >= 35 && !s.gob.leyes.humedales, dibujo: '🇪🇺 🌳 ✋',
+      titular: 'Europa frena el acuerdo por el ambiente',
+      opciones: [
+        { txt: 'Prometer cuidar', costo: { pc: 1 }, ef: { campo: -2, expo: 0.02, rel: { UE: 6 } }, res: 'Acuerdo destrabado' },
+        { txt: 'Que se arreglen', ef: { campo: 2, rel: { UE: -8 } }, res: 'Bruselas se queja' },
+      ],
+    },
+    {
+      id: 'a_rusia_aviones', fase: 'gobierno', peso: 1, repite: 30, cuando: (s) => libre('RUS')(s) && rel('RUS')(s) >= 30, dibujo: '🐻 ✈️ 💰',
+      titular: 'Rusia ofrece aviones de combate baratos',
+      opciones: [
+        { txt: 'Comprar', ef: { gastoExtra: 2, defensa: 4, rel: { RUS: 8, USA: -10 } }, despues: (s) => { s.mundo.poderExtra += 5; }, res: 'Nuevos cazas en la base ✈️' },
+        { txt: 'No, gracias', ef: { rel: { USA: 3 } }, res: 'Washington toma nota' },
+      ],
+    },
+    {
+      id: 'a_bandos', fase: 'gobierno', peso: 3, cuando: (s) => s.gob.meses >= 12 && rel('USA')(s) >= 40 && rel('CHN')(s) >= 40, dibujo: '🦅 ⚖️ 🐉',
+      titular: 'Estados Unidos y China te piden elegir',
+      opciones: [
+        { txt: 'Con Washington', ef: { empresarios: 3, rel: { USA: 15, CHN: -15 } }, res: 'Alineados con el norte' },
+        { txt: 'Con Pekín', ef: { campo: 3, rel: { CHN: 15, USA: -15 } }, res: 'Socios de China' },
+        { txt: 'Neutrales', costo: { pc: 2 }, ef: { prestigio: 4, rel: { USA: -3, CHN: -3 } }, res: 'Equilibrio difícil, pero respetado' },
+      ],
+    },
+    {
+      id: 'a_uruguay', fase: 'gobierno', peso: 1, cuando: (s) => libre('URY')(s) && rel('URY')(s) < 60, dibujo: '🧉 🚪 🤝',
+      titular: 'Uruguay quiere irse del Mercosur',
+      opciones: [
+        { txt: 'Convencerlo', costo: { pc: 2 }, ef: { rel: { URY: 8, BRA: 2 } }, res: 'Se queda, por ahora' },
+        { txt: 'Dejarlo ir', ef: { expo: -0.02, rel: { URY: -5, BRA: -3 } }, res: 'El bloque se achica' },
+      ],
+    },
+    {
+      id: 'a_yacyreta', fase: 'gobierno', peso: 1, cuando: (s) => libre('PRY')(s) && rel('PRY')(s) >= 30, dibujo: '💧 ⚡ 🇵🇾',
+      titular: 'Paraguay pide renegociar Yacyretá',
+      opciones: [
+        { txt: 'Pagar más', ef: { gastoExtra: 2, rel: { PRY: 10 } }, res: 'Paraguay contento' },
+        { txt: 'Mantener', ef: { rel: { PRY: -8 } }, res: 'Asunción protesta' },
+      ],
+    },
+    {
+      id: 'a_tecno', fase: 'gobierno', peso: 2, repite: 30, cuando: (s) => nivel('tecno')(s) >= 4 && s.eco.riesgo < 900, dibujo: '🏢 💻 🌎',
+      titular: 'Un gigante tecnológico busca dónde instalarse',
+      opciones: [
+        { txt: 'Dar exenciones', costo: { pc: 2 }, ef: { gastoExtra: 2, media: 3 }, despues: subir('tecno'), res: 'Oficinas nuevas en Córdoba 💻 +1' },
+        { txt: 'Que pague todo', ef: { empresarios: -2 }, res: 'Se fueron a Uruguay' },
+      ],
+    },
+    {
+      id: 'a_espias', fase: 'gobierno', peso: 1, cuando: (s) => s.mundo && !s.mundo.malvinas.recuperadas && s.gob.meses >= 8, dibujo: '🕵️ 🇬🇧 🏝️',
+      titular: 'Descubren espías británicos en la Patagonia',
+      opciones: [
+        { txt: 'Expulsarlos', ef: { todos: 3, soberania: 2, rel: { GBR: -10 } }, res: 'Escándalo diplomático' },
+        { txt: 'Silencio', ef: { rel: { GBR: 3 } }, res: 'Nadie se enteró… casi' },
+      ],
+    },
+  ]);
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
 // ── js/motor/oposicion.js ──
 // Oposición: si perdiste en 2027, seguís construyendo hasta el medio término de 2029 y las presidenciales de 2031.
 (function (R) {
@@ -6334,6 +7245,13 @@ label.boton { cursor: pointer; }
   const contar = (s, tipo, re) => s.diario.filter((d) => d.tipo === tipo && (!re || re.test(d.txt))).length;
 
   R.LOGROS = [
+    { id: 'gran_objetivo', emoji: '👑', nombre: 'Cumpliste tu gran objetivo', si: (s) => s.metas && s.metas.grande && s.metas.hechas[s.metas.grande] !== undefined },
+    { id: 'cinco_metas', emoji: '🎯', nombre: '5 metas cumplidas', si: (s) => s.metas && Object.keys(s.metas.hechas).length >= 5 },
+    { id: 'potencia_regional', emoji: '🏆', nombre: 'Primera potencia de Sudamérica', si: (s) => s.mundo && R.mundo.puesto && R.mundo.puesto(s, true) === 1 },
+    { id: 'sector_12', emoji: '🏭', nombre: 'Un sector a nivel 12', si: (s) => s.prod && R.SECTORES.some((x) => s.prod.sec[x.id].nivel >= 12) },
+    { id: 'energia_exporta', emoji: '⛽', nombre: 'Exportás energía', si: (s) => enGob(s) && s.prod && R.prod.energia(s).saldo > 1 },
+    { id: 'capeaste', emoji: '🛡️', nombre: 'Te preparaste para una crisis', si: (s) => s.diario.some((d) => d.tipo === 'mundo' && /Te preparaste/.test(d.txt)) },
+    { id: 'defensa', emoji: '🛡️', nombre: 'Rechazaste un ataque', si: (s) => s.diario.some((d) => /Rechazamos el ataque/.test(d.txt)) },
     { id: 'primera_vuelta', emoji: '🥇', nombre: 'Ganaste en primera vuelta', si: (s) => s.flags.ganoEn === 'primera' },
     { id: 'ballotage', emoji: '⚔️', nombre: 'Ganaste un ballotage', si: (s) => s.flags.ganoEn === 'ballotage' },
     { id: 'manos_limpias', emoji: '🧼', nombre: 'Presidente sin plata de empresarios', si: (s) => s.fase === 'gobierno' && !s.flags.plataEmpresas },
@@ -8194,7 +9112,7 @@ label.boton { cursor: pointer; }
     const guia = tab === 'inicio' ? ui.guia('gobierno', 'Cómo gobernar', [
       ['👥', 'Mirá a la gente', 'Tocá cada cara para ver qué le pasa.'],
       ['💰', 'Repartí el presupuesto', 'Más gasto sin plata es inflación.'],
-      ['⭐', 'Usá tus ⭐', 'Leyes, acciones y gobernadores.'],
+      ['⭐', 'Usá tus ⭐', 'Leyes, obras y acciones.'],
     ]) : null;
     const scroll = ui.montar(h('div', null, barraGobierno(s), guia, paneles[tab](s)), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
@@ -8225,10 +9143,12 @@ label.boton { cursor: pointer; }
 
   // ── Inicio ──
   function panelInicio(s, pc) {
-    const izq = [tarjetaAprobacion(s), tarjetaGente(s)];
-    const der = [tarjetaPais(s), tarjetaAcciones(s)];
+    const aviso = ui.bannerMundo ? ui.bannerMundo(s) : null;
+    const metas = ui.tarjetaMetas ? ui.tarjetaMetas(s) : null;
+    const izq = [tarjetaAprobacion(s), aviso, tarjetaGente(s)];
+    const der = [metas, tarjetaPais(s), tarjetaAcciones(s)];
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
-    return h('div', { class: 'pila' }, izq[0], izq[1], der[0], der[1]);
+    return h('div', { class: 'pila' }, izq[0], aviso, metas, izq[2], der[1], der[2]);
   }
 
   function tarjetaAprobacion(s) {
@@ -8285,6 +9205,7 @@ label.boton { cursor: pointer; }
         const peor = puntoCritico(s, g.id);
         return h('button', { class: 'persona toque', onclick: () => verGrupo(s, g.id), 'aria-label': g.nombre + ': ' + Math.round(st.humor) + ' de 100' + (peor ? '. Lo que más lo enoja: ' + RAZON(peor.k)[1] : '') },
           peor ? h('span', { class: 'critico', title: 'Lo que más lo enoja: ' + RAZON(peor.k)[1] }, RAZON(peor.k)[0]) : null,
+          (st.bronca || 0) >= 4 ? h('span', { class: 'bronca-mini', title: 'Junta bronca: puede salir a protestar' }, '😡') : null,
           R.ui.avatar(g.avatar, { size: 56, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
           h('span', { class: 'nom' }, g.emoji + ' ' + g.nombre),
           h('span', { class: 'barra', style: { height: '8px', width: '100%' } }, h('i', { style: { width: st.humor + '%', background: colorHumorFuerte(st.humor) } })),
@@ -8300,6 +9221,7 @@ label.boton { cursor: pointer; }
     cepo: ['🔒', 'Cepo'], crecimiento: ['📈', 'Economía'], rutas: ['🛣️', 'Rutas'], impuestos: ['🧾', 'Impuestos'], riesgo: ['📊', 'Confianza'],
     seguridad: ['👮', 'Seguridad'], educacion: ['🎓', 'Escuelas'], salud: ['🏥', 'Salud'], social: ['🤲', 'Ayuda social'], subsidios: ['💡', 'Tarifas'],
     pobreza: ['🏚️', 'Pobreza'], jubilaciones: ['👵', 'Lo que cobra'], ideas: ['💭', 'Tus ideas'], leyes: ['📜', 'Tus leyes'],
+    vara: ['📏', 'Ya se acostumbró'],
   };
   const RAZON = (k) => R.RAZONES[k] || ['•', k];
   // Lo que más lo enoja (si de verdad lo enoja). «Tus ideas» no cuenta: es fijo, no es algo que pase.
@@ -8341,6 +9263,7 @@ label.boton { cursor: pointer; }
       case 'pobreza': return R.fmt(e.pobreza) + '% de pobres';
       case 'ideas': { const d = Math.abs(R.GRUPO[id].ideo - s.partido.ideo); return d < 0.3 ? 'piensa parecido a vos' : d < 0.7 ? 'piensa algo distinto a vos' : 'piensa muy distinto a vos'; }
       case 'leyes': return 'por leyes que pasaste';
+      case 'vara': return 'lo bueno ya es lo normal: pide más';
       default: return '';
     }
   }
@@ -8376,6 +9299,9 @@ label.boton { cursor: pointer; }
             h('span', { class: 'chico', style: { fontWeight: 900 } }, R.cara(st.humor) + ' ' + humorTxt(st.humor))),
           h('div', { class: 'chico', style: { fontWeight: 800, color: va > 2 ? 'var(--bien)' : va < -2 ? 'var(--mal)' : 'var(--tinta-suave)' } },
             va > 2 ? '📈 Va a mejorar' : va < -2 ? '📉 Va a empeorar' : '➡️ Se mantiene'))),
+      R.protestas ? h('div', { class: 'fila envolver', style: { gap: '6px' } },
+        h('span', { class: 'chip' }, '💪 Poder ' + Math.round(R.protestas.poder(s)[id]) + '%'),
+        (st.bronca || 0) >= 1 ? h('span', { class: 'chip ' + (st.bronca >= 6 ? 'mal' : 'sol') }, '😡 Bronca ' + Math.min(100, Math.round((st.bronca / R.protestas.LIMITE) * 100)) + '%') : null) : null,
       peores.length ? h('div', { class: 'critico-caja' }, h('b', null, '😠 Lo que más lo enoja'),
         h('div', null, peores.map((p) => h('span', { class: 'chip mal' }, RAZON(p.k)[0] + ' ' + RAZON(p.k)[1] + ': ' + datoRazon(s, id, p.k)))))
         : porIdeas ? h('div', { class: 'critico-caja' }, h('b', null, '💭 Lo que más le resta: no le gustan tus ideas'), h('span', { class: 'chico' }, 'Con el tiempo pesa menos y mira más los resultados.'))
@@ -8587,6 +9513,7 @@ label.boton { cursor: pointer; }
         fila('🏚️', 'Pobreza', a.pobreza, d.pobreza, (v) => R.fmt(v, 1) + '%', true, 0.1),
         fila('🏦', 'Reservas', a.reservas, d.reservas, (v) => 'US$ ' + R.fmt(v, 0) + ' mil M', false, 0.3)),
       porque.length ? h('div', { class: 'pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta' }, '¿Por qué?'), porque) : null,
+      ui.novedades ? ui.novedades(s, m.novedades) : null,
       m.frases && m.frases.length ? h('div', { class: 'pila', style: { gap: '8px' } }, h('div', { class: 'etiqueta' }, '🗣️ La gente dice'),
         m.frases.map((f) => {
           const g = R.GRUPO[f.grupo];
@@ -8611,10 +9538,11 @@ label.boton { cursor: pointer; }
 
   ui.panelEconomia = function (s) {
     const pc = ui.esPC();
+    const prod = ui.tarjetaProduccion ? ui.tarjetaProduccion(s) : null;
     const izq = [tarjetaBalanza(s), tarjetaIngresos(s), tarjetaMedidas(s)];
-    const der = [tarjetaPresupuesto(s)];
+    const der = [prod, tarjetaPresupuesto(s)];
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
-    return h('div', { class: 'pila' }, izq[0], der[0], izq[1], izq[2]);
+    return h('div', { class: 'pila' }, prod, izq[0], der[1], izq[1], izq[2]);
   };
 
   // ⚖️ Lo que entra vs lo que sale.
@@ -8781,6 +9709,349 @@ label.boton { cursor: pointer; }
     pintar();
     return caja;
   }
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/produccion.js ──
+// Interfaz de la producción: tarjeta «🏭 Producción» (4 sectores), hoja de cada sector (construir, inversión privada),
+// precios del mundo, aviso de crisis o bonanza y las novedades del mes.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+  ui.momentos = ui.momentos || {};
+
+  const pct = (v) => (v >= 0 ? '+' : '−') + Math.round(Math.abs(v) * 100) + '%';
+  // Chip de precio del mundo de un producto (vs. lo normal) con flechita de cómo se movió este mes.
+  function chipPrecio(s, k, conNombre) {
+    const P = R.PRODUCTOS[k];
+    const p = R.prod.precio(s, k);
+    const antes = s.mundo && s.mundo.preciosAntes ? s.mundo.preciosAntes[k] : p;
+    const flecha = p - antes > 0.01 ? ' ▲' : p - antes < -0.01 ? ' ▼' : '';
+    const clase = p >= 1.05 ? 'bien' : p <= 0.95 ? 'mal' : '';
+    return h('span', { class: 'chip ' + clase }, P.emoji + (conNombre ? ' ' + P.nombre : '') + ' ' + (Math.abs(p - 1) < 0.02 ? 'normal' : pct(p - 1)) + flecha);
+  }
+  ui.chipPrecio = chipPrecio;
+
+  function chipEnergia(s) {
+    const en = R.prod.energia(s);
+    if (en.saldo < -0.15) return h('span', { class: 'chip mal' }, '⚡ Falta energía');
+    if (en.saldo > 0.15) return h('span', { class: 'chip bien' }, '⚡ Sobra energía');
+    return h('span', { class: 'chip' }, '⚡ Energía justa');
+  }
+
+  // ── Tarjeta de la pestaña Economía ──
+  ui.tarjetaProduccion = function (s) {
+    R.prod.asegurar(s);
+    const P = s.prod;
+    const C = s.mundo && s.mundo.ciclos;
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, '🏭 Producción'), chipEnergia(s)),
+      h('div', { class: 'sectores' }, R.SECTORES.map((x) => {
+        const st = P.sec[x.id];
+        const obra = P.obras.find((o) => o.id === x.id);
+        const a = R.prod.atractivo(s, x.id);
+        return h('button', { class: 'sector-carta toque', onclick: () => verSector(s, x.id) },
+          h('div', { class: 'fila', style: { gap: '6px' } }, h('span', { class: 'em' }, x.emoji), h('b', { class: 'nom' }, x.nombre)),
+          h('div', { class: 'fila', style: { gap: '6px' } },
+            h('span', { class: 'barra', style: { height: '8px', flex: 1 } }, h('i', { style: { width: (st.nivel / R.NIVEL_MAX_SECTOR) * 100 + '%', background: 'var(--celeste-fuerte, #3d8fd6)' } })),
+            h('span', { class: 'nivel numero' }, st.nivel)),
+          h('div', { class: 'fila envolver', style: { gap: '4px' } },
+            chipPrecio(s, x.producto),
+            obra ? h('span', { class: 'chip sol' }, '🔨 ' + obra.meses + ' m') : h('span', { class: 'chip ' + (a.chance >= 0.05 ? 'bien' : a.chance < 0.02 ? 'mal' : ''), title: 'Chance de inversión privada por mes' }, '🏦 ' + Math.round(a.chance * 100) + '%/mes')));
+      })),
+      h('div', { class: 'fila envolver', style: { gap: '6px' } },
+        h('span', { class: 'chip' }, '🔨 Obras ' + P.obras.length + '/' + R.prod.cuadrillas(s)),
+        s.mundo ? h('button', { class: 'chip toque', onclick: () => verPrecios(s) }, '🌍 Precios del mundo ›') : null),
+      C && C.proximo ? bannerProximo(s) : null);
+  };
+
+  function bannerProximo(s) {
+    const C = s.mundo.ciclos;
+    const X = R.prod.CICLO[C.proximo.id];
+    return h('button', { class: 'banner-aviso ' + (X.bueno ? 'bueno' : 'malo'), onclick: () => verPrecios(s) },
+      h('span', { class: 'em' }, '📡'), h('span', null, h('b', null, 'Se viene: ' + X.emoji + ' ' + X.nombre), h('small', null, C.proximo.en <= 1 ? 'el mes que viene' : 'en ' + C.proximo.en + ' meses')),
+      C.proximo.prep ? h('span', { class: 'chip bien' }, '✅ Preparado') : null);
+  }
+  // Para Inicio: solo si se viene algo.
+  ui.bannerMundo = (s) => (s.mundo && s.mundo.ciclos && s.mundo.ciclos.proximo ? bannerProximo(s) : null);
+
+  // ── Hoja de un sector ──
+  function verSector(s, id) {
+    R.son.toque();
+    const x = R.SECTOR[id];
+    const P = s.prod;
+    const st = P.sec[id];
+    const a = R.prod.atractivo(s, id);
+    const b = R.prod.bloqueoConstruir(s, id);
+    const obras = P.obras.filter((o) => o.id === id);
+    const razones = a.partes.filter((p) => Math.abs(p.v) >= 0.05).sort((p, q) => Math.abs(q.v) - Math.abs(p.v)).slice(0, 4);
+    const en = id === 'energia' || id === 'industria' ? R.prod.energia(s) : null;
+    const suma = [h('span', { class: 'chip bien' }, '📈 PBI +' + R.fmt(R.prod.pbiNivel(s, id), 1) + '%'), h('span', { class: 'chip bien' }, '🚪 Desempleo ▼')];
+    if (id !== 'energia') suma.push(h('span', { class: 'chip bien' }, '🚢 Exportaciones ▲'));
+    else suma.push(h('span', { class: 'chip bien' }, '⚡ Energía ▲'));
+    suma.push(h('span', { class: 'chip bien' }, R.GRUPO[x.grupo].emoji + ' ▲'));
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('div', { class: 'fila', style: { paddingRight: '44px' } }, h('span', { style: { fontSize: '44px', lineHeight: 1 } }, x.emoji),
+        h('div', { style: { flex: 1, minWidth: 0 } }, h('h2', { style: { margin: 0 } }, x.nombre), h('div', { class: 'chico suave' }, x.obra))),
+      h('div', { class: 'fila', style: { gap: '8px' } },
+        h('span', { class: 'barra', style: { flex: 1 } }, h('i', { style: { width: (st.nivel / R.NIVEL_MAX_SECTOR) * 100 + '%', background: 'var(--celeste-fuerte, #3d8fd6)' } })),
+        h('b', { class: 'numero' }, 'Nivel ' + st.nivel + ' de ' + R.NIVEL_MAX_SECTOR)),
+      h('div', { class: 'etiqueta' }, 'Cada nivel suma'),
+      h('div', { class: 'fila envolver', style: { gap: '4px' } }, suma),
+      h('div', { class: 'fila envolver', style: { gap: '6px' } }, h('span', { class: 'chico' }, '🌍 Precio en el mundo:'), chipPrecio(s, x.producto, true)),
+      en ? h('div', { class: 'chico' }, '⚡ Producís ' + R.fmt(en.oferta, 1) + ' · el país usa ' + R.fmt(en.demanda, 1) + ' → ',
+        h('b', { style: { color: en.saldo < 0 ? 'var(--mal)' : 'var(--bien)' } }, en.saldo < 0 ? 'se compra afuera (🏦 ▼)' : 'sobra y se exporta')) : null,
+      h('div', { class: 'etiqueta' }, '🏦 Inversión privada: ' + Math.round(a.chance * 100) + '% por mes'),
+      razones.length ? h('div', { class: 'fila envolver', style: { gap: '4px' } }, razones.map((p) => {
+        const r = R.CAUSAS_INVERSION[p.k] || ['•', p.k];
+        return h('span', { class: 'chip ' + (p.v > 0 ? 'bien' : 'mal') }, r[0] + ' ' + r[1] + (p.v > 0 ? ' ▲' : ' ▼'));
+      })) : null,
+      a.cierre ? h('div', { class: 'chico', style: { color: 'var(--mal)', fontWeight: 800 } }, '🏚️ Con este clima pueden cerrar empresas (' + Math.round(a.cierre * 100) + '% por mes)') : null,
+      obras.length ? h('div', { class: 'pila', style: { gap: '4px' } }, obras.map((o) => h('div', { class: 'fila', style: { gap: '8px' } }, h('span', null, '🔨'),
+        h('span', { class: 'barra', style: { flex: 1, height: '10px' } }, h('i', { style: { width: ((o.total - o.meses) / o.total) * 100 + '%', background: 'var(--sol)' } })),
+        h('b', { class: 'chico' }, 'faltan ' + o.meses + ' m')))) : null,
+      h('button', { class: 'boton ancho', disabled: b ? true : null, onclick: () => {
+        const r = R.prod.construir(s, id);
+        if (r.error) { R.son.mal(); ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+        R.guardar(s);
+        R.son.bien();
+        ui.cerrarCapa();
+        ui.aviso(r.txt, { tipo: 'bien' });
+        ui.refrescar();
+      } }, '🔨 Construir ⭐' + R.prod.COSTO_PC),
+      h('div', { class: 'fila envolver', style: { gap: '4px', justifyContent: 'center' } },
+        h('span', { class: 'chip mal' }, '💸 ' + R.fmt(R.prod.gastoObra(s, id), 1) + '% del presupuesto por mes'), h('span', { class: 'chip' }, '⏳ ' + R.prod.mesesObra(s, id) + ' meses')),
+      b ? h('div', { class: 'chico centro', style: { color: 'var(--mal)', fontWeight: 800 } }, '🚫 ' + b) : null), { cerrable: true });
+  }
+  ui.verSector = verSector;
+
+  // ── Precios del mundo y lo que pasa (y lo que se viene) ──
+  function verPrecios(s) {
+    R.son.toque();
+    const C = s.mundo.ciclos;
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, '🌍 Precios del mundo'),
+      h('div', { class: 'pila', style: { gap: '6px' } }, Object.keys(R.PRODUCTOS).map((k) => {
+        const p = R.prod.precio(s, k);
+        const ancho = Math.min(50, Math.abs(p - 1) * 100);
+        return h('div', { class: 'precio-fila' }, h('span', { class: 'em' }, R.PRODUCTOS[k].emoji), h('b', null, R.PRODUCTOS[k].nombre),
+          h('span', { class: 'balanza-motivo' }, h('i', { class: p >= 1 ? 'suma' : 'resta', style: p >= 1 ? { left: '50%', width: ancho + '%' } : { right: '50%', width: ancho + '%' } })),
+          h('span', { class: 'chico numero', style: { fontWeight: 900, color: p >= 1.02 ? 'var(--bien)' : p <= 0.98 ? 'var(--mal)' : 'inherit' } }, Math.abs(p - 1) < 0.02 ? '=' : pct(p - 1)));
+      })),
+      C.activos.length ? h('div', { class: 'etiqueta' }, 'Pasando ahora') : null,
+      C.activos.length ? h('div', { class: 'fila envolver', style: { gap: '6px' } }, C.activos.map((c) => {
+        const X = R.prod.CICLO[c.id];
+        return h('span', { class: 'chip ' + (X.bueno ? 'bien' : 'mal') }, X.emoji + ' ' + X.nombre + ' · ' + c.quedan + ' m');
+      })) : null,
+      C.proximo ? bannerProximo(s) : null,
+      !C.activos.length && !C.proximo ? h('p', { class: 'chico suave' }, '🌤️ El mundo está tranquilo. Por ahora.') : null), { cerrable: true });
+  }
+  ui.verPrecios = verPrecios;
+
+  // ── Momento: se viene una crisis o una bonanza ──
+  ui.momentos.aviso_mundo = function (s, m, listo) {
+    const C = s.mundo.ciclos;
+    if (!C.proximo || C.proximo.id !== m.id) return listo();
+    const X = R.prod.CICLO[m.id];
+    const { precios, ef } = R.prod.efectosCiclo(X);
+    const b = R.prod.bloqueoPreparar(s);
+    const costo = [];
+    if (X.prep.costo.pc) costo.push('⭐ ' + X.prep.costo.pc);
+    if (X.prep.costo.gasto) costo.push('💸 ' + X.prep.costo.gasto + '%');
+    const queHace = X.prep.mitiga && !X.bueno ? 'Te pega ' + Math.round(X.prep.mitiga * 100) + '% menos'
+      : X.prep.atrae ? 'Más inversión en ' + Object.keys(X.prep.atrae).map((k) => R.SECTOR[k].emoji).join(' ') : '';
+    if (X.bueno) R.son.bien(); else R.son.mal();
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('div', { class: 'centro', style: { fontSize: '54px', lineHeight: 1 } }, X.emoji),
+      h('div', { class: 'centro etiqueta' }, '📡 Se viene ' + (C.proximo.en <= 1 ? 'el mes que viene' : 'en ' + C.proximo.en + ' meses')),
+      h('h2', { class: 'centro', style: { margin: 0 } }, X.nombre),
+      h('div', { class: 'fila envolver', style: { gap: '4px', justifyContent: 'center' } },
+        precios.map((p) => h('span', { class: 'chip ' + (p.v > 0 ? 'bien' : 'mal') }, R.PRODUCTOS[p.k].emoji + ' precio ' + (p.v > 0 ? '▲' : '▼'))),
+        ui.chipsEfectos(R.gob.describirEfectos(s, ef), { compacto: true })),
+      h('div', { class: 'lista-elegir' },
+        h('button', { class: 'item-elegir', disabled: b ? true : null, onclick: () => {
+          const r = R.prod.preparar(s);
+          if (r.error) { R.son.mal(); ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+          R.guardar(s);
+          ui.cerrarCapa();
+          R.son.bien();
+          listo();
+          ui.aviso(r.txt, { tipo: 'bien', efectos: R.describirAplicado(s, r.aplicado) });
+        } }, h('span', { class: 'ic' }, X.bueno ? '🚀' : '🛡️'),
+          h('div', { class: 'pila', style: { gap: '3px', minWidth: 0 } }, h('b', null, X.prep.txt), queHace ? h('span', { class: 'chico suave' }, queHace) : null,
+            b && b !== 'Falta ⭐' ? null : b ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, b) : null),
+          h('span', { class: 'chip sol' }, costo.join(' · '))),
+        h('button', { class: 'item-elegir', onclick: () => { ui.cerrarCapa(); listo(); } },
+          h('span', { class: 'ic' }, '➡️'), h('div', null, h('b', null, 'Seguir igual')), h('span', { class: 'chip' }, 'gratis')))));
+  };
+
+  // ── Novedades de la producción para el resumen del mes ──
+  ui.novedades = function (s, lista) {
+    if (!lista || !lista.length) return null;
+    const filas = lista.map((n) => {
+      if (n.ciclo) {
+        const X = R.prod.CICLO[n.ciclo];
+        return h('div', { class: 'novedad' }, h('span', null, n.fin ? '✅' : X.emoji), h('span', null, (n.fin ? 'Terminó: ' : 'Empezó: ') + X.nombre));
+      }
+      const x = R.SECTOR[n.id];
+      const quien = n.quien === 'estado' ? '🔨 obra terminada' : n.quien === 'privado' ? '🏦 inversión privada' : n.quien ? '🌎 inversión extranjera' : '🏚️ cierran empresas';
+      return h('div', { class: 'novedad ' + (n.sube ? 'bien' : 'mal') }, h('span', null, x.emoji), h('span', null, x.nombre + (n.sube ? ' ▲ nivel ' : ' ▼ nivel ') + s.prod.sec[x.id].nivel), h('small', null, quien));
+    });
+    return h('div', { class: 'pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta' }, '🏗️ Novedades'), filas);
+  };
+})(globalThis.R = globalThis.R || {});
+
+</script>
+<script>
+// ── js/ui/metas.js ──
+// Interfaz de metas (tarjeta en Inicio, elegir el gran objetivo, meta cumplida o vencida), protestas de los grupos,
+// ataque de un vecino y ranking de potencias.
+(function (R) {
+  'use strict';
+  const h = R.h;
+  const ui = R.ui;
+  ui.momentos = ui.momentos || {};
+
+  // Chips cortos de un premio (⭐ +5, 👥 ▲, ✨ +15).
+  const chipsPremio = (s, ef) => ui.chipsEfectos(R.gob.describirEfectos(s, ef || {}), { compacto: true });
+
+  // ── 🎯 Metas (Inicio) ──
+  ui.tarjetaMetas = function (s) {
+    R.metas.asegurar(s);
+    const A = s.metas.activas;
+    if (!A.length) return null;
+    return h('section', { class: 'tarjeta pila' },
+      h('div', { class: 'titulo-seccion' }, '🎯 Metas'),
+      h('div', { class: 'pila', style: { gap: '8px' } }, A.map((a) => {
+        const M = R.META[a.id];
+        const p = R.metas.progreso(s, a);
+        const q = R.metas.quedan(s, a);
+        return h('button', { class: 'meta-fila toque' + (M.grande ? ' grande' : ''), onclick: () => verMeta(s, a) },
+          h('span', { class: 'em' }, M.emoji),
+          h('div', { class: 'pila', style: { gap: '3px', minWidth: 0 } },
+            h('b', null, (M.grande ? '👑 ' : '') + M.nombre),
+            h('span', { class: 'barra', style: { height: '8px' } }, h('i', { style: { width: p * 100 + '%', background: p >= 0.75 ? 'var(--bien)' : M.grande ? 'var(--sol)' : 'var(--celeste-fuerte, #3d8fd6)' } }))),
+          h('span', { class: 'chip ' + (q <= 3 ? 'mal' : '') }, '⏳ ' + q + ' m'));
+      })));
+  };
+
+  function verMeta(s, a) {
+    R.son.toque();
+    const M = R.META[a.id];
+    const p = R.metas.progreso(s, a);
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('div', { class: 'fila' }, h('span', { style: { fontSize: '44px', lineHeight: 1 } }, M.emoji), h('div', null, M.grande ? h('div', { class: 'etiqueta' }, '👑 Tu gran objetivo') : null, h('h2', { style: { margin: 0 } }, M.nombre))),
+      h('div', { class: 'fila entre chico' }, h('span', null, 'Hoy: ', h('b', null, M.fmt(M.dato(s)))), h('span', null, 'Meta: ', h('b', null, M.fmt(M.objetivo)))),
+      h('span', { class: 'barra gorda' }, h('i', { style: { width: p * 100 + '%', background: 'var(--bien)' } })),
+      h('div', { class: 'chico' }, '⏳ Quedan ' + R.metas.quedan(s, a) + ' meses'),
+      h('div', { class: 'etiqueta' }, '🏆 Si llegás'), chipsPremio(s, M.premio),
+      M.castigo && Object.keys(M.castigo).length ? h('div', { class: 'etiqueta' }, '⌛ Si no llegás') : null,
+      M.castigo && Object.keys(M.castigo).length ? chipsPremio(s, M.castigo) : null), { cerrable: true });
+  }
+
+  // ── Momento: elegir el gran objetivo del mandato ──
+  ui.momentos.legado = function (s, m, listo) {
+    R.metas.asegurar(s);
+    if (s.metas.grande) return listo();
+    const ops = R.metas.opcionesGrandes(s);
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', { class: 'centro' }, '👑 Tu gran objetivo'),
+      h('div', { class: 'fila envolver', style: { gap: '4px', justifyContent: 'center' } }, h('span', { class: 'chico' }, 'Si lo cumplís antes de la elección:'), chipsPremio(s, R.METAS_GRANDES[0].premio)),
+      h('div', { class: 'lista-elegir' }, ops.map((M) => h('button', { class: 'item-elegir', onclick: () => {
+        R.metas.elegirGrande(s, M.id);
+        R.guardar(s);
+        ui.cerrarCapa();
+        R.son.genial();
+        listo();
+        ui.aviso('👑 Tu gran objetivo: ' + M.nombre, { tipo: 'bien' });
+      } }, h('span', { class: 'ic' }, M.emoji), h('div', { class: 'pila', style: { gap: '3px', minWidth: 0 } }, h('b', null, M.nombre), h('span', { class: 'chico suave' }, 'Hoy: ' + M.fmt(M.dato(s)))))))));
+  };
+
+  // ── Momento: meta cumplida o vencida ──
+  ui.momentos.meta = function (s, m, listo) {
+    const M = R.META[m.id];
+    if (m.ok) { R.son.genial(); ui.confeti(['#f6b40e', '#74acdf', '#ffffff']); } else R.son.mal();
+    const efectos = R.describirAplicado(s, m.aplicado || []);
+    ui.abrirCapa(h('div', { class: 'resultado-grande' },
+      h('div', { class: 'em' }, m.ok ? '🎯' : '⌛'),
+      h('div', { class: 'etiqueta' }, m.ok ? (M.grande ? '👑 ¡Cumpliste tu gran objetivo!' : '¡Meta cumplida!') : 'No llegaste'),
+      h('div', { class: 'txt' }, M.emoji + ' ' + M.nombre),
+      efectos.length ? ui.chipsEfectos(efectos) : null,
+      h('button', { class: 'boton grande ancho', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, 'Seguir ▶')));
+  };
+
+  // ── Momento: un grupo sale a la calle ──
+  ui.momentos.protesta = function (s, m, listo) {
+    const T = R.protestas.TIPOS[m.grupo];
+    const g = R.GRUPO[m.grupo];
+    const st = s.gob.grupos[m.grupo];
+    const poder = R.protestas.poder(s)[m.grupo];
+    R.son.abucheo();
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('div', { class: 'centro', style: { fontSize: '40px', letterSpacing: '6px' } }, T.dibujo),
+      h('h2', { class: 'centro', style: { margin: 0 } }, T.emoji + ' ' + T.titulo),
+      h('div', { class: 'fila', style: { gap: '10px', alignItems: 'center' } },
+        R.ui.avatar(g.avatar, { size: 56, humor: R.humorAvatar(st.humor), fondo: ui.colorHumor(st.humor) }),
+        h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } },
+          h('b', null, g.emoji + ' ' + g.nombre + ': «' + T.pide + '»'),
+          h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chip' }, '💪 Poder ' + Math.round(poder) + '%'), h('span', { class: 'chip mal' }, '😡 ' + R.cara(st.humor) + ' ' + Math.round(st.humor))))),
+      h('div', { class: 'lista-elegir' }, R.protestas.opciones(s, m.grupo).map((o) => {
+        const b = R.protestas.bloqueo(s, o);
+        return h('button', { class: 'item-elegir', disabled: b ? true : null, onclick: () => {
+          const r = R.protestas.resolver(s, m.grupo, o.id);
+          if (r.error) { R.son.mal(); ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+          R.guardar(s);
+          ui.cerrarCapa();
+          listo(); // primero sigue la cola y después el aviso, así no lo tapa la próxima hoja
+          if (o.id === 'aguantar') ui.temblor();
+          ui.mostrarResultado(s, r);
+        } }, h('span', { class: 'ic' }, o.emoji),
+          h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, o.txt), ui.chipsEfectos(R.gob.describirEfectos(s, o.ef), { compacto: true }), b ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, b) : null),
+          o.costo.pc ? h('span', { class: 'chip sol' }, '⭐ ' + o.costo.pc) : null);
+      }))));
+  };
+
+  // ── Momento: un vecino nos atacó ──
+  ui.momentos.atacado = function (s, m, listo) {
+    const P = R.PAIS[m.pais];
+    R.son.tambor();
+    ui.temblor();
+    ui.abrirCapa(h('div', { class: 'resultado-grande' },
+      h('div', { class: 'em' }, '🚨'),
+      h('div', { class: 'txt' }, '¡' + P.nombre + ' nos atacó!'),
+      h('div', { class: 'fila', style: { gap: '10px', justifyContent: 'center' } }, R.ui.bandera(m.pais, 56), h('span', { style: { fontSize: '30px' } }, '⚔️'), R.ui.bandera('ARG', 56)),
+      ui.chipsEfectos(R.describirAplicado(s, m.aplicado || [])),
+      h('div', { class: 'chico' }, '🛡️ Si ganás, cobrás. Si perdés, pagás.'),
+      h('button', { class: 'boton grande ancho rojo', autofocus: true, onclick: () => { ui.cerrarCapa(); listo(); } }, '⚔️ A defendernos')));
+  };
+
+  // ── 🏆 Ranking de potencias ──
+  ui.filaRanking = function (s) {
+    const mun = R.mundo;
+    return h('button', { class: 'ranking-btn toque', onclick: () => verRanking(s) },
+      h('span', { class: 'em' }, '🏆'),
+      h('span', null, h('b', null, mun.puesto(s, true) + '° en Sudamérica'), h('small', null, mun.puesto(s) + '° del mundo · ✨ Prestigio ' + Math.round(s.mundo.prestigio || 0))),
+      h('span', { class: 'chico suave' }, '›'));
+  };
+  function verRanking(s) {
+    R.son.toque();
+    const mun = R.mundo;
+    const fila = (x, i) => h('div', { class: 'ranking-fila' + (x.id === 'ARG' ? ' yo' : '') },
+      h('b', { class: 'numero' }, (i + 1) + '°'), R.ui.bandera(x.id, 30), h('span', null, x.id === 'ARG' ? 'Argentina' : R.PAIS[x.id].nombre), h('b', { class: 'numero' }, x.puntos));
+    const mundo = mun.ranking(s);
+    const yo = mundo.findIndex((x) => x.id === 'ARG');
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', null, '🏆 Potencias'),
+      h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chip' }, '💵 Economía'), h('span', { class: 'chip' }, '⚔️ Poder militar'), h('span', { class: 'chip' }, '✨ Prestigio')),
+      h('div', { class: 'etiqueta' }, '🌎 Sudamérica'),
+      h('div', { class: 'pila', style: { gap: '4px' } }, mun.ranking(s, true).map(fila)),
+      h('div', { class: 'etiqueta' }, '🌍 El mundo'),
+      h('div', { class: 'pila', style: { gap: '4px' } }, mundo.slice(0, Math.max(6, yo + 1)).map(fila)),
+      h('p', { class: 'chico suave' }, '✨ El prestigio sube con metas cumplidas, guerras ganadas y Malvinas.')), { cerrable: true });
+  }
+  ui.verRanking = verRanking;
 })(globalThis.R = globalThis.R || {});
 
 </script>
@@ -9291,6 +10562,7 @@ label.boton { cursor: pointer; }
     const anexados = R.PAISES.filter((p) => s.mundo.paises[p.id].anexado);
     return h('section', { class: 'tarjeta pila' },
       h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, R.ui.bandera('ARG', 34), ' Argentina en el mundo')),
+      ui.filaRanking ? ui.filaRanking(s) : null,
       h('div', { class: 'fila', style: { gap: '10px' } },
         h('span', { style: { fontSize: '30px' } }, '⚔️'),
         h('div', { style: { flex: 1 } }, h('div', { class: 'fila entre' }, h('b', null, 'Poder militar'), h('b', { class: 'numero' }, String(poder))),
@@ -9517,7 +10789,7 @@ label.boton { cursor: pointer; }
     const P = R.PAIS[W.pais];
     const volver = () => ui.momentos.guerra(s, m, listo);
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', { class: 'centro' }, W.objetivo === 'malvinas' ? '⚔️ Guerra por Malvinas' : '⚔️ Guerra con ' + P.nombre),
+      h('h2', { class: 'centro' }, W.objetivo === 'malvinas' ? '⚔️ Guerra por Malvinas' : W.objetivo === 'defensa' ? '🛡️ Nos atacó ' + P.nombre : '⚔️ Guerra con ' + P.nombre),
       ui.frente(s, W),
       h('div', { class: 'fila envolver', style: { gap: '6px', justifyContent: 'center' } }, h('span', { class: 'chip' }, 'Mes ' + (W.meses + 1)), chipChances(s, W)),
       ui.accionesGuerra(s, volver),

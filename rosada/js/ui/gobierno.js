@@ -25,7 +25,7 @@
     const guia = tab === 'inicio' ? ui.guia('gobierno', 'Cómo gobernar', [
       ['👥', 'Mirá a la gente', 'Tocá cada cara para ver qué le pasa.'],
       ['💰', 'Repartí el presupuesto', 'Más gasto sin plata es inflación.'],
-      ['⭐', 'Usá tus ⭐', 'Leyes, acciones y gobernadores.'],
+      ['⭐', 'Usá tus ⭐', 'Leyes, obras y acciones.'],
     ]) : null;
     const scroll = ui.montar(h('div', null, barraGobierno(s), guia, paneles[tab](s)), pc);
     if (ui.vista && ui.vista.mantenerScroll) window.scrollTo(0, scroll);
@@ -56,10 +56,12 @@
 
   // ── Inicio ──
   function panelInicio(s, pc) {
-    const izq = [tarjetaAprobacion(s), tarjetaGente(s)];
-    const der = [tarjetaPais(s), tarjetaAcciones(s)];
+    const aviso = ui.bannerMundo ? ui.bannerMundo(s) : null;
+    const metas = ui.tarjetaMetas ? ui.tarjetaMetas(s) : null;
+    const izq = [tarjetaAprobacion(s), aviso, tarjetaGente(s)];
+    const der = [metas, tarjetaPais(s), tarjetaAcciones(s)];
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
-    return h('div', { class: 'pila' }, izq[0], izq[1], der[0], der[1]);
+    return h('div', { class: 'pila' }, izq[0], aviso, metas, izq[2], der[1], der[2]);
   }
 
   function tarjetaAprobacion(s) {
@@ -116,6 +118,7 @@
         const peor = puntoCritico(s, g.id);
         return h('button', { class: 'persona toque', onclick: () => verGrupo(s, g.id), 'aria-label': g.nombre + ': ' + Math.round(st.humor) + ' de 100' + (peor ? '. Lo que más lo enoja: ' + RAZON(peor.k)[1] : '') },
           peor ? h('span', { class: 'critico', title: 'Lo que más lo enoja: ' + RAZON(peor.k)[1] }, RAZON(peor.k)[0]) : null,
+          (st.bronca || 0) >= 4 ? h('span', { class: 'bronca-mini', title: 'Junta bronca: puede salir a protestar' }, '😡') : null,
           R.ui.avatar(g.avatar, { size: 56, humor: R.humorAvatar(st.humor), fondo: colorHumor(st.humor) }),
           h('span', { class: 'nom' }, g.emoji + ' ' + g.nombre),
           h('span', { class: 'barra', style: { height: '8px', width: '100%' } }, h('i', { style: { width: st.humor + '%', background: colorHumorFuerte(st.humor) } })),
@@ -131,6 +134,7 @@
     cepo: ['🔒', 'Cepo'], crecimiento: ['📈', 'Economía'], rutas: ['🛣️', 'Rutas'], impuestos: ['🧾', 'Impuestos'], riesgo: ['📊', 'Confianza'],
     seguridad: ['👮', 'Seguridad'], educacion: ['🎓', 'Escuelas'], salud: ['🏥', 'Salud'], social: ['🤲', 'Ayuda social'], subsidios: ['💡', 'Tarifas'],
     pobreza: ['🏚️', 'Pobreza'], jubilaciones: ['👵', 'Lo que cobra'], ideas: ['💭', 'Tus ideas'], leyes: ['📜', 'Tus leyes'],
+    vara: ['📏', 'Ya se acostumbró'],
   };
   const RAZON = (k) => R.RAZONES[k] || ['•', k];
   // Lo que más lo enoja (si de verdad lo enoja). «Tus ideas» no cuenta: es fijo, no es algo que pase.
@@ -172,6 +176,7 @@
       case 'pobreza': return R.fmt(e.pobreza) + '% de pobres';
       case 'ideas': { const d = Math.abs(R.GRUPO[id].ideo - s.partido.ideo); return d < 0.3 ? 'piensa parecido a vos' : d < 0.7 ? 'piensa algo distinto a vos' : 'piensa muy distinto a vos'; }
       case 'leyes': return 'por leyes que pasaste';
+      case 'vara': return 'lo bueno ya es lo normal: pide más';
       default: return '';
     }
   }
@@ -207,6 +212,9 @@
             h('span', { class: 'chico', style: { fontWeight: 900 } }, R.cara(st.humor) + ' ' + humorTxt(st.humor))),
           h('div', { class: 'chico', style: { fontWeight: 800, color: va > 2 ? 'var(--bien)' : va < -2 ? 'var(--mal)' : 'var(--tinta-suave)' } },
             va > 2 ? '📈 Va a mejorar' : va < -2 ? '📉 Va a empeorar' : '➡️ Se mantiene'))),
+      R.protestas ? h('div', { class: 'fila envolver', style: { gap: '6px' } },
+        h('span', { class: 'chip' }, '💪 Poder ' + Math.round(R.protestas.poder(s)[id]) + '%'),
+        (st.bronca || 0) >= 1 ? h('span', { class: 'chip ' + (st.bronca >= 6 ? 'mal' : 'sol') }, '😡 Bronca ' + Math.min(100, Math.round((st.bronca / R.protestas.LIMITE) * 100)) + '%') : null) : null,
       peores.length ? h('div', { class: 'critico-caja' }, h('b', null, '😠 Lo que más lo enoja'),
         h('div', null, peores.map((p) => h('span', { class: 'chip mal' }, RAZON(p.k)[0] + ' ' + RAZON(p.k)[1] + ': ' + datoRazon(s, id, p.k)))))
         : porIdeas ? h('div', { class: 'critico-caja' }, h('b', null, '💭 Lo que más le resta: no le gustan tus ideas'), h('span', { class: 'chico' }, 'Con el tiempo pesa menos y mira más los resultados.'))
@@ -418,6 +426,7 @@
         fila('🏚️', 'Pobreza', a.pobreza, d.pobreza, (v) => R.fmt(v, 1) + '%', true, 0.1),
         fila('🏦', 'Reservas', a.reservas, d.reservas, (v) => 'US$ ' + R.fmt(v, 0) + ' mil M', false, 0.3)),
       porque.length ? h('div', { class: 'pila', style: { gap: '4px' } }, h('div', { class: 'etiqueta' }, '¿Por qué?'), porque) : null,
+      ui.novedades ? ui.novedades(s, m.novedades) : null,
       m.frases && m.frases.length ? h('div', { class: 'pila', style: { gap: '8px' } }, h('div', { class: 'etiqueta' }, '🗣️ La gente dice'),
         m.frases.map((f) => {
           const g = R.GRUPO[f.grupo];

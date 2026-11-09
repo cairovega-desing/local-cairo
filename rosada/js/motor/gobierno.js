@@ -42,9 +42,12 @@
     gob.actualizarAprob(s);
     if (R.congreso) R.congreso.iniciar(s);
     if (R.mundo) R.mundo.iniciar(s);
+    if (R.prod) R.prod.asegurar(s);
+    if (R.metas) { R.metas.asegurar(s); s.metas.ofrecido = true; }
     s.gob.historia.push(R.eco.foto(s));
     R.diario(s, '🎖️', 'Asumís la Presidencia', 'gobierno');
     s.cola.push({ tipo: 'ministro' });
+    if (R.metas) s.cola.push({ tipo: 'legado' });
   };
 
   gob.elegirMinistro = function (s, id) {
@@ -104,8 +107,21 @@
     }
     const bonus = s.gob && s.gob.bonusGrupo ? s.gob.bonusGrupo[id] || 0 : 0;
     if (bonus) add('leyes', bonus);
+    // La vara sube: la gente se acostumbra a lo bueno. Lo que ganó pasa a ser «lo normal» y pide más.
+    const st = s.gob && s.gob.grupos[id];
+    if (st && st.espera > 0.5) add('vara', -gob.VARA * st.espera);
     const obj = R.clamp(50 + R.sum(p.map((x) => x.v)), 3, 97);
     return { obj, partes: p };
+  };
+  // Cuánto de lo bueno se «normaliza» y qué tan rápido (sube ~3,5 %/mes: a los 2 años ya se acostumbró a más de la mitad;
+  // baja más lento: después de una bonanza, la gente se acuerda de lo bien que estaba).
+  gob.VARA = 0.7;
+  gob.actualizarEspera = function (s, id) {
+    const st = s.gob.grupos[id];
+    const { partes } = gob.objetivoGrupo(s, id);
+    const meta = Math.max(0, R.sum(partes.filter((x) => x.k !== 'ideas' && x.k !== 'vara').map((x) => x.v)));
+    const e = st.espera || 0;
+    st.espera = e + (meta - e) * (meta > e ? 0.035 : 0.02);
   };
 
   gob.actualizarAprob = function (s) {
@@ -116,7 +132,8 @@
       tot += G.grupos[g.id].humor * g.peso;
       w += g.peso;
     }
-    const desgaste = Math.min(7, G.meses * 0.08);
+    // Desgaste del poder: cada mes gobernando cuesta un poco (y más en el segundo mandato).
+    const desgaste = Math.min(15, G.meses * 0.18) + (G.mandato >= 2 ? 3 : 0);
     const dif = { facil: 5, normal: 0, dificil: -5 }[s.dif] || 0;
     G.aprob = R.clamp(tot / w + G.lunaMiel - desgaste - G.escandalo * 0.6 + dif, 2, 96);
     return G.aprob;
@@ -128,6 +145,7 @@
     let pc = 2 + Math.round((G.aprob - 40) / 15);
     if (G.ministro && R.MINISTROS[G.ministro].pcExtra) pc += R.MINISTROS[G.ministro].pcExtra;
     if (R.congreso && R.congreso.mayoria && R.congreso.mayoria(s)) pc += 1;
+    if (s.mundo && (s.mundo.prestigio || 0) >= 50) pc += 1; // con prestigio, te escuchan más
     return Math.max(1, pc);
   };
 
@@ -184,6 +202,7 @@
     infra: { emoji: '🛣️', nombre: 'Rutas', paso: 3 },
     ciencia: { emoji: '🔬', nombre: 'Ciencia', paso: 3 },
     soberania: { emoji: '🏝️', nombre: 'Malvinas', paso: 4 },
+    prestigio: { emoji: '✨', nombre: 'Prestigio', paso: 5 },
   };
   const CALIDADES = ['salud', 'educacion', 'seguridad', 'defensa', 'infra', 'ciencia'];
   const MESES_SHOCK = { crec: 6, expo: 8, riesgo: 4 };
@@ -208,6 +227,7 @@
     for (const { k, v, sub } of lista) {
       if (k === 'rel') { if (s.mundo && s.mundo.paises[sub]) s.mundo.paises[sub].rel = R.clamp(s.mundo.paises[sub].rel + v, 0, 100); continue; }
       if (k === 'soberania') { if (s.mundo) s.mundo.malvinas.soberania = R.clamp(s.mundo.malvinas.soberania + v, 0, 99); continue; }
+      if (k === 'prestigio') { if (s.mundo) s.mundo.prestigio = R.clamp((s.mundo.prestigio || 0) + v, 0, 200); continue; }
       if (R.GRUPO[k]) G.grupos[k].humor = R.clamp(G.grupos[k].humor + v, 0, 100);
       else if (k === 'todos') R.GRUPOS.forEach((g) => (G.grupos[g.id].humor = R.clamp(G.grupos[g.id].humor + v, 0, 100)));
       else if (k === 'pc') G.pc = R.clamp(G.pc + v, 0, G.pcMax);
@@ -481,6 +501,9 @@
     if (Object.keys(reaccion).length) gob.aplicarEfectos(s, reaccion);
 
     R.eco.mes(s);
+    // Producción: obras, inversión privada, precios del mundo y ciclos (pueden avisar una crisis; se muestra después del resumen).
+    const avisos = [];
+    if (R.prod) R.prod.mes(s, avisos);
 
     // La gente se acomoda de a poco a cómo le va
     for (const g of R.GRUPOS) {
@@ -491,6 +514,7 @@
       st.objetivo = obj;
       st.antes = humorAntes[g.id];
       st.humor = R.clamp(st.humor + (obj - st.humor) * 0.28 + R.gauss(s) * 0.6, 0, 100);
+      gob.actualizarEspera(s, g.id);
     }
     G.lunaMiel *= 0.88;
     G.meses++;
@@ -516,7 +540,12 @@
     G.llamas = gob.llamas(s).map((l) => l.id);
     G.aprobBajaMeses = G.aprob < 12 ? (G.aprobBajaMeses || 0) + 1 : 0;
 
-    momentos.push({ tipo: 'resumen', antes, despues, aprobAntes, aprobDespues: G.aprob, humorAntes, reaccion, frases: gob.frases(s, humorAntes, 3) });
+    momentos.push({ tipo: 'resumen', antes, despues, aprobAntes, aprobDespues: G.aprob, humorAntes, reaccion, frases: gob.frases(s, humorAntes, 3),
+      novedades: s.prod ? s.prod.novedades.slice() : [] });
+    momentos.push(...avisos);
+    // Los grupos muy enojados salen a la calle; las metas se cumplen o vencen.
+    if (R.protestas) R.protestas.mes(s, momentos);
+    if (R.metas) R.metas.mes(s, momentos);
 
     if (G.aprobBajaMeses >= 3) {
       gob.terminar(s, momentos, 'helicoptero');

@@ -6,10 +6,11 @@
 
   ui.panelEconomia = function (s) {
     const pc = ui.esPC();
+    const prod = ui.tarjetaProduccion ? ui.tarjetaProduccion(s) : null;
     const izq = [tarjetaBalanza(s), tarjetaIngresos(s), tarjetaMedidas(s)];
-    const der = [tarjetaPresupuesto(s)];
+    const der = [prod, tarjetaPresupuesto(s)];
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
-    return h('div', { class: 'pila' }, izq[0], der[0], izq[1], izq[2]);
+    return h('div', { class: 'pila' }, prod, izq[0], der[1], izq[1], izq[2]);
   };
 
   // ⚖️ Lo que entra vs lo que sale.

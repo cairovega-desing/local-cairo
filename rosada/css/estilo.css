@@ -799,3 +799,37 @@ label.boton { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* ── Producción, metas, protestas y ranking (vuelta 17) ── */
+.sectores { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sector-carta { font: inherit; color: var(--tinta); text-align: left; display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 8px 10px; border: var(--borde); border-radius: 14px; background: var(--papel); box-shadow: var(--sombra-chica); cursor: pointer; }
+.sector-carta:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
+.sector-carta .em { font-size: 24px; line-height: 1; }
+.sector-carta .nom { flex: 1; min-width: 0; font-size: 14px; line-height: 1.1; }
+.sector-carta .nivel { font-family: var(--f-titulo); font-size: 24px; line-height: 1; }
+.sector-carta .chip { font-size: 11px; padding: 1px 6px; }
+.banner-aviso { font: inherit; color: var(--tinta); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left; width: 100%; padding: 8px 12px; border: var(--borde); border-radius: 14px; box-shadow: var(--sombra-chica); cursor: pointer; background: var(--mal-claro); }
+.banner-aviso.bueno { background: var(--bien-claro); }
+.banner-aviso .em { font-size: 26px; }
+.banner-aviso b { display: block; line-height: 1.15; }
+.banner-aviso small { display: block; font-weight: 800; color: var(--tinta-suave); }
+.precio-fila { display: grid; grid-template-columns: 26px minmax(0, 1fr) 64px 44px; gap: 8px; align-items: center; }
+.precio-fila .em { font-size: 22px; }
+.precio-fila b { font-size: 13px; line-height: 1.1; overflow-wrap: anywhere; }
+.novedad { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 6px; align-items: center; font-weight: 800; font-size: 14px; }
+.novedad small { grid-column: 2; color: var(--tinta-suave); font-size: 12px; }
+.novedad.bien > span:nth-child(2) { color: var(--bien); }
+.novedad.mal > span:nth-child(2) { color: var(--mal); }
+.meta-fila { font: inherit; color: var(--tinta); display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 8px; align-items: center; text-align: left; width: 100%; padding: 6px 8px; border: var(--borde); border-radius: 12px; background: var(--papel); box-shadow: var(--sombra-chica); cursor: pointer; }
+.meta-fila.grande { background: var(--sol-claro); }
+.meta-fila .em { font-size: 26px; text-align: center; }
+.meta-fila b { font-size: 14px; line-height: 1.15; }
+.bronca-mini { position: absolute; top: -6px; left: -4px; font-size: 18px; filter: drop-shadow(0 2px 0 var(--tinta)); animation: latido 1.4s ease-in-out infinite; }
+@keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+.ranking-btn { font: inherit; color: var(--tinta); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left; width: 100%; padding: 8px 12px; border: var(--borde); border-radius: 14px; background: var(--sol-claro); box-shadow: var(--sombra-chica); cursor: pointer; }
+.ranking-btn .em { font-size: 26px; }
+.ranking-btn b { display: block; line-height: 1.15; }
+.ranking-btn small { display: block; font-weight: 800; color: var(--tinta-suave); }
+.ranking-fila { display: grid; grid-template-columns: 32px auto minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 4px 8px; border-radius: 10px; font-weight: 800; }
+.ranking-fila.yo { background: var(--sol-claro); border: var(--borde); }
+@media (min-width: 900px) { .sectores { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

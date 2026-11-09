@@ -6,6 +6,13 @@
   const contar = (s, tipo, re) => s.diario.filter((d) => d.tipo === tipo && (!re || re.test(d.txt))).length;
 
   R.LOGROS = [
+    { id: 'gran_objetivo', emoji: '👑', nombre: 'Cumpliste tu gran objetivo', si: (s) => s.metas && s.metas.grande && s.metas.hechas[s.metas.grande] !== undefined },
+    { id: 'cinco_metas', emoji: '🎯', nombre: '5 metas cumplidas', si: (s) => s.metas && Object.keys(s.metas.hechas).length >= 5 },
+    { id: 'potencia_regional', emoji: '🏆', nombre: 'Primera potencia de Sudamérica', si: (s) => s.mundo && R.mundo.puesto && R.mundo.puesto(s, true) === 1 },
+    { id: 'sector_12', emoji: '🏭', nombre: 'Un sector a nivel 12', si: (s) => s.prod && R.SECTORES.some((x) => s.prod.sec[x.id].nivel >= 12) },
+    { id: 'energia_exporta', emoji: '⛽', nombre: 'Exportás energía', si: (s) => enGob(s) && s.prod && R.prod.energia(s).saldo > 1 },
+    { id: 'capeaste', emoji: '🛡️', nombre: 'Te preparaste para una crisis', si: (s) => s.diario.some((d) => d.tipo === 'mundo' && /Te preparaste/.test(d.txt)) },
+    { id: 'defensa', emoji: '🛡️', nombre: 'Rechazaste un ataque', si: (s) => s.diario.some((d) => /Rechazamos el ataque/.test(d.txt)) },
     { id: 'primera_vuelta', emoji: '🥇', nombre: 'Ganaste en primera vuelta', si: (s) => s.flags.ganoEn === 'primera' },
     { id: 'ballotage', emoji: '⚔️', nombre: 'Ganaste un ballotage', si: (s) => s.flags.ganoEn === 'ballotage' },
     { id: 'manos_limpias', emoji: '🧼', nombre: 'Presidente sin plata de empresarios', si: (s) => s.fase === 'gobierno' && !s.flags.plataEmpresas },

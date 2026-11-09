@@ -57,7 +57,12 @@ fs.mkdirSync(OUT, { recursive: true });
         : /Resumen del mes/.test(txt) ? 'resumen'
         : /maneja la economía/.test(txt) ? 'ministro'
         : /Presupuesto 20/.test(txt) ? 'presupuesto'
-        : /Guerra con/.test(txt) ? 'guerra' : 'otra';
+        : /Tu gran objetivo/.test(txt) ? 'legado'
+        : /Se viene en|Se viene el mes/i.test(txt) ? 'aviso-mundo'
+        : /Meta cumplida|No llegaste|Cumpliste tu gran objetivo/.test(txt) ? 'meta'
+        : /nos atacó/.test(txt) ? 'atacado'
+        : /Poder \d+%/.test(txt) && (await capa.locator('.item-elegir').count()) === 3 ? 'protesta'
+        : /Guerra con|Nos atacó/.test(txt) ? 'guerra' : 'otra';
       if (!capturados.has(tipo)) { capturados.add(tipo); await foto(tipo); }
       if (tipo === 'noticia') { await capa.locator('.opcion-noticia:not([disabled])').first().click(); continue; }
       if (tipo === 'debate') { await capa.locator('.estilos .boton').first().click(); continue; }

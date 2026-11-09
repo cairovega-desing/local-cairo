@@ -25,6 +25,10 @@
     { id: 'UE', nombre: 'Unión Europea', poder: 70, ideo: 0.0, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 8, potencia: true, noConquistable: 'Es un bloque de 27 países' },
   ];
   R.PAIS = Object.fromEntries(R.PAISES.map((p) => [p.id, p]));
+  // PBI de cada país en miles de millones de dólares (aproximado) para el ranking de potencias.
+  R.PBI_PAIS = { BRA: 2200, CHL: 330, URY: 80, PRY: 45, BOL: 48, PER: 270, VEN: 100, USA: 28000, CHN: 18500, RUS: 2000, GBR: 3300, UE: 19000 };
+  R.SUDAMERICA = ['BRA', 'CHL', 'URY', 'PRY', 'BOL', 'PER', 'VEN'];
+  R.VECINOS = ['BRA', 'CHL', 'URY', 'PRY', 'BOL'];
   R.BLOQUES_MUNDO = {
     mercosur: { nombre: 'Mercosur', emoji: '🤝' },
     pacifico: { nombre: 'Pacífico', emoji: '🌊' },

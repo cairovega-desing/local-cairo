@@ -399,6 +399,7 @@ Cada vuelta: **hacer → probar automáticamente → mirar capturas en celular y
 | 14 · Menos texto: se probó un estilo «afiche» y el usuario prefirió el de figuritas; queda ese estilo pero sin los textos de ayuda que sobraban (guías cortas, acciones sin descripción, notas recortadas) | ✅ |
 | 15 · Economía visible y mundo vivo: PBI en dólares, flechitas en deuda/riesgo/déficit, «¿Por qué?» de riesgo país y deuda; reformas que recaudan menos al firmar y recuperan con el tiempo; todos los países conquistables (menos la UE), guerras de meses que dependen del poder con chances a la vista, pánico mundial, enojo de los amigos del atacado y países que arman alianzas solos | ✅ |
 | 16 · Inclinar la guerra con ⭐: en la hoja de guerra y en la tarjeta de Mundo hay 6 acciones (armas de urgencia, movilización, sabotaje, pedir ayuda a un país amigo, que un aliado del enemigo no se meta y cadena patriótica); cada una muestra cómo cambia tu fuerza, la del enemigo y las chances de ganar antes de hacerla; las órdenes del mes pasaron a una grilla de 3 para que todo entre en el celu | ✅ |
+| 17 · Gran estrategia de bolsillo (rumbo tipo Victoria 3, simplificado): producción por sectores con obras e inversión privada, energía, precios del mundo y crisis avisadas, la vara que sube y desgaste, grupos con poder que protestan, metas con plazo y gran objetivo, ranking de potencias con prestigio, vecinos que atacan y 14 noticias de la agenda del mundo | ✅ |
 
 **Criterios de terminado:** se juega de punta a punta en celu y PC sin errores de consola (Playwright); 2000 campañas y 100 gobiernos
 de dos mandatos simulados sin NaN; 150 noticias, 23 leyes, 12 países y 32 logros; ningún titular pasa de 9 palabras ni opción de 4.
@@ -407,3 +408,40 @@ de dos mandatos simulados sin NaN; 150 noticias, 23 leyes, 12 países y 32 logro
 
 **Ideas para más adelante:** música, avatar del rival en cada noticia, resumen del año, más eventos encadenados (historias de varios meses),
 gabinete completo, modo «gobernador de provincia», multijugador por turnos.
+
+---
+
+## Vuelta 17 — Gran estrategia de bolsillo (rumbo tipo Victoria 3, simplificado para el celu)
+
+**Problema (autocrítica):** el juego se «resuelve». Pasás las leyes buenas, la economía crece sin techo, todos contentos y
+nada te amenaza (en `sim_gob` la estrategia mercado terminaba con 86 % de aprobación, 9,4 % de crecimiento y 30/30 elecciones
+ganadas). El mundo reacciona pero no actúa. Falta qué hacer después de pasar las leyes.
+
+**Idea:** tomar los pilares de los juegos de gran estrategia (producción por sectores, grupos con poder que se enojan,
+expectativas que suben, mercados mundiales con ciclos, objetivos con plazo, ranking de potencias, un mundo con agenda propia)
+y bajarlos a **pocas tarjetas, botones grandes y efectos con flechas**. Seguimos con lo que ya funciona (Congreso, leyes,
+presupuesto, guerra) y le sumamos capas.
+
+| # | Sistema | Cómo se juega en el celu | Dónde |
+|---|---|---|---|
+| 1 | **Producción por sectores** | 4 sectores (🌾 Campo, ⛽ Energía y minería, 🏭 Industria, 💻 Tecnología) con nivel. «🔨 Construir» cuesta ⭐ y plata por mes y tarda meses; al terminar sube el PBI, el empleo y las exportaciones. Los privados también invierten solos según el clima (riesgo país, impuestos, cepo, leyes) → el Estado construye con presupuesto, el mercado atrae inversión. La industria necesita energía: si falta, se importa (reservas ▼). | `js/datos/sectores.js`, `js/motor/produccion.js`, tarjeta «🏭 Producción» en Economía |
+| 2 | **Precios del mundo y ciclos** | Precios de granos, energía, manufacturas y tecnología que suben y bajan. Crisis y bonanzas **avisadas antes** (recesión mundial, sequía, suba de tasas en EE.UU., crisis en Brasil, boom de materias primas) con una decisión: prepararse (⭐) o arriesgar. | `js/motor/produccion.js`, momento `aviso_mundo` |
+| 3 | **La vara sube** | La gente se acostumbra a lo bueno: lo que ganó pasa a ser lo normal y pide más (`espera` por grupo). Desgaste del poder más fuerte con los años. Techo de capacidad: con desempleo muy bajo la economía se recalienta (inflación ▲) y no crece al infinito. | `js/motor/gobierno.js`, `js/motor/economia.js` |
+| 4 | **Grupos con poder que se enojan** | Cada grupo tiene 💪 poder (depende de los sectores: más industria = sindicatos más fuertes). Si está muy enojado junta 😡 bronca y arma su jugada: paro general, tractorazo, fuga de capitales, cacerolazo, piquetes, marcha de jubilados. Decidís: ceder, negociar (⭐) o aguantar. | `js/motor/gobierno.js`, momento `protesta` |
+| 5 | **Metas con plazo** | Al asumir elegís tu **gran objetivo** (3 según tu ideología). Además aparecen metas por situación (domar la inflación, salir del cepo, autoabastecimiento energético, bajar la deuda, volver a crecer…) con barra y meses. Premio si llegás, castigo si no. | `js/datos/metas.js`, `js/motor/metas.js`, tarjeta «🎯 Metas» en Inicio |
+| 6 | **Ranking de potencias y prestigio** | Puntaje por PBI, poder militar y prestigio. «🏆 Puesto N del mundo · N de Sudamérica». Prestigio por metas, guerras y Malvinas; se pierde si perdés o retrocedés. | `js/motor/mundo.js`, Mundo |
+| 7 | **Un mundo con agenda propia** | Los países te piden cosas (bases, litio, aranceles, gas, préstamos con condiciones, refugiados) según la relación y tus sectores. Un vecino que te odia y es más fuerte te puede atacar (guerra defensiva). | `js/datos/eventos_agenda.js`, `js/motor/mundo.js` |
+| 8 | **Balance y pruebas** | Objetivo: jugar bien da 55-70 % de aprobación y hay que manejar crisis; ninguna estrategia gana el 100 % de las veces; cada ideología sigue teniendo camino. El bot de `sim_gob` construye, negocia protestas y se prepara para las crisis. | `tests/sim_gob.js`, `tests/ui.js` |
+
+**Orden de trabajo:** 1 → 2 → 3 → 4 → 5 → 6 → 7 → interfaz → balance con `sim_gob` → pruebas de pantalla → docs → publicar.
+
+**Resultado (hecho):** los 8 puntos están hechos. Balance con `sim_gob` (30 partidas, mes 48): las estrategias buenas (equilibrado,
+estado, centro, mercado) terminan en 67-72 % de aprobación (antes 86-90 %) y crecen 6-7 % (antes 9-10 %); quedarse quieto
+termina en el helicóptero 8 de cada 30 veces; hay ~4 crisis o bonanzas mundiales por mandato; las protestas aparecen cuando
+descuidás o golpeás a un grupo (el que no gestiona tiene ~3 por mandato); las metas premian jugar bien y castigan al que no llega.
+Se sumaron 7 logros nuevos (gran objetivo, 5 metas, potencia regional, sector a nivel 12, exportar energía, prepararse para
+una crisis, rechazar un ataque).
+Partidas guardadas viejas: todo lo nuevo se crea solo si falta (`R.prod.asegurar`, `R.metas.asegurar`).
+
+**Para más adelante:** reclamos diplomáticos con escalada antes de la guerra (los demás eligen bando), comercio por país
+(cada socio compra distintos sectores), escenarios de inicio distintos (hiperinflación, default, boom), gabinete completo.

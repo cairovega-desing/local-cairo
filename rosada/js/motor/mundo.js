@@ -13,6 +13,23 @@
     s.mundo = { paises, guerra: null, malvinas: { soberania: 0, recuperadas: false }, poderExtra: 0, resistencia: 0, panico: 0, pactos: [], noticias: [] };
   };
 
+  // ── Ranking de potencias ──
+  // Puntos = economía (raíz del PBI en dólares) + poder militar + prestigio. Los anexados ya no cuentan.
+  mun.puntos = function (s, id) {
+    if (id === 'ARG') return Math.round(Math.sqrt(R.eco.pbiUSD(s)) * 2 + mun.poder(s) + (s.mundo.prestigio || 0));
+    return Math.round(Math.sqrt(R.PBI_PAIS[id] || 50) * 2 + R.PAIS[id].poder);
+  };
+  mun.ranking = function (s, soloSudamerica) {
+    const ids = ['ARG'].concat(R.PAISES.filter((p) => !s.mundo.paises[p.id].anexado && (!soloSudamerica || R.SUDAMERICA.includes(p.id))).map((p) => p.id));
+    return ids.map((id) => ({ id, puntos: mun.puntos(s, id) })).sort((a, b) => b.puntos - a.puntos);
+  };
+  mun.puesto = (s, soloSudamerica) => mun.ranking(s, soloSudamerica).findIndex((x) => x.id === 'ARG') + 1;
+  // Tus puntos contra el más fuerte de Sudamérica (1 = sos el primero).
+  mun.ventajaRegional = function (s) {
+    const otros = mun.ranking(s, true).filter((x) => x.id !== 'ARG');
+    return otros.length ? mun.puntos(s, 'ARG') / otros[0].puntos : 2;
+  };
+
   // ── Relaciones entre los otros países ──
   // Pactos de defensa entre países (además de los bloques fijos). Se arman y se rompen solos.
   mun.tienePacto = (s, a, b) => (s.mundo.pactos || []).some(([x, y]) => (x === a && y === b) || (x === b && y === a));
@@ -377,11 +394,19 @@
     s.mundo.guerra = null;
     let ef = {};
     let txt = '';
-    if (como === 'victoria') {
+    if (como === 'victoria' && W.objetivo === 'defensa') {
+      ef = { todos: 12, reservas: 4, prestigio: 12 };
+      txt = '🛡️ ¡Rechazamos el ataque de ' + P.nombre + '!';
+      st.rel = 25;
+    } else if (como === 'derrota' && W.objetivo === 'defensa') {
+      ef = { todos: -20, reservas: -10, deuda: 6, riesgo: 400, prestigio: -15 };
+      txt = '💀 ' + P.nombre + ' nos ganó: hay que pagarle';
+      st.rel = 15;
+    } else if (como === 'victoria') {
       if (W.objetivo === 'malvinas') {
         s.mundo.malvinas.recuperadas = true;
         s.mundo.malvinas.soberania = 100;
-        ef = { todos: 18, riesgo: 200 };
+        ef = { todos: 18, riesgo: 200, prestigio: 25 };
         txt = '🇦🇷 ¡RECUPERAMOS LAS MALVINAS!';
       } else {
         const amigos = mun.amigosDe(s, P.id);
@@ -395,19 +420,19 @@
         }
         mun.sumarPanico(s, 25 + 10 * Math.min(3, P.tam || 0.1));
         mun.noticia(s, '🏴', 'Argentina anexó a ' + P.nombre + ': pánico en el mundo');
-        ef = { todos: 10, reservas: 4 + (P.tam || 0.1) * 10, riesgo: 250 };
+        ef = { todos: 10, reservas: 4 + (P.tam || 0.1) * 10, riesgo: 250, prestigio: 15 };
         txt = '🏴 ¡Ganaste la guerra! ' + P.nombre + ' ahora es parte de la Argentina';
       }
     } else if (como === 'derrota') {
-      ef = { todos: -22, reservas: -8, deuda: 5, riesgo: 500, escandalo: 3 };
+      ef = { todos: -22, reservas: -8, deuda: 5, riesgo: 500, escandalo: 3, prestigio: -20 };
       txt = '💀 Perdiste la guerra contra ' + P.nombre;
       st.rel = 10;
     } else if (como === 'paz_buena') {
-      ef = { todos: 4, reservas: 3 };
+      ef = { todos: 4, reservas: 3, prestigio: 5 };
       txt = '🕊️ Paz con ventaja: ' + P.nombre + ' paga una indemnización';
       st.rel = 20;
     } else {
-      ef = { todos: -6, reservas: -4 };
+      ef = { todos: -6, reservas: -4, prestigio: -8 };
       txt = '🕊️ Paz con derrota: pagás una indemnización a ' + P.nombre;
       st.rel = 25;
     }
@@ -429,12 +454,36 @@
       const st = s.mundo.paises[p.id];
       if (st.anexado) continue;
       const base = st.alianza ? 70 : R.clamp(p.rel + 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo)), 0, 100);
-      const meta = base - panico * (st.alianza ? 0.15 : 0.4);
+      const meta = base - panico * (st.alianza ? 0.15 : 0.4) + Math.min(10, (s.mundo.prestigio || 0) * 0.08);
       st.rel = R.clamp(st.rel + (meta - st.rel) * 0.03, 0, 100);
     }
     mun.mundoSeMueve(s);
     // El pánico baja solo (a la mitad en ~10 meses).
     s.mundo.panico = Math.max(0, panico * 0.93 - 0.3);
+    // Un vecino que te odia y es bastante más fuerte te puede atacar (más si hay pánico por tus guerras).
+    if (!s.mundo.guerra && s.gob && s.gob.meses >= 6) {
+      for (const id of R.VECINOS) {
+        const st = s.mundo.paises[id];
+        if (st.anexado || st.alianza || st.rel >= 15) continue;
+        if (mun.fuerzas(s, id).ratio > 0.8) continue;
+        if (R.chance(s, 0.015 + (s.mundo.panico || 0) / 2000)) {
+          mun.serAtacado(s, id, momentos);
+          break;
+        }
+      }
+    }
+  };
+
+  // Te atacan: guerra para defenderte (si ganás, cobrás; si perdés, pagás).
+  mun.serAtacado = function (s, paisId, momentos) {
+    const P = R.PAIS[paisId];
+    s.mundo.guerra = { pais: paisId, objetivo: 'defensa', frente: 50, meses: 0 };
+    s.mundo.paises[paisId].rel = 0;
+    mun.sumarPanico(s, 10);
+    mun.noticia(s, '🚨', P.nombre + ' atacó a la Argentina');
+    R.diario(s, '🚨', '¡' + P.nombre + ' nos atacó!', 'mundo');
+    const aplicado = R.gob.aplicarEfectos(s, { todos: 8, riesgo: 250, crec: -1 });
+    if (momentos) momentos.push({ tipo: 'atacado', pais: paisId, aplicado });
   };
 
   // Los otros países también juegan: firman y rompen pactos, piden protección si hay pánico y te ofrecen alianzas.

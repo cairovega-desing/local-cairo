@@ -27,6 +27,7 @@
     const anexados = R.PAISES.filter((p) => s.mundo.paises[p.id].anexado);
     return h('section', { class: 'tarjeta pila' },
       h('div', { class: 'fila entre' }, h('div', { class: 'titulo-seccion' }, R.ui.bandera('ARG', 34), ' Argentina en el mundo')),
+      ui.filaRanking ? ui.filaRanking(s) : null,
       h('div', { class: 'fila', style: { gap: '10px' } },
         h('span', { style: { fontSize: '30px' } }, '⚔️'),
         h('div', { style: { flex: 1 } }, h('div', { class: 'fila entre' }, h('b', null, 'Poder militar'), h('b', { class: 'numero' }, String(poder))),
@@ -253,7 +254,7 @@
     const P = R.PAIS[W.pais];
     const volver = () => ui.momentos.guerra(s, m, listo);
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('h2', { class: 'centro' }, W.objetivo === 'malvinas' ? '⚔️ Guerra por Malvinas' : '⚔️ Guerra con ' + P.nombre),
+      h('h2', { class: 'centro' }, W.objetivo === 'malvinas' ? '⚔️ Guerra por Malvinas' : W.objetivo === 'defensa' ? '🛡️ Nos atacó ' + P.nombre : '⚔️ Guerra con ' + P.nombre),
       ui.frente(s, W),
       h('div', { class: 'fila envolver', style: { gap: '6px', justifyContent: 'center' } }, h('span', { class: 'chip' }, 'Mes ' + (W.meses + 1)), chipChances(s, W)),
       ui.accionesGuerra(s, volver),

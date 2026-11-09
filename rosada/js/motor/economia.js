@@ -149,6 +149,8 @@
     // Leyes y tratados: suman exportaciones, con techo (no se puede exportar el doble por decreto).
     const bExpo = eco.bonus(s, 'bonusExpo');
     f += Math.sign(bExpo) * 0.45 * (1 - Math.exp(-Math.abs(bExpo) / 0.45));
+    // Sectores: más campos, pozos y fábricas = más para vender (× el precio del mundo).
+    if (R.prod && s.prod) f += R.prod.expoExtra(s);
     return Math.max(0.5, f);
   };
   eco.recaudacion = (s) => {
@@ -212,7 +214,9 @@
     // (lo que baja los precios se apaga cerca de cero: no hay deflación por ley)
     let pLeyesInfl = eco.bonus(s, 'bonusPrecios');
     if (pLeyesInfl < 0) pLeyesInfl *= R.clamp(e.inflMes / 1.2, 0, 1);
-    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + pLeyesInfl + R.gauss(s) * 0.12;
+    // Recalentamiento: si la economía crece muy rápido y no hay gente para trabajar, suben precios y sueldos.
+    const pRecal = Math.max(0, e.crec - 5) * 0.05 + Math.max(0, 4 - e.desempleo) * 0.05;
+    let infl = inercia + base + ancla + pEmision + pTarifas + pDolar + pShock + pParitarias + pOferta + pLeyesInfl + pRecal + R.gauss(s) * 0.12;
     infl = R.clamp(infl, -0.5, 60);
     C.inflacion = [
       { k: 'inercia', v: inercia + base },
@@ -222,6 +226,7 @@
       { k: 'ancla', v: ancla },
       { k: 'oferta', v: pOferta },
       { k: 'leyes', v: pLeyesInfl },
+      { k: 'recalentamiento', v: pRecal },
       { k: 'shock', v: pShock + pParitarias },
     ];
     const inflAntes = e.inflMes;
@@ -247,23 +252,28 @@
     const pImpuestos = -0.7 * ((e.impEf ?? e.impuestos) - 2) - 0.3 * ((e.retEf ?? e.retenciones) - 2);
     const pInflacion = -Math.max(0, e.inflAnual - 35) / 25;
     const pCepo = e.cepo ? -0.7 : 0;
-    const pExpo = (eco.factorExpo(s) - 1) * 6;
+    // Exportar más empuja, pero con techo: duplicar lo que vendés no duplica el crecimiento.
+    const pExpo = 3.2 * Math.tanh((eco.factorExpo(s) - 1) / 0.45);
     const pGasto = 0.5 * (eco.gastoPrimario(e) - 14.6);
     const pShockCrec = shock('crec');
     const pMin = min && min.crec ? min.crec : 0;
     // Leyes: cada una suma, pero con rendimientos decrecientes (no se crece al infinito a fuerza de leyes).
     const bCrec = eco.bonus(s, 'bonusCrec');
     const pLeyes = Math.sign(bCrec) * 3 * (1 - Math.exp(-Math.abs(bCrec) / 3));
-    let crecMes = pPot + pObras + pFuturo + pConfianza + pImpuestos + pInflacion + pCepo + pExpo + pGasto + pShockCrec + pMin + pLeyes + R.gauss(s) * 0.6;
+    // Sectores: la tecnología sube la productividad; si falta energía, la industria frena.
+    const pSectores = R.prod && s.prod ? R.prod.crecExtra(s) : 0;
+    // Techo: con casi todos trabajando no se puede crecer mucho más rápido (falta gente).
+    const pCapacidad = -Math.max(0, 5 - e.desempleo) * 1.8;
+    let crecMes = pPot + pObras + pFuturo + pConfianza + pImpuestos + pInflacion + pCepo + pExpo + pGasto + pShockCrec + pMin + pLeyes + pSectores + pCapacidad + R.gauss(s) * 0.6;
     crecMes = R.clamp(crecMes, -15, 12);
     e.pbi *= 1 + crecMes / 1200;
     e.crec = e.crec * (1 - RX(0.18)) + crecMes * RX(0.18);
-    const oferta = pObras + pFuturo + pConfianza + pImpuestos + pExpo + pMin + pLeyes;
+    const oferta = pObras + pFuturo + pConfianza + pImpuestos + pExpo + pMin + pLeyes + pSectores;
     e.oferta = (e.oferta || 0) * (1 - RX(0.15)) + oferta * RX(0.15);
     C.crecimiento = [
       { k: 'obras', v: pObras }, { k: 'futuro', v: pFuturo }, { k: 'confianza', v: pConfianza }, { k: 'impuestos', v: pImpuestos },
       { k: 'inflacion', v: pInflacion }, { k: 'cepo', v: pCepo }, { k: 'expo', v: pExpo }, { k: 'gasto', v: pGasto },
-      { k: 'shock', v: pShockCrec }, { k: 'ministro', v: pMin + pLeyes },
+      { k: 'shock', v: pShockCrec }, { k: 'ministro', v: pMin + pLeyes }, { k: 'sectores', v: pSectores }, { k: 'capacidad', v: pCapacidad },
     ];
 
     // 5) Empleo
@@ -296,9 +306,10 @@
     const pagos = 0.55 + (e.deuda / 100) * 0.15;
     const fuga = e.cepo ? 0 : Math.max(0, (e.riesgo - 900) / 1000) * 0.6 + Math.max(0, e.inflAnual - 60) / 200;
     const prestamos = shock('reservas');
-    const dRes = expo - impo - pagos - fuga + prestamos;
+    const pEnergia = R.prod && s.prod ? R.prod.costoEnergia(s) : 0; // si falta energía, se compra afuera
+    const dRes = expo - impo - pagos - fuga + prestamos + pEnergia;
     e.reservas = R.clamp(e.reservas + dRes, -5, 250);
-    C.reservas = [{ k: 'comercio', v: expo - impo }, { k: 'pagos', v: -pagos }, { k: 'fuga', v: -fuga }, { k: 'prestamos', v: prestamos }];
+    C.reservas = [{ k: 'comercio', v: expo - impo }, { k: 'energia', v: pEnergia }, { k: 'pagos', v: -pagos }, { k: 'fuga', v: -fuga }, { k: 'prestamos', v: prestamos }];
 
     // 9) Deuda y riesgo país
     // La deuda sube con el déficit que no se emite, baja con superávit (se paga sola) y, si la economía crece,
@@ -365,12 +376,13 @@
     inflacion: {
       inercia: ['🔁', 'Los precios vienen subiendo'], emision: ['🖨️', 'Emitiste para pagar el déficit'], tarifas: ['⚡', 'Subieron las tarifas'],
       dolar: ['💵', 'Saltó el dólar'], ancla: ['⚓', 'Confían en tu plan'], shock: ['💥', 'Golpes de este mes'],
-      oferta: ['🏭', 'Más producción y competencia'], leyes: ['📜', 'Tus leyes'],
+      oferta: ['🏭', 'Más producción y competencia'], leyes: ['📜', 'Tus leyes'], recalentamiento: ['🔥', 'Economía recalentada'],
     },
     crecimiento: {
       obras: ['🏗️', 'Obra pública y rutas'], futuro: ['🎓', 'Educación y ciencia'], confianza: ['📊', 'Riesgo país'],
       impuestos: ['🧾', 'Impuestos y retenciones'], inflacion: ['🛒', 'La inflación frena todo'], cepo: ['🔒', 'El cepo'],
-      expo: ['🚢', 'Exportaciones'], gasto: ['💸', 'Gasto del Estado'], shock: ['💥', 'Clima y sorpresas'], ministro: ['🧑‍💼', 'Tu ministro y tus leyes'],
+      expo: ['🚢', 'Exportaciones'], gasto: ['💸', 'Gasto del Estado'], shock: ['💥', 'Clima, obras y sorpresas'], ministro: ['🧑‍💼', 'Tu ministro y tus leyes'],
+      sectores: ['🏭', 'Tecnología y energía'], capacidad: ['🧑‍🏭', 'Falta gente para trabajar'],
     },
     pobreza: {
       desempleo: ['👷', 'Falta de trabajo'], salario: ['💰', 'Sueldos que no alcanzan'], inflacion: ['🛒', 'Precios altos'], social: ['🤲', 'Ayuda social y jubilaciones'],
@@ -384,7 +396,7 @@
       crecimiento: ['📈', 'La economía crece: pesa menos'], shock: ['💥', 'Préstamos y acuerdos'],
     },
     reservas: {
-      comercio: ['🚢', 'Exportaciones menos importaciones'], pagos: ['🏦', 'Pago de deuda'], fuga: ['✈️', 'Gente que se lleva los dólares'], prestamos: ['🤝', 'Préstamos'],
+      comercio: ['🚢', 'Exportaciones menos importaciones'], energia: ['⛽', 'Energía que comprás afuera'], pagos: ['🏦', 'Pago de deuda'], fuga: ['✈️', 'Gente que se lleva los dólares'], prestamos: ['🤝', 'Préstamos'],
     },
   };
 })(globalThis.R = globalThis.R || {});
