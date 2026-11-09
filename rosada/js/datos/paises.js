@@ -1,6 +1,7 @@
 // Países del mundo (versión simple): poder militar, cuánto comercian, bloque y si son conquistables.
 // ideo: cómo piensa su gobierno (−1 … +1). expo: cuánto suben tus exportaciones con un tratado.
 // fichas: dónde aparecen en tu mapa si los anexás. tam: cuánto crece tu economía si los anexás.
+// Todos se pueden conquistar salvo los que dicen noConquistable (con el motivo).
 (function (R) {
   'use strict';
 
@@ -15,13 +16,13 @@
       fichas: [{ id: 'PRY1', hex: [4, 0], abrev: 'PAR' }] },
     { id: 'BOL', nombre: 'Bolivia', poder: 18, ideo: -0.5, rel: 50, bloque: null, expo: 0.02, conquistable: true, tam: 0.07,
       fichas: [{ id: 'BOL1', hex: [1, -1], abrev: 'BOL' }, { id: 'BOL2', hex: [2, -1], abrev: 'BOL' }] },
-    { id: 'PER', nombre: 'Perú', poder: 30, ideo: 0.2, rel: 50, bloque: 'pacifico', expo: 0.02 },
-    { id: 'VEN', nombre: 'Venezuela', poder: 28, ideo: -0.9, rel: 35, bloque: 'oriental', expo: 0.01 },
-    { id: 'USA', nombre: 'Estados Unidos', poder: 100, ideo: 0.6, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 12, potencia: true },
-    { id: 'CHN', nombre: 'China', poder: 90, ideo: -0.6, rel: 50, bloque: 'oriental', expo: 0.08, prestamo: 10, potencia: true },
-    { id: 'RUS', nombre: 'Rusia', poder: 80, ideo: -0.3, rel: 35, bloque: 'oriental', expo: 0.01, potencia: true },
-    { id: 'GBR', nombre: 'Reino Unido', poder: 75, ideo: 0.4, rel: 15, bloque: 'otan', expo: 0.02, potencia: true },
-    { id: 'UE', nombre: 'Unión Europea', poder: 70, ideo: 0.0, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 8, potencia: true },
+    { id: 'PER', nombre: 'Perú', poder: 30, ideo: 0.2, rel: 50, bloque: 'pacifico', expo: 0.02, tam: 0.4 },
+    { id: 'VEN', nombre: 'Venezuela', poder: 28, ideo: -0.9, rel: 35, bloque: 'oriental', expo: 0.01, tam: 0.15 },
+    { id: 'USA', nombre: 'Estados Unidos', poder: 100, ideo: 0.6, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 12, potencia: true, tam: 3.5 },
+    { id: 'CHN', nombre: 'China', poder: 90, ideo: -0.6, rel: 50, bloque: 'oriental', expo: 0.08, prestamo: 10, potencia: true, tam: 3.5 },
+    { id: 'RUS', nombre: 'Rusia', poder: 80, ideo: -0.3, rel: 35, bloque: 'oriental', expo: 0.01, potencia: true, tam: 0.8 },
+    { id: 'GBR', nombre: 'Reino Unido', poder: 75, ideo: 0.4, rel: 15, bloque: 'otan', expo: 0.02, potencia: true, tam: 1.0 },
+    { id: 'UE', nombre: 'Unión Europea', poder: 70, ideo: 0.0, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 8, potencia: true, noConquistable: 'Es un bloque de 27 países' },
   ];
   R.PAIS = Object.fromEntries(R.PAISES.map((p) => [p.id, p]));
   R.BLOQUES_MUNDO = {

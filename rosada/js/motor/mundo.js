@@ -10,8 +10,26 @@
       const afin = 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo));
       paises[p.id] = { rel: R.clamp(Math.round(p.rel + afin), 0, 100), tratado: false, alianza: false, sancion: false, anexado: false, enfr: {} };
     }
-    s.mundo = { paises, guerra: null, malvinas: { soberania: 0, recuperadas: false }, poderExtra: 0, resistencia: 0 };
+    s.mundo = { paises, guerra: null, malvinas: { soberania: 0, recuperadas: false }, poderExtra: 0, resistencia: 0, panico: 0, pactos: [], noticias: [] };
   };
+
+  // ── Relaciones entre los otros países ──
+  // Pactos de defensa entre países (además de los bloques fijos). Se arman y se rompen solos.
+  mun.tienePacto = (s, a, b) => (s.mundo.pactos || []).some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+  // Amigos de un país: su bloque, sus pactos y los que piensan parecido.
+  mun.amistad = function (s, a, b) {
+    const A = R.PAIS[a];
+    const B = R.PAIS[b];
+    return (A.bloque && A.bloque === B.bloque ? 40 : 0) + (mun.tienePacto(s, a, b) ? 40 : 0) + 25 * (1 - Math.abs(A.ideo - B.ideo)) - 10;
+  };
+  mun.amigosDe = (s, id) => R.PAISES.filter((q) => q.id !== id && !s.mundo.paises[q.id].anexado && mun.amistad(s, id, q.id) >= 30).map((q) => q.id);
+  mun.noticia = function (s, emoji, txt) {
+    s.mundo.noticias = s.mundo.noticias || [];
+    s.mundo.noticias.unshift({ mes: s.mes, emoji, txt });
+    if (s.mundo.noticias.length > 8) s.mundo.noticias.pop();
+  };
+  // Pánico mundial (0-100): sube si declarás guerras o anexás países y baja solo con el tiempo.
+  mun.sumarPanico = (s, v) => { s.mundo.panico = R.clamp((s.mundo.panico || 0) + v, 0, 100); };
 
   // ⚔️ Poder militar propio (sale de la calidad de Defensa, leyes y compras).
   mun.poder = (s) => Math.round(15 + s.eco.calidad.defensa * 0.7 + (s.mundo.poderExtra || 0));
@@ -30,12 +48,11 @@
     }
     let el = E.poder;
     const susAliados = [];
-    if (E.bloque) {
-      for (const p of R.PAISES) {
-        if (p.id === enemigo || p.bloque !== E.bloque || s.mundo.paises[p.id].anexado || misAliados.includes(p.id)) continue;
-        el += p.poder * 0.35;
-        susAliados.push(p.id);
-      }
+    for (const p of R.PAISES) {
+      if (p.id === enemigo || s.mundo.paises[p.id].anexado || misAliados.includes(p.id) || s.mundo.paises[p.id].alianza) continue;
+      if (!((E.bloque && p.bloque === E.bloque) || mun.tienePacto(s, enemigo, p.id))) continue;
+      el += p.poder * 0.35;
+      susAliados.push(p.id);
     }
     return { yo: Math.round(yo), el: Math.round(el), misAliados, susAliados, ratio: yo / Math.max(1, el) };
   };
@@ -59,6 +76,7 @@
     { id: 'alianza', emoji: '🛡️', nombre: 'Alianza militar', costo: { pc: 3 }, req: 55, si: (s, p, st) => !st.alianza && !st.anexado,
       hacer: (s, p, st) => {
         st.alianza = true;
+        st.oferta = null;
         // Los rivales de su bloque se enojan.
         for (const q of R.PAISES) {
           if (q.id === p.id || !q.bloque || !p.bloque) continue;
@@ -74,7 +92,7 @@
         if (st.tratado) { st.tratado = false; s.gob.bonusExpo = (s.gob.bonusExpo || 0) - p.expo; }
         return { txt: 'Sanciones a ' + p.nombre + ' 🚫', ef: p.id === 'GBR' ? { todos: 2 } : { empresarios: -2 } };
       } },
-    { id: 'guerra', emoji: '⚔️', nombre: 'Declarar la guerra', costo: { pc: 5 }, si: (s, p, st) => p.conquistable && !st.anexado && !s.mundo.guerra,
+    { id: 'guerra', emoji: '⚔️', nombre: 'Declarar la guerra', costo: { pc: 5 }, si: (s, p, st) => !p.noConquistable && !st.anexado && !s.mundo.guerra,
       hacer: (s, p) => mun.empezarGuerra(s, p.id, 'anexar') },
   ];
   mun.ACC = Object.fromEntries(mun.ACCIONES.map((a) => [a.id, a]));
@@ -84,12 +102,18 @@
     const a = mun.ACC[accId];
     const p = R.PAIS[paisId];
     const st = s.mundo.paises[paisId];
+    if (accId === 'guerra' && p.noConquistable) return p.noConquistable;
+    if (accId === 'guerra' && s.mundo.guerra) return 'Ya estás en una guerra';
     if (a.si && !a.si(s, p, st)) return 'No aplica';
-    if (a.req && st.rel < a.req) return 'Necesitás mejor relación (' + a.req + ')';
+    const ofrece = accId === 'alianza' && mun.ofreceAlianza(s, paisId);
+    if (a.req && st.rel < a.req && !ofrece) return 'Necesitás mejor relación (' + a.req + ')';
     if (a.enfr && st.enfr[accId] !== undefined && s.mes - st.enfr[accId] < a.enfr) return 'De nuevo en ' + (a.enfr - (s.mes - st.enfr[accId])) + ' meses';
-    if (a.costo.pc && s.gob.pc < a.costo.pc) return 'Falta ⭐';
+    if (mun.costoPC(s, paisId, accId) > s.gob.pc) return 'Falta ⭐';
     return null;
   };
+  // Si un país te ofreció una alianza (hace menos de 6 meses), sale 1 ⭐ y sin pedir relación.
+  mun.ofreceAlianza = (s, id) => { const o = s.mundo.paises[id].oferta; return o !== undefined && o !== null && s.mes - o < 6; };
+  mun.costoPC = (s, id, accId) => (accId === 'alianza' && mun.ofreceAlianza(s, id) ? 1 : mun.ACC[accId].costo.pc || 0);
 
   mun.hacer = function (s, paisId, accId) {
     const b = mun.bloqueo(s, paisId, accId);
@@ -97,7 +121,7 @@
     const a = mun.ACC[accId];
     const p = R.PAIS[paisId];
     const st = s.mundo.paises[paisId];
-    s.gob.pc -= a.costo.pc || 0;
+    s.gob.pc -= mun.costoPC(s, paisId, accId);
     st.enfr[accId] = s.mes;
     const antes = s.gob.aprob;
     const r = a.hacer(s, p, st);
@@ -166,11 +190,18 @@
   mun.empezarGuerra = function (s, paisId, objetivo) {
     const W = { pais: paisId, objetivo, frente: 50, meses: 0 };
     s.mundo.guerra = W;
+    const amigos = mun.amigosDe(s, paisId);
     for (const p of R.PAISES) {
       const st = s.mundo.paises[p.id];
+      if (st.anexado) continue;
       if (p.id === paisId) { st.rel = 0; st.alianza = false; if (st.tratado) { st.tratado = false; s.gob.bonusExpo = (s.gob.bonusExpo || 0) - p.expo; } continue; }
-      if (!st.alianza) st.rel = R.clamp(st.rel - 12, 0, 100);
+      if (amigos.includes(p.id)) {
+        st.rel = R.clamp(st.rel - 25, 0, 100);
+        if (st.alianza) { st.alianza = false; mun.noticia(s, '💔', p.nombre + ' rompe la alianza con vos por atacar a ' + R.PAIS[paisId].nombre); }
+      } else st.rel = R.clamp(st.rel - (st.alianza ? 4 : 8), 0, 100);
     }
+    mun.sumarPanico(s, 15 + (R.PAIS[paisId].potencia ? 10 : 0));
+    mun.noticia(s, '⚔️', 'Argentina le declaró la guerra a ' + R.PAIS[paisId].nombre);
     R.diario(s, '⚔️', '¡Guerra contra ' + R.PAIS[paisId].nombre + '!', 'mundo');
     return { txt: '⚔️ ¡Empezó la guerra contra ' + R.PAIS[paisId].nombre + '!', ef: { todos: 6, riesgo: 300, crec: -1.5 } };
   };
@@ -196,9 +227,40 @@
     const W = s.mundo.guerra;
     if (!W || id === 'paz') return 0;
     const F = mun.fuerzas(s, W.pais);
-    const media = id === 'ofensiva' ? 15 * (F.ratio - 0.85) : 6 * (F.ratio - 1.05);
-    const desvio = id === 'ofensiva' ? 7 : 4;
+    const { media, desvio } = mun.avance(F.ratio, id);
     return R.clamp(fi(-media / desvio), 0.01, 0.99);
+  };
+
+  // Cuánto se mueve el frente por mes: manda la relación de fuerzas. Con el doble de poder avanzás ~12 por mes
+  // (≈ 4-5 meses para ganar); con 20 % más, ~1 año y casi siempre ganás; parejos es largo y parejo;
+  // con menos poder casi no tenés chances.
+  mun.avance = (ratio, orden) => {
+    const lr = Math.log2(Math.max(0.05, ratio));
+    return orden === 'ofensiva' ? { media: 12 * lr, desvio: 2.5 } : { media: 5 * lr - 1, desvio: 1.5 };
+  };
+  // Chances de ganar atacando todos los meses (simulación rápida con su propio azar: no toca la partida).
+  mun.chances = function (s, paisId) {
+    const F = mun.fuerzas(s, paisId);
+    const { media, desvio } = mun.avance(F.ratio, 'ofensiva');
+    let semilla = 12345;
+    const azar = () => {
+      semilla = (semilla + 0x6d2b79f5) | 0;
+      let x = Math.imul(semilla ^ (semilla >>> 15), semilla | 1);
+      x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+      return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+    };
+    const gauss = () => (azar() + azar() + azar() + azar() - 2) * 1.73;
+    let ganadas = 0;
+    let perdidas = 0;
+    let meses = 0;
+    const N = 300;
+    for (let i = 0; i < N; i++) {
+      let f = 50;
+      let m = 0;
+      while (f > 0 && f < 100 && m < 36) { f += media + gauss() * desvio; m++; }
+      if (f >= 100) { ganadas++; meses += m; } else if (f <= 0) perdidas++;
+    }
+    return { gana: ganadas / N, pierde: perdidas / N, meses: ganadas ? Math.round(meses / ganadas) : null, F };
   };
 
   // Una orden de guerra (se da cada mes). Devuelve { txt, delta, fin?, aplicado }.
@@ -210,10 +272,11 @@
     let ef = {};
     W.meses++;
     if (id === 'paz') return mun.terminarGuerra(s, W.frente >= 55 ? 'paz_buena' : 'paz_mala');
-    if (id === 'ofensiva') { delta = 15 * (F.ratio - 0.85) + R.gauss(s) * 7; ef = { gastoExtra: 3 }; }
-    else { delta = 6 * (F.ratio - 1.05) + R.gauss(s) * 4; ef = { gastoExtra: 1 }; }
+    const av = mun.avance(F.ratio, id);
+    delta = av.media + R.gauss(s) * av.desvio;
+    ef = { gastoExtra: id === 'ofensiva' ? 3 : 1 };
     W.frente = R.clamp(W.frente + delta, 0, 100);
-    ef.crec = -1;
+    ef.crec = -0.6;
     ef.todos = W.meses <= 2 ? 2 : -2; // al principio patriotismo, después cansancio
     if (delta < -6) ef.todos -= 2;
     const aplicado = R.gob.aplicarEfectos(s, ef);
@@ -237,11 +300,18 @@
         ef = { todos: 18, riesgo: 200 };
         txt = '🇦🇷 ¡RECUPERAMOS LAS MALVINAS!';
       } else {
+        const amigos = mun.amigosDe(s, P.id);
         st.anexado = true;
-        s.eco.pbi *= 1 + P.tam;
-        s.mundo.resistencia = (s.mundo.resistencia || 0) + 12;
-        for (const q of R.PAISES) if (q.id !== P.id && !s.mundo.paises[q.id].alianza) s.mundo.paises[q.id].rel = R.clamp(s.mundo.paises[q.id].rel - 15, 0, 100);
-        ef = { todos: 10, reservas: 4 + P.tam * 10, riesgo: 250 };
+        s.eco.pbi *= 1 + (P.tam || 0.1);
+        s.mundo.resistencia = (s.mundo.resistencia || 0) + Math.round(12 + 8 * Math.min(3, P.tam || 0.1));
+        for (const q of R.PAISES) {
+          const sq = s.mundo.paises[q.id];
+          if (q.id === P.id || sq.anexado) continue;
+          sq.rel = R.clamp(sq.rel - (amigos.includes(q.id) ? 20 : sq.alianza ? 4 : 10), 0, 100);
+        }
+        mun.sumarPanico(s, 25 + 10 * Math.min(3, P.tam || 0.1));
+        mun.noticia(s, '🏴', 'Argentina anexó a ' + P.nombre + ': pánico en el mundo');
+        ef = { todos: 10, reservas: 4 + (P.tam || 0.1) * 10, riesgo: 250 };
         txt = '🏴 ¡Ganaste la guerra! ' + P.nombre + ' ahora es parte de la Argentina';
       }
     } else if (como === 'derrota') {
@@ -270,11 +340,59 @@
       s.mundo.resistencia--;
       R.gob.aplicarEfectos(s, { todos: -0.4 });
     }
+    const panico = s.mundo.panico || 0;
     for (const p of R.PAISES) {
       const st = s.mundo.paises[p.id];
       if (st.anexado) continue;
-      const meta = st.alianza ? 70 : R.clamp(p.rel + 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo)), 0, 100);
-      st.rel = R.clamp(st.rel + (meta - st.rel) * 0.02, 0, 100);
+      const base = st.alianza ? 70 : R.clamp(p.rel + 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo)), 0, 100);
+      const meta = base - panico * (st.alianza ? 0.15 : 0.4);
+      st.rel = R.clamp(st.rel + (meta - st.rel) * 0.03, 0, 100);
+    }
+    mun.mundoSeMueve(s);
+    // El pánico baja solo (a la mitad en ~10 meses).
+    s.mundo.panico = Math.max(0, panico * 0.93 - 0.3);
+  };
+
+  // Los otros países también juegan: firman y rompen pactos, piden protección si hay pánico y te ofrecen alianzas.
+  mun.mundoSeMueve = function (s) {
+    const M = s.mundo;
+    M.pactos = M.pactos || [];
+    const vivos = R.PAISES.filter((p) => !M.paises[p.id].anexado);
+    const nombre = (id) => R.PAIS[id].nombre;
+    // 1) Pactos nuevos entre países que piensan parecido (y no están ya juntos).
+    if (R.chance(s, 0.06) && vivos.length > 2) {
+      const a = R.pick(s, vivos);
+      const cand = vivos.filter((b) => b.id !== a.id && !mun.tienePacto(s, a.id, b.id) && !(a.bloque && a.bloque === b.bloque) && Math.abs(a.ideo - b.ideo) <= 0.5);
+      if (cand.length) {
+        const b = R.pick(s, cand);
+        M.pactos.push([a.id, b.id]);
+        mun.noticia(s, '🤝', nombre(a.id) + ' y ' + nombre(b.id) + ' firman una alianza');
+      }
+    }
+    // 2) A veces un pacto se rompe.
+    if (M.pactos.length && R.chance(s, 0.03)) {
+      const i = Math.floor(R.rand(s) * M.pactos.length);
+      const [a, b] = M.pactos.splice(i, 1)[0];
+      mun.noticia(s, '💢', nombre(a) + ' y ' + nombre(b) + ' rompen su alianza');
+    }
+    // 3) Con pánico, los vecinos chicos piden protección a una potencia amiga.
+    if ((M.panico || 0) >= 20) {
+      for (const p of vivos) {
+        if (p.potencia || M.paises[p.id].alianza || M.paises[p.id].rel >= 55) continue;
+        if (!R.chance(s, M.panico / 250)) continue;
+        const protector = vivos.filter((q) => q.id !== p.id && q.poder >= 55 && !M.paises[q.id].alianza && !mun.tienePacto(s, p.id, q.id))
+          .sort((x, y) => Math.abs(x.ideo - p.ideo) - Math.abs(y.ideo - p.ideo))[0];
+        if (!protector) continue;
+        M.pactos.push([p.id, protector.id]);
+        mun.noticia(s, '🛡️', nombre(p.id) + ' pide protección a ' + nombre(protector.id));
+      }
+    }
+    // 4) Los que te quieren mucho te ofrecen una alianza.
+    for (const p of vivos) {
+      const st = M.paises[p.id];
+      if (st.alianza || st.rel < 72 || mun.ofreceAlianza(s, p.id) || mun.enGuerraCon(s, p.id) || !R.chance(s, 0.05)) continue;
+      st.oferta = s.mes;
+      mun.noticia(s, '🤝', nombre(p.id) + ' te ofrece una alianza');
     }
   };
 

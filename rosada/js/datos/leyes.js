@@ -5,6 +5,8 @@
 //   bonusCrec (crecimiento), bonusEmpleo (baja el desempleo), bonusExpo (exportaciones), bonusImpo (importaciones),
 //   bonusRecauda (recaudación, % PBI), bonusPrecios (inflación por mes), bonusSalario (sueldo real por mes),
 //   bonusRiesgo (riesgo país), bonusCalidad {área}. bonusGrupo {grupo}: cómo lo siente cada grupo, desde ya.
+// recaudaYa: cambio de recaudación (% PBI) desde que se firma (ej.: bajar impuestos recauda menos ya; el
+//   crecimiento que trae la ley recupera parte con el tiempo vía perm.bonusRecauda).
 // hacer: cambios en el presupuesto (subirNivel) o en las perillas de la economía.
 // Cada ideología tiene su camino para hacer crecer al país, con costos y beneficios de verdad.
 // mayoria: 'simple' (mitad + 1 de cada cámara) o 'dos_tercios'. dnu: se puede sacar por decreto.
@@ -35,9 +37,10 @@
   R.LEYES = [
     // ── 💰 Economía ──
     { id: 'inversiones', cat: 'economia', emoji: '🏭', nombre: 'Ley de grandes inversiones', desc: 'Beneficios para invertir', ideo: 0.5, polemica: 0.35, dnu: true, madura: 24,
-      ef: { empresarios: 8, riesgo: -60 }, perm: { bonusCrec: 0.5, bonusExpo: 0.05, bonusEmpleo: 0.3, bonusRecauda: -0.1 } },
+      ef: { empresarios: 8, riesgo: -60 }, recaudaYa: -0.15, perm: { bonusCrec: 0.5, bonusExpo: 0.05, bonusEmpleo: 0.3, bonusRecauda: 0.08 } },
     { id: 'reforma_tributaria', cat: 'economia', emoji: '🧾', nombre: 'Reforma tributaria', desc: 'Menos impuestos que frenan la producción', ideo: 0.5, polemica: 0.3, madura: 18,
-      ef: { empresarios: 7, media: 3 }, perm: { bonusCrec: 0.45, bonusEmpleo: 0.25, bonusRecauda: -0.3 } },
+      ef: { empresarios: 7, media: 3 }, recaudaYa: -0.45, perm: { bonusCrec: 0.45, bonusEmpleo: 0.25, bonusRecauda: 0.3 },
+      nota: 'Recaudás menos ya; con el crecimiento recuperás buena parte' },
     { id: 'desregulacion', cat: 'economia', emoji: '✂️', nombre: 'Desregulación económica', desc: 'Menos trámites y reglas para producir', ideo: 0.8, polemica: 0.5, dnu: true, madura: 18,
       ef: { empresarios: 8, trabajadores: -3 }, perm: { bonusCrec: 0.4, bonusPrecios: -0.03, bonusEmpleo: 0.2 } },
     { id: 'apertura', cat: 'economia', emoji: '🚢', nombre: 'Apertura de importaciones', desc: 'Bajar aranceles: importar más barato', ideo: 0.7, polemica: 0.5, dnu: true, madura: 18,
@@ -86,7 +89,7 @@
     { id: 'monotributo', cat: 'trabajo', emoji: '🧾', nombre: 'Monotributo simple', desc: 'Pagar impuestos fácil y en blanco', ideo: 0.15, polemica: 0.1, madura: 12,
       ef: { trabajadores: 2, media: 2 }, perm: { bonusRecauda: 0.15, bonusEmpleo: 0.3 } },
     { id: 'pymes', cat: 'trabajo', emoji: '🧰', nombre: 'Ley pyme', desc: 'Menos impuestos para empresas chicas', ideo: 0.1, polemica: 0.15, madura: 18,
-      ef: { empresarios: 6, trabajadores: 2, media: 2 }, perm: { bonusEmpleo: 0.6, bonusCrec: 0.25, bonusRecauda: -0.2 } },
+      ef: { empresarios: 6, trabajadores: 2, media: 2 }, recaudaYa: -0.3, perm: { bonusEmpleo: 0.6, bonusCrec: 0.25, bonusRecauda: 0.15 } },
     { id: 'salario_minimo', cat: 'trabajo', emoji: '💵', nombre: 'Suba del salario mínimo', desc: 'Que nadie gane menos de lo justo', ideo: -0.5, polemica: 0.3, dnu: true, madura: 12,
       ef: { trabajadores: 9, humildes: 4, empresarios: -6, inflacion: 0.3, crec: 0.4 }, perm: { bonusSalario: 0.04, bonusEmpleo: -0.3, bonusGrupo: { trabajadores: 3 } } },
     { id: 'jornada', cat: 'trabajo', emoji: '⏰', nombre: 'Semana de 40 horas', desc: 'Trabajar menos con el mismo sueldo', ideo: -0.6, polemica: 0.5, madura: 12,
@@ -105,7 +108,7 @@
     { id: 'litio', cat: 'produccion', emoji: '🔋', nombre: 'Ley del litio', desc: 'Reglas claras para la minería', ideo: 0.15, polemica: 0.3, madura: 24,
       ef: { empresarios: 4 }, perm: { bonusExpo: 0.06, bonusCrec: 0.15 } },
     { id: 'conocimiento', cat: 'produccion', emoji: '💻', nombre: 'Economía del conocimiento', desc: 'Software y servicios para exportar', ideo: 0.1, polemica: 0.15, madura: 24,
-      ef: { media: 4, empresarios: 3 }, perm: { bonusExpo: 0.04, bonusEmpleo: 0.3, bonusCrec: 0.25, bonusRecauda: -0.08 } },
+      ef: { media: 4, empresarios: 3 }, recaudaYa: -0.12, perm: { bonusExpo: 0.04, bonusEmpleo: 0.3, bonusCrec: 0.25, bonusRecauda: 0.06 } },
     { id: 'renovables', cat: 'produccion', emoji: '🌞', nombre: 'Energías renovables', desc: 'Sol y viento para producir energía', ideo: -0.1, polemica: 0.1, madura: 24,
       ef: { media: 4 }, perm: { bonusExpo: 0.02, bonusPrecios: -0.02, bonusCrec: 0.15, bonusEmpleo: 0.2 } },
     { id: 'ciencia', cat: 'produccion', emoji: '🔬', nombre: 'Ley de ciencia', desc: 'Más plata para investigar', ideo: -0.15, polemica: 0.1,

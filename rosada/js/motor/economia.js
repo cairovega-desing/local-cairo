@@ -134,13 +134,16 @@
   eco.deudaUSD = (s) => (s.eco.deuda / 100) * eco.pbiUSD(s);
   // La cadena: más riesgo país = más interés por la deuda = más gasto = más déficit = más deuda.
   // (más sensible que en la vida real, para que se note: 700 puntos ≈ 2,4 % anual, 150 ≈ 1,1 %, 1500 ≈ 4,1 %)
-  eco.tasa = (e) => 0.8 + e.riesgo / 450; // % anual que se paga por la deuda
-  eco.intereses = (e) => (e.deuda * eco.tasa(e)) / 100;
+  eco.tasa = (e) => 0.8 + e.riesgo / 450; // % anual que se pagaría hoy por deuda nueva
+  // La tasa que pagás de verdad se acomoda de a poco (la deuda vieja sigue con la tasa vieja).
+  eco.tasaPagada = (e) => e.tasaEf ?? eco.tasa(e);
+  eco.intereses = (e) => (e.deuda * eco.tasaPagada(e)) / 100;
   eco.gastoTotal = (e) => eco.gastoPrimario(e) + eco.intereses(e);
   eco.factorExpo = (s) => {
     const e = s.eco;
     let f = 1 + (2 - (e.retEf ?? e.retenciones)) * 0.06;
     if (e.cepo) f -= 0.05;
+    if (s.mundo) f -= (s.mundo.panico || 0) * 0.0015; // con pánico, el mundo te compra menos
     if (s.gob) f += ((s.gob.grupos.campo.humor - 50) / 50) * 0.05;
     for (const sh of e.shocks) if (sh.k === 'expo') f += sh.v;
     // Leyes y tratados: suman exportaciones, con techo (no se puede exportar el doble por decreto).
@@ -312,10 +315,12 @@
     const rCepo = e.cepo ? 120 : 0;
     const rLeyes = -(ley('bcra') ? 80 : 0) + eco.bonus(s, 'bonusRiesgo');
     const rMin = min && min.riesgo ? min.riesgo : 0;
-    const riesgoObj = R.clamp(320 + rDeuda + rDeficit + rInfl + rReservas + rCepo + shock('riesgo') + rMin + rLeyes, 150, 5000);
+    const rMundo = s.mundo ? (s.mundo.panico || 0) * 3 : 0; // pánico mundial por tus guerras
+    const riesgoObj = R.clamp(320 + rDeuda + rDeficit + rInfl + rReservas + rCepo + shock('riesgo') + rMin + rLeyes + rMundo, 150, 5000);
     e.riesgo = R.clamp(e.riesgo + (riesgoObj - e.riesgo) * RX(0.16), 150, 5000);
+    e.tasaEf = (e.tasaEf ?? eco.tasa(e)) + (eco.tasa(e) - (e.tasaEf ?? eco.tasa(e))) * 0.08;
     C.riesgo = [{ k: 'deuda', v: rDeuda }, { k: 'deficit', v: rDeficit }, { k: 'inflacion', v: rInfl }, { k: 'reservas', v: rReservas },
-      { k: 'cepo', v: rCepo }, { k: 'leyes', v: rLeyes }, { k: 'ministro', v: rMin }, { k: 'shock', v: shock('riesgo') }];
+      { k: 'cepo', v: rCepo }, { k: 'leyes', v: rLeyes }, { k: 'ministro', v: rMin }, { k: 'mundo', v: rMundo }, { k: 'shock', v: shock('riesgo') }];
 
     // 10) Calidad de cada área: va lento hacia lo que le das.
     for (const a of R.AREAS) {
@@ -372,7 +377,7 @@
     },
     riesgo: {
       deuda: ['💳', 'Mucha deuda'], deficit: ['⚖️', 'Déficit'], inflacion: ['🛒', 'Inflación'], reservas: ['🏦', 'Reservas'],
-      cepo: ['🔒', 'El cepo'], leyes: ['📜', 'Tus leyes'], ministro: ['🧑‍💼', 'Tu ministro'], shock: ['💥', 'Noticias del mes'],
+      cepo: ['🔒', 'El cepo'], leyes: ['📜', 'Tus leyes'], ministro: ['🧑‍💼', 'Tu ministro'], mundo: ['😱', 'Pánico mundial'], shock: ['💥', 'Noticias del mes'],
     },
     deuda: {
       deficit: ['⚖️', 'Déficit que se paga con deuda'], superavit: ['💰', 'Superávit: pagás deuda'],

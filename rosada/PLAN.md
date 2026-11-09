@@ -397,6 +397,7 @@ Cada vuelta: **hacer → probar automáticamente → mirar capturas en celular y
 | 12 · Ritmo de juego: un mandato se juega en ~1 hora, así que las leyes llegan en meses, pegan ×1,5 y la economía reacciona ~2× más rápido (`R.eco.RITMO`); al año ya se notan los cambios | ✅ |
 | 13 · Ficha de cada grupo más clara: humor con hacia dónde va, «lo que más lo enoja» con el dato real, barras que salen del centro (rojo resta, verde suma), «Tus ideas» marcada como fija y punto crítico visible en la pantalla de inicio | ✅ |
 | 14 · Menos texto: se probó un estilo «afiche» y el usuario prefirió el de figuritas; queda ese estilo pero sin los textos de ayuda que sobraban (guías cortas, acciones sin descripción, notas recortadas) | ✅ |
+| 15 · Economía visible y mundo vivo: PBI en dólares, flechitas en deuda/riesgo/déficit, «¿Por qué?» de riesgo país y deuda; reformas que recaudan menos al firmar y recuperan con el tiempo; todos los países conquistables (menos la UE), guerras de meses que dependen del poder con chances a la vista, pánico mundial, enojo de los amigos del atacado y países que arman alianzas solos | ✅ |
 
 **Criterios de terminado:** se juega de punta a punta en celu y PC sin errores de consola (Playwright); 2000 campañas y 100 gobiernos
 de dos mandatos simulados sin NaN; 150 noticias, 23 leyes, 12 países y 32 logros; ningún titular pasa de 9 palabras ni opción de 4.

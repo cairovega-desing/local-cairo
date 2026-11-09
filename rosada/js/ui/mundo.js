@@ -14,7 +14,7 @@
 
   function panelMundo(s) {
     const pc = ui.esPC();
-    const izq = [tarjetaPoder(s), s.mundo.guerra ? tarjetaGuerra(s) : null, tarjetaMalvinas(s)];
+    const izq = [tarjetaPoder(s), s.mundo.guerra ? tarjetaGuerra(s) : null, tarjetaNoticiasMundo(s), tarjetaMalvinas(s)];
     const der = [tarjetaPaises(s)];
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
     return h('div', { class: 'pila' }, izq, der);
@@ -35,8 +35,21 @@
         h('span', { class: 'chip' }, '🛡️ Aliados: ', aliados.length ? aliados.map((p) => R.ui.bandera(p.id, 20)) : 'ninguno'),
         h('span', { class: 'chip' }, '📦 Tratados: ' + tratados.length),
         anexados.length ? h('span', { class: 'chip sol' }, '🏴 Anexaste: ' + anexados.map((p) => p.nombre).join(', ')) : null),
+      (s.mundo.panico || 0) >= 1 ? h('div', { class: 'pila', style: { gap: '4px' } },
+        h('div', { class: 'fila entre' }, h('b', null, '😱 Pánico mundial'), h('b', { class: 'numero' }, Math.round(s.mundo.panico) + '%')),
+        h('div', { class: 'barra' }, h('i', { style: { width: s.mundo.panico + '%', background: 'var(--mal)' } })),
+        h('span', { class: 'chico suave' }, 'Te sube el riesgo país y te compran menos. Baja con el tiempo.')) : null,
       h('p', { class: 'chico suave' }, '🪖 Sube con Defensa y aviones.'),
       h('button', { class: 'boton sec ancho', onclick: () => elegirProveedor(s) }, '🛩️ Comprar aviones · ⭐1 · 💸4%'));
+  }
+
+  // 📰 Lo que pasa en el mundo (alianzas entre países, pedidos de protección, ofertas).
+  function tarjetaNoticiasMundo(s) {
+    const lista = (s.mundo.noticias || []).slice(0, 4);
+    if (!lista.length) return null;
+    return h('section', { class: 'tarjeta pila', style: { gap: '6px' } },
+      h('div', { class: 'titulo-seccion' }, '📰 En el mundo'),
+      lista.map((n) => h('div', { class: 'fila', style: { gap: '8px', alignItems: 'flex-start' } }, h('span', null, n.emoji), h('span', { class: 'chico', style: { flex: 1 } }, n.txt), h('span', { class: 'chico suave' }, R.fechaCorta(n.mes)))));
   }
 
   function elegirProveedor(s) {
@@ -116,7 +129,8 @@
             st.tratado ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '📦') : null,
             st.alianza ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '🛡️') : null,
             st.sancion ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '🚫') : null,
-            mun.enGuerraCon(s, p.id) ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '⚔️ guerra') : null));
+            mun.enGuerraCon(s, p.id) ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '⚔️ guerra') : null,
+            !st.anexado && mun.ofreceAlianza(s, p.id) ? h('span', { class: 'chip sol', style: { fontSize: '11px' } }, '🤝 te ofrece alianza') : null));
       })));
   }
 
@@ -126,6 +140,7 @@
     const st = s.mundo.paises[id];
     const F = mun.fuerzas(s, id);
     const bloque = p.bloque ? R.BLOQUES_MUNDO[p.bloque] : null;
+    const susAmigos = st.anexado ? [] : mun.amigosDe(s, id);
     const efAcc = {
       visita: { rel: { [id]: 10 } },
       tratado: { expo: p.expo, campo: 3, empresarios: 3, trabajadores: -2 },
@@ -139,15 +154,22 @@
       st.anexado ? h('p', null, '🏴 Ahora es parte de la Argentina.') : h('div', { class: 'pila', style: { gap: '6px' } },
         h('div', { class: 'fila entre' }, h('b', null, relCara(st.rel) + ' Relación'), h('b', { class: 'numero' }, Math.round(st.rel) + '/100')),
         h('div', { class: 'barra' }, h('i', { style: { width: st.rel + '%', background: relColor(st.rel) } })),
-        h('div', { class: 'chico' }, '⚔️ Su poder: ' + p.poder + ' · el tuyo: ' + mun.poder(s))),
-      st.anexado ? null : h('div', { class: 'lista-elegir' }, mun.ACCIONES.filter((a) => !a.si || a.si(s, p, st) || a.id === 'guerra' && p.conquistable && !st.anexado).map((a) => {
+        h('div', { class: 'chico' }, '⚔️ Su poder: ' + p.poder + ' · el tuyo: ' + mun.poder(s)),
+        susAmigos.length ? h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chico suave' }, 'Sus amigos:'), susAmigos.map((x) => R.ui.bandera(x, 24))) : null),
+      st.anexado ? null : h('div', { class: 'lista-elegir' }, mun.ACCIONES.filter((a) => !a.si || a.si(s, p, st) || a.id === 'guerra').map((a) => {
         const b = mun.bloqueo(s, id, a.id);
         if (a.id === 'guerra' && confirmarGuerra && !b) {
+          const ch = mun.chances(s, id);
+          const pct = Math.round(ch.gana * 100);
           return h('div', { class: 'tarjeta plana pila', style: { background: 'var(--mal-claro)' } },
             h('b', null, '⚔️ ¿Seguro? Guerra contra ' + p.nombre),
-            h('div', { class: 'chico' }, '💪 Vos ' + F.yo + (F.misAliados.length ? ' (con ' + F.misAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '') + ' contra ' + F.el + (F.susAliados.length ? ' (con ' + F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '') + '. ' +
-              (F.ratio >= 1.3 ? 'Tenés todas las de ganar.' : F.ratio >= 1 ? 'Ventaja chica: puede salir mal.' : 'Te superan: es muy arriesgado.')),
-            h('div', { class: 'chico' }, 'Todo el mundo se va a enojar con vos. Si ganás, ' + p.nombre + ' pasa a ser parte del país.'),
+            h('div', { class: 'chico' }, '💪 Vos ' + F.yo + (F.misAliados.length ? ' (con ' + F.misAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '') + ' contra ' + F.el + (F.susAliados.length ? ' (con ' + F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '')),
+            h('div', { class: 'fila envolver', style: { gap: '6px' } },
+              ch.gana < 0.05 && ch.pierde < 0.05 ? h('span', { class: 'chip sol' }, '🤝 Parejos: se traba, nadie gana')
+                : h('span', { class: 'chip ' + (pct >= 60 ? 'bien' : pct >= 30 ? 'sol' : 'mal') }, '🎲 Chances de ganar: ' + pct + '%'),
+              ch.meses && ch.gana >= 0.05 ? h('span', { class: 'chip' }, '⏳ ~' + ch.meses + ' meses') : null),
+            h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chico' }, '😠 Se enojan mucho:'), susAmigos.length ? susAmigos.map((x) => R.ui.bandera(x, 22)) : h('span', { class: 'chico' }, 'nadie en especial'), h('span', { class: 'chico' }, '· 😱 pánico mundial ▲')),
+            h('div', { class: 'chico' }, 'Si ganás, ' + p.nombre + ' pasa a ser parte del país.'),
             h('div', { class: 'fila' },
               h('button', { class: 'boton mini rojo', onclick: () => { const r = mun.hacer(s, id, 'guerra'); ui.cerrarCapa(); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; } R.son.tambor(); ui.temblor(); ui.mostrarResultado(s, r); } }, '⚔️ ¡A la guerra!'),
               h('button', { class: 'boton mini sec', onclick: () => verPais(s, id, false) }, 'Mejor no')));
@@ -161,7 +183,7 @@
         } },
         h('span', { class: 'ic' }, a.emoji),
         h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, a.nombre), ui.chipsEfectos(R.gob.describirEfectos(s, efAcc[a.id] || {}), { compacto: true }), b ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, b) : null),
-        h('span', { class: 'chip sol' }, '⭐ ' + (a.costo.pc || 0)));
+        h('span', { class: 'chip sol' }, '⭐ ' + mun.costoPC(s, id, a.id)));
       }))), { cerrable: true });
   }
 

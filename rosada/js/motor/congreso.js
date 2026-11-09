@@ -208,6 +208,8 @@
     G.leyes[ley.id] = true;
     const ef = Object.assign({}, ley.ef || {});
     if (ley.costo && ley.costo.gasto) ef.gastoExtra = ley.costo.gasto;
+    // Lo que cambia la recaudación desde el día uno (no madura).
+    if (ley.recaudaYa) G.bonusRecauda = (G.bonusRecauda || 0) + ley.recaudaYa * R.eco.RITMO.impacto;
     if (ley.perm) {
       // Lo económico madura de a poco (ley.madura meses); lo que siente cada grupo (bonusGrupo) es desde ya.
       // Ritmo del juego: llegan en un tercio del tiempo y pegan más fuerte (R.eco.RITMO).

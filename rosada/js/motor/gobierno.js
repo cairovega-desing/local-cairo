@@ -284,7 +284,7 @@
   // Plata que deja (+) o se come (−) la ley en las cuentas, en % del PBI, cuando ya dio todo.
   gob.fiscalLey = function (s, ley) {
     const im = gob.impactoHacer(s, ley);
-    return im.dRec + ((ley.perm && ley.perm.bonusRecauda) || 0) * R.eco.RITMO.impacto - im.dGasto;
+    return im.dRec + ((ley.recaudaYa || 0) + ((ley.perm && ley.perm.bonusRecauda) || 0)) * R.eco.RITMO.impacto - im.dGasto;
   };
   gob.efectosLey = function (s, ley, max) {
     max = max || 3;
@@ -305,7 +305,8 @@
     }
     for (const [g, v] of Object.entries(p.bonusGrupo || {})) add(ya, g, R.GRUPO[g].emoji, R.GRUPO[g].nombre, v, 4, 1);
     for (const { id, d } of im.areas) add(ya, 'area_' + id, R.AREA[id].emoji, R.AREA[id].nombre, d, 0.05, 1);
-    if (Math.abs(im.dRec) > 0.05) add(ya, 'recauda', '🧾', 'Recaudación', im.dRec, 0.3, 1);
+    const recYa = im.dRec + (ley.recaudaYa || 0) * R.eco.RITMO.impacto;
+    if (Math.abs(recYa) > 0.05) add(ya, 'recauda', '🧾', 'Recaudación', recYa, 0.3, 1);
     if (Math.abs(im.dReservas) > 0.5) add(ya, 'reservas', '🏦', 'Reservas', im.dReservas, 2, 1);
     // Con el tiempo: lo que la ley cambia en el motor.
     for (const [k, [em, nom, paso, signo]] of Object.entries(PERM_META)) {

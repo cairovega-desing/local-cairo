@@ -2389,13 +2389,16 @@ label.boton { cursor: pointer; }
   eco.deudaUSD = (s) => (s.eco.deuda / 100) * eco.pbiUSD(s);
   // La cadena: más riesgo país = más interés por la deuda = más gasto = más déficit = más deuda.
   // (más sensible que en la vida real, para que se note: 700 puntos ≈ 2,4 % anual, 150 ≈ 1,1 %, 1500 ≈ 4,1 %)
-  eco.tasa = (e) => 0.8 + e.riesgo / 450; // % anual que se paga por la deuda
-  eco.intereses = (e) => (e.deuda * eco.tasa(e)) / 100;
+  eco.tasa = (e) => 0.8 + e.riesgo / 450; // % anual que se pagaría hoy por deuda nueva
+  // La tasa que pagás de verdad se acomoda de a poco (la deuda vieja sigue con la tasa vieja).
+  eco.tasaPagada = (e) => e.tasaEf ?? eco.tasa(e);
+  eco.intereses = (e) => (e.deuda * eco.tasaPagada(e)) / 100;
   eco.gastoTotal = (e) => eco.gastoPrimario(e) + eco.intereses(e);
   eco.factorExpo = (s) => {
     const e = s.eco;
     let f = 1 + (2 - (e.retEf ?? e.retenciones)) * 0.06;
     if (e.cepo) f -= 0.05;
+    if (s.mundo) f -= (s.mundo.panico || 0) * 0.0015; // con pánico, el mundo te compra menos
     if (s.gob) f += ((s.gob.grupos.campo.humor - 50) / 50) * 0.05;
     for (const sh of e.shocks) if (sh.k === 'expo') f += sh.v;
     // Leyes y tratados: suman exportaciones, con techo (no se puede exportar el doble por decreto).
@@ -2567,10 +2570,12 @@ label.boton { cursor: pointer; }
     const rCepo = e.cepo ? 120 : 0;
     const rLeyes = -(ley('bcra') ? 80 : 0) + eco.bonus(s, 'bonusRiesgo');
     const rMin = min && min.riesgo ? min.riesgo : 0;
-    const riesgoObj = R.clamp(320 + rDeuda + rDeficit + rInfl + rReservas + rCepo + shock('riesgo') + rMin + rLeyes, 150, 5000);
+    const rMundo = s.mundo ? (s.mundo.panico || 0) * 3 : 0; // pánico mundial por tus guerras
+    const riesgoObj = R.clamp(320 + rDeuda + rDeficit + rInfl + rReservas + rCepo + shock('riesgo') + rMin + rLeyes + rMundo, 150, 5000);
     e.riesgo = R.clamp(e.riesgo + (riesgoObj - e.riesgo) * RX(0.16), 150, 5000);
+    e.tasaEf = (e.tasaEf ?? eco.tasa(e)) + (eco.tasa(e) - (e.tasaEf ?? eco.tasa(e))) * 0.08;
     C.riesgo = [{ k: 'deuda', v: rDeuda }, { k: 'deficit', v: rDeficit }, { k: 'inflacion', v: rInfl }, { k: 'reservas', v: rReservas },
-      { k: 'cepo', v: rCepo }, { k: 'leyes', v: rLeyes }, { k: 'ministro', v: rMin }, { k: 'shock', v: shock('riesgo') }];
+      { k: 'cepo', v: rCepo }, { k: 'leyes', v: rLeyes }, { k: 'ministro', v: rMin }, { k: 'mundo', v: rMundo }, { k: 'shock', v: shock('riesgo') }];
 
     // 10) Calidad de cada área: va lento hacia lo que le das.
     for (const a of R.AREAS) {
@@ -2627,7 +2632,7 @@ label.boton { cursor: pointer; }
     },
     riesgo: {
       deuda: ['💳', 'Mucha deuda'], deficit: ['⚖️', 'Déficit'], inflacion: ['🛒', 'Inflación'], reservas: ['🏦', 'Reservas'],
-      cepo: ['🔒', 'El cepo'], leyes: ['📜', 'Tus leyes'], ministro: ['🧑‍💼', 'Tu ministro'], shock: ['💥', 'Noticias del mes'],
+      cepo: ['🔒', 'El cepo'], leyes: ['📜', 'Tus leyes'], ministro: ['🧑‍💼', 'Tu ministro'], mundo: ['😱', 'Pánico mundial'], shock: ['💥', 'Noticias del mes'],
     },
     deuda: {
       deficit: ['⚖️', 'Déficit que se paga con deuda'], superavit: ['💰', 'Superávit: pagás deuda'],
@@ -2928,7 +2933,7 @@ label.boton { cursor: pointer; }
   // Plata que deja (+) o se come (−) la ley en las cuentas, en % del PBI, cuando ya dio todo.
   gob.fiscalLey = function (s, ley) {
     const im = gob.impactoHacer(s, ley);
-    return im.dRec + ((ley.perm && ley.perm.bonusRecauda) || 0) * R.eco.RITMO.impacto - im.dGasto;
+    return im.dRec + ((ley.recaudaYa || 0) + ((ley.perm && ley.perm.bonusRecauda) || 0)) * R.eco.RITMO.impacto - im.dGasto;
   };
   gob.efectosLey = function (s, ley, max) {
     max = max || 3;
@@ -2949,7 +2954,8 @@ label.boton { cursor: pointer; }
     }
     for (const [g, v] of Object.entries(p.bonusGrupo || {})) add(ya, g, R.GRUPO[g].emoji, R.GRUPO[g].nombre, v, 4, 1);
     for (const { id, d } of im.areas) add(ya, 'area_' + id, R.AREA[id].emoji, R.AREA[id].nombre, d, 0.05, 1);
-    if (Math.abs(im.dRec) > 0.05) add(ya, 'recauda', '🧾', 'Recaudación', im.dRec, 0.3, 1);
+    const recYa = im.dRec + (ley.recaudaYa || 0) * R.eco.RITMO.impacto;
+    if (Math.abs(recYa) > 0.05) add(ya, 'recauda', '🧾', 'Recaudación', recYa, 0.3, 1);
     if (Math.abs(im.dReservas) > 0.5) add(ya, 'reservas', '🏦', 'Reservas', im.dReservas, 2, 1);
     // Con el tiempo: lo que la ley cambia en el motor.
     for (const [k, [em, nom, paso, signo]] of Object.entries(PERM_META)) {
@@ -3232,6 +3238,8 @@ label.boton { cursor: pointer; }
 //   bonusCrec (crecimiento), bonusEmpleo (baja el desempleo), bonusExpo (exportaciones), bonusImpo (importaciones),
 //   bonusRecauda (recaudación, % PBI), bonusPrecios (inflación por mes), bonusSalario (sueldo real por mes),
 //   bonusRiesgo (riesgo país), bonusCalidad {área}. bonusGrupo {grupo}: cómo lo siente cada grupo, desde ya.
+// recaudaYa: cambio de recaudación (% PBI) desde que se firma (ej.: bajar impuestos recauda menos ya; el
+//   crecimiento que trae la ley recupera parte con el tiempo vía perm.bonusRecauda).
 // hacer: cambios en el presupuesto (subirNivel) o en las perillas de la economía.
 // Cada ideología tiene su camino para hacer crecer al país, con costos y beneficios de verdad.
 // mayoria: 'simple' (mitad + 1 de cada cámara) o 'dos_tercios'. dnu: se puede sacar por decreto.
@@ -3262,9 +3270,10 @@ label.boton { cursor: pointer; }
   R.LEYES = [
     // ── 💰 Economía ──
     { id: 'inversiones', cat: 'economia', emoji: '🏭', nombre: 'Ley de grandes inversiones', desc: 'Beneficios para invertir', ideo: 0.5, polemica: 0.35, dnu: true, madura: 24,
-      ef: { empresarios: 8, riesgo: -60 }, perm: { bonusCrec: 0.5, bonusExpo: 0.05, bonusEmpleo: 0.3, bonusRecauda: -0.1 } },
+      ef: { empresarios: 8, riesgo: -60 }, recaudaYa: -0.15, perm: { bonusCrec: 0.5, bonusExpo: 0.05, bonusEmpleo: 0.3, bonusRecauda: 0.08 } },
     { id: 'reforma_tributaria', cat: 'economia', emoji: '🧾', nombre: 'Reforma tributaria', desc: 'Menos impuestos que frenan la producción', ideo: 0.5, polemica: 0.3, madura: 18,
-      ef: { empresarios: 7, media: 3 }, perm: { bonusCrec: 0.45, bonusEmpleo: 0.25, bonusRecauda: -0.3 } },
+      ef: { empresarios: 7, media: 3 }, recaudaYa: -0.45, perm: { bonusCrec: 0.45, bonusEmpleo: 0.25, bonusRecauda: 0.3 },
+      nota: 'Recaudás menos ya; con el crecimiento recuperás buena parte' },
     { id: 'desregulacion', cat: 'economia', emoji: '✂️', nombre: 'Desregulación económica', desc: 'Menos trámites y reglas para producir', ideo: 0.8, polemica: 0.5, dnu: true, madura: 18,
       ef: { empresarios: 8, trabajadores: -3 }, perm: { bonusCrec: 0.4, bonusPrecios: -0.03, bonusEmpleo: 0.2 } },
     { id: 'apertura', cat: 'economia', emoji: '🚢', nombre: 'Apertura de importaciones', desc: 'Bajar aranceles: importar más barato', ideo: 0.7, polemica: 0.5, dnu: true, madura: 18,
@@ -3313,7 +3322,7 @@ label.boton { cursor: pointer; }
     { id: 'monotributo', cat: 'trabajo', emoji: '🧾', nombre: 'Monotributo simple', desc: 'Pagar impuestos fácil y en blanco', ideo: 0.15, polemica: 0.1, madura: 12,
       ef: { trabajadores: 2, media: 2 }, perm: { bonusRecauda: 0.15, bonusEmpleo: 0.3 } },
     { id: 'pymes', cat: 'trabajo', emoji: '🧰', nombre: 'Ley pyme', desc: 'Menos impuestos para empresas chicas', ideo: 0.1, polemica: 0.15, madura: 18,
-      ef: { empresarios: 6, trabajadores: 2, media: 2 }, perm: { bonusEmpleo: 0.6, bonusCrec: 0.25, bonusRecauda: -0.2 } },
+      ef: { empresarios: 6, trabajadores: 2, media: 2 }, recaudaYa: -0.3, perm: { bonusEmpleo: 0.6, bonusCrec: 0.25, bonusRecauda: 0.15 } },
     { id: 'salario_minimo', cat: 'trabajo', emoji: '💵', nombre: 'Suba del salario mínimo', desc: 'Que nadie gane menos de lo justo', ideo: -0.5, polemica: 0.3, dnu: true, madura: 12,
       ef: { trabajadores: 9, humildes: 4, empresarios: -6, inflacion: 0.3, crec: 0.4 }, perm: { bonusSalario: 0.04, bonusEmpleo: -0.3, bonusGrupo: { trabajadores: 3 } } },
     { id: 'jornada', cat: 'trabajo', emoji: '⏰', nombre: 'Semana de 40 horas', desc: 'Trabajar menos con el mismo sueldo', ideo: -0.6, polemica: 0.5, madura: 12,
@@ -3332,7 +3341,7 @@ label.boton { cursor: pointer; }
     { id: 'litio', cat: 'produccion', emoji: '🔋', nombre: 'Ley del litio', desc: 'Reglas claras para la minería', ideo: 0.15, polemica: 0.3, madura: 24,
       ef: { empresarios: 4 }, perm: { bonusExpo: 0.06, bonusCrec: 0.15 } },
     { id: 'conocimiento', cat: 'produccion', emoji: '💻', nombre: 'Economía del conocimiento', desc: 'Software y servicios para exportar', ideo: 0.1, polemica: 0.15, madura: 24,
-      ef: { media: 4, empresarios: 3 }, perm: { bonusExpo: 0.04, bonusEmpleo: 0.3, bonusCrec: 0.25, bonusRecauda: -0.08 } },
+      ef: { media: 4, empresarios: 3 }, recaudaYa: -0.12, perm: { bonusExpo: 0.04, bonusEmpleo: 0.3, bonusCrec: 0.25, bonusRecauda: 0.06 } },
     { id: 'renovables', cat: 'produccion', emoji: '🌞', nombre: 'Energías renovables', desc: 'Sol y viento para producir energía', ideo: -0.1, polemica: 0.1, madura: 24,
       ef: { media: 4 }, perm: { bonusExpo: 0.02, bonusPrecios: -0.02, bonusCrec: 0.15, bonusEmpleo: 0.2 } },
     { id: 'ciencia', cat: 'produccion', emoji: '🔬', nombre: 'Ley de ciencia', desc: 'Más plata para investigar', ideo: -0.15, polemica: 0.1,
@@ -3615,6 +3624,8 @@ label.boton { cursor: pointer; }
     G.leyes[ley.id] = true;
     const ef = Object.assign({}, ley.ef || {});
     if (ley.costo && ley.costo.gasto) ef.gastoExtra = ley.costo.gasto;
+    // Lo que cambia la recaudación desde el día uno (no madura).
+    if (ley.recaudaYa) G.bonusRecauda = (G.bonusRecauda || 0) + ley.recaudaYa * R.eco.RITMO.impacto;
     if (ley.perm) {
       // Lo económico madura de a poco (ley.madura meses); lo que siente cada grupo (bonusGrupo) es desde ya.
       // Ritmo del juego: llegan en un tercio del tiempo y pegan más fuerte (R.eco.RITMO).
@@ -3862,6 +3873,7 @@ label.boton { cursor: pointer; }
 // Países del mundo (versión simple): poder militar, cuánto comercian, bloque y si son conquistables.
 // ideo: cómo piensa su gobierno (−1 … +1). expo: cuánto suben tus exportaciones con un tratado.
 // fichas: dónde aparecen en tu mapa si los anexás. tam: cuánto crece tu economía si los anexás.
+// Todos se pueden conquistar salvo los que dicen noConquistable (con el motivo).
 (function (R) {
   'use strict';
 
@@ -3876,13 +3888,13 @@ label.boton { cursor: pointer; }
       fichas: [{ id: 'PRY1', hex: [4, 0], abrev: 'PAR' }] },
     { id: 'BOL', nombre: 'Bolivia', poder: 18, ideo: -0.5, rel: 50, bloque: null, expo: 0.02, conquistable: true, tam: 0.07,
       fichas: [{ id: 'BOL1', hex: [1, -1], abrev: 'BOL' }, { id: 'BOL2', hex: [2, -1], abrev: 'BOL' }] },
-    { id: 'PER', nombre: 'Perú', poder: 30, ideo: 0.2, rel: 50, bloque: 'pacifico', expo: 0.02 },
-    { id: 'VEN', nombre: 'Venezuela', poder: 28, ideo: -0.9, rel: 35, bloque: 'oriental', expo: 0.01 },
-    { id: 'USA', nombre: 'Estados Unidos', poder: 100, ideo: 0.6, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 12, potencia: true },
-    { id: 'CHN', nombre: 'China', poder: 90, ideo: -0.6, rel: 50, bloque: 'oriental', expo: 0.08, prestamo: 10, potencia: true },
-    { id: 'RUS', nombre: 'Rusia', poder: 80, ideo: -0.3, rel: 35, bloque: 'oriental', expo: 0.01, potencia: true },
-    { id: 'GBR', nombre: 'Reino Unido', poder: 75, ideo: 0.4, rel: 15, bloque: 'otan', expo: 0.02, potencia: true },
-    { id: 'UE', nombre: 'Unión Europea', poder: 70, ideo: 0.0, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 8, potencia: true },
+    { id: 'PER', nombre: 'Perú', poder: 30, ideo: 0.2, rel: 50, bloque: 'pacifico', expo: 0.02, tam: 0.4 },
+    { id: 'VEN', nombre: 'Venezuela', poder: 28, ideo: -0.9, rel: 35, bloque: 'oriental', expo: 0.01, tam: 0.15 },
+    { id: 'USA', nombre: 'Estados Unidos', poder: 100, ideo: 0.6, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 12, potencia: true, tam: 3.5 },
+    { id: 'CHN', nombre: 'China', poder: 90, ideo: -0.6, rel: 50, bloque: 'oriental', expo: 0.08, prestamo: 10, potencia: true, tam: 3.5 },
+    { id: 'RUS', nombre: 'Rusia', poder: 80, ideo: -0.3, rel: 35, bloque: 'oriental', expo: 0.01, potencia: true, tam: 0.8 },
+    { id: 'GBR', nombre: 'Reino Unido', poder: 75, ideo: 0.4, rel: 15, bloque: 'otan', expo: 0.02, potencia: true, tam: 1.0 },
+    { id: 'UE', nombre: 'Unión Europea', poder: 70, ideo: 0.0, rel: 50, bloque: 'otan', expo: 0.05, prestamo: 8, potencia: true, noConquistable: 'Es un bloque de 27 países' },
   ];
   R.PAIS = Object.fromEntries(R.PAISES.map((p) => [p.id, p]));
   R.BLOQUES_MUNDO = {
@@ -3947,8 +3959,26 @@ label.boton { cursor: pointer; }
       const afin = 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo));
       paises[p.id] = { rel: R.clamp(Math.round(p.rel + afin), 0, 100), tratado: false, alianza: false, sancion: false, anexado: false, enfr: {} };
     }
-    s.mundo = { paises, guerra: null, malvinas: { soberania: 0, recuperadas: false }, poderExtra: 0, resistencia: 0 };
+    s.mundo = { paises, guerra: null, malvinas: { soberania: 0, recuperadas: false }, poderExtra: 0, resistencia: 0, panico: 0, pactos: [], noticias: [] };
   };
+
+  // ── Relaciones entre los otros países ──
+  // Pactos de defensa entre países (además de los bloques fijos). Se arman y se rompen solos.
+  mun.tienePacto = (s, a, b) => (s.mundo.pactos || []).some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+  // Amigos de un país: su bloque, sus pactos y los que piensan parecido.
+  mun.amistad = function (s, a, b) {
+    const A = R.PAIS[a];
+    const B = R.PAIS[b];
+    return (A.bloque && A.bloque === B.bloque ? 40 : 0) + (mun.tienePacto(s, a, b) ? 40 : 0) + 25 * (1 - Math.abs(A.ideo - B.ideo)) - 10;
+  };
+  mun.amigosDe = (s, id) => R.PAISES.filter((q) => q.id !== id && !s.mundo.paises[q.id].anexado && mun.amistad(s, id, q.id) >= 30).map((q) => q.id);
+  mun.noticia = function (s, emoji, txt) {
+    s.mundo.noticias = s.mundo.noticias || [];
+    s.mundo.noticias.unshift({ mes: s.mes, emoji, txt });
+    if (s.mundo.noticias.length > 8) s.mundo.noticias.pop();
+  };
+  // Pánico mundial (0-100): sube si declarás guerras o anexás países y baja solo con el tiempo.
+  mun.sumarPanico = (s, v) => { s.mundo.panico = R.clamp((s.mundo.panico || 0) + v, 0, 100); };
 
   // ⚔️ Poder militar propio (sale de la calidad de Defensa, leyes y compras).
   mun.poder = (s) => Math.round(15 + s.eco.calidad.defensa * 0.7 + (s.mundo.poderExtra || 0));
@@ -3967,12 +3997,11 @@ label.boton { cursor: pointer; }
     }
     let el = E.poder;
     const susAliados = [];
-    if (E.bloque) {
-      for (const p of R.PAISES) {
-        if (p.id === enemigo || p.bloque !== E.bloque || s.mundo.paises[p.id].anexado || misAliados.includes(p.id)) continue;
-        el += p.poder * 0.35;
-        susAliados.push(p.id);
-      }
+    for (const p of R.PAISES) {
+      if (p.id === enemigo || s.mundo.paises[p.id].anexado || misAliados.includes(p.id) || s.mundo.paises[p.id].alianza) continue;
+      if (!((E.bloque && p.bloque === E.bloque) || mun.tienePacto(s, enemigo, p.id))) continue;
+      el += p.poder * 0.35;
+      susAliados.push(p.id);
     }
     return { yo: Math.round(yo), el: Math.round(el), misAliados, susAliados, ratio: yo / Math.max(1, el) };
   };
@@ -3996,6 +4025,7 @@ label.boton { cursor: pointer; }
     { id: 'alianza', emoji: '🛡️', nombre: 'Alianza militar', costo: { pc: 3 }, req: 55, si: (s, p, st) => !st.alianza && !st.anexado,
       hacer: (s, p, st) => {
         st.alianza = true;
+        st.oferta = null;
         // Los rivales de su bloque se enojan.
         for (const q of R.PAISES) {
           if (q.id === p.id || !q.bloque || !p.bloque) continue;
@@ -4011,7 +4041,7 @@ label.boton { cursor: pointer; }
         if (st.tratado) { st.tratado = false; s.gob.bonusExpo = (s.gob.bonusExpo || 0) - p.expo; }
         return { txt: 'Sanciones a ' + p.nombre + ' 🚫', ef: p.id === 'GBR' ? { todos: 2 } : { empresarios: -2 } };
       } },
-    { id: 'guerra', emoji: '⚔️', nombre: 'Declarar la guerra', costo: { pc: 5 }, si: (s, p, st) => p.conquistable && !st.anexado && !s.mundo.guerra,
+    { id: 'guerra', emoji: '⚔️', nombre: 'Declarar la guerra', costo: { pc: 5 }, si: (s, p, st) => !p.noConquistable && !st.anexado && !s.mundo.guerra,
       hacer: (s, p) => mun.empezarGuerra(s, p.id, 'anexar') },
   ];
   mun.ACC = Object.fromEntries(mun.ACCIONES.map((a) => [a.id, a]));
@@ -4021,12 +4051,18 @@ label.boton { cursor: pointer; }
     const a = mun.ACC[accId];
     const p = R.PAIS[paisId];
     const st = s.mundo.paises[paisId];
+    if (accId === 'guerra' && p.noConquistable) return p.noConquistable;
+    if (accId === 'guerra' && s.mundo.guerra) return 'Ya estás en una guerra';
     if (a.si && !a.si(s, p, st)) return 'No aplica';
-    if (a.req && st.rel < a.req) return 'Necesitás mejor relación (' + a.req + ')';
+    const ofrece = accId === 'alianza' && mun.ofreceAlianza(s, paisId);
+    if (a.req && st.rel < a.req && !ofrece) return 'Necesitás mejor relación (' + a.req + ')';
     if (a.enfr && st.enfr[accId] !== undefined && s.mes - st.enfr[accId] < a.enfr) return 'De nuevo en ' + (a.enfr - (s.mes - st.enfr[accId])) + ' meses';
-    if (a.costo.pc && s.gob.pc < a.costo.pc) return 'Falta ⭐';
+    if (mun.costoPC(s, paisId, accId) > s.gob.pc) return 'Falta ⭐';
     return null;
   };
+  // Si un país te ofreció una alianza (hace menos de 6 meses), sale 1 ⭐ y sin pedir relación.
+  mun.ofreceAlianza = (s, id) => { const o = s.mundo.paises[id].oferta; return o !== undefined && o !== null && s.mes - o < 6; };
+  mun.costoPC = (s, id, accId) => (accId === 'alianza' && mun.ofreceAlianza(s, id) ? 1 : mun.ACC[accId].costo.pc || 0);
 
   mun.hacer = function (s, paisId, accId) {
     const b = mun.bloqueo(s, paisId, accId);
@@ -4034,7 +4070,7 @@ label.boton { cursor: pointer; }
     const a = mun.ACC[accId];
     const p = R.PAIS[paisId];
     const st = s.mundo.paises[paisId];
-    s.gob.pc -= a.costo.pc || 0;
+    s.gob.pc -= mun.costoPC(s, paisId, accId);
     st.enfr[accId] = s.mes;
     const antes = s.gob.aprob;
     const r = a.hacer(s, p, st);
@@ -4103,11 +4139,18 @@ label.boton { cursor: pointer; }
   mun.empezarGuerra = function (s, paisId, objetivo) {
     const W = { pais: paisId, objetivo, frente: 50, meses: 0 };
     s.mundo.guerra = W;
+    const amigos = mun.amigosDe(s, paisId);
     for (const p of R.PAISES) {
       const st = s.mundo.paises[p.id];
+      if (st.anexado) continue;
       if (p.id === paisId) { st.rel = 0; st.alianza = false; if (st.tratado) { st.tratado = false; s.gob.bonusExpo = (s.gob.bonusExpo || 0) - p.expo; } continue; }
-      if (!st.alianza) st.rel = R.clamp(st.rel - 12, 0, 100);
+      if (amigos.includes(p.id)) {
+        st.rel = R.clamp(st.rel - 25, 0, 100);
+        if (st.alianza) { st.alianza = false; mun.noticia(s, '💔', p.nombre + ' rompe la alianza con vos por atacar a ' + R.PAIS[paisId].nombre); }
+      } else st.rel = R.clamp(st.rel - (st.alianza ? 4 : 8), 0, 100);
     }
+    mun.sumarPanico(s, 15 + (R.PAIS[paisId].potencia ? 10 : 0));
+    mun.noticia(s, '⚔️', 'Argentina le declaró la guerra a ' + R.PAIS[paisId].nombre);
     R.diario(s, '⚔️', '¡Guerra contra ' + R.PAIS[paisId].nombre + '!', 'mundo');
     return { txt: '⚔️ ¡Empezó la guerra contra ' + R.PAIS[paisId].nombre + '!', ef: { todos: 6, riesgo: 300, crec: -1.5 } };
   };
@@ -4133,9 +4176,40 @@ label.boton { cursor: pointer; }
     const W = s.mundo.guerra;
     if (!W || id === 'paz') return 0;
     const F = mun.fuerzas(s, W.pais);
-    const media = id === 'ofensiva' ? 15 * (F.ratio - 0.85) : 6 * (F.ratio - 1.05);
-    const desvio = id === 'ofensiva' ? 7 : 4;
+    const { media, desvio } = mun.avance(F.ratio, id);
     return R.clamp(fi(-media / desvio), 0.01, 0.99);
+  };
+
+  // Cuánto se mueve el frente por mes: manda la relación de fuerzas. Con el doble de poder avanzás ~12 por mes
+  // (≈ 4-5 meses para ganar); con 20 % más, ~1 año y casi siempre ganás; parejos es largo y parejo;
+  // con menos poder casi no tenés chances.
+  mun.avance = (ratio, orden) => {
+    const lr = Math.log2(Math.max(0.05, ratio));
+    return orden === 'ofensiva' ? { media: 12 * lr, desvio: 2.5 } : { media: 5 * lr - 1, desvio: 1.5 };
+  };
+  // Chances de ganar atacando todos los meses (simulación rápida con su propio azar: no toca la partida).
+  mun.chances = function (s, paisId) {
+    const F = mun.fuerzas(s, paisId);
+    const { media, desvio } = mun.avance(F.ratio, 'ofensiva');
+    let semilla = 12345;
+    const azar = () => {
+      semilla = (semilla + 0x6d2b79f5) | 0;
+      let x = Math.imul(semilla ^ (semilla >>> 15), semilla | 1);
+      x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+      return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+    };
+    const gauss = () => (azar() + azar() + azar() + azar() - 2) * 1.73;
+    let ganadas = 0;
+    let perdidas = 0;
+    let meses = 0;
+    const N = 300;
+    for (let i = 0; i < N; i++) {
+      let f = 50;
+      let m = 0;
+      while (f > 0 && f < 100 && m < 36) { f += media + gauss() * desvio; m++; }
+      if (f >= 100) { ganadas++; meses += m; } else if (f <= 0) perdidas++;
+    }
+    return { gana: ganadas / N, pierde: perdidas / N, meses: ganadas ? Math.round(meses / ganadas) : null, F };
   };
 
   // Una orden de guerra (se da cada mes). Devuelve { txt, delta, fin?, aplicado }.
@@ -4147,10 +4221,11 @@ label.boton { cursor: pointer; }
     let ef = {};
     W.meses++;
     if (id === 'paz') return mun.terminarGuerra(s, W.frente >= 55 ? 'paz_buena' : 'paz_mala');
-    if (id === 'ofensiva') { delta = 15 * (F.ratio - 0.85) + R.gauss(s) * 7; ef = { gastoExtra: 3 }; }
-    else { delta = 6 * (F.ratio - 1.05) + R.gauss(s) * 4; ef = { gastoExtra: 1 }; }
+    const av = mun.avance(F.ratio, id);
+    delta = av.media + R.gauss(s) * av.desvio;
+    ef = { gastoExtra: id === 'ofensiva' ? 3 : 1 };
     W.frente = R.clamp(W.frente + delta, 0, 100);
-    ef.crec = -1;
+    ef.crec = -0.6;
     ef.todos = W.meses <= 2 ? 2 : -2; // al principio patriotismo, después cansancio
     if (delta < -6) ef.todos -= 2;
     const aplicado = R.gob.aplicarEfectos(s, ef);
@@ -4174,11 +4249,18 @@ label.boton { cursor: pointer; }
         ef = { todos: 18, riesgo: 200 };
         txt = '🇦🇷 ¡RECUPERAMOS LAS MALVINAS!';
       } else {
+        const amigos = mun.amigosDe(s, P.id);
         st.anexado = true;
-        s.eco.pbi *= 1 + P.tam;
-        s.mundo.resistencia = (s.mundo.resistencia || 0) + 12;
-        for (const q of R.PAISES) if (q.id !== P.id && !s.mundo.paises[q.id].alianza) s.mundo.paises[q.id].rel = R.clamp(s.mundo.paises[q.id].rel - 15, 0, 100);
-        ef = { todos: 10, reservas: 4 + P.tam * 10, riesgo: 250 };
+        s.eco.pbi *= 1 + (P.tam || 0.1);
+        s.mundo.resistencia = (s.mundo.resistencia || 0) + Math.round(12 + 8 * Math.min(3, P.tam || 0.1));
+        for (const q of R.PAISES) {
+          const sq = s.mundo.paises[q.id];
+          if (q.id === P.id || sq.anexado) continue;
+          sq.rel = R.clamp(sq.rel - (amigos.includes(q.id) ? 20 : sq.alianza ? 4 : 10), 0, 100);
+        }
+        mun.sumarPanico(s, 25 + 10 * Math.min(3, P.tam || 0.1));
+        mun.noticia(s, '🏴', 'Argentina anexó a ' + P.nombre + ': pánico en el mundo');
+        ef = { todos: 10, reservas: 4 + (P.tam || 0.1) * 10, riesgo: 250 };
         txt = '🏴 ¡Ganaste la guerra! ' + P.nombre + ' ahora es parte de la Argentina';
       }
     } else if (como === 'derrota') {
@@ -4207,11 +4289,59 @@ label.boton { cursor: pointer; }
       s.mundo.resistencia--;
       R.gob.aplicarEfectos(s, { todos: -0.4 });
     }
+    const panico = s.mundo.panico || 0;
     for (const p of R.PAISES) {
       const st = s.mundo.paises[p.id];
       if (st.anexado) continue;
-      const meta = st.alianza ? 70 : R.clamp(p.rel + 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo)), 0, 100);
-      st.rel = R.clamp(st.rel + (meta - st.rel) * 0.02, 0, 100);
+      const base = st.alianza ? 70 : R.clamp(p.rel + 18 * (0.5 - Math.abs(p.ideo - s.partido.ideo)), 0, 100);
+      const meta = base - panico * (st.alianza ? 0.15 : 0.4);
+      st.rel = R.clamp(st.rel + (meta - st.rel) * 0.03, 0, 100);
+    }
+    mun.mundoSeMueve(s);
+    // El pánico baja solo (a la mitad en ~10 meses).
+    s.mundo.panico = Math.max(0, panico * 0.93 - 0.3);
+  };
+
+  // Los otros países también juegan: firman y rompen pactos, piden protección si hay pánico y te ofrecen alianzas.
+  mun.mundoSeMueve = function (s) {
+    const M = s.mundo;
+    M.pactos = M.pactos || [];
+    const vivos = R.PAISES.filter((p) => !M.paises[p.id].anexado);
+    const nombre = (id) => R.PAIS[id].nombre;
+    // 1) Pactos nuevos entre países que piensan parecido (y no están ya juntos).
+    if (R.chance(s, 0.06) && vivos.length > 2) {
+      const a = R.pick(s, vivos);
+      const cand = vivos.filter((b) => b.id !== a.id && !mun.tienePacto(s, a.id, b.id) && !(a.bloque && a.bloque === b.bloque) && Math.abs(a.ideo - b.ideo) <= 0.5);
+      if (cand.length) {
+        const b = R.pick(s, cand);
+        M.pactos.push([a.id, b.id]);
+        mun.noticia(s, '🤝', nombre(a.id) + ' y ' + nombre(b.id) + ' firman una alianza');
+      }
+    }
+    // 2) A veces un pacto se rompe.
+    if (M.pactos.length && R.chance(s, 0.03)) {
+      const i = Math.floor(R.rand(s) * M.pactos.length);
+      const [a, b] = M.pactos.splice(i, 1)[0];
+      mun.noticia(s, '💢', nombre(a) + ' y ' + nombre(b) + ' rompen su alianza');
+    }
+    // 3) Con pánico, los vecinos chicos piden protección a una potencia amiga.
+    if ((M.panico || 0) >= 20) {
+      for (const p of vivos) {
+        if (p.potencia || M.paises[p.id].alianza || M.paises[p.id].rel >= 55) continue;
+        if (!R.chance(s, M.panico / 250)) continue;
+        const protector = vivos.filter((q) => q.id !== p.id && q.poder >= 55 && !M.paises[q.id].alianza && !mun.tienePacto(s, p.id, q.id))
+          .sort((x, y) => Math.abs(x.ideo - p.ideo) - Math.abs(y.ideo - p.ideo))[0];
+        if (!protector) continue;
+        M.pactos.push([p.id, protector.id]);
+        mun.noticia(s, '🛡️', nombre(p.id) + ' pide protección a ' + nombre(protector.id));
+      }
+    }
+    // 4) Los que te quieren mucho te ofrecen una alianza.
+    for (const p of vivos) {
+      const st = M.paises[p.id];
+      if (st.alianza || st.rel < 72 || mun.ofreceAlianza(s, p.id) || mun.enGuerraCon(s, p.id) || !R.chance(s, 0.05)) continue;
+      st.oferta = s.mes;
+      mun.noticia(s, '🤝', nombre(p.id) + ' te ofrece una alianza');
     }
   };
 
@@ -8230,7 +8360,7 @@ label.boton { cursor: pointer; }
       pobreza: { t: '🏚️ ¿Por qué hay pobreza?', lista: C.pobreza, dic: R.CAUSAS.pobreza, malo: true, nota: 'Trabajo, sueldos que le ganen a los precios y ayuda social la bajan.' },
       reservas: { t: '🏦 ¿Por qué entran o salen dólares?', lista: C.reservas, dic: R.CAUSAS.reservas, nota: 'Exportar más (retenciones bajas, campo contento) y no tener fuga.' },
       riesgo: { t: '📊 ¿Por qué el riesgo país está así?', lista: C.riesgo, dic: R.CAUSAS.riesgo, malo: true,
-        nota: 'Con este riesgo país pagás ' + R.fmt(R.eco.tasa(e), 1) + '% de interés por año: ' + R.fmt(R.eco.intereses(e), 1) + '% del PBI se va en intereses. Si bajara 200 puntos, ahorrarías ' + R.fmt(e.deuda * 0.002, 1) + '% del PBI por año.' },
+        nota: 'Pagás ' + R.fmt(R.eco.tasaPagada(e), 1) + '% de interés por año (con este riesgo, la deuda nueva sale ' + R.fmt(R.eco.tasa(e), 1) + '%): ' + R.fmt(R.eco.intereses(e), 1) + '% del PBI se va en intereses. Si bajara 200 puntos, ahorrarías ' + R.fmt(e.deuda * 0.002, 1) + '% del PBI por año.' },
       deuda: { t: '💳 ¿Por qué sube o baja la deuda?', lista: C.deuda, dic: R.CAUSAS.deuda, malo: true,
         nota: 'Debés US$ ' + R.fmt(R.eco.deudaUSD(s), 0) + ' mil M (' + R.fmt(e.deuda) + '% del PBI). Con superávit se paga sola, y si la economía crece pesa menos aunque no pagues nada.' },
       dolar: { t: '💵 ¿Por qué se mueve el dólar?', lista: [{ k: 'inercia', v: e.inflMes }, { k: 'dolar', v: (C.inflacion || []).find((x) => x.k === 'dolar')?.v || 0 }], dic: { inercia: ['🛒', 'Acompaña a la inflación'], dolar: ['🏦', 'Faltan reservas o hay desconfianza'] }, malo: true, nota: e.cepo ? 'Con cepo aparece el dólar blue: la brecha crece si hay inflación y faltan reservas.' : 'Sin cepo, si falta confianza la gente compra dólares y se van las reservas.' },
@@ -9055,7 +9185,7 @@ label.boton { cursor: pointer; }
 
   function panelMundo(s) {
     const pc = ui.esPC();
-    const izq = [tarjetaPoder(s), s.mundo.guerra ? tarjetaGuerra(s) : null, tarjetaMalvinas(s)];
+    const izq = [tarjetaPoder(s), s.mundo.guerra ? tarjetaGuerra(s) : null, tarjetaNoticiasMundo(s), tarjetaMalvinas(s)];
     const der = [tarjetaPaises(s)];
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
     return h('div', { class: 'pila' }, izq, der);
@@ -9076,8 +9206,21 @@ label.boton { cursor: pointer; }
         h('span', { class: 'chip' }, '🛡️ Aliados: ', aliados.length ? aliados.map((p) => R.ui.bandera(p.id, 20)) : 'ninguno'),
         h('span', { class: 'chip' }, '📦 Tratados: ' + tratados.length),
         anexados.length ? h('span', { class: 'chip sol' }, '🏴 Anexaste: ' + anexados.map((p) => p.nombre).join(', ')) : null),
+      (s.mundo.panico || 0) >= 1 ? h('div', { class: 'pila', style: { gap: '4px' } },
+        h('div', { class: 'fila entre' }, h('b', null, '😱 Pánico mundial'), h('b', { class: 'numero' }, Math.round(s.mundo.panico) + '%')),
+        h('div', { class: 'barra' }, h('i', { style: { width: s.mundo.panico + '%', background: 'var(--mal)' } })),
+        h('span', { class: 'chico suave' }, 'Te sube el riesgo país y te compran menos. Baja con el tiempo.')) : null,
       h('p', { class: 'chico suave' }, '🪖 Sube con Defensa y aviones.'),
       h('button', { class: 'boton sec ancho', onclick: () => elegirProveedor(s) }, '🛩️ Comprar aviones · ⭐1 · 💸4%'));
+  }
+
+  // 📰 Lo que pasa en el mundo (alianzas entre países, pedidos de protección, ofertas).
+  function tarjetaNoticiasMundo(s) {
+    const lista = (s.mundo.noticias || []).slice(0, 4);
+    if (!lista.length) return null;
+    return h('section', { class: 'tarjeta pila', style: { gap: '6px' } },
+      h('div', { class: 'titulo-seccion' }, '📰 En el mundo'),
+      lista.map((n) => h('div', { class: 'fila', style: { gap: '8px', alignItems: 'flex-start' } }, h('span', null, n.emoji), h('span', { class: 'chico', style: { flex: 1 } }, n.txt), h('span', { class: 'chico suave' }, R.fechaCorta(n.mes)))));
   }
 
   function elegirProveedor(s) {
@@ -9157,7 +9300,8 @@ label.boton { cursor: pointer; }
             st.tratado ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '📦') : null,
             st.alianza ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '🛡️') : null,
             st.sancion ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '🚫') : null,
-            mun.enGuerraCon(s, p.id) ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '⚔️ guerra') : null));
+            mun.enGuerraCon(s, p.id) ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '⚔️ guerra') : null,
+            !st.anexado && mun.ofreceAlianza(s, p.id) ? h('span', { class: 'chip sol', style: { fontSize: '11px' } }, '🤝 te ofrece alianza') : null));
       })));
   }
 
@@ -9167,6 +9311,7 @@ label.boton { cursor: pointer; }
     const st = s.mundo.paises[id];
     const F = mun.fuerzas(s, id);
     const bloque = p.bloque ? R.BLOQUES_MUNDO[p.bloque] : null;
+    const susAmigos = st.anexado ? [] : mun.amigosDe(s, id);
     const efAcc = {
       visita: { rel: { [id]: 10 } },
       tratado: { expo: p.expo, campo: 3, empresarios: 3, trabajadores: -2 },
@@ -9180,15 +9325,22 @@ label.boton { cursor: pointer; }
       st.anexado ? h('p', null, '🏴 Ahora es parte de la Argentina.') : h('div', { class: 'pila', style: { gap: '6px' } },
         h('div', { class: 'fila entre' }, h('b', null, relCara(st.rel) + ' Relación'), h('b', { class: 'numero' }, Math.round(st.rel) + '/100')),
         h('div', { class: 'barra' }, h('i', { style: { width: st.rel + '%', background: relColor(st.rel) } })),
-        h('div', { class: 'chico' }, '⚔️ Su poder: ' + p.poder + ' · el tuyo: ' + mun.poder(s))),
-      st.anexado ? null : h('div', { class: 'lista-elegir' }, mun.ACCIONES.filter((a) => !a.si || a.si(s, p, st) || a.id === 'guerra' && p.conquistable && !st.anexado).map((a) => {
+        h('div', { class: 'chico' }, '⚔️ Su poder: ' + p.poder + ' · el tuyo: ' + mun.poder(s)),
+        susAmigos.length ? h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chico suave' }, 'Sus amigos:'), susAmigos.map((x) => R.ui.bandera(x, 24))) : null),
+      st.anexado ? null : h('div', { class: 'lista-elegir' }, mun.ACCIONES.filter((a) => !a.si || a.si(s, p, st) || a.id === 'guerra').map((a) => {
         const b = mun.bloqueo(s, id, a.id);
         if (a.id === 'guerra' && confirmarGuerra && !b) {
+          const ch = mun.chances(s, id);
+          const pct = Math.round(ch.gana * 100);
           return h('div', { class: 'tarjeta plana pila', style: { background: 'var(--mal-claro)' } },
             h('b', null, '⚔️ ¿Seguro? Guerra contra ' + p.nombre),
-            h('div', { class: 'chico' }, '💪 Vos ' + F.yo + (F.misAliados.length ? ' (con ' + F.misAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '') + ' contra ' + F.el + (F.susAliados.length ? ' (con ' + F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '') + '. ' +
-              (F.ratio >= 1.3 ? 'Tenés todas las de ganar.' : F.ratio >= 1 ? 'Ventaja chica: puede salir mal.' : 'Te superan: es muy arriesgado.')),
-            h('div', { class: 'chico' }, 'Todo el mundo se va a enojar con vos. Si ganás, ' + p.nombre + ' pasa a ser parte del país.'),
+            h('div', { class: 'chico' }, '💪 Vos ' + F.yo + (F.misAliados.length ? ' (con ' + F.misAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '') + ' contra ' + F.el + (F.susAliados.length ? ' (con ' + F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : '')),
+            h('div', { class: 'fila envolver', style: { gap: '6px' } },
+              ch.gana < 0.05 && ch.pierde < 0.05 ? h('span', { class: 'chip sol' }, '🤝 Parejos: se traba, nadie gana')
+                : h('span', { class: 'chip ' + (pct >= 60 ? 'bien' : pct >= 30 ? 'sol' : 'mal') }, '🎲 Chances de ganar: ' + pct + '%'),
+              ch.meses && ch.gana >= 0.05 ? h('span', { class: 'chip' }, '⏳ ~' + ch.meses + ' meses') : null),
+            h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chico' }, '😠 Se enojan mucho:'), susAmigos.length ? susAmigos.map((x) => R.ui.bandera(x, 22)) : h('span', { class: 'chico' }, 'nadie en especial'), h('span', { class: 'chico' }, '· 😱 pánico mundial ▲')),
+            h('div', { class: 'chico' }, 'Si ganás, ' + p.nombre + ' pasa a ser parte del país.'),
             h('div', { class: 'fila' },
               h('button', { class: 'boton mini rojo', onclick: () => { const r = mun.hacer(s, id, 'guerra'); ui.cerrarCapa(); if (r.error) { ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; } R.son.tambor(); ui.temblor(); ui.mostrarResultado(s, r); } }, '⚔️ ¡A la guerra!'),
               h('button', { class: 'boton mini sec', onclick: () => verPais(s, id, false) }, 'Mejor no')));
@@ -9202,7 +9354,7 @@ label.boton { cursor: pointer; }
         } },
         h('span', { class: 'ic' }, a.emoji),
         h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, a.nombre), ui.chipsEfectos(R.gob.describirEfectos(s, efAcc[a.id] || {}), { compacto: true }), b ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, b) : null),
-        h('span', { class: 'chip sol' }, '⭐ ' + (a.costo.pc || 0)));
+        h('span', { class: 'chip sol' }, '⭐ ' + mun.costoPC(s, id, a.id)));
       }))), { cerrable: true });
   }
 
