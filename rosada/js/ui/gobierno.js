@@ -230,7 +230,7 @@
     const pobres = Math.round(e.pobreza / 10);
     return [
       { id: 'inflacion', emoji: '🛒', nombre: 'Changuito', valor: '$ ' + R.fmt(e.changuito), sub: '+' + R.fmt(e.inflMes, 1) + '% este mes · ' + R.fmt(e.inflAnual) + '% al año', d: e.inflMes - (ant ? (s.gob.historia[hist.length - 2].inflMes) : e.inflMes), malo: true, umbral: 0.05 },
-      { id: 'crecimiento', emoji: e.crec >= 0 ? '📈' : '📉', nombre: 'Economía', valor: (e.crec >= 0 ? 'Crece ' : 'Cae ') + R.fmt(Math.abs(e.crec), 1) + '%', sub: 'por año', d: dif('crec'), umbral: 0.1 },
+      { id: 'crecimiento', emoji: e.crec >= 0 ? '📈' : '📉', nombre: 'Economía', valor: (e.crec >= 0 ? 'Crece ' : 'Cae ') + R.fmt(Math.abs(e.crec), 1) + '%', sub: 'PBI US$ ' + R.fmt(R.eco.pbiUSD(s), 0) + ' mil M', d: dif('crec'), umbral: 0.1 },
       { id: 'desempleo', emoji: '🚪', nombre: 'Trabajo', valor: Math.round(e.desempleo) + ' de cada 100', sub: 'no consiguen trabajo', d: dif('desempleo'), malo: true, umbral: 0.1 },
       { id: 'pobreza', emoji: '🏚️', nombre: 'Pobreza', valor: pobres + ' de cada 10', sub: 'son pobres (' + R.fmt(e.pobreza) + '%)', d: dif('pobreza'), malo: true, umbral: 0.2,
         extra: h('div', { class: 'munecos', 'aria-hidden': 'true' }, Array.from({ length: 10 }, (_, i) => h('span', { class: i < pobres ? 'pobre' : '' }, '🧍'))) },
@@ -255,9 +255,22 @@
           x.extra || null);
       })),
       h('div', { class: 'fila envolver chico', style: { gap: '6px' } },
-        h('span', { class: 'chip' }, '💳 Deuda ' + R.fmt(e.deuda) + '% del PBI'),
-        h('span', { class: 'chip' }, '📊 Riesgo país ' + R.fmt(e.riesgo)),
-        h('span', { class: 'chip ' + (R.eco.resultado(s) >= 0 ? 'bien' : 'mal') }, '⚖️ ' + (R.eco.resultado(s) >= 0 ? 'Superávit ' : 'Déficit ') + R.fmt(Math.abs(R.eco.resultado(s)), 1) + '%')));
+        h('button', { class: 'chip toque', onclick: () => ui.porQue(s, 'deuda') }, '💳 Deuda ' + R.fmt(e.deuda) + '% del PBI', tendencia(s, 'deuda', true, 0.05)),
+        h('button', { class: 'chip toque', onclick: () => ui.porQue(s, 'riesgo') }, '📊 Riesgo país ' + R.fmt(e.riesgo), tendencia(s, 'riesgo', true, 3)),
+        h('button', { class: 'chip toque ' + (R.eco.resultado(s) >= 0 ? 'bien' : 'mal'), onclick: () => ui.porQue(s, 'deuda') }, '⚖️ ' + (R.eco.resultado(s) >= 0 ? 'Superávit ' : 'Déficit ') + R.fmt(Math.abs(R.eco.resultado(s)), 1) + '%', tendencia(s, 'resultado', false, 0.03))));
+  }
+
+  // Flechita: si subió o bajó contra el mes pasado (verde si es bueno, rojo si es malo).
+  function tendencia(s, k, subirEsMalo, umbral) {
+    const hist = s.gob.historia;
+    if (hist.length < 2) return null;
+    const ant = hist[hist.length - 2][k];
+    const hoy = k === 'resultado' ? R.eco.resultado(s) : s.eco[k];
+    if (ant === undefined || ant === null) return null;
+    const d = hoy - ant;
+    if (Math.abs(d) < umbral) return null;
+    const bueno = subirEsMalo ? d < 0 : d > 0;
+    return h('b', { class: 'flechita', style: { color: bueno ? 'var(--bien)' : 'var(--mal)' }, title: d > 0 ? 'Subió' : 'Bajó' }, d > 0 ? ' ▲' : ' ▼');
   }
 
   // «¿Por qué?»: las causas de cada indicador, con barras.
@@ -266,10 +279,14 @@
     const C = e.causas || {};
     const bloques = {
       inflacion: { t: '🛒 ¿Por qué suben los precios?', lista: C.inflacion, dic: R.CAUSAS.inflacion, malo: true, nota: 'Lo que más baja la inflación: no tener déficit, no emitir y tener reservas.' },
-      crecimiento: { t: '📈 ¿Por qué crece (o no) la economía?', lista: C.crecimiento, dic: R.CAUSAS.crecimiento, nota: 'Obra pública, impuestos bajos, confianza y exportaciones la empujan.' },
+      crecimiento: { t: '📈 ¿Por qué crece (o no) la economía?', lista: C.crecimiento, dic: R.CAUSAS.crecimiento, nota: 'El país produce US$ ' + R.fmt(R.eco.pbiUSD(s), 0) + ' mil M por año: US$ ' + R.fmt(R.eco.pbiPorHabitante(s), 0) + ' por persona. Obra pública, impuestos bajos, confianza y exportaciones lo empujan.' },
       desempleo: { t: '🚪 ¿Por qué hay (o no) trabajo?', lista: C.crecimiento, dic: R.CAUSAS.crecimiento, nota: 'El empleo sigue a la economía: si crece, se contrata gente.' },
       pobreza: { t: '🏚️ ¿Por qué hay pobreza?', lista: C.pobreza, dic: R.CAUSAS.pobreza, malo: true, nota: 'Trabajo, sueldos que le ganen a los precios y ayuda social la bajan.' },
       reservas: { t: '🏦 ¿Por qué entran o salen dólares?', lista: C.reservas, dic: R.CAUSAS.reservas, nota: 'Exportar más (retenciones bajas, campo contento) y no tener fuga.' },
+      riesgo: { t: '📊 ¿Por qué el riesgo país está así?', lista: C.riesgo, dic: R.CAUSAS.riesgo, malo: true,
+        nota: 'Con este riesgo país pagás ' + R.fmt(R.eco.tasa(e), 1) + '% de interés por año: ' + R.fmt(R.eco.intereses(e), 1) + '% del PBI se va en intereses. Si bajara 200 puntos, ahorrarías ' + R.fmt(e.deuda * 0.002, 1) + '% del PBI por año.' },
+      deuda: { t: '💳 ¿Por qué sube o baja la deuda?', lista: C.deuda, dic: R.CAUSAS.deuda, malo: true,
+        nota: 'Debés US$ ' + R.fmt(R.eco.deudaUSD(s), 0) + ' mil M (' + R.fmt(e.deuda) + '% del PBI). Con superávit se paga sola, y si la economía crece pesa menos aunque no pagues nada.' },
       dolar: { t: '💵 ¿Por qué se mueve el dólar?', lista: [{ k: 'inercia', v: e.inflMes }, { k: 'dolar', v: (C.inflacion || []).find((x) => x.k === 'dolar')?.v || 0 }], dic: { inercia: ['🛒', 'Acompaña a la inflación'], dolar: ['🏦', 'Faltan reservas o hay desconfianza'] }, malo: true, nota: e.cepo ? 'Con cepo aparece el dólar blue: la brecha crece si hay inflación y faltan reservas.' : 'Sin cepo, si falta confianza la gente compra dólares y se van las reservas.' },
     };
     const b = bloques[id];
@@ -287,7 +304,7 @@
       })) : h('p', { class: 'suave' }, 'Pasá un mes para ver las causas.'),
       h('p', { class: 'chico tarjeta plana suave' }, '💡 ' + b.nota),
       h('div', { class: 'etiqueta' }, 'Últimos meses'),
-      ui.sparkline(s.gob.historia.map((x) => ({ inflacion: x.inflMes, crecimiento: x.crec, desempleo: x.desempleo, pobreza: x.pobreza, reservas: x.reservas, dolar: x.dolar }[id])), { color: 'var(--tinta)', alto: 60 })), { cerrable: true });
+      ui.sparkline(s.gob.historia.map((x) => ({ inflacion: x.inflMes, crecimiento: x.crec, desempleo: x.desempleo, pobreza: x.pobreza, reservas: x.reservas, dolar: x.dolar, riesgo: x.riesgo, deuda: x.deuda }[id])), { color: 'var(--tinta)', alto: 60 })), { cerrable: true });
   };
 
   // ── Acciones de gobierno (⭐) ──

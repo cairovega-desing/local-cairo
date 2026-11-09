@@ -123,7 +123,18 @@
   // ── Cuentas del presupuesto ──
   eco.gastoArea = (e, id) => R.AREA[id].base * e.niveles[id];
   eco.gastoPrimario = (e) => R.sum(R.AREAS.map((a) => eco.gastoArea(e, a.id)));
-  eco.tasa = (e) => 1.6 + e.riesgo / 1000; // % anual que se paga por la deuda
+  // PBI en dólares (a precios de hoy): arranca como el de la Argentina (~US$ 640 mil millones, 46,5 M de habitantes).
+  eco.PBI_USD = 640;
+  eco.POBLACION = 46.5;
+  eco.pbiUSD = (s) => (eco.PBI_USD * s.eco.pbi) / 100; // miles de millones de dólares
+  eco.pbiPorHabitante = (s) => {
+    const anios = s.gob ? Math.max(0, s.mes - s.gob.inicio) / 12 : 0;
+    return (eco.pbiUSD(s) * 1000) / (eco.POBLACION * Math.pow(1.009, anios)); // dólares por persona
+  };
+  eco.deudaUSD = (s) => (s.eco.deuda / 100) * eco.pbiUSD(s);
+  // La cadena: más riesgo país = más interés por la deuda = más gasto = más déficit = más deuda.
+  // (más sensible que en la vida real, para que se note: 700 puntos ≈ 2,4 % anual, 150 ≈ 1,1 %, 1500 ≈ 4,1 %)
+  eco.tasa = (e) => 0.8 + e.riesgo / 450; // % anual que se paga por la deuda
   eco.intereses = (e) => (e.deuda * eco.tasa(e)) / 100;
   eco.gastoTotal = (e) => eco.gastoPrimario(e) + eco.intereses(e);
   eco.factorExpo = (s) => {
@@ -287,11 +298,24 @@
     C.reservas = [{ k: 'comercio', v: expo - impo }, { k: 'pagos', v: -pagos }, { k: 'fuga', v: -fuga }, { k: 'prestamos', v: prestamos }];
 
     // 9) Deuda y riesgo país
-    e.deuda = R.clamp(e.deuda + prestado * 1.0 - e.deuda * (crecMes / 1200) + shock('deuda'), 5, 300);
+    // La deuda sube con el déficit que no se emite, baja con superávit (se paga sola) y, si la economía crece,
+    // pesa menos en % del PBI aunque no pagues nada.
+    const dCrecDeuda = -e.deuda * (crecMes / 1200);
+    e.deuda = R.clamp(e.deuda + prestado * 1.0 + dCrecDeuda + shock('deuda'), 5, 300);
+    C.deuda = [{ k: prestado > 0 ? 'deficit' : 'superavit', v: prestado * 12 }, { k: 'crecimiento', v: dCrecDeuda * 12 }, { k: 'shock', v: shock('deuda') }]; // por año
+    // Riesgo país: lo sube la deuda alta, el déficit, la inflación y el cepo; lo bajan las reservas y las leyes que dan confianza.
     const defAnual = -eco.resultado(s);
-    const riesgoObj = R.clamp(320 + 7 * Math.max(0, e.deuda - 45) + 70 * Math.max(0, defAnual) + 3.5 * Math.max(0, e.inflAnual - 20)
-      - 5 * (e.reservas - 25) + (e.cepo ? 120 : 0) + shock('riesgo') + (min && min.riesgo ? min.riesgo : 0) - (ley('bcra') ? 80 : 0) + eco.bonus(s, 'bonusRiesgo'), 150, 5000);
+    const rDeuda = 7 * Math.max(0, e.deuda - 45);
+    const rDeficit = 70 * Math.max(0, defAnual);
+    const rInfl = 3.5 * Math.max(0, e.inflAnual - 20);
+    const rReservas = -5 * (e.reservas - 25);
+    const rCepo = e.cepo ? 120 : 0;
+    const rLeyes = -(ley('bcra') ? 80 : 0) + eco.bonus(s, 'bonusRiesgo');
+    const rMin = min && min.riesgo ? min.riesgo : 0;
+    const riesgoObj = R.clamp(320 + rDeuda + rDeficit + rInfl + rReservas + rCepo + shock('riesgo') + rMin + rLeyes, 150, 5000);
     e.riesgo = R.clamp(e.riesgo + (riesgoObj - e.riesgo) * RX(0.16), 150, 5000);
+    C.riesgo = [{ k: 'deuda', v: rDeuda }, { k: 'deficit', v: rDeficit }, { k: 'inflacion', v: rInfl }, { k: 'reservas', v: rReservas },
+      { k: 'cepo', v: rCepo }, { k: 'leyes', v: rLeyes }, { k: 'ministro', v: rMin }, { k: 'shock', v: shock('riesgo') }];
 
     // 10) Calidad de cada área: va lento hacia lo que le das.
     for (const a of R.AREAS) {
@@ -345,6 +369,14 @@
     },
     pobreza: {
       desempleo: ['👷', 'Falta de trabajo'], salario: ['💰', 'Sueldos que no alcanzan'], inflacion: ['🛒', 'Precios altos'], social: ['🤲', 'Ayuda social y jubilaciones'],
+    },
+    riesgo: {
+      deuda: ['💳', 'Mucha deuda'], deficit: ['⚖️', 'Déficit'], inflacion: ['🛒', 'Inflación'], reservas: ['🏦', 'Reservas'],
+      cepo: ['🔒', 'El cepo'], leyes: ['📜', 'Tus leyes'], ministro: ['🧑‍💼', 'Tu ministro'], shock: ['💥', 'Noticias del mes'],
+    },
+    deuda: {
+      deficit: ['⚖️', 'Déficit que se paga con deuda'], superavit: ['💰', 'Superávit: pagás deuda'],
+      crecimiento: ['📈', 'La economía crece: pesa menos'], shock: ['💥', 'Préstamos y acuerdos'],
     },
     reservas: {
       comercio: ['🚢', 'Exportaciones menos importaciones'], pagos: ['🏦', 'Pago de deuda'], fuga: ['✈️', 'Gente que se lleva los dólares'], prestamos: ['🤝', 'Préstamos'],
