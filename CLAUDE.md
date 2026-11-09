@@ -1,5 +1,8 @@
 # CLAUDE.md — Contexto para seguir trabajando en «Carrera de Globos»
 
+> **Este repo tiene dos proyectos.** Este archivo es de «Carrera de Globos» (Roblox, en la raíz).
+> El juego web de política argentina «Camino a la Rosada» vive en `rosada/` y tiene su propio `rosada/CLAUDE.md`.
+
 Juego de **Roblox** (Luau), inspirado en un mapa de Eggy Party que el usuario vio en TikTok.
 Este archivo tiene todo lo que otra conversación de Claude necesita para continuar sin preguntar lo que ya se decidió.
 
