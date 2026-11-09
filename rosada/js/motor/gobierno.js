@@ -46,8 +46,65 @@
     if (R.metas) { R.metas.asegurar(s); s.metas.ofrecido = true; }
     s.gob.historia.push(R.eco.foto(s));
     R.diario(s, '🎖️', 'Asumís la Presidencia', 'gobierno');
+    s.cola.push({ tipo: 'escenario' });
     s.cola.push({ tipo: 'ministro' });
     if (R.metas) s.cola.push({ tipo: 'legado' });
+  };
+
+  // ── ¿Qué país recibís? (escenario de inicio) ──
+  // Cambia cómo arranca la economía. dificultad: 1 a 3 (para mostrar). datos: lo que se ve en la tarjeta.
+  const inflacionMensual = (e, mes) => {
+    e.inflMes = mes;
+    e.inflHist = Array.from({ length: 12 }, () => mes);
+    e.inflAnual = R.eco.inflAnualDe(e.inflHist);
+  };
+  gob.ESCENARIOS = [
+    { id: 'normal', emoji: '🇦🇷', nombre: 'Un país normal', desc: 'Ni crisis ni bonanza', dificultad: 1, aplicar: () => {} },
+    { id: 'viento', emoji: '🌾', nombre: 'Viento de cola', desc: 'Soja cara y dólares, pero la gente espera mucho', dificultad: 1,
+      aplicar: (s) => {
+        const e = s.eco;
+        inflacionMensual(e, 1.3);
+        Object.assign(e, { reservas: 40, riesgo: 550, deuda: 70 });
+        if (s.mundo) {
+          R.prod.asegurar(s);
+          Object.assign(s.mundo.precios, { granos: 1.3, energia: 1.15 });
+          s.mundo.ciclos.activos.push({ id: 'boom', quedan: 10, mitiga: 0 });
+          s.mundo.ciclos.ultimo = s.mes;
+        }
+        for (const g of R.GRUPOS) s.gob.grupos[g.id].espera = 10; // la vara arranca alta
+      } },
+    { id: 'herencia', emoji: '🔥', nombre: 'Herencia pesada', desc: 'Inflación alta, cepo y sin reservas', dificultad: 2,
+      aplicar: (s) => {
+        const e = s.eco;
+        inflacionMensual(e, 6);
+        Object.assign(e, { reservas: 6, riesgo: 1800, deuda: 92, cepo: true, brecha: 80, pobreza: 42, desempleo: 9.5, salarioReal: 88 });
+        s.gob.pc += 4; // en la crisis te dan más margen al principio
+        s.gob.lunaMiel += 6;
+        if (s.prod) s.prod.sec.industria.nivel = 5;
+      } },
+    { id: 'default', emoji: '💥', nombre: 'Default', desc: 'No pagás la deuda y nadie te presta', dificultad: 3,
+      aplicar: (s) => {
+        const e = s.eco;
+        inflacionMensual(e, 4);
+        Object.assign(e, { reservas: 3, riesgo: 2800, deuda: 110, pobreza: 40, desempleo: 11, salarioReal: 85, crec: -2 });
+        s.gob.pc += 3;
+        s.gob.lunaMiel += 4;
+        if (s.prod) s.prod.sec.tecno.nivel = 2;
+      } },
+  ];
+  gob.ESCENARIO = Object.fromEntries(gob.ESCENARIOS.map((x) => [x.id, x]));
+  gob.elegirEscenario = function (s, id) {
+    const X = gob.ESCENARIO[id] || gob.ESCENARIO.normal;
+    X.aplicar(s);
+    s.escenario = X.id;
+    s.eco.nivelesInicioMes = Object.assign({}, s.eco.niveles);
+    for (const g of R.GRUPOS) {
+      const st = s.gob.grupos[g.id];
+      st.objetivo = gob.objetivoGrupo(s, g.id).obj;
+    }
+    gob.actualizarAprob(s);
+    s.gob.historia = [R.eco.foto(s)];
+    R.diario(s, X.emoji, 'Recibís el país: ' + X.nombre.toLowerCase(), 'gobierno');
   };
 
   gob.elegirMinistro = function (s, id) {
@@ -546,6 +603,9 @@
     // Los grupos muy enojados salen a la calle; las metas se cumplen o vencen.
     if (R.protestas) R.protestas.mes(s, momentos);
     if (R.metas) R.metas.mes(s, momentos);
+    // La Justicia y la oposición pueden voltear tus leyes.
+    if (R.justicia) R.justicia.mes(s, momentos);
+    if (R.congreso && R.congreso.oposicionMes) R.congreso.oposicionMes(s, momentos);
 
     if (G.aprobBajaMeses >= 3) {
       gob.terminar(s, momentos, 'helicoptero');

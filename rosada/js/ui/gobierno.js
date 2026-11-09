@@ -371,6 +371,32 @@
   };
 
   // ── Momentos del gobierno ──
+  // ── ¿Qué país recibís? ──
+  ui.momentos.escenario = function (s, m, listo) {
+    if (s.escenario) return listo();
+    const vista = (X) => {
+      // Cómo quedaría la economía (se prueba en una copia).
+      const c = JSON.parse(JSON.stringify(s));
+      R.gob.elegirEscenario(c, X.id);
+      return c.eco;
+    };
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', { class: 'centro' }, '🏛️ ¿Qué país recibís?'),
+      h('div', { class: 'lista-elegir' }, R.gob.ESCENARIOS.map((X) => {
+        const e = vista(X);
+        return h('button', { class: 'item-elegir', onclick: () => {
+          R.gob.elegirEscenario(s, X.id);
+          R.guardar(s);
+          ui.cerrarCapa();
+          R.son.toque();
+          listo();
+        } }, h('span', { class: 'ic' }, X.emoji),
+          h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, X.nombre), h('span', { class: 'chico suave' }, X.desc),
+            h('span', { class: 'chico', style: { fontWeight: 800 } }, '🛒 ' + R.fmt(e.inflAnual) + '% · 🏦 ' + R.fmt(e.reservas) + ' mil M · 📊 ' + R.fmt(e.riesgo))),
+          h('span', { class: 'chip ' + (X.dificultad >= 3 ? 'mal' : X.dificultad === 2 ? 'sol' : 'bien') }, '🔥'.repeat(X.dificultad)));
+      }))));
+  };
+
   ui.momentos.ministro = function (s, m, listo) {
     ui.abrirCapa(h('div', { class: 'pila' },
       h('h2', { class: 'centro' }, '🧑‍💼 ¿Quién maneja la economía?'),

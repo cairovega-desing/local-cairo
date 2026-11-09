@@ -121,6 +121,7 @@
     const ef = R.gob.efectosLey(s, ley, 2);
     let estado;
     if (hecha) estado = h('span', { class: 'estado bien' }, st && st.estado === 'dnu' ? '📜' : '✅');
+    else if (st && st.estado === 'derogada' && b) estado = h('span', { class: 'estado', title: 'La voltearon' }, '⚖️');
     else if (b) estado = h('span', { class: 'estado' }, '🔒');
     else {
       const p = con.porotos(s, ley);

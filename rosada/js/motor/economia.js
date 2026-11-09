@@ -151,6 +151,8 @@
     f += Math.sign(bExpo) * 0.45 * (1 - Math.exp(-Math.abs(bExpo) / 0.45));
     // Sectores: más campos, pozos y fábricas = más para vender (× el precio del mundo).
     if (R.prod && s.prod) f += R.prod.expoExtra(s);
+    // Tratados: rinden más si producís lo que ese país compra.
+    if (R.mundo && R.mundo.extraComercio && s.mundo) f += R.mundo.extraComercio(s);
     return Math.max(0.5, f);
   };
   eco.recaudacion = (s) => {

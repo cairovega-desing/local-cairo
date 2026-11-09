@@ -15,6 +15,9 @@ function nuevoGobierno(semilla, ideo) {
   s.cola = [];
   R.gob.iniciar(s);
   s.cola = [];
+  // Lo que en el juego son las primeras hojas: qué país recibís y tu gran objetivo.
+  R.gob.elegirEscenario(s, ESCENARIO);
+  R.metas.elegirGrande(s, R.metas.opcionesGrandes(s)[semilla % 3].id);
   return s;
 }
 
@@ -57,7 +60,9 @@ function decidir(s, inst, modo) {
   return mejor.i;
 }
 
-const stats = { presupuestos: [], elecciones: [], leyes: [], protestas: [], metas: [], avisos: 0, ataques: 0 };
+// Escenario de inicio para todas las partidas (variable de entorno ESCENARIO; por defecto, un país normal).
+const ESCENARIO = process.env.ESCENARIO || 'normal';
+const stats = { presupuestos: [], elecciones: [], leyes: [], protestas: [], metas: [], avisos: 0, ataques: 0, leyesCaidas: [] };
 // Qué construye cada camino (el Estado construye; el mercado deja que inviertan los privados y solo arregla la energía).
 function construir(s, est) {
   if (!s.prod || R.prod.cuadrillas(s) <= s.prod.obras.length) return;
@@ -84,6 +89,7 @@ function jugar(semilla, est, meses) {
       if (m.tipo === 'dnu_cae') R.gob.aplicarEfectos(s, R.congreso.efDnuCae);
       if (m.tipo === 'eleccion') stats.elecciones.push(m.clave + ':' + (s.elecciones[m.clave].ganador === 'YO' ? 'gana' : s.elecciones[m.clave].ballotage && s.elecciones[m.clave].ballotage.includes('YO') ? 'ballotage' : 'pierde'));
       if (m.tipo === 'ministro') R.gob.elegirMinistro(s, 'pragmatico');
+      if (m.tipo === 'escenario') R.gob.elegirEscenario(s, ESCENARIO);
       if (m.tipo === 'legado') R.metas.elegirGrande(s, R.metas.opcionesGrandes(s)[semilla % 3].id);
       if (m.tipo === 'protesta') {
         const op = est === 'quieto' ? 'aguantar' : s.gob.pc >= 4 ? 'negociar' : 'ceder';
@@ -98,6 +104,12 @@ function jugar(semilla, est, meses) {
       if (m.tipo === 'meta') stats.metas.push((m.ok ? '✔' : '✘') + m.id);
       if (m.tipo === 'atacado') stats.ataques++;
       if (m.tipo === 'guerra' && s.mundo.guerra) R.mundo.orden(s, 'ofensiva');
+      if (m.tipo === 'justicia' && s.gob.leyes[m.ley]) { const r = R.justicia.resolver(s, m, s.gob.pc >= 4 ? 'apelar' : 'acatar'); stats.leyesCaidas.push('corte:' + (s.gob.leyes[m.ley] ? 'sigue' : 'cae')); }
+      if (m.tipo === 'derogacion' && s.gob.leyes[m.ley]) {
+        const op = R.congreso.votosVeto(s) >= R.congreso.VETO ? 'vetar' : s.gob.pc >= 5 ? 'negociar' : 'dejar';
+        R.congreso.resolverDerogacion(s, m, op);
+        stats.leyesCaidas.push('congreso:' + (s.gob.leyes[m.ley] ? 'sigue' : 'cae'));
+      }
     }
     if (est !== 'quieto' && est !== 'gastador' && est !== 'motosierra') construir(s, est);
     // Leyes: el equilibrado manda una ley afín cuando tiene ⭐ y votos; los caminos, la mejor de su ideología.
@@ -142,8 +154,8 @@ if (require.main === module) {
     console.log('  sectores al final:', R.SECTORES.map((x) => x.emoji + prom(x.id)).join(' '), '· puesto Sudamérica', prom('sa'), '· prestigio', prom('prest'),
       '· protestas/partida', R.round(stats.protestas.length / N, 1), '· avisos', R.round(stats.avisos / N, 1), '· ataques', stats.ataques);
     const metas = cuenta(stats.metas.map((x) => x[0]));
-    console.log('  metas:', JSON.stringify(metas), '· protestas:', JSON.stringify(cuenta(stats.protestas.map((x) => x.split(':')[1]))));
-    stats.presupuestos = []; stats.elecciones = []; stats.leyes = []; stats.protestas = []; stats.metas = []; stats.avisos = 0; stats.ataques = 0;
+    console.log('  metas:', JSON.stringify(metas), '· protestas:', JSON.stringify(cuenta(stats.protestas.map((x) => x.split(':')[1]))), '· leyes atacadas:', JSON.stringify(cuenta(stats.leyesCaidas)));
+    stats.presupuestos = []; stats.elecciones = []; stats.leyes = []; stats.protestas = []; stats.metas = []; stats.avisos = 0; stats.ataques = 0; stats.leyesCaidas = [];
     [6, 12, 24, 47].forEach((m, k) => {
       const c = cortes[k];
       if (!c.length) return;

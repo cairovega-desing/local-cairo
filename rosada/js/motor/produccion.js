@@ -144,7 +144,55 @@
   // Cada nivel nuevo cuesta un poco más y tarda un poco más que el anterior (lo fácil ya se hizo).
   prod.COSTO_PC = 2;
   prod.extra = (s, id) => Math.max(0, s.prod.sec[id].nivel - R.SECTOR[id].nivel0);
-  prod.cuadrillas = (s) => 1 + Math.floor(s.eco.calidad.infra / 40);
+  // ── 🏗️ Cuadrillas: cuántas obras podés tener a la vez ──
+  // 1 fija + las que dan las rutas (calidad 40, 55 y 70) + las que contratás (plata todos los meses).
+  prod.UMBRALES_RUTAS = [40, 55, 70];
+  prod.CUADRILLA = { pc: 2, gastoMes: 0.3, max: 3 }; // contratar: ⭐ una vez + % del presupuesto por mes, para siempre
+  prod.cuadrillasRutas = (s) => prod.UMBRALES_RUTAS.filter((u) => s.eco.calidad.infra >= u).length;
+  prod.cuadrillasContratadas = (s) => (s.prod && s.prod.contratadas) || 0;
+  prod.cuadrillas = (s) => 1 + prod.cuadrillasRutas(s) + prod.cuadrillasContratadas(s);
+  // Hacia dónde van las rutas con el presupuesto de obra pública de hoy (la misma cuenta que la calidad de cada área).
+  prod.rutasObjetivo = function (s) {
+    const e = s.eco;
+    return R.clamp(50 + 48 * (e.niveles.obras * R.eco.torta(s) - 1) - Math.max(0, e.inflAnual - 40) * 0.08 + R.eco.bonus(s, 'bonusCalidad', 'infra'), 5, 97);
+  };
+  // La próxima cuadrilla que dan las rutas: a qué calidad, cuánto falta y en cuántos meses llega (o null si no llega).
+  prod.proximaPorRutas = function (s) {
+    const infra = s.eco.calidad.infra;
+    const umbral = prod.UMBRALES_RUTAS.find((u) => infra < u);
+    if (umbral === undefined) return null;
+    const obj = prod.rutasObjetivo(s);
+    let meses = null;
+    if (obj > umbral + 0.5) {
+      const paso = Math.min(0.6, 0.06 * R.eco.RITMO.reaccion); // lo que se acerca por mes
+      meses = Math.max(1, Math.ceil(Math.log((obj - umbral) / (obj - infra)) / Math.log(1 - paso)));
+    }
+    return { umbral, falta: umbral - infra, obj, meses };
+  };
+  prod.bloqueoContratar = function (s) {
+    if (prod.cuadrillasContratadas(s) >= prod.CUADRILLA.max) return 'Ya contrataste las ' + prod.CUADRILLA.max;
+    if (s.gob.pc < prod.CUADRILLA.pc) return 'Falta ⭐';
+    return null;
+  };
+  prod.contratarCuadrilla = function (s) {
+    prod.asegurar(s);
+    const b = prod.bloqueoContratar(s);
+    if (b) return { error: b };
+    s.gob.pc -= prod.CUADRILLA.pc;
+    s.prod.contratadas = prod.cuadrillasContratadas(s) + 1;
+    const antes = s.gob.aprob;
+    const aplicado = R.gob.aplicarEfectos(s, { trabajadores: 2 });
+    R.diario(s, '👷', 'Contrataste una cuadrilla de obra', 'gobierno');
+    return { txt: '👷 Nueva cuadrilla: ya podés tener ' + prod.cuadrillas(s) + ' obras a la vez', bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
+  prod.despedirCuadrilla = function (s) {
+    if (!prod.cuadrillasContratadas(s)) return { error: 'No hay cuadrillas contratadas' };
+    s.prod.contratadas--;
+    const antes = s.gob.aprob;
+    const aplicado = R.gob.aplicarEfectos(s, { trabajadores: -3 });
+    R.diario(s, '👷', 'Despediste una cuadrilla de obra', 'gobierno');
+    return { txt: '👷 Despediste una cuadrilla: gastás menos', bueno: false, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob };
+  };
   prod.mesesObra = (s, id) => Math.max(2, Math.round(R.SECTOR[id].meses * (1.25 - s.eco.calidad.infra / 200) * (1 + 0.08 * prod.extra(s, id))));
   prod.gastoObra = (s, id) => R.round(R.SECTOR[id].gasto * (1 + 0.12 * prod.extra(s, id)), 2); // % del presupuesto por mes
   // Lo que suma cada nivel al PBI baja a medida que el sector crece.
@@ -152,7 +200,7 @@
   prod.bloqueoConstruir = function (s, id) {
     const P = s.prod;
     if (P.sec[id].nivel + P.obras.filter((o) => o.id === id).length >= R.NIVEL_MAX_SECTOR) return 'Ya está al máximo';
-    if (P.obras.length >= prod.cuadrillas(s)) return 'No hay cuadrillas libres (mejorá las rutas)';
+    if (P.obras.length >= prod.cuadrillas(s)) return 'No hay cuadrillas libres';
     if (s.gob.pc < prod.COSTO_PC) return 'Falta ⭐';
     return null;
   };
@@ -312,6 +360,12 @@
       if (o.meses <= 0) prod.subir(s, o.id, 'estado');
     }
     P.obras = P.obras.filter((o) => o.meses > 0);
+    // Las cuadrillas contratadas cobran todos los meses, haya obra o no.
+    if (prod.cuadrillasContratadas(s)) {
+      const g = R.eco.gastoComoPBI(s, prod.CUADRILLA.gastoMes * prod.cuadrillasContratadas(s));
+      e.gastoExtraMes += g;
+      e.gastoExtraAnio += g;
+    }
     // 2) Inversión privada (y cierres si el clima es muy malo).
     for (const x of R.SECTORES) {
       const a = prod.atractivo(s, x.id);

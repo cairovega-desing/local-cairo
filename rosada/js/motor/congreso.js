@@ -134,6 +134,7 @@
     const st = s.gob.leyesEstado[ley.id];
     if (st && (st.estado === 'aprobada' || st.estado === 'dnu')) return 'Ya es ley';
     if (st && st.estado === 'rechazada' && s.mes - st.mes < 6) return 'Rechazada: de nuevo en ' + (6 - (s.mes - st.mes)) + ' meses';
+    if (st && st.estado === 'derogada' && s.mes - st.mes < 6) return 'La voltearon: de nuevo en ' + (6 - (s.mes - st.mes)) + ' meses';
     if (ley.requiere && !ley.requiere(s)) return ley.requiereTxt || 'No se puede todavía';
     return null;
   };
@@ -229,6 +230,89 @@
     for (const b of BLOQUES) G.rel[b] = R.clamp(G.rel[b] + (con.distancia(ley.ideo, ideoDe(s, b)) < 0.5 ? 2 : -2), 0, 100);
     R.diario(s, ley.emoji, (como === 'dnu' ? 'Decreto: ' : 'Nueva ley: ') + ley.nombre, 'ley');
     return R.gob.aplicarEfectos(s, ef);
+  };
+
+  // ── Voltear una ley (la Justicia o la oposición): se va lo que hacía en la economía y en la gente ──
+  // (lo que ya hizo en el presupuesto queda). Se puede volver a mandar en 6 meses.
+  con.derogar = function (s, id, motivo) {
+    const G = s.gob;
+    const ley = R.LEY[id];
+    if (!ley || !G.leyes[id]) return false;
+    delete G.leyes[id];
+    G.leyesEstado[id] = { estado: 'derogada', mes: s.mes, motivo };
+    const x = R.eco.RITMO.impacto;
+    if (ley.recaudaYa) G.bonusRecauda = (G.bonusRecauda || 0) - ley.recaudaYa * x;
+    if (ley.perm) {
+      const p = ley.perm;
+      for (const k of ['bonusEmpleo', 'bonusCrec', 'bonusExpo', 'bonusRecauda', 'bonusImpo', 'bonusPrecios', 'bonusSalario', 'bonusRiesgo']) if (p[k]) G[k] = (G[k] || 0) - p[k] * x;
+      if (p.bonusCalidad) for (const [k, v] of Object.entries(p.bonusCalidad)) G.bonusCalidad[k] = (G.bonusCalidad[k] || 0) - v * x;
+      if (p.bonusGrupo) for (const [k, v] of Object.entries(p.bonusGrupo)) G.bonusGrupo[k] = (G.bonusGrupo[k] || 0) - v;
+      G.madurando = (G.madurando || []).filter((m) => m.ley !== id);
+    }
+    G.dnuPendientes = (G.dnuPendientes || []).filter((d) => d.ley !== id);
+    R.diario(s, '⚖️', (motivo === 'corte' ? 'La Justicia frenó: ' : 'El Congreso derogó: ') + ley.nombre, 'ley');
+    return true;
+  };
+
+  // ── La oposición intenta voltear una ley tuya (si no tenés mayoría) ──
+  // Elige la ley que más odia el bloque opositor más grande. Para vetarla necesitás un tercio de Diputados (86) entre
+  // vos y los bloques que te quieren (relación 60+).
+  con.bloqueOpositor = function (s) {
+    const d = R.composicion(s, 'diputados');
+    return BLOQUES.filter((b) => (d[b] || 0) > 0).sort((a, b) => (d[b] || 0) - (d[a] || 0))[0];
+  };
+  con.leyQueOdia = function (s, bloque) {
+    const G = s.gob;
+    const ideo = ideoDe(s, bloque);
+    const cand = Object.keys(G.leyes).map((id) => R.LEY[id]).filter((l) => l && G.leyesEstado[l.id] && s.mes - G.leyesEstado[l.id].mes >= 3 && con.distancia(l.ideo, ideo) >= 0.8);
+    return cand.sort((a, b) => con.distancia(b.ideo, ideo) - con.distancia(a.ideo, ideo))[0] || null;
+  };
+  con.votosVeto = function (s) {
+    const d = R.composicion(s, 'diputados');
+    let v = d.YO || 0;
+    for (const b of BLOQUES) if ((s.gob.rel[b] || 0) >= 60) v += d[b] || 0;
+    return v;
+  };
+  con.VETO = 86;
+  con.oposicionMes = function (s, momentos) {
+    const G = s.gob;
+    if (con.mayoria(s) || G.meses < 12 || s.mes - (G.derogacionMes ?? -99) < 8) return;
+    const bloque = con.bloqueOpositor(s);
+    const ley = bloque ? con.leyQueOdia(s, bloque) : null;
+    if (!ley) return;
+    const chance = 0.04 + (G.aprob < 40 ? 0.05 : 0) + (G.rel[bloque] < 30 ? 0.03 : 0);
+    if (!R.chance(s, chance)) return;
+    G.derogacionMes = s.mes;
+    momentos.push({ tipo: 'derogacion', ley: ley.id, bloque });
+  };
+  con.OPCIONES_DEROGACION = [
+    { id: 'negociar', emoji: '🤝', txt: 'Negociar', costo: { pc: 3 } },
+    { id: 'vetar', emoji: '✋', txt: 'Vetar', costo: {} },
+    { id: 'dejar', emoji: '🤷', txt: 'Dejar que la deroguen', costo: {} },
+  ];
+  con.resolverDerogacion = function (s, m, op) {
+    const G = s.gob;
+    const ley = R.LEY[m.ley];
+    if (op === 'negociar') {
+      if (G.pc < 3) return { error: 'Falta ⭐' };
+      G.pc -= 3;
+      G.rel[m.bloque] = R.clamp((G.rel[m.bloque] || 0) + 5, 0, 100);
+      return { txt: '🤝 Negociaste: ' + ley.nombre + ' sigue vigente', bueno: true, aplicado: [], aprobAntes: G.aprob, aprobDespues: G.aprob };
+    }
+    const antes = G.aprob;
+    if (op === 'vetar') {
+      if (con.votosVeto(s) >= con.VETO) {
+        const aplicado = R.gob.aplicarEfectos(s, { media: -2 });
+        G.rel[m.bloque] = R.clamp((G.rel[m.bloque] || 0) - 6, 0, 100);
+        R.diario(s, '✋', 'Vetaste la derogación de ' + ley.nombre, 'ley');
+        return { txt: '✋ Veto firme: ' + ley.nombre + ' sigue', bueno: true, aplicado, aprobAntes: antes, aprobDespues: G.aprob };
+      }
+      con.derogar(s, ley.id, 'congreso');
+      const aplicado = R.gob.aplicarEfectos(s, { media: -3, pc: -1 });
+      return { txt: '✋ Vetaste, pero insistieron: ' + ley.nombre + ' cae', bueno: false, aplicado, aprobAntes: antes, aprobDespues: G.aprob };
+    }
+    con.derogar(s, ley.id, 'congreso');
+    return { txt: '📜 Derogaron ' + ley.nombre, bueno: false, aplicado: [], aprobAntes: antes, aprobDespues: G.aprob };
   };
 
   // Decreto (DNU): sin Congreso, pero cuesta y puede caerse.

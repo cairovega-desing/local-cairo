@@ -29,6 +29,12 @@
   R.PBI_PAIS = { BRA: 2200, CHL: 330, URY: 80, PRY: 45, BOL: 48, PER: 270, VEN: 100, USA: 28000, CHN: 18500, RUS: 2000, GBR: 3300, UE: 19000 };
   R.SUDAMERICA = ['BRA', 'CHL', 'URY', 'PRY', 'BOL', 'PER', 'VEN'];
   R.VECINOS = ['BRA', 'CHL', 'URY', 'PRY', 'BOL'];
+  // Qué te compra cada país (productos de R.PRODUCTOS). Un tratado rinde más si producís mucho de eso.
+  R.COMPRA = {
+    BRA: ['manufacturas', 'energia'], CHL: ['energia', 'granos'], URY: ['manufacturas'], PRY: ['manufacturas', 'energia'],
+    BOL: ['manufacturas'], PER: ['granos', 'manufacturas'], VEN: ['granos', 'manufacturas'], USA: ['energia', 'software'],
+    CHN: ['granos', 'energia'], RUS: ['granos'], GBR: ['software', 'granos'], UE: ['granos', 'software'],
+  };
   R.BLOQUES_MUNDO = {
     mercosur: { nombre: 'Mercosur', emoji: '🤝' },
     pacifico: { nombre: 'Pacífico', emoji: '🌊' },

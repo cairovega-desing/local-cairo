@@ -14,7 +14,7 @@
 
   function panelMundo(s) {
     const pc = ui.esPC();
-    const izq = [tarjetaPoder(s), s.mundo.guerra ? tarjetaGuerra(s) : null, tarjetaNoticiasMundo(s), tarjetaMalvinas(s)];
+    const izq = [tarjetaPoder(s), s.mundo.guerra ? tarjetaGuerra(s) : null, s.mundo.crisis && !s.mundo.guerra ? tarjetaCrisis(s) : null, tarjetaNoticiasMundo(s), tarjetaMalvinas(s)];
     const der = [tarjetaPaises(s)];
     if (pc) return h('div', { class: 'columnas' }, h('div', { class: 'col-izq pila' }, izq), h('div', { class: 'pila' }, der));
     return h('div', { class: 'pila' }, izq, der);
@@ -136,6 +136,60 @@
         h('button', { class: 'boton sec', onclick: () => volver() }, 'Volver'))), opts);
   }
 
+  // ── Reclamo abierto ──
+  function infoCrisis(s, C) {
+    const P = R.PAIS[C.pais];
+    const F = mun.fuerzas(s, C.pais);
+    const premio = mun.premioCrisis(P);
+    return h('div', { class: 'pila', style: { gap: '6px' } },
+      h('div', { class: 'fila', style: { gap: '8px', justifyContent: 'center' } }, R.ui.bandera('ARG', 44), h('b', { style: { fontSize: '22px' } }, '😤'), R.ui.bandera(C.pais, 44)),
+      h('div', { class: 'fila entre chico' }, h('span', null, '💪 Vos: ' + F.yo), h('span', null, P.nombre + ': ' + F.el + (F.susAliados.length ? ' (+' + F.susAliados.map((x) => R.PAIS[x].nombre).join(', ') + ')' : ''))),
+      h('span', { class: 'barra' }, h('i', { style: { width: (C.meses / mun.CRISIS_MESES) * 100 + '%', background: 'var(--mal)' } })),
+      h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chico suave' }, 'Si cede:'),
+        ui.chipsEfectos(R.gob.describirEfectos(s, premio), { compacto: true }), h('span', { class: 'chip bien' }, '📦 Mercado ▲')));
+  }
+  function tarjetaCrisis(s) {
+    const C = s.mundo.crisis;
+    return h('section', { class: 'tarjeta pila', style: { background: '#fff8ee' } },
+      h('div', { class: 'titulo-seccion' }, '😤 Reclamo a ' + R.PAIS[C.pais].nombre),
+      infoCrisis(s, C),
+      h('div', { class: 'chico' }, 'Le quedan ' + (mun.CRISIS_MESES - C.meses) + ' meses para responder.'));
+  }
+  ui.momentos = ui.momentos || {};
+  ui.momentos.crisis = function (s, m, listo) {
+    const C = s.mundo.crisis;
+    if (!C || s.mundo.guerra) return listo();
+    const P = R.PAIS[C.pais];
+    const esperar = Math.round(mun.chanceCeder(s, C.pais, false) * 100);
+    const presionar = Math.round(mun.chanceCeder(s, C.pais, true) * 100);
+    const extra = {
+      presionar: h('div', { class: 'riesgo ' + (presionar >= 25 ? 'bueno' : 'malo') }, h('span', { class: 'pct' }, '🎲 ' + presionar + '%'), h('span', { class: 'txt' }, 'de que ceda'), h('span', { class: 'ef mal' }, '😱 ▲')),
+      esperar: h('div', { class: 'riesgo ' + (esperar >= 25 ? 'bueno' : 'malo') }, h('span', { class: 'pct' }, '🎲 ' + esperar + '%'), h('span', { class: 'txt' }, 'de que ceda')),
+      guerra: (() => { const ch = mun.chances(s, C.pais); return h('span', { class: 'chico suave' }, '🎲 Chances de ganar: ' + Math.round(ch.gana * 100) + '%'); })(),
+      retroceder: ui.chipsEfectos(R.gob.describirEfectos(s, { prestigio: -5, todos: -2 }), { compacto: true }),
+    };
+    ui.abrirCapa(h('div', { class: 'pila' },
+      h('h2', { class: 'centro', style: { margin: 0 } }, '😤 Reclamo a ' + P.nombre),
+      h('div', { class: 'centro chico suave' }, 'Mes ' + (C.meses + 1) + ' de ' + mun.CRISIS_MESES),
+      infoCrisis(s, C),
+      h('div', { class: 'lista-elegir' }, mun.OPC_CRISIS.map((o) => {
+        const b = mun.bloqueoCrisis(s, o.id);
+        if (b === 'Se acabó el plazo') return null;
+        return h('button', { class: 'item-elegir', disabled: b ? true : null, onclick: () => {
+          const r = mun.crisisOrden(s, o.id);
+          if (r.error) { R.son.mal(); ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+          R.guardar(s);
+          ui.cerrarCapa();
+          if (r.fin === 'cedio') { ui.confeti(['#74acdf', '#ffffff', '#f6b40e']); }
+          if (r.fin === 'guerra') { R.son.tambor(); ui.temblor(); }
+          listo();
+          ui.mostrarResultado(s, r);
+        } }, h('span', { class: 'ic' }, o.emoji),
+          h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, o.nombre), extra[o.id], b ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, b) : null),
+          o.costo.pc ? h('span', { class: 'chip sol' }, '⭐ ' + o.costo.pc) : null);
+      }))));
+  };
+
   function tarjetaGuerra(s) {
     const W = s.mundo.guerra;
     return h('section', { class: 'tarjeta pila', style: { background: '#fff5f4' } },
@@ -185,6 +239,7 @@
             : h('div', { class: 'fila', style: { gap: '6px' } }, h('span', null, relCara(st.rel)), h('div', { class: 'barra', style: { flex: 1, height: '8px' } }, h('i', { style: { width: st.rel + '%', background: relColor(st.rel) } }))),
           h('div', { class: 'fila envolver', style: { gap: '4px' } },
             h('span', { class: 'chip', style: { fontSize: '11px' } }, '⚔️ ' + p.poder),
+            R.COMPRA && R.COMPRA[p.id] ? h('span', { class: 'chip', style: { fontSize: '11px' }, title: 'Te compra' }, '🛒' + R.COMPRA[p.id].map((k) => R.PRODUCTOS[k].emoji).join('')) : null,
             st.tratado ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '📦') : null,
             st.alianza ? h('span', { class: 'chip bien', style: { fontSize: '11px' } }, '🛡️') : null,
             st.sancion ? h('span', { class: 'chip mal', style: { fontSize: '11px' } }, '🚫') : null,
@@ -202,11 +257,12 @@
     const susAmigos = st.anexado ? [] : mun.amigosDe(s, id);
     const efAcc = {
       visita: { rel: { [id]: 10 } },
-      tratado: { expo: p.expo, campo: 3, empresarios: 3, trabajadores: -2 },
+      tratado: { expo: R.round(p.expo * mun.mezcla(s, id), 3), campo: 3, empresarios: 3, trabajadores: -2 },
       prestamo: p.prestamo ? { reservas: p.prestamo, deuda: p.prestamo * 0.25 } : {},
       alianza: { rel: { [id]: 5 } },
       sancion: { rel: { [id]: -30 } },
       guerra: { todos: 6, riesgo: 300, crec: -1.5 },
+      reclamo: { todos: 2, rel: { [id]: -20 } },
     };
     ui.abrirCapa(h('div', { class: 'pila' },
       h('div', { class: 'fila' }, R.ui.bandera(id, 72), h('div', null, h('h2', null, p.nombre), bloque ? h('span', { class: 'chip' }, bloque.emoji + ' ' + bloque.nombre) : null)),
@@ -214,6 +270,9 @@
         h('div', { class: 'fila entre' }, h('b', null, relCara(st.rel) + ' Relación'), h('b', { class: 'numero' }, Math.round(st.rel) + '/100')),
         h('div', { class: 'barra' }, h('i', { style: { width: st.rel + '%', background: relColor(st.rel) } })),
         h('div', { class: 'chico' }, '⚔️ Su poder: ' + p.poder + ' · el tuyo: ' + mun.poder(s)),
+        R.COMPRA && R.COMPRA[id] ? h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chico suave' }, '🛒 Te compra:'),
+          R.COMPRA[id].map((k) => ui.chipPrecio ? ui.chipPrecio(s, k, true) : h('span', { class: 'chip' }, R.PRODUCTOS[k].emoji)),
+          st.tratado ? h('span', { class: 'chip ' + (mun.mezcla(s, id) >= 1.05 ? 'bien' : mun.mezcla(s, id) <= 0.95 ? 'mal' : '') }, '📦 Tu tratado rinde ' + (mun.mezcla(s, id) >= 1 ? '+' : '−') + Math.round(Math.abs(mun.mezcla(s, id) - 1) * 100) + '%') : null) : null,
         susAmigos.length ? h('div', { class: 'fila envolver', style: { gap: '4px' } }, h('span', { class: 'chico suave' }, 'Sus amigos:'), susAmigos.map((x) => R.ui.bandera(x, 24))) : null),
       st.anexado ? null : h('div', { class: 'lista-elegir' }, mun.ACCIONES.filter((a) => !a.si || a.si(s, p, st) || a.id === 'guerra').map((a) => {
         const b = mun.bloqueo(s, id, a.id);
@@ -241,7 +300,9 @@
           ui.mostrarResultado(s, r);
         } },
         h('span', { class: 'ic' }, a.emoji),
-        h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, a.nombre), ui.chipsEfectos(R.gob.describirEfectos(s, efAcc[a.id] || {}), { compacto: true }), b ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, b) : null),
+        h('div', { class: 'pila', style: { gap: '4px', minWidth: 0 } }, h('b', null, a.nombre), ui.chipsEfectos(R.gob.describirEfectos(s, efAcc[a.id] || {}), { compacto: true }),
+          a.id === 'reclamo' && !b ? h('div', { class: 'riesgo ' + (mun.chanceCeder(s, id) >= 0.18 ? 'bueno' : 'malo') }, h('span', { class: 'pct' }, '🎲 ' + Math.round(mun.chanceCeder(s, id) * 100) + '%'), h('span', { class: 'txt' }, 'por mes de que ceda y te pague')) : null,
+          b ? h('span', { class: 'chico', style: { color: 'var(--mal)' } }, b) : null),
         h('span', { class: 'chip sol' }, '⭐ ' + mun.costoPC(s, id, a.id)));
       }))), { cerrable: true });
   }

@@ -13,6 +13,33 @@
     s.mundo = { paises, guerra: null, malvinas: { soberania: 0, recuperadas: false }, poderExtra: 0, resistencia: 0, panico: 0, pactos: [], noticias: [] };
   };
 
+  // ── Comercio por país ──
+  // Cuánto de lo que un país compra producís vos (1 = como al asumir). Si importás energía, no tenés para venderle.
+  const SECTOR_DE = { granos: 'campo', energia: 'energia', manufacturas: 'industria', software: 'tecno' };
+  mun.mezcla = function (s, id) {
+    const compra = R.COMPRA[id] || [];
+    if (!compra.length || !s.prod || !R.prod) return 1;
+    const v = compra.map((k) => {
+      const sec = SECTOR_DE[k];
+      let f = (R.prod.nivel(s, sec) / R.SECTOR[sec].nivel0) * R.prod.precio(s, k);
+      const saldo = R.prod.energia(s).saldo;
+      if (k === 'energia' && saldo < 0) f *= R.clamp(1 + saldo * 0.25, 0.5, 1);
+      return f;
+    });
+    return R.sum(v) / v.length;
+  };
+  // Lo que suman (o restan) tus tratados según cuánto les vendés de lo que compran (se suma a eco.factorExpo).
+  mun.extraComercio = function (s) {
+    if (!s.mundo) return 0;
+    let f = 0;
+    for (const p of R.PAISES) {
+      const st = s.mundo.paises[p.id];
+      if (!st.tratado || st.anexado) continue;
+      f += p.expo * R.clamp(mun.mezcla(s, p.id) - 1, -0.5, 1.5);
+    }
+    return f;
+  };
+
   // ── Ranking de potencias ──
   // Puntos = economía (raíz del PBI en dólares) + poder militar + prestigio. Los anexados ya no cuentan.
   mun.puntos = function (s, id) {
@@ -92,7 +119,8 @@
         st.tratado = true;
         s.gob.bonusExpo = (s.gob.bonusExpo || 0) + p.expo;
         st.rel = R.clamp(st.rel + 5, 0, 100);
-        return { txt: '¡Tratado con ' + p.nombre + '! Más exportaciones 🚢', ef: { campo: 3, empresarios: 3, trabajadores: -2 } };
+        const compra = (R.COMPRA[p.id] || []).map((k) => R.PRODUCTOS[k].emoji).join(' ');
+        return { txt: '¡Tratado con ' + p.nombre + '! Te compra ' + compra + ' 🚢', ef: { campo: 3, empresarios: 3, trabajadores: -2 } };
       } },
     { id: 'prestamo', emoji: '💵', nombre: 'Pedir un préstamo', costo: { pc: 1 }, req: 35, enfr: 18, si: (s, p, st) => !!p.prestamo && !st.anexado,
       hacer: (s, p, st) => {
@@ -118,6 +146,8 @@
         if (st.tratado) { st.tratado = false; s.gob.bonusExpo = (s.gob.bonusExpo || 0) - p.expo; }
         return { txt: 'Sanciones a ' + p.nombre + ' 🚫', ef: p.id === 'GBR' ? { todos: 2 } : { empresarios: -2 } };
       } },
+    { id: 'reclamo', emoji: '😤', nombre: 'Exigirle que pague', costo: { pc: 2 }, si: (s, p, st) => !p.noConquistable && !st.anexado && !s.mundo.guerra && !s.mundo.crisis,
+      hacer: (s, p) => mun.empezarCrisis(s, p.id) },
     { id: 'guerra', emoji: '⚔️', nombre: 'Declarar la guerra', costo: { pc: 5 }, si: (s, p, st) => !p.noConquistable && !st.anexado && !s.mundo.guerra,
       hacer: (s, p) => mun.empezarGuerra(s, p.id, 'anexar') },
   ];
@@ -130,6 +160,8 @@
     const st = s.mundo.paises[paisId];
     if (accId === 'guerra' && p.noConquistable) return p.noConquistable;
     if (accId === 'guerra' && s.mundo.guerra) return 'Ya estás en una guerra';
+    if (accId === 'reclamo' && p.noConquistable) return p.noConquistable;
+    if (accId === 'reclamo' && (s.mundo.guerra || s.mundo.crisis)) return s.mundo.guerra ? 'Ya estás en una guerra' : 'Ya tenés un reclamo abierto';
     if (a.si && !a.si(s, p, st)) return 'No aplica';
     const ofrece = accId === 'alianza' && mun.ofreceAlianza(s, paisId);
     if (a.req && st.rel < a.req && !ofrece) return 'Necesitás mejor relación (' + a.req + ')';
@@ -445,6 +477,7 @@
   mun.mes = function (s, momentos) {
     if (!s.mundo) return;
     if (s.mundo.guerra) momentos.push({ tipo: 'guerra' });
+    if (s.mundo.crisis && !s.mundo.guerra) momentos.push({ tipo: 'crisis' });
     if (s.mundo.resistencia > 0) {
       s.mundo.resistencia--;
       R.gob.aplicarEfectos(s, { todos: -0.4 });
@@ -472,6 +505,83 @@
         }
       }
     }
+  };
+
+  // ── Reclamo (jugada diplomática antes de la guerra) ──
+  // Le exigís a un país que pague y te abra su mercado. Dura hasta 3 meses: cada mes puede ceder (más si sos mucho
+  // más fuerte), sus amigos se enojan y sube el pánico. Al final: guerra o retroceder (perdés prestigio).
+  mun.CRISIS_MESES = 3;
+  mun.chanceCeder = function (s, paisId, presion) {
+    const r = mun.fuerzas(s, paisId).ratio;
+    const base = r >= 2 ? 0.55 : r >= 1.5 ? 0.35 : r >= 1.2 ? 0.18 : r >= 1 ? 0.08 : 0.02;
+    return R.clamp(base * (presion ? 1.6 : 1), 0, 0.85);
+  };
+  mun.premioCrisis = (p) => ({ reservas: R.round(2 + Math.min(8, (p.tam || 0.1) * 20), 1), prestigio: 8 });
+  mun.empezarCrisis = function (s, paisId) {
+    const P = R.PAIS[paisId];
+    s.mundo.crisis = { pais: paisId, meses: 0, presiones: 0 };
+    const st = s.mundo.paises[paisId];
+    st.rel = R.clamp(st.rel - 20, 0, 100);
+    for (const id of mun.amigosDe(s, paisId)) s.mundo.paises[id].rel = R.clamp(s.mundo.paises[id].rel - 6, 0, 100);
+    mun.sumarPanico(s, 5);
+    mun.noticia(s, '😤', 'Argentina le exige a ' + P.nombre + ' que pague');
+    return { txt: '😤 Le exigiste a ' + P.nombre + ' que pague. Tiene ' + mun.CRISIS_MESES + ' meses para responder', ef: { todos: 2 } };
+  };
+  // Cada mes del reclamo: presionar (⭐1, más chance), esperar, ir a la guerra o retroceder.
+  mun.OPC_CRISIS = [
+    { id: 'presionar', emoji: '😤', nombre: 'Presionar más', costo: { pc: 1 } },
+    { id: 'esperar', emoji: '⏳', nombre: 'Esperar su respuesta', costo: {} },
+    { id: 'guerra', emoji: '⚔️', nombre: 'Ir a la guerra', costo: {} },
+    { id: 'retroceder', emoji: '🕊️', nombre: 'Retroceder', costo: {} },
+  ];
+  mun.bloqueoCrisis = function (s, id) {
+    const C = s.mundo.crisis;
+    if (!C) return 'No hay reclamo';
+    const ultimo = C.meses >= mun.CRISIS_MESES - 1;
+    if ((id === 'presionar' || id === 'esperar') && ultimo) return 'Se acabó el plazo';
+    if (id === 'presionar' && s.gob.pc < 1) return 'Falta ⭐';
+    return null;
+  };
+  mun.crisisOrden = function (s, id) {
+    const b = mun.bloqueoCrisis(s, id);
+    if (b) return { error: b };
+    const C = s.mundo.crisis;
+    const P = R.PAIS[C.pais];
+    const st = s.mundo.paises[C.pais];
+    const antes = s.gob.aprob;
+    C.meses++;
+    if (id === 'guerra') {
+      s.mundo.crisis = null;
+      const r = mun.empezarGuerra(s, C.pais, 'anexar');
+      const aplicado = R.gob.aplicarEfectos(s, r.ef);
+      return { txt: r.txt, bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob, fin: 'guerra' };
+    }
+    if (id === 'retroceder') {
+      s.mundo.crisis = null;
+      st.rel = R.clamp(st.rel + 5, 0, 100);
+      const aplicado = R.gob.aplicarEfectos(s, { prestigio: -5, todos: -2 });
+      R.diario(s, '🕊️', 'Retrocediste en el reclamo a ' + P.nombre, 'mundo');
+      return { txt: '🕊️ Retrocediste: ' + P.nombre + ' no paga nada', bueno: false, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob, fin: 'retroceder' };
+    }
+    const presion = id === 'presionar';
+    if (presion) {
+      s.gob.pc -= 1;
+      C.presiones++;
+      mun.sumarPanico(s, 3);
+      for (const a of mun.amigosDe(s, C.pais)) s.mundo.paises[a].rel = R.clamp(s.mundo.paises[a].rel - 3, 0, 100);
+    }
+    if (R.chance(s, mun.chanceCeder(s, C.pais, presion))) {
+      s.mundo.crisis = null;
+      const ef = mun.premioCrisis(P);
+      if (!st.tratado) { st.tratado = true; s.gob.bonusExpo = (s.gob.bonusExpo || 0) + P.expo; }
+      st.rel = R.clamp(st.rel - 10, 0, 100);
+      mun.sumarPanico(s, 5);
+      mun.noticia(s, '💰', P.nombre + ' cede ante la Argentina');
+      R.diario(s, '💰', '¡' + P.nombre + ' cedió! Paga y abre su mercado', 'mundo');
+      const aplicado = R.gob.aplicarEfectos(s, Object.assign({ todos: 3 }, ef));
+      return { txt: '💰 ¡' + P.nombre + ' cedió! Paga y te abre su mercado', bueno: true, aplicado, aprobAntes: antes, aprobDespues: s.gob.aprob, fin: 'cedio' };
+    }
+    return { txt: P.nombre + ' no cede… por ahora', bueno: false, aplicado: [], aprobAntes: antes, aprobDespues: s.gob.aprob };
   };
 
   // Te atacan: guerra para defenderte (si ganás, cobrás; si perdés, pagás).

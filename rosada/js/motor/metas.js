@@ -42,6 +42,27 @@
   };
   met.quedan = (s, a) => Math.max(0, a.hasta - s.mes);
 
+  // Cuánto falta y cómo llegar. Para las metas de un sector: niveles que faltan (contando las obras en marcha)
+  // y cuántos meses tardarías con tus cuadrillas si construís sin parar.
+  met.camino = function (s, a) {
+    const M = R.META[a.id];
+    const v = M.dato(s);
+    const out = { hoy: M.fmt(v), meta: M.fmt(M.objetivo), como: M.como || [] };
+    if (M.sector && s.prod) {
+      const enObra = s.prod.obras.filter((o) => o.id === M.sector).length;
+      const faltan = Math.max(0, Math.ceil(M.objetivo - v) - enObra);
+      out.sector = M.sector;
+      out.faltan = faltan;
+      out.enObra = enObra;
+      const c = R.prod.cuadrillas(s);
+      out.meses = faltan ? Math.ceil(faltan / c) * R.prod.mesesObra(s, M.sector) : 0;
+      out.cuadrillas = c;
+    }
+    return out;
+  };
+  // La meta activa que apunta a un sector (para mostrarla en la hoja del sector).
+  met.deSector = (s, id) => (s.metas ? s.metas.activas.find((a) => R.META[a.id].sector === id) : null);
+
   // Cada mes: se cumplen, vencen o aparecen metas. Devuelve los momentos para mostrar.
   met.mes = function (s, momentos) {
     met.asegurar(s);

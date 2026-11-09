@@ -833,3 +833,17 @@ label.boton { cursor: pointer; }
 .ranking-fila { display: grid; grid-template-columns: 32px auto minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 4px 8px; border-radius: 10px; font-weight: 800; }
 .ranking-fila.yo { background: var(--sol-claro); border: var(--borde); }
 @media (min-width: 900px) { .sectores { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.meta-sector { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: center; padding: 6px 10px; border: var(--borde); border-radius: 12px; background: var(--sol-claro); }
+.meta-sector > span:first-child { font-size: 22px; }
+.meta-sector b { display: block; line-height: 1.15; }
+.meta-sector small { display: block; font-weight: 800; color: var(--tinta-suave); }
+.cuadrillas-fila { display: flex; flex-wrap: wrap; gap: 8px; }
+.cuadrilla { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 58px; padding: 6px 0; border: 2px dashed var(--tinta-suave); border-radius: 12px; background: var(--papel-2); }
+.cuadrilla.ocupada { border: var(--borde); border-style: solid; background: var(--sol-claro); box-shadow: var(--sombra-chica); }
+.cuadrilla .em { font-size: 24px; line-height: 1; }
+.cuadrilla small { font-weight: 900; font-size: 11px; }
+.barra.rutas { position: relative; overflow: visible; height: 14px; margin: 14px 0 4px; }
+.barra.rutas .marca-umbral { position: absolute; top: -18px; transform: translateX(-50%); font-size: 13px; filter: grayscale(1); opacity: 0.6; }
+.barra.rutas .marca-umbral.ok { filter: none; opacity: 1; }
+.barra.rutas .marca-va { position: absolute; top: -3px; bottom: -3px; width: 3px; background: var(--tinta); transform: translateX(-50%); border-radius: 2px; }
+.meta-fila .falta { font-size: 12px; font-weight: 800; color: var(--tinta-suave); line-height: 1.1; }

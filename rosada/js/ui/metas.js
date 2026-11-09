@@ -20,10 +20,12 @@
         const M = R.META[a.id];
         const p = R.metas.progreso(s, a);
         const q = R.metas.quedan(s, a);
+        const c = R.metas.camino(s, a);
         return h('button', { class: 'meta-fila toque' + (M.grande ? ' grande' : ''), onclick: () => verMeta(s, a) },
           h('span', { class: 'em' }, M.emoji),
           h('div', { class: 'pila', style: { gap: '3px', minWidth: 0 } },
             h('b', null, (M.grande ? '👑 ' : '') + M.nombre),
+            h('small', { class: 'falta' }, c.hoy + ' → ' + c.meta + (c.sector && c.faltan ? ' · faltan ' + c.faltan : '')),
             h('span', { class: 'barra', style: { height: '8px' } }, h('i', { style: { width: p * 100 + '%', background: p >= 0.75 ? 'var(--bien)' : M.grande ? 'var(--sol)' : 'var(--celeste-fuerte, #3d8fd6)' } }))),
           h('span', { class: 'chip ' + (q <= 3 ? 'mal' : '') }, '⏳ ' + q + ' m'));
       })));
@@ -33,15 +35,46 @@
     R.son.toque();
     const M = R.META[a.id];
     const p = R.metas.progreso(s, a);
+    const c = R.metas.camino(s, a);
+    const q = R.metas.quedan(s, a);
+    const reabrir = () => verMeta(s, a);
+    // Si la meta es de un sector: cuántos niveles faltan, cuánto tardarías y si te alcanza el tiempo.
+    let sector = null;
+    if (c.sector) {
+      const b = R.prod.bloqueoConstruir(s, c.sector);
+      const X = R.SECTOR[c.sector];
+      const llega = c.meses <= q;
+      sector = h('div', { class: 'tarjeta plana pila', style: { gap: '6px' } },
+        h('b', null, c.faltan ? X.emoji + ' Faltan ' + c.faltan + (c.faltan === 1 ? ' nivel' : ' niveles') + (c.enObra ? ' (+' + c.enObra + ' en obra)' : '') : '✅ Con las obras en marcha alcanza'),
+        c.faltan ? h('div', { class: 'chico', style: { fontWeight: 800, color: llega ? 'var(--bien)' : 'var(--mal)' } },
+          '⏳ ~' + c.meses + ' meses construyendo sin parar con ' + c.cuadrillas + (c.cuadrillas === 1 ? ' cuadrilla' : ' cuadrillas') + (llega ? ' · te alcanza' : ' · no te alcanza: conseguí más cuadrillas')) : null,
+        c.faltan ? h('div', { class: 'pila', style: { gap: '6px' } },
+          h('button', { class: 'boton ancho', disabled: b ? true : null, onclick: () => {
+            const r = R.prod.construir(s, c.sector);
+            if (r.error) { R.son.mal(); ui.aviso('🚫 ' + r.error, { tipo: 'mal' }); return; }
+            R.guardar(s);
+            R.son.bien();
+            reabrir();
+            ui.aviso(r.txt, { tipo: 'bien' });
+            ui.refrescar();
+          } }, '🔨 Construir ⭐' + R.prod.COSTO_PC),
+          h('div', { class: 'fila entre', style: { gap: '6px' } },
+            b ? h('span', { class: 'chico', style: { color: 'var(--mal)', fontWeight: 800 } }, '🚫 ' + b) : h('span'),
+            h('button', { class: 'boton mini sec', onclick: () => ui.verCuadrillas(s, reabrir) }, '🏗️ Cuadrillas ›'))) : null);
+    }
     ui.abrirCapa(h('div', { class: 'pila' },
-      h('div', { class: 'fila' }, h('span', { style: { fontSize: '44px', lineHeight: 1 } }, M.emoji), h('div', null, M.grande ? h('div', { class: 'etiqueta' }, '👑 Tu gran objetivo') : null, h('h2', { style: { margin: 0 } }, M.nombre))),
-      h('div', { class: 'fila entre chico' }, h('span', null, 'Hoy: ', h('b', null, M.fmt(M.dato(s)))), h('span', null, 'Meta: ', h('b', null, M.fmt(M.objetivo)))),
+      h('div', { class: 'fila', style: { paddingRight: '44px' } }, h('span', { style: { fontSize: '44px', lineHeight: 1 } }, M.emoji), h('div', null, M.grande ? h('div', { class: 'etiqueta' }, '👑 Tu gran objetivo') : null, h('h2', { style: { margin: 0 } }, M.nombre))),
+      h('div', { class: 'fila entre chico' }, h('span', null, 'Hoy: ', h('b', null, c.hoy)), h('span', null, 'Meta: ', h('b', null, c.meta))),
       h('span', { class: 'barra gorda' }, h('i', { style: { width: p * 100 + '%', background: 'var(--bien)' } })),
-      h('div', { class: 'chico' }, '⏳ Quedan ' + R.metas.quedan(s, a) + ' meses'),
+      h('div', { class: 'chico', style: { fontWeight: 800 } }, '⏳ Quedan ' + q + ' meses · vas ' + Math.round(p * 100) + '% del camino'),
+      sector,
+      c.como.length ? h('div', { class: 'etiqueta' }, '💡 Cómo llegar') : null,
+      c.como.length ? h('div', { class: 'fila envolver', style: { gap: '4px' } }, c.como.map(([em, txt]) => h('span', { class: 'chip' }, em + ' ' + txt))) : null,
       h('div', { class: 'etiqueta' }, '🏆 Si llegás'), chipsPremio(s, M.premio),
       M.castigo && Object.keys(M.castigo).length ? h('div', { class: 'etiqueta' }, '⌛ Si no llegás') : null,
       M.castigo && Object.keys(M.castigo).length ? chipsPremio(s, M.castigo) : null), { cerrable: true });
   }
+  ui.verMeta = verMeta;
 
   // ── Momento: elegir el gran objetivo del mandato ──
   ui.momentos.legado = function (s, m, listo) {
